@@ -1364,37 +1364,44 @@ return `
   <div class="rulesInner">
     <div class="rulesHeader">
       <div class="rulesTitle">Rules <span class="muted">— Best Bracket</span></div>
-      <div class="rulesBadge">🏆 10 points per correct pick</div>
+      <div class="rulesBadge">🏆 pick winners</div>
     </div>
 
     <div class="rulesGrid">
       <div class="ruleItem">
+        <b>Format</b>
+        <ul style="margin:8px 0 0 18px">
+          <li>Full Tournament</li>
+          <li>Round of 64 through Championship</li>
+        </ul>
+      </div>
+      <div class="ruleItem">
         <b>Scoring</b>
-        Every correct game pick = <b>10 points</b>. No extra weight for later rounds.
+        <ul style="margin:8px 0 0 18px">
+          <li>Earn 10 points if you have the <b>winner</b> of the game</li>
+          <li>No round multipliers</li>
+        </ul>
       </div>
       <div class="ruleItem">
-        <b>Entry</b>
-        You must be logged in. Choose a saved bracket (or use your current bracket) and enter.
+        <b>Leaderboard</b>
+        Ranked by total points (10 points per correct pick).
       </div>
       <div class="ruleItem">
-        <b>Tie-breaker</b>
-        Enter the <b>combined score</b> of the National Championship game.
-      </div>
-      <div class="ruleItem">
-        <b>Visibility</b>
-        Leaderboards show a public link to each entry bracket as results update.
+        <b>Tip</b>
+        Every game counts equally.
       </div>
     </div>
   </div>
 `;
 }
 
+
 function rulesHtmlWorst(){
 return `
   <div class="rulesInner">
     <div class="rulesHeader">
       <div class="rulesTitle">Rules <span class="muted">— Worst Bracket</span></div>
-      <div class="rulesBadge">😈 score when your pick LOSES</div>
+      <div class="rulesBadge">😈 pick losers</div>
     </div>
 
     <div class="rulesGrid">
@@ -1409,22 +1416,23 @@ return `
       <div class="ruleItem">
         <b>Scoring</b>
         <ul style="margin:8px 0 0 18px">
-          <li>10 points for every wrong bracket pick</li>
-          <li>the more wrong you are the better</li>
+          <li>Earn 10 points if you have the <b>loser</b> of the game</li>
+          <li>The worse your bracket is the better</li>
         </ul>
       </div>
       <div class="ruleItem">
         <b>Leaderboard</b>
-        Ranked by <b>total points</b> (10 points per wrong pick across the full tournament).
+        Ranked by total points (10 points per incorrect pick).
       </div>
       <div class="ruleItem">
         <b>Tip</b>
-        If your pick wins, you get <b>0 points</b> for that game.
+        If your pick wins, you get 0 points for that game.
       </div>
     </div>
   </div>
 `;
 }
+
 
 
 async function renderChallenges(){
