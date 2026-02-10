@@ -1395,7 +1395,6 @@ return `
 `;
 }
 
-
 function rulesHtmlWorst(){
 return `
   <div class="rulesInner">
@@ -1432,7 +1431,6 @@ return `
   </div>
 `;
 }
-
 
 
 async function renderChallenges(){
