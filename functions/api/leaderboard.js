@@ -208,7 +208,7 @@ export async function onRequestGet({ request, env }){
   if(groupId){
     q += " JOIN group_members gm ON gm.user_id = e.user_id";
   }
-  q += " WHERE e.challenge='worst'";
+  q += " WHERE e.challenge='worst' AND e.stage='pre'";
   if(groupId){
     q += " AND gm.group_id=?";
     binds.push(groupId);
@@ -217,79 +217,48 @@ export async function onRequestGet({ request, env }){
   const entries = ent.results||[];
   if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
-  // group by user
-  const byUser = new Map();
-  for(const e of entries){
-    if(!byUser.has(e.user_id)) byUser.set(e.user_id, { user_id:e.user_id, display_name: (e.bracket_title || (e.email ? e.email.split('@')[0] : 'Bracket')), brackets:{} });
-    byUser.get(e.user_id).brackets[e.stage]=e.bracket_id;
-  }
-
-  // load bracket data for all bracket_ids
-  const allIds = [];
-  for(const u of byUser.values()){
-    for(const st of ["pre","r16","f4"]){
-      if(u.brackets[st]) allIds.push(u.brackets[st]);
-    }
-  }
-  const placeholders = allIds.map(()=>'?').join(',');
-  const bq = allIds.length ? await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...allIds).all() : {results:[]};
+  const ids = entries.map(e=>e.bracket_id);
+  const placeholders = ids.map(()=>'?').join(',');
+  const bq = await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...ids).all();
   const bmap = new Map((bq.results||[]).map(b=>[b.id, { data: JSON.parse(b.data_json||"{}"), title: b.title }]));
 
-  // Totals are expressed in points.
-  // Each finalized game is worth 10 points.
-  // Fixed totals (points) for the full bracket.
-  const totals = { pre:480, r16:120, f4:30 };
+  // Worst scoring: 10 points for every WRONG pick (picked the loser), across the full tournament.
   const overallTotal = (TOTAL_GAMES * 10);
 
-  const rows = [];
-  for(const u of byUser.values()){
-    const stageScores = { pre:0, r16:0, f4:0 };
-    const stageSeen = { pre:0, r16:0, f4:0 };
-    for(const st of ["pre","r16","f4"]){
-      const bid = u.brackets[st];
-      if(!bid) continue;
-      const picks = (bmap.get(bid)?.data) || {};
-      for(const g of finalized){
-        const grp = gameGroupFromId(g.id);
-        if(grp!==st) continue;
-        const pick = pickForGame(picks, g.id);
-        if(!pick) continue;
-        stageSeen[st]+=1;
-        const correct = teamEq(pick, g.winner);
-        // Worst: 10 points when incorrect (picked loser)
-        if(!correct) stageScores[st] += 10;
-      }
-    }
-    const totalScore = stageScores.pre + stageScores.r16 + stageScores.f4;
-    const x = totalScore;
+  const rows = entries.map(e=>{
+    const b = bmap.get(e.bracket_id);
+    const picks = b?.data || {};
+    let wrong = 0;
+    finalized.forEach(g=>{
+      const grp = gameGroupFromId(g.id);
+      if(!grp) return;
+      const pick = pickForGame(picks, g.id);
+      if(!pick) return;
+      const correct = teamEq(pick, g.winner);
+      if(!correct) wrong += 1;
+    });
+    const score = wrong * 10;
+    const x = score;
     const y = overallTotal;
     const pct = y ? (x/y) : 0;
-
-    // Display name should prefer the user's submitted bracket title (stage 1 if present)
-    const preTitle = u.brackets.pre ? (bmap.get(u.brackets.pre)?.title || null) : null;
-    const r16Title = u.brackets.r16 ? (bmap.get(u.brackets.r16)?.title || null) : null;
-    const f4Title  = u.brackets.f4  ? (bmap.get(u.brackets.f4 )?.title || null) : null;
-    const display_name = preTitle || r16Title || f4Title || (u.email ? u.email.split('@')[0] : 'Bracket');
-    rows.push({
-      user_id: u.user_id,
-      email: u.email,
+    const display_name = (e.bracket_title || b?.title || (e.email ? e.email.split('@')[0] : 'Bracket'));
+    return {
+      user_id: e.user_id,
+      email: e.email,
       display_name,
-      score: totalScore,
-      stage1: stageScores.pre,
-      stage2: stageScores.r16,
-      stage3: stageScores.f4,
+      bracket_id: e.bracket_id,
+      title: b?.title || "Bracket",
+      score,
       x, y, pct,
-      total_possible: totalScore + (remainingGames * 10),
-      brackets: u.brackets
-    });
-  }
+      total_possible: score + (remainingGames * 10)
+    };
+  });
 
   rows.sort((a,b)=>{
     if(b.score!==a.score) return b.score-a.score;
     return (a.display_name||'').localeCompare(b.display_name||'');
   });
 
-  // ranks with ties on total only (tie-breaker not needed for worst per your latest message)
   let rank=0, prev=null, count=0;
   const out = rows.map(r=>{
     count+=1;
@@ -297,5 +266,5 @@ export async function onRequestGet({ request, env }){
     return { rank, ...r };
   });
 
-  return json({ok:true, leaderboard: out, totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
+  return json({ok:true, leaderboard: out, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
 }

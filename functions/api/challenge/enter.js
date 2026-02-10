@@ -45,7 +45,13 @@ export async function onRequestPost({ request, env }){
   if(!['best','worst'].includes(challenge)) return json({ok:false, error:"Invalid challenge."}, 400);
   if(!['pre','r16','f4','sc'].includes(stage)) return json({ok:false, error:"Invalid stage."}, 400);
 
-  const flags = await loadFlags(env);
+  
+  // Worst Bracket Challenge is full-tournament this year (no Sweet 16 / Final Four resets)
+  if(challenge==='worst' && (stage==='r16' || stage==='f4')){
+    return json({ok:false, error:"Worst Bracket Challenge is entered once for the full tournament."}, 400);
+  }
+
+const flags = await loadFlags(env);
   if(stage==='pre'){
     if(!flags.official_bracket_live) return json({ok:false, error:"Challenges can only be played once the official bracket comes out."}, 403);
     if(flags.tournament_started) return json({ok:false, error:"This challenge is locked once games begin."}, 403);

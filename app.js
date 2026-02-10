@@ -1399,25 +1399,33 @@ return `
 
     <div class="rulesGrid">
       <div class="ruleItem">
-        <b>Scoring</b>
-        You earn <b>10 points</b> when the team you picked to win actually <b>loses</b>.
+        <b>Format</b>
+        <ul style="margin:8px 0 0 18px">
+          <li>Full Tournament</li>
+          <li>Round of 64 through Championship</li>
+          <li>Select the team to advance that you think will lose</li>
+        </ul>
       </div>
       <div class="ruleItem">
-        <b>Stages</b>
-        Stage 1 plays until the field reaches the <b>Sweet 16</b>, then Stage 2 unlocks. Final Four unlocks Stage 3.
+        <b>Scoring</b>
+        <ul style="margin:8px 0 0 18px">
+          <li>10 points for every wrong bracket pick</li>
+          <li>the more wrong you are the better</li>
+        </ul>
       </div>
       <div class="ruleItem">
         <b>Leaderboard</b>
-        Ranked by <b>total points across all stages</b> (Stage 1 + Stage 2 + Stage 3).
+        Ranked by <b>total points</b> (10 points per wrong pick across the full tournament).
       </div>
       <div class="ruleItem">
-        <b>Colors</b>
-        <b>Green</b> = you earned a point (your pick lost). <b>Red</b> = your pick won (no point).
+        <b>Tip</b>
+        If your pick wins, you get <b>0 points</b> for that game.
       </div>
     </div>
   </div>
 `;
 }
+
 
 async function renderChallenges(){
   qs('#bestRules').innerHTML = rulesHtmlBest();
@@ -1569,14 +1577,11 @@ function lbTableWorst(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    <th>Total</th>
+    <th>Score</th>
     <th>Total Possible</th>
-    <th>S1</th>
-    <th>S2</th>
-    <th>S3</th>
     <th>x/y</th>
     <th>%</th>
-    <th>Entries</th>
+    <th>Entry</th>
   </tr>`;
   t.appendChild(thead);
   const tb = document.createElement('tbody');
@@ -1586,10 +1591,7 @@ function lbTableWorst(rows){
     const pct = (r.pct*100).toFixed(1) + '%';
     const displayName = r.display_name || r.title || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const links = [];
-    if(r.brackets?.pre) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.pre)}&challenge=worst&stage=pre">S1</a>`);
-    if(r.brackets?.r16) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.r16)}&challenge=worst&stage=r16">S2</a>`);
-    if(r.brackets?.f4) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.f4)}&challenge=worst&stage=f4">S3</a>`);
+    const entryLink = r.bracket_id ? `<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.bracket_id)}&challenge=worst&stage=pre">View</a>` : '—';
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
@@ -1598,12 +1600,9 @@ function lbTableWorst(rows){
       <td class="lbUser">${escapeHtml(displayName)}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
-      <td>${r.stage1}</td>
-      <td>${r.stage2}</td>
-      <td>${r.stage3}</td>
       <td class="lbPct"><span class="lbX">${r.x}</span><span class="lbSlash">/${r.y}</span></td>
       <td class="lbPct">${pct}</td>
-      <td>${links.join(' ') || '—'}</td>
+      <td>${entryLink}</td>
     `;
     tb.appendChild(tr);
   });
@@ -1611,6 +1610,7 @@ function lbTableWorst(rows){
   wrap.appendChild(t);
   return wrap;
 }
+
 
 function renderLbMeta(challenge, group, selectedGroupId){
   const bar = el('div','lbMetaBar');
@@ -2302,45 +2302,26 @@ async function renderWorstActions(){
 
   const row = el('div','challengeActions');
   const s1 = el('button','primaryBtn');
-  s1.textContent='Enter Stage 1 (through Round of 32)';
+  s1.textContent='Enter Worst Bracket Challenge';
   s1.addEventListener('click', async ()=>{
-    await enterWorstStage1FromCurrent();
+    await enterWorstFromCurrent();
   });
 
-  const s2 = el('button','btn');
-  s2.textContent='Enter Stage 2 (Sweet 16 reset)';
-  s2.addEventListener('click', async ()=>{ await openWorstStage('r16'); });
-
-  const s3 = el('button','btn');
-  s3.textContent='Enter Stage 3 (Final Four reset)';
-  s3.addEventListener('click', async ()=>{ await openWorstStage('f4'); });
-
   row.appendChild(s1);
-  row.appendChild(s2);
-  row.appendChild(s3);
   mount.appendChild(row);
 }
 
-async function enterWorstStage1FromCurrent(){
+async function enterWorstFromCurrent(){
   if(!state.me){ openAuth('signin'); return; }
-  // prune to allow picks only through Round of 32 (no Sweet16+)
   const picks = {...state.picks};
-  Object.keys(picks).forEach(k=>{
-    if(k.startsWith('FF__') || k.startsWith('FINAL') || k==='CHAMPION' || k==='TIEBREAKER_TOTAL') delete picks[k];
-    // region rounds >=2
-    const m = k.match(/__(R\d)__G\d+__winner$/);
-    if(m){
-      const r = Number(m[1].replace('R',''));
-      if(r>=2) delete picks[k];
-    }
-  });
-  const title = 'Worst Challenge Stage 1';
+  const title = 'Worst Bracket Challenge Entry';
   const bracket_type = state.bracket_type || 'bracketology';
   const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
   await enterChallenge('worst','pre', d.id);
-  toast('Entered Worst Challenge Stage 1!');
+  toast('Entered Worst Bracket Challenge!');
   await renderWorstLeaderboard();
 }
+
 
 
 async function openBracketsOverlay(){
