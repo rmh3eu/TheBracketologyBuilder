@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unsubscribe • Bracketology Builder</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body{ padding:24px; }
+    .card{ max-width:720px; margin: 0 auto; background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; }
+    h1{ margin:0 0 10px; }
+    .muted{ opacity:.85; }
+    button{ padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.14); background:#111827; color:#fff; font-weight:800; cursor:pointer; }
+    .status{ margin-top:12px; opacity:.95; }
+    .ok{ color:#8bffb0; }
+    .bad{ color:#ffb4b4; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Unsubscribe</h1>
+    <p class="muted">Click below to stop receiving Bracketology Builder challenge alert emails.</p>
+    <button id="btn">Unsubscribe</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const btn = document.getElementById('btn');
+    const url = new URL(location.href);
+    const token = url.searchParams.get('t') || '';
+
+    function setStatus(msg, cls){
+      statusEl.className = 'status ' + (cls||'');
+      statusEl.textContent = msg;
+    }
+
+    if(!token){
+      btn.disabled = true;
+      setStatus('Missing unsubscribe token.', 'bad');
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      setStatus('Unsubscribing…');
+      try{
+        const res = await fetch('/api/unsubscribe', {
+          method:'POST',
+          headers:{'content-type':'application/json'},
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json().catch(()=>null);
+        if(res.ok && data && data.ok){
+          setStatus('You are unsubscribed. ✅', 'ok');
+        }else{
+          setStatus((data && (data.message || data.error)) || 'Unsubscribe failed.', 'bad');
+          btn.disabled = false;
+        }
+      }catch(e){
+        setStatus('Unsubscribe failed. Try again.', 'bad');
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

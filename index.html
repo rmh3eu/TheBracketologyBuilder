@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Bracketology Builder</title>
+<link href="/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="/favicon.svg" rel="apple-touch-icon"/>
+<link href="./style.css?v=20260207f" rel="stylesheet"/>
+</head>
+<body>
+<header class="topbar">
+<div class="brandWrap">
+<div class="brandRow">
+<div class="brand">Bracketology Builder</div>
+<img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+</div>
+<div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+</div>
+<div class="actions">
+<div class="actionRow">
+<button class="btn ghost" id="accountBtn">Sign in</button>
+<button class="btn" id="signupQuickBtn">Sign up</button>
+<button class="btn ghost" id="bracketsBtn">My Brackets</button>
+</div>
+<div class="actionRow">
+<button class="btn ghost" id="saveBtn" title="Saves your current picks">Save</button>
+<button class="btn danger" id="resetBtn">Reset</button>
+</div>
+<div class="signinHint" id="signinHint">Sign in to save your picks.</div>
+</div>
+</header>
+<div class="stickyNav">
+<nav aria-label="Primary" class="siteNav">
+<a class="navLink active" data-view="build" href="#home">Home</a>
+<a class="navLink" data-view="mybrackets" href="my-brackets.html">My Brackets</a><div class="navDrop"><button class="navDropBtn" type="button">Best Bracket Challenge</button><div class="navDropMenu"><a class="navLink navDropItem" data-view="best" href="best-challenge.html">Full Bracket</a><a class="navLink navDropItem" data-view="best2" href="#best2">Second Chance Bracket</a></div></div><div class="navDrop"><button class="navDropBtn" type="button">Worst Bracket Challenge</button><div class="navDropMenu"><a class="navLink navDropItem" data-view="worst" href="worst-challenge.html">Full Bracket</a><a class="navLink navDropItem" data-view="worst2" href="#worst2">Second Chance Bracket</a></div></div>
+<a class="navLink" data-view="featured" href="#featured">Featured Brackets</a>
+<a class="navLink" data-view="upcoming" href="#upcoming">Upcoming Events</a>
+</nav>
+</div>
+<div aria-live="polite" class="seasonBar" id="seasonBar">
+<div class="seasonText" id="seasonText"></div>
+<div class="seasonControls">
+<div class="lockStatus" id="lockStatus" style="display:none;"></div>
+<button class="btnMini lockEditBtn" id="lockEditBtn" style="display:none;" type="button">Lock</button>
+<button class="btnMini seasonEditBtn" id="seasonEditBtn" style="display:none;" type="button">Edit</button>
+</div>
+</div>
+<!-- roundBar removed (was causing stray text/overlap on some devices) -->
+<main class="wrap">
+<!-- HOME / BUILD -->
+<div class="view" id="view-build">
+<!-- ESPN-style desktop layout: regions on left/right, final rounds in the center -->
+<section class="espnDesk" id="ncaaFullSection">
+<div class="deskCol left">
+<div id="region-South"></div>
+<div id="region-West"></div>
+</div>
+<div class="deskCol center">
+
+<div class="bracketTitleRow homeTitleRow">
+  <input id="bracketPageTitle" class="bracketPageTitle bracketPageTitleInput" type="text" maxlength="80" value="" />
+  <button class="btn primary btnCompact" id="saveEnterBtnTop" type="button">Save &amp; Enter</button>
+  <button class="btn btnCompact" id="undoBtnTop" type="button" disabled>Undo</button>
+</div>
+<div class="bracketTitleRow homeTitleRow" style="margin-top:8px">
+  <button class="btn btnCompact" id="randomPicksBtnTop" type="button">Random picks</button>
+</div>
+
+<div class="centerStack">
+  <!-- Box 1: Final 4 + Championship -->
+      <div class="panel final4Panel">
+    
+              <div class="panelHead">
+                <h2>FINAL 4</h2>
+              </div>
+<div class="panelHead final4Head">
+      <h2 class="roundTitle">Final 4</h2>
+      <h2 class="roundTitle champTitle">Championship</h2>
+    </div>
+    <div class="finalFourBoard" id="finalFourBoard"></div>
+  </div>
+
+  <!-- Box 2: Champion (finalists + champion) + actions -->
+  <div class="panel">
+    <div class="panelHead">
+      <h2>Champion</h2>
+    </div>
+    <div class="championBoard" id="championBoard"></div>
+    <div class="bracketActionRow">
+      <button class="btn" id="randomPicksBtn" type="button">Random picks</button>
+      <button class="btn" id="saveEnterBtn" type="button">Save / Enter</button>
+    </div>
+  </div>
+
+  <!-- Box 3: Join a Challenge -->
+  <div class="panel" id="homeChallengePanel">
+    <div class="panelHead">
+      <h2>Join a Challenge</h2>
+      <div class="muted">Challenges can only be played once the official bracket comes out.</div>
+    </div>
+    <div class="challengeActions" style="gap:10px;flex-wrap:wrap">
+      <button class="btn" id="homeGoBest">Best Bracket Challenge</button>
+      <button class="btn" id="homeGoWorst">Worst Bracket Challenge</button>
+    </div>
+    <div class="muted" id="homeChallengeMsg" style="margin-top:10px;display:none">Challenges can only be played once the official bracket comes out.</div>
+  </div>
+	</div>
+	</div>
+	<div class="deskCol right">
+<div id="region-East"></div>
+<div id="region-Midwest"></div>
+</div>
+</section>
+</div>
+<!-- BEST CHALLENGE -->
+<div class="view hidden" id="view-best">
+<section class="panel">
+<div class="panelHead">
+<h2>Best Bracket Challenge</h2>
+<div class="subhead">Most correct picks wins. Every game is worth 10 points.</div>
+</div>
+<div class="challengeLayout">
+<div class="challengeMain">
+<div class="card rulesCard"><div id="bestRules"></div></div>
+<div class="card"><div class="cardTitle">Enter</div><div class="challengeActions" id="bestActions"></div><div id="bestEntryMount"></div></div>
+</div>
+<div class="challengeSide">
+<div class="card leaderboardCard">
+<div class="cardTitle">Leaderboard</div>
+<div id="bestLeaderboard"></div>
+</div>
+</div>
+</div>
+</section>
+<div class="challengeMsg" id="bestChallengeMsg">
+        Challenges can only be played once the official bracket comes out.
+        <a class="remindLink" data-remind="best" href="#">Click here for a reminder once brackets are set.</a>
+</div>
+</div>
+<!-- WORST CHALLENGE -->
+<div class="view hidden" id="view-worst">
+<section class="panel">
+<div class="panelHead">
+<h2>Worst Bracket Challenge</h2>
+<div class="subhead">Pick the losers. Every game is worth 10 points when your pick is WRONG.</div>
+</div>
+<div class="challengeLayout">
+<div class="challengeMain">
+<div class="card rulesCard"><div id="worstRules"></div></div>
+<div class="card"><div class="cardTitle">Enter</div><div class="challengeActions" id="worstActions"></div><div id="worstEntryMount"></div></div>
+</div>
+<div class="challengeSide">
+<div class="card leaderboardCard">
+<div class="cardTitle">Leaderboard</div>
+<div id="worstLeaderboard"></div>
+</div>
+</div>
+</div>
+</section>
+<div class="challengeMsg" id="worstChallengeMsg">
+        Challenges can only be played once the official bracket comes out.
+        <a class="remindLink" data-remind="worst" href="#">Click here for a reminder once brackets are set.</a>
+</div>
+</div>
+
+<div class="view hidden" id="view-best2">
+  <h2>Best Bracket Challenge — Second Chance</h2>
+  <p class="muted">Second Chance brackets start once the Sweet 16 is set. This page will go live then.</p>
+  <div class="challengeLockMsg">
+    Challenges can only be played once the official bracket comes out.
+  </div>
+
+    <div class="panel emailAlerts" style="margin:14px 0">
+    <div class="panelHead"><h3 style="margin:0">Get email alerts</h3></div>
+    <div style="padding:12px 16px">
+      <div class="row">
+        <input id="remindEmailBest2" class="input" type="email" placeholder="Enter your email" style="max-width:360px">
+        <button class="btn primary" id="remindBtnBest2" type="button">Sign me up</button>
+      </div>
+      <div class="checks" style="margin-top:10px">
+        <label class="checkRow"><input id="leadLiveBest2" type="checkbox" checked> <span>Get alerts when official brackets go live</span></label>
+        <label class="checkRow"><input id="leadUpcomingBest2" type="checkbox" checked> <span>Get notified of upcoming challenges</span></label>
+        <label class="checkRow"><input id="leadOffersBest2" type="checkbox"> <span>Get alerted of sports betting partner offers</span></label>
+      </div>
+      <div id="remindMsgBest2" class="signinHint" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="challengeActions">
+    <button class="btn" disabled="disabled">Enter Second Chance</button>
+    <button class="btn" disabled="disabled">View Leaderboard</button>
+  </div>
+</div>
+
+<div class="view hidden" id="view-worst2">
+  <h2>Worst Bracket Challenge — Second Chance</h2>
+  <p class="muted">Second Chance brackets start once the Sweet 16 is set. This page will go live then.</p>
+  <div class="challengeLockMsg">
+    Challenges can only be played once the official bracket comes out.
+  </div>
+
+    <div class="panel emailAlerts" style="margin:14px 0">
+    <div class="panelHead"><h3 style="margin:0">Get email alerts</h3></div>
+    <div style="padding:12px 16px">
+      <div class="row">
+        <input id="remindEmailWorst2" class="input" type="email" placeholder="Enter your email" style="max-width:360px">
+        <button class="btn primary" id="remindBtnWorst2" type="button">Sign me up</button>
+      </div>
+      <div class="checks" style="margin-top:10px">
+        <label class="checkRow"><input id="leadLiveWorst2" type="checkbox" checked> <span>Get alerts when official brackets go live</span></label>
+        <label class="checkRow"><input id="leadUpcomingWorst2" type="checkbox" checked> <span>Get notified of upcoming challenges</span></label>
+        <label class="checkRow"><input id="leadOffersWorst2" type="checkbox"> <span>Get alerted of sports betting partner offers</span></label>
+      </div>
+      <div id="remindMsgWorst2" class="signinHint" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="challengeActions">
+    <button class="btn" disabled="disabled">Enter Second Chance</button>
+    <button class="btn" disabled="disabled">View Leaderboard</button>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<section class="view hidden" id="view-featured">
+<div class="featuredIntro">
+<h2>Featured Brackets</h2>
+<div class="muted">Browse featured user brackets.</div>
+</div>
+<div class="cards" id="featuredGrid"></div>
+</section>
+<!-- UPCOMING -->
+<section class="view hidden" id="view-upcoming">
+<h2>Upcoming Events</h2>
+<div class="muted">Upcoming tournaments we can run brackets for.</div>
+<div class="cards" id="upcomingGrid">
+<div class="card">
+<div class="cardTitle">NCAA Men’s Tournament (Pre + Official)</div>
+<div class="muted">Projection bracket, Best Bracket, Worst Bracket.</div>
+</div>
+<div class="card">
+<div class="cardTitle">NBA Playoffs</div>
+<div class="muted">Best NBA Playoff Bracket • <b>You Don’t Know Ball</b> NBA Playoff Bracket</div>
+</div>
+<div class="card">
+<div class="cardTitle">NHL Playoffs</div>
+<div class="muted">Best NHL Playoff Bracket • <b>Biggest Benders</b> NHL Bracket</div>
+</div>
+<div class="card">
+<div class="cardTitle">World Cup</div>
+<div class="muted">Bracket-style competitions (coming later).</div>
+</div>
+</div>
+
+    <div class="panel emailAlerts" style="margin:14px 0">
+  <div class="panelHead"><h3 style="margin:0">Get email alerts</h3></div>
+  <div style="padding:12px 16px">
+    <div class="row">
+      <input id="remindEmailUpcoming" class="input" type="email" placeholder="Enter your email" style="max-width:360px">
+      <button class="btn primary" id="remindBtnUpcoming" type="button">Sign me up</button>
+    </div>
+    <div class="checks" style="margin-top:10px">
+      <label class="checkRow"><input id="leadLiveUpcoming" type="checkbox" checked> <span>Get alerts when official brackets go live</span></label>
+      <label class="checkRow"><input id="leadUpcomingUpcoming" type="checkbox" checked> <span>Get notified of upcoming challenges</span></label>
+      <label class="checkRow"><input id="leadOffersUpcoming" type="checkbox"> <span>Get alerted of sports betting partner offers</span></label>
+    </div>
+    <div id="remindMsgUpcoming" class="signinHint" style="margin-top:8px"></div>
+  </div>
+
+</div>
+
+  <!-- Admin-only broadcast panels live on the Upcoming Events tab (not inside the user email signup panel) -->
+  <div class="panel adminBroadcast" data-segment="live" style="margin:14px 0; display:none">
+    <div class="panelHead"><h3 style="margin:0">Admin: Send Official Brackets Alert</h3></div>
+    <div style="padding:12px 16px">
+      <div class="row"><input class="input adminSubj" type="text" placeholder="Subject" style="max-width:520px"></div>
+      <div class="row" style="margin-top:8px"><textarea class="input adminMsg" placeholder="Message" style="max-width:520px; height:90px"></textarea></div>
+      <div class="row" style="margin-top:8px"><input class="input adminLink" type="text" placeholder="Link (optional)" style="max-width:520px" value="/index.html#home"></div>
+      <div class="row" style="margin-top:10px;align-items:center">
+        <button class="btn danger adminSend" type="button">Send</button>
+        <span class="muted adminStatus" style="margin-left:10px"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel adminBroadcast" data-segment="upcoming" style="margin:14px 0; display:none">
+    <div class="panelHead"><h3 style="margin:0">Admin: Send Upcoming Challenges Email</h3></div>
+    <div style="padding:12px 16px">
+      <div class="row"><input class="input adminSubj" type="text" placeholder="Subject" style="max-width:520px"></div>
+      <div class="row" style="margin-top:8px"><textarea class="input adminMsg" placeholder="Message" style="max-width:520px; height:90px"></textarea></div>
+      <div class="row" style="margin-top:8px"><input class="input adminLink" type="text" placeholder="Link (optional)" style="max-width:520px" value="/index.html#upcoming"></div>
+      <div class="row" style="margin-top:10px;align-items:center">
+        <button class="btn danger adminSend" type="button">Send</button>
+        <span class="muted adminStatus" style="margin-left:10px"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel adminBroadcast" data-segment="offers" style="margin:14px 0; display:none">
+    <div class="panelHead"><h3 style="margin:0">Admin: Send Betting Partner Deals Email</h3></div>
+    <div style="padding:12px 16px">
+      <div class="row"><input class="input adminSubj" type="text" placeholder="Subject" style="max-width:520px"></div>
+      <div class="row" style="margin-top:8px"><textarea class="input adminMsg" placeholder="Message" style="max-width:520px; height:90px"></textarea></div>
+      <div class="row" style="margin-top:8px"><input class="input adminLink" type="text" placeholder="Link (optional)" style="max-width:520px" value="/index.html#upcoming"></div>
+      <div class="row" style="margin-top:10px;align-items:center">
+        <button class="btn danger adminSend" type="button">Send</button>
+        <span class="muted adminStatus" style="margin-left:10px"></span>
+      </div>
+    </div>
+  </div>
+
+</section>
+</main>
+<!-- Brackets manager -->
+<div aria-modal="true" class="overlay hidden" id="bracketsOverlay" role="dialog">
+<div class="modal">
+<div class="row" style="justify-content:space-between;align-items:center">
+<h2 style="margin:0">My Brackets</h2>
+<button class="btn ghost" id="closeBrackets">Close</button>
+</div>
+<div class="row" style="gap:8px;flex-wrap:wrap">
+<button class="btn" id="newBracketBtn">New bracket</button>
+<button class="btn ghost" id="renameBracketBtn">Rename</button>
+<button class="btn danger" id="deleteBracketBtn">Delete</button>
+</div>
+<div class="list" id="bracketsList" style="margin-top:10px"></div>
+<div class="muted small" style="margin-top:10px">Completed brackets are archived automatically when you pick a champion.</div>
+</div>
+</div>
+<!-- Share prompt -->
+<div aria-modal="true" class="overlay hidden" id="shareOverlay" role="dialog">
+<div class="modal">
+<h2>Share your champion</h2>
+<div class="muted" id="shareSummary" style="margin-bottom:10px"></div>
+<div class="row" style="gap:8px;flex-wrap:wrap">
+<button class="btn" id="shareBtn">Share</button>
+<button class="btn ghost" id="copyShareBtn">Copy text</button>
+<button class="btn ghost" id="closeShare">Close</button>
+</div>
+</div>
+</div>
+<!-- Auth -->
+<div aria-modal="true" class="overlay hidden" id="authOverlay" role="dialog">
+<div class="modal">
+<div class="modalHead">
+<div class="modalTitle">Sign in to save your picks</div>
+<button aria-label="Close" class="iconBtn" id="authClose">✕</button>
+</div>
+<div aria-label="Authentication" class="authTabs" role="tablist">
+<button class="tabBtn active" id="signInBtn" type="button">Sign in</button>
+<button class="tabBtn" id="signUpBtn" type="button">Sign up</button>
+</div>
+<input id="authMode" type="hidden" value="signin"/>
+<label class="field">
+<span>Email</span>
+<input autocomplete="email" id="authEmail" placeholder="you@email.com" type="email"/>
+</label>
+<label class="field">
+<span>Password</span>
+<input autocomplete="current-password" id="authPassword" placeholder="••••••••" type="password"/>
+</label>
+<div class="signupOnly" id="signupExtras" style="display:none">
+<label class="field">
+<span>Phone (optional)</span>
+<input autocomplete="tel" id="authPhone" placeholder="(555) 555-5555" type="tel"/>
+</label>
+<div class="checks">
+<label class="checkRow"><input id="optLive" type="checkbox"/> <span>Get alerts when official brackets go live</span></label>
+<label class="checkRow"><input id="optUpcoming" type="checkbox"/> <span>Get notified of upcoming challenges</span></label>
+<label class="checkRow"><input id="optAds" type="checkbox"/> <span>Get alerted of sports betting partner offers</span></label>
+</div>
+</div>
+<button class="primaryBtn" id="authSubmit">Continue</button>
+<div class="smallNote">You must be signed in to enter challenges and appear on leaderboards.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="./data.js"></script>
+<script src="./public-config.js?v=1"></script>
+<script src="./app.js"></script>
+
+<footer class="bbFooter">
+  <div class="bbFooterInner">
+    <p>
+      BracketologyBuilder is a free entertainment platform and is not a sportsbook or gambling operator.
+      We do not accept wagers or conduct betting.
+    </p>
+    <p>
+      Some links on this site may be affiliate links. We may receive compensation if users sign up through these links.
+    </p>
+    <p>21+ where applicable. Please gamble responsibly.</p>
+    <p>
+      <a href="affiliate-disclosure.html">Affiliate Disclosure</a> |
+      <a href="terms.html">Terms of Service</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

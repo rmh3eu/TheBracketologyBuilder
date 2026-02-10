@@ -1,0 +1,26 @@
+name = "bracketologybuilder"
+compatibility_date = "2026-01-01"
+pages_build_output_dir = "."
+# Cloudflare Pages will ignore `main` for production, but this helps local dev.
+
+[vars]
+APP_NAME = "Bracketology Builder"
+SITE_NAME = "Bracketology Builder"
+SITE_DOMAIN = "bracketologybuilder.com"
+# Optional override:
+# FROM_EMAIL = "noreply@bracketologybuilder.com"
+
+# Set this in Cloudflare Pages -> Settings -> Environment Variables
+# ADMIN_EMAIL = "rmh3eu@virginia.edu"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bracketologybuilder"
+database_id = "1f35af58-3fbf-4d68-9335-2098405d0af5"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "4a6cbc6aca114340a97e9b7876a5501b"
+
+# Set this secret in Cloudflare Pages -> Settings -> Environment Variables (secret)
+# RESEND_API_KEY = "..."

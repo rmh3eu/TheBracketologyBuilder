@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin • Design</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body{ padding:24px; }
+    .card{ max-width: 900px; margin: 0 auto; background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:18px; }
+    h1{ margin:0 0 10px; }
+    .row{ display:flex; gap:14px; flex-wrap:wrap; }
+    .field{ flex: 1 1 260px; min-width:260px; background: rgba(0,0,0,0.18); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:12px; }
+    .field label{ display:block; font-weight:700; margin-bottom:6px; }
+    .field small{ display:block; opacity:.75; margin-top:6px; }
+    input[type="number"], input[type="text"], input[type="color"]{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.22); color:#fff; }
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    button{ padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.14); background:#111827; color:#fff; font-weight:800; cursor:pointer; }
+    button.secondary{ background: rgba(255,255,255,0.08); }
+    .status{ margin-top:10px; opacity:.9; }
+    .warn{ color:#ffdf6e; }
+    .ok{ color:#8bffb0; }
+    code{ background: rgba(0,0,0,0.35); padding:2px 6px; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Design Editor</h1>
+    <p style="opacity:.85; margin-top:0">Quickly tweak a few layout sizes without editing code. Changes apply site‑wide.</p>
+
+    <div id="deviceNote" class="status"></div>
+
+    <div class="actions" style="margin-top:10px">
+      <label style="display:flex;align-items:center;gap:8px;font-weight:800">
+        <input id="previewToggle" type="checkbox" style="width:18px;height:18px" />
+        Preview mode (only this browser)
+      </label>
+      <button id="publishBtn">Publish</button>
+      <button id="discardBtn" class="secondary">Discard preview</button>
+      <button id="presetDefault" class="secondary">Preset: Default</button>
+      <button id="presetCompact" class="secondary">Preset: Compact</button>
+    </div>
+
+    <div id="authMsg" class="status"></div>
+
+    <h3 style="margin:18px 0 10px">Final 4 Panel</h3>
+    <div class="row">
+      <div class="field">
+        <label>Final 4 / Championship pick height (px)</label>
+        <input id="css_final4_slot_h" type="number" min="34" max="80" step="1" />
+        <small>Saved as <code>css_final4_slot_h</code> → CSS var <code>--final4-slot-h</code></small>
+      </div>
+    </div>
+
+    <h3 style="margin:18px 0 10px">Champion Panel</h3>
+    <div class="row">
+      <div class="field">
+        <label>Finalist box width (px)</label>
+        <input id="css_champ_finalist_w" type="number" min="140" max="360" step="1" />
+        <small><code>css_champ_finalist_w</code> → <code>--champ-finalist-w</code></small>
+      </div>
+      <div class="field">
+        <label>Finalist box height (px)</label>
+        <input id="css_champ_finalist_h" type="number" min="34" max="80" step="1" />
+        <small><code>css_champ_finalist_h</code> → <code>--champ-finalist-h</code></small>
+      </div>
+      <div class="field">
+        <label>Champion middle font size (px)</label>
+        <input id="css_champ_middle_fs" type="number" min="18" max="60" step="1" />
+        <small><code>css_champ_middle_fs</code> → <code>--champ-middle-fs</code></small>
+      </div>
+    </div>
+
+    
+    <h3 style="margin:24px 0 10px">Email Broadcast</h3>
+<div class="row">
+  <div class="field" style="flex:1 1 100%">
+    <label>Subject</label>
+    <input id="alert_subject" type="text" placeholder="Worst Bracket Challenge is LIVE" />
+    <small>Emails everyone who checked “get alerts when challenges go live” and is not unsubscribed.</small>
+  </div>
+  <div class="field" style="flex:1 1 100%">
+    <label>Message</label>
+    <input id="alert_message" type="text" placeholder="Enter now to compete. Your picks are waiting." />
+    <small>Keep it short and exciting.</small>
+  </div>
+  <div class="field" style="flex:1 1 100%">
+    <label>Destination Link</label>
+    <input id="alert_link" type="text" placeholder="https://bracketologybuilder.com/worst-challenge.html" />
+    <small>Enter a relative link (e.g. /best-challenge) or full URL.</small>
+  </div>
+</div>
+
+<div class="actions" style="margin-top:10px">
+  
+<button id="previewAlertBtn" class="secondary">Preview Email</button>
+<button id="testAlertBtn" class="secondary">Send Test to Me</button>
+<button id="sendAlertBtn">Send to Segment</button>
+
+</div>
+<div id="alertStatus" class="status"></div>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+    const BASE_KEYS = [
+      'css_final4_slot_h',
+      'css_champ_finalist_w',
+      'css_champ_finalist_h',
+      'css_champ_middle_fs'
+    ];
+
+    const DEFAULTS = {
+      css_final4_slot_h: '52px',
+      css_champ_finalist_w: '180px',
+      css_champ_finalist_h: '46px',
+      css_champ_middle_fs: '44px'
+    };
+
+    const COMPACT = {
+      css_final4_slot_h: '48px',
+      css_champ_finalist_w: '165px',
+      css_champ_finalist_h: '44px',
+      css_champ_middle_fs: '40px'
+    };
+
+    function $(id){ return document.getElementById(id); }
+    function setStatus(msg, cls=''){ const el=$('status'); el.className='status '+cls; el.textContent=msg; }
+
+    function isMobileViewport(){
+      try{ return window.matchMedia('(max-width: 820px)').matches; }catch(e){ return false; }
+    }
+
+    const DEVICE = isMobileViewport() ? 'mobile' : 'desktop';
+    $('deviceNote').textContent = `Editing ${DEVICE.toUpperCase()} settings. (These edits only affect ${DEVICE}.)`;
+
+    function kDevice(baseKey){ return `${baseKey}_${DEVICE}`; }
+
+    function pxToNumber(v){
+      if(v==null) return '';
+      const m = String(v).match(/(-?\d+(?:\.\d+)?)/);
+      return m ? m[1] : '';
+    }
+    function numberToPx(v){
+      if(v===''||v==null) return '';
+      const n = Number(v);
+      if(!Number.isFinite(n)) return '';
+      return n + 'px';
+    }
+
+    function cssKeyToVarName(cssKey){
+      const base = cssKey.replace(/^css_/, '').replace(/_(mobile|desktop)$/,'');
+      return '--' + base.replace(/_/g,'-');
+    }
+    function applyKeyValueToRoot(cssKey, value){
+      document.documentElement.style.setProperty(cssKeyToVarName(cssKey), String(value));
+    }
+
+    function getPreviewStore(){
+      try{ return JSON.parse(localStorage.getItem('bb_theme_preview') || '{}'); }catch(e){ return {}; }
+    }
+    function setPreviewStore(obj){
+      localStorage.setItem('bb_theme_preview', JSON.stringify(obj));
+    }
+    function isPreviewEnabled(){ return localStorage.getItem('bb_theme_preview_enabled') === '1'; }
+    function setPreviewEnabled(on){ localStorage.setItem('bb_theme_preview_enabled', on ? '1' : '0'); }
+    function clearPreview(){
+      localStorage.removeItem('bb_theme_preview');
+      localStorage.removeItem('bb_theme_preview_enabled');
+    }
+
+    function applyPreviewNow(){
+      const store = getPreviewStore();
+      for(const baseKey of BASE_KEYS){
+        const dk = kDevice(baseKey);
+        if(store[dk] != null){
+          applyKeyValueToRoot(dk, store[dk]);
+        }
+      }
+    }
+
+    async function api(path, opts){
+      const res = await fetch(path, opts);
+      const text = await res.text();
+      let json;
+      try{ json = JSON.parse(text); }catch{ json = { ok:false, error:text }; }
+      if(!res.ok) throw new Error(json?.error || res.statusText);
+      return json;
+    }
+
+    let adminOk = false;
+
+    async function load(){
+      setStatus('Loading…');
+      // Verify admin
+      try{
+        const me = await api('/api/me', { cache:'no-store' });
+        if(!me?.user?.isAdmin){
+          $('authMsg').innerHTML = '<span class="warn">You are not an admin.</span> (log in with your admin account)';
+          setStatus('Not authorized.', 'warn');
+          return;
+        }
+        $('authMsg').innerHTML = '<span class="ok">Admin verified.</span>';
+        adminOk = true;
+      }catch(e){
+        $('authMsg').innerHTML = '<span class="warn">Login required.</span> Please log in, then refresh.';
+        setStatus('Login required.', 'warn');
+        return;
+      }
+
+      try{
+        const s = await api('/api/admin/settings', { cache:'no-store' });
+        const map = {};
+        (s?.settings||[]).forEach(r=>{ map[r.key]=r.value_text; });
+
+        // Load device-specific keys, fall back to legacy unsuffixed keys
+        for(const baseKey of BASE_KEYS){
+          const inputId = baseKey.replace(/^css_/, '');
+          const v = map[kDevice(baseKey)] ?? map[baseKey] ?? DEFAULTS[baseKey] ?? '';
+          $(inputId).value = pxToNumber(v);
+        }
+
+        // Initialize preview toggle
+        $('previewToggle').checked = isPreviewEnabled();
+        if(isPreviewEnabled()) applyPreviewNow();
+
+        setStatus('Ready.');
+      }catch(e){
+        setStatus('Failed to load settings: '+e.message, 'warn');
+      }
+    }
+
+    function writeDraftFromInputs(){
+      const store = getPreviewStore();
+      for(const baseKey of BASE_KEYS){
+        const inputId = baseKey.replace(/^css_/, '');
+        store[kDevice(baseKey)] = numberToPx($(inputId).value);
+      }
+      setPreviewStore(store);
+    }
+
+    async function publish(){
+      if(!adminOk){ setStatus('Not authorized.', 'warn'); return; }
+      setStatus('Publishing…');
+      try{
+        for(const baseKey of BASE_KEYS){
+          const inputId = baseKey.replace(/^css_/, '');
+          const value_text = numberToPx($(inputId).value);
+          await api('/api/admin/settings', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ key:kDevice(baseKey), value_text })
+          });
+        }
+        clearPreview();
+        $('previewToggle').checked = false;
+        setStatus('Published! Everyone sees it now.', 'ok');
+      }catch(e){
+        setStatus('Publish failed: '+e.message, 'warn');
+      }
+    }
+
+    function applyPreset(p){
+      for(const baseKey of BASE_KEYS){
+        const inputId = baseKey.replace(/^css_/, '');
+        if(p[baseKey]) $(inputId).value = pxToNumber(p[baseKey]);
+      }
+      if(isPreviewEnabled()){
+        writeDraftFromInputs();
+        applyPreviewNow();
+      }
+      setStatus('Preset applied.');
+    }
+
+    // Live-preview behavior
+    BASE_KEYS.forEach(baseKey=>{
+      const inputId = baseKey.replace(/^css_/, '');
+      $(inputId).addEventListener('input', ()=>{
+        if(!isPreviewEnabled()) return;
+        writeDraftFromInputs();
+        applyPreviewNow();
+      });
+    });
+
+    $('previewToggle').addEventListener('change', (e)=>{
+      const on = !!e.target.checked;
+      setPreviewEnabled(on);
+      if(on){
+        writeDraftFromInputs();
+        applyPreviewNow();
+        setStatus('Preview mode ON (only this browser sees changes until Publish).', 'ok');
+      }else{
+        // Turn off preview by clearing local draft and reloading the page.
+        clearPreview();
+        location.reload();
+      }
+    });
+
+    $('publishBtn').addEventListener('click', publish);
+    $('discardBtn').addEventListener('click', ()=>{ clearPreview(); location.reload(); });
+    $('presetDefault').addEventListener('click', ()=>applyPreset(DEFAULTS));
+    $('presetCompact').addEventListener('click', ()=>applyPreset(COMPACT));
+
+    load();
+  
+// Email broadcast
+const sendAlertBtn = document.getElementById('sendAlertBtn');
+const alertStatus = document.getElementById('alertStatus');
+function setAlert(msg, cls){
+  alertStatus.className = 'status ' + (cls||'');
+  alertStatus.textContent = msg;
+}
+if(sendAlertBtn){
+  sendAlertBtn.addEventListener('click', async () => {
+    const subject = (document.getElementById('alert_subject')||{}).value || '';
+    const message = (document.getElementById('alert_message')||{}).value || '';
+    const link = (document.getElementById('alert_link')||{}).value || '';
+    if(!subject.trim()) return setAlert('Subject is required.', 'warn');
+    if(!message.trim()) return setAlert('Message is required.', 'warn');
+    if(link.trim()){
+      const isRelative = link.startsWith('/');
+      const isFull = /^https:\/\//i.test(link);
+      if(!isRelative && !isFull){
+        return setAlert('Destination Link must start with / or https://', 'warn');
+      }
+    }
+
+    if(!confirm('Send this email to everyone opted into “go live” alerts?')) return;
+
+    sendAlertBtn.disabled = true;
+    setAlert('Sending…');
+    try{
+      const res = await fetch('/api/admin/challenge-alert', {
+        method:'POST',
+        headers:{ 'content-type':'application/json' },
+        body: JSON.stringify({ subject, message, link })
+      });
+      const data = await res.json().catch(()=>null);
+      if(res.ok && data && data.ok){
+        setAlert(`Sent ${data.sent||0}/${data.recipients||0} (failed: ${data.failed||0}).`, 'ok');
+      }else{
+        setAlert((data && (data.message || data.error)) || 'Send failed.', 'warn');
+      }
+    }catch(e){
+      setAlert('Send failed. Try again.', 'warn');
+    }finally{
+      sendAlertBtn.disabled = false;
+    }
+  });
+}
+  </script>
+
+<div id="emailPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#111827;padding:20px;border-radius:16px;max-width:700px;width:90%;max-height:80vh;overflow:auto;">
+    <h3 style="margin-top:0">Email Preview</h3>
+    <div id="emailPreviewContent" style="background:#fff;color:#000;padding:16px;border-radius:12px;"></div>
+    <div style="margin-top:14px;text-align:right;">
+      <button onclick="document.getElementById('emailPreviewModal').style.display='none'">Close</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+import { json, requireUser, isAdmin } from "./_util.js";
+
+export async function onRequestPost({ request, env }){
+  // submit a feature request
+  const user = await requireUser({request, env});
+  if(!user) return json({ok:false, error:"Not logged in."}, 401);
+
+  const body = await request.json();
+  const bracketId = String(body.bracket_id||"");
+  const caption = String(body.caption||"").slice(0,200);
+  if(!bracketId) return json({ok:false, error:"Missing bracket id."}, 400);
+
+  const row = await env.DB.prepare("SELECT id,user_id FROM brackets WHERE id=?").bind(bracketId).first();
+  if(!row) return json({ok:false, error:"Bracket not found."}, 404);
+  if(row.user_id !== user.id) return json({ok:false, error:"Not authorized."}, 403);
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    "INSERT INTO feature_requests (bracket_id,user_id,caption,status,created_at) VALUES (?,?,?,?,?)"
+  ).bind(bracketId, user.id, caption, "pending", now).run();
+
+  return json({ok:true});
+}
+
+export async function onRequestGet({ request, env }){
+  // admin list pending/approved
+  const user = await requireUser({request, env});
+  if(!isAdmin(user, env)) return json({ok:false, error:"Not authorized."}, 403);
+
+  const url = new URL(request.url);
+  const status = url.searchParams.get("status") || "pending";
+
+  const rs = await env.DB.prepare(
+    `SELECT fr.id, fr.bracket_id, fr.caption, fr.status, fr.created_at, u.email as user_email, b.title
+     FROM feature_requests fr
+     JOIN users u ON u.id = fr.user_id
+     JOIN brackets b ON b.id = fr.bracket_id
+     WHERE fr.status = ?
+     ORDER BY fr.created_at DESC
+     LIMIT 100`
+  ).bind(status).all();
+
+  return json({ok:true, requests: rs.results || []});
+}
+
+export async function onRequestPut({ request, env }){
+  // admin approve/reject
+  const user = await requireUser({request, env});
+  if(!isAdmin(user, env)) return json({ok:false, error:"Not authorized."}, 403);
+
+  const body = await request.json();
+  const id = body.id;
+  const status = body.status;
+  if(!id || !["approved","rejected"].includes(status)) return json({ok:false, error:"Bad request."}, 400);
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    "UPDATE feature_requests SET status=?, approved_at=? WHERE id=?"
+  ).bind(status, now, id).run();
+
+  return json({ok:true});
+}

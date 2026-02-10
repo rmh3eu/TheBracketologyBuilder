@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bracket • Bracketology Builder</title>
+  <link rel="stylesheet" href="style.css?v=20260207f" />
+  <style>
+    /* Keep this page focused: bracket only */
+    .siteNav, .topActions, .tabs, .viewTabs { display:none !important; }
+    body.page-bracket .contentWrap { padding-top: 10px; }
+  
+  .checks{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+  .checkRow{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.2;color:#111}
+  .checkRow input{margin-top:2px}
+</style>
+</head>
+<body class="page-bracket">
+  <header class="topbar">
+    <div class="brand">
+      <a href="my-brackets.html" class="brandLink">← Back to My Brackets</a>
+      <div class="subtitle">Fill your bracket, then Save</div>
+      <!-- Editable bracket name (works on desktop + mobile) -->
+      <div class="bracketTitleRow">
+        <input id="bracketPageTitle" class="bracketPageTitle bracketPageTitleInput" type="text" maxlength="80" value="" />
+        <!-- Extra Save/Enter button near title (same behavior as main Save/Enter) -->
+        <button class="btn primary btnCompact" id="saveEnterBtnTop" type="button">Save &amp; Enter</button>
+        <button class="btn btnCompact" id="undoBtnTop" type="button" disabled>Undo</button>
+      </div>
+      <!-- Extra Random Picks button near title (same behavior as main Random Picks) -->
+      <div class="bracketTitleRow" style="margin-top:8px">
+        <button class="btn btnCompact" id="randomPicksBtnTop" type="button">Random picks</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="contentWrap">
+    <div id="view-build" class="view">
+      <!-- ESPN-style desktop layout: regions on left/right, final rounds in the center -->
+      <section class="espnDesk" id="ncaaFullSection">
+        <div class="deskCol left">
+          <div id="region-South"></div>
+          <div id="region-West"></div>
+        </div>
+
+	        <div class="deskCol center">
+	          <div class="centerStack">
+	            <!-- Top: Final 4 + Championship label -->
+    <div class="panel final4Panel">
+	              
+	              
+              <div class="panelHead">
+                <h2>FINAL 4</h2>
+              </div>
+<div id="finalFourBoard" class="finalFourBoard finalFourGrid"></div>
+	            </div>
+
+	            <!-- Middle: Champion selection + controls -->
+	            <div class="panel champPanel" style="margin-top:12px">
+	              <div class="panelHead">
+	                <h2>CHAMPION</h2>
+	              </div>
+	              <div id="championBoard" class="championBoard"></div>
+	              <div class="bracketActionRow centerActions">
+	                <button class="btn" id="randomPicksBtn" type="button">Random picks</button>
+	                <button class="btn primary" id="saveEnterBtn" type="button">Save &amp; Enter</button>
+	              </div>
+	            </div>
+
+	            <!-- Bottom: Join a challenge -->
+	            <div class="panel joinChallengePanel" style="margin-top:12px">
+	              <div class="joinChallengeTop">
+	                <div class="joinChallengeTitle">JOIN A<br/>CHALLENGE</div>
+	                <div class="joinChallengeMsg" id="homeChallengeMsg">Challenges can only be played once the official bracket comes out.</div>
+	              </div>
+	              <section id="homeChallengePanel" class="homeChallengePanel" aria-label="Join a Challenge">
+	                <div class="challengeActions" style="gap:10px;flex-wrap:wrap">
+	                  <button class="btn" id="homeGoBest">Best Bracket Challenge</button>
+	                  <button class="btn" id="homeGoWorst">Worst Bracket Challenge</button>
+	                </div>
+	                <!-- message now shown above, keep this removed to avoid duplicates -->
+	              </section>
+	            </div>
+	          </div>
+	        </div>
+
+        <div class="deskCol right">
+          <div id="region-East"></div>
+          <div id="region-Midwest"></div>
+        </div>
+      </section>
+
+
+    </div>
+
+    <!-- BEST CHALLENGE -->
+    <div 
+  </div>
+
+  <div id="authOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle">Sign in to save your picks</div>
+        <button id="authClose" class="iconBtn" aria-label="Close">✕</button>
+      </div>
+
+      <div class="authTabs" role="tablist" aria-label="Authentication">
+        <button id="signInBtn" class="tabBtn active" type="button">Sign in</button>
+        <button id="signUpBtn" class="tabBtn" type="button">Sign up</button>
+      </div>
+
+      <input type="hidden" id="authMode" value="signin" />
+<label class="field">
+        <span>Email</span>
+        <input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email" />
+      </label>
+
+      <label class="field">
+        <span>Password</span>
+        <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </label>
+      <div id="signupExtras" class="signupOnly" style="display:none">
+        <label class="field">
+          <span>Phone (optional)</span>
+          <input id="authPhone" type="tel" placeholder="(555) 555-5555" autocomplete="tel" />
+        </label>
+
+        <div class="checks">
+          <label class="checkRow"><input id="optEmail" type="checkbox" /> <span>Email me about upcoming brackets and challenge launches</span></label>
+          <label class="checkRow"><input id="optSms" type="checkbox" /> <span>Text me launch alerts (max 4 msgs/month). Msg & data rates may apply.</span></label>
+          <label class="checkRow"><input id="optAds" type="checkbox" /> <span>Send me sponsor / affiliate promos and offers</span></label>
+        </div>
+      </div>
+
+
+      <button id="authSubmit" class="primaryBtn">Continue</button>
+
+      <div class="smallNote">You must be signed in to enter challenges and appear on leaderboards.</div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./data.js"></script>
+  
+
+  <script>
+    (function(){
+      const params = new URLSearchParams(location.search);
+      if(params.get('new')==='1') {
+        localStorage.removeItem('bb_v30_picks_local');
+        localStorage.removeItem('bb_v30_meta');
+      }
+      // If opening a saved bracket, app.js already reads ?id=...
+    })();
+  </script>
+  <script src="./public-config.js?v=1"></script>
+<script src="./app.js"></script>
+
+
+<footer class="bbFooter">
+  <div class="bbFooterInner">
+    <p>
+      BracketologyBuilder is a free entertainment platform and is not a sportsbook or gambling operator.
+      We do not accept wagers or conduct betting.
+    </p>
+    <p>
+      Some links on this site may be affiliate links. We may receive compensation if users sign up through these links.
+    </p>
+    <p>21+ where applicable. Please gamble responsibly.</p>
+    <p>
+      <a href="affiliate-disclosure.html">Affiliate Disclosure</a> |
+      <a href="terms.html">Terms of Service</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

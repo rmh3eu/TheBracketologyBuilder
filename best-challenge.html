@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Best Bracket Challenge — Bracketology Builder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="pageWrap">
+
+
+<header class="topbar">
+<div class="brandWrap">
+  <div class="brandRow">
+    <div class="brand">Bracketology Builder</div>
+    <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+  </div>
+  <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+</div>
+<div class="actions">
+  <div class="actionRow">
+    <button class="btn ghost" id="accountBtn">Sign in</button>
+    <button class="btn" id="signupQuickBtn">Sign up</button>
+    <button class="btn ghost" id="bracketsBtn">My Brackets</button>
+  </div>
+</div>
+</header>
+
+<div class="stickyNav">
+  <nav aria-label="Primary" class="siteNav">
+    <a class="navLink" href="index.html#home">Home</a>
+    <a class="navLink" href="my-brackets.html">My Brackets</a>
+
+    <div class="navDrop bestActive">
+      <button class="navDropBtn" type="button">Best Bracket Challenge</button>
+      <div class="navDropMenu">
+        <a class="navLink navDropItem active" href="best-challenge.html">Full Bracket</a>
+        <a class="navLink navDropItem" href="index.html#best2">Second Chance Bracket</a>
+      </div>
+    </div>
+
+    <div class="navDrop">
+      <button class="navDropBtn" type="button">Worst Bracket Challenge</button>
+      <div class="navDropMenu">
+        <a class="navLink navDropItem" href="worst-challenge.html">Full Bracket</a>
+        <a class="navLink navDropItem" href="index.html#worst2">Second Chance Bracket</a>
+      </div>
+    </div>
+
+    <a class="navLink" href="index.html#featured">Featured Brackets</a>
+    <a class="navLink" href="index.html#upcoming">Upcoming Events</a>
+  </nav>
+</div>
+
+<div class="challengeTop">
+  
+
+  <div class="challengeTopGrid">
+    <div class="panel">
+      <div class="panelHead">
+        <h3 style="margin:0">Best Bracket Challenge — Rules</h3>
+        <div class="challengePill"><span aria-hidden="true">🏆</span> 10 points per correct pick</div>
+      </div>
+
+      <div class="challengeCards2">
+        <div class="miniCard">
+          <div class="miniTitle">Scoring</div>
+<div class="miniBody">
+<ul>
+  <li>10 points per correct game</li>
+  <li>No round multipliers</li>
+</ul>
+</div>
+        </div>
+
+        <div class="miniCard">
+          <div class="miniTitle">Format</div>
+<div class="miniBody">
+<ul>
+  <li>Full tournament</li>
+  <li>Round of 64 through the Championship</li>
+  <li>The first weekend matters more than in other formats</li>
+</ul>
+</div>
+        </div>
+      </div>
+
+      <div class="challengeActions">
+        <a class="btn primary" href="my-brackets.html">Enter a bracket</a>
+        
+        <a class="btn" href="best-challenge.html">Leaderboard</a>
+      </div>
+
+      <p class="signinHint" style="margin:12px 0 0">
+        Note: “Enter a bracket” will work once the Official Bracket is unlocked (Round of 64 set).
+      </p>
+    
+</div>
+
+    <div class="panel">
+      <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
+      <div style="padding:12px 14px">
+        <div class="leaderMeta">
+          <div>
+            <div class="leaderTitle">Overall standings</div>
+            <div class="leaderSub">Best Bracket Challenge (pick winners)</div>
+          </div>
+          <div class="leaderHint">Sign in to highlight your row.</div>
+        </div>
+        <div class="leaderBar" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel emailAlerts" style="margin:14px 0">
+          <div class="panelHead"><h3 style="margin:0">Get email alerts</h3></div>
+          <div style="padding:12px 16px">
+            <div class="row">
+              <input id="remindEmail" class="input" type="email" placeholder="Enter your email" style="max-width:360px" autofocus>
+              <button class="btn primary" id="remindBtn" type="button">Sign me up</button>
+            </div>
+            <div class="checks" style="margin-top:10px">
+              <label class="checkRow"><input id="leadLive" type="checkbox" checked> <span>Get alerts when official brackets go live</span></label>
+              <label class="checkRow"><input id="leadUpcoming" type="checkbox" checked> <span>Get notified of upcoming challenges</span></label>
+              <label class="checkRow"><input id="leadOffers" type="checkbox"> <span>Get alerted of sports betting partner offers</span></label>
+            </div>
+            <div id="remindMsg" class="signinHint" style="margin-top:8px"></div>
+          </div>
+        </div>
+  <script>
+    (function(){
+      function loadLeadSigned(){
+        try{
+          const raw = localStorage.getItem('bb_lead_signed');
+          if(!raw) return { live:false, upcoming:false, offers:false };
+          const obj = JSON.parse(raw);
+          return { live:!!obj.live, upcoming:!!obj.upcoming, offers:!!obj.offers };
+        }catch(e){
+          return { live:false, upcoming:false, offers:false };
+        }
+      }
+      function saveLeadSigned(p){
+        try{
+          const cur = loadLeadSigned();
+          const next = {
+            live: cur.live || !!p.live,
+            upcoming: cur.upcoming || !!p.upcoming,
+            offers: cur.offers || !!p.offers
+          };
+          localStorage.setItem('bb_lead_signed', JSON.stringify(next));
+          return next;
+        }catch(e){
+          return p;
+        }
+      }
+      function applySignedUI(){
+        const signed = loadLeadSigned();
+        const emailPanel = document.querySelector('.emailAlerts');
+        const live = document.getElementById('leadLive');
+        const upcoming = document.getElementById('leadUpcoming');
+        const offers = document.getElementById('leadOffers');
+        const hideRow = (inp)=>{ const row = inp?.closest?.('label'); if(row) row.style.display='none'; };
+        if(signed.live) hideRow(live);
+        if(signed.upcoming) hideRow(upcoming);
+        if(signed.offers) hideRow(offers);
+        if(emailPanel && signed.live && signed.upcoming && signed.offers){
+          emailPanel.style.display = 'none';
+        }
+      }
+
+      const btn = document.getElementById('remindBtn');
+      const emailEl = document.getElementById('remindEmail');
+
+      // Hide options already signed up for on other pages.
+      applySignedUI();
+
+      btn?.addEventListener('click', async () => {
+        const email = (document.getElementById('remindEmail').value || '').trim();
+        const msg = document.getElementById('remindMsg');
+        const optin_live = !!document.getElementById('leadLive')?.checked;
+        const optin_upcoming = !!document.getElementById('leadUpcoming')?.checked;
+        const optin_offers = !!document.getElementById('leadOffers')?.checked;
+        if(!email){ msg.textContent = 'Please enter an email.'; return; }
+        try{ localStorage.setItem('bb_lead_email', email); }catch(e){}
+        msg.textContent = 'Saving...';
+        try{
+          const res = await fetch('/api/lead', {
+            method:'POST',
+            headers:{'content-type':'application/json'},
+            body: JSON.stringify({ email, source:'best_full', optin_live, optin_upcoming, optin_offers })
+          });
+          const data = await res.json().catch(()=>null);
+          if(!res.ok){
+            msg.textContent = (data && (data.message || data.error)) || 'Could not save.';
+            return;
+          }
+          msg.textContent = 'You’re in — we’ll email you when challenges go live.';
+          const nextSigned = saveLeadSigned({ live: optin_live, upcoming: optin_upcoming, offers: optin_offers });
+          applySignedUI();
+          // Keep the blinking cursor until all three boxes have been signed.
+          try{
+            if(!(nextSigned.live && nextSigned.upcoming && nextSigned.offers)) emailEl?.focus();
+          }catch(e){}
+          if(btn){ const prev=btn.textContent; btn.textContent='Saved'; btn.classList.add('saved'); setTimeout(()=>{ try{ btn.textContent=prev; btn.classList.remove('saved'); }catch(e){} }, 1400); }
+        }catch(e){
+          msg.textContent = 'Could not save. Please try again.';
+        }
+      });
+    })();
+  </script>
+<footer class="bbFooter">
+  <div class="bbFooterInner">
+    <p>
+      BracketologyBuilder is a free entertainment platform and is not a sportsbook or gambling operator.
+      We do not accept wagers or conduct betting.
+    </p>
+    <p>
+      Some links on this site may be affiliate links. We may receive compensation if users sign up through these links.
+    </p>
+    <p>21+ where applicable. Please gamble responsibly.</p>
+    <p>
+      <a href="affiliate-disclosure.html">Affiliate Disclosure</a> |
+      <a href="terms.html">Terms of Service</a>
+    </p>
+  </div>
+</footer>
+
+
+<script>
+// PATCH 23: lightweight dropdown behavior for navDrop on static pages
+(function(){
+  function closeAll(){
+    document.querySelectorAll('.navDrop.open').forEach(d=>d.classList.remove('open'));
+  }
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.navDropBtn');
+    if(btn){
+      const drop = btn.closest('.navDrop');
+      const isOpen = drop.classList.contains('open');
+      closeAll();
+      if(!isOpen) drop.classList.add('open');
+      e.preventDefault();
+      return;
+    }
+    // click inside menu -> allow navigation
+    if(e.target.closest('.navDropMenu')) return;
+    closeAll();
+  });
+})();
+</script>
+
+
+<script>
+// PATCH 24: Show blinking caret in reminder email box on load (Best/Worst pages)
+(function(){
+  const el = document.getElementById('remindEmail');
+  if(!el) return;
+  // Don't steal focus if user already interacted (scroll/touch)
+  let touched = false;
+  window.addEventListener('touchstart', ()=>{touched=true;}, {once:true, passive:true});
+  window.addEventListener('wheel', ()=>{touched=true;}, {once:true, passive:true});
+  window.addEventListener('keydown', ()=>{touched=true;}, {once:true});
+  requestAnimationFrame(()=>{
+    if(touched) return;
+    try{
+      el.focus({preventScroll:true});
+      el.setSelectionRange(0,0);
+    }catch(e){
+      try{ el.focus(); }catch(_){}
+    }
+  });
+})();
+</script>
+
+
+</body>
+</html>

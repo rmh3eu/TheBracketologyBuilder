@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Brackets • Bracketology Builder</title>
+  <link rel="stylesheet" href="style.css?v=20260207f" />
+</head>
+<body class="page-mybrackets">
+  <header class="topbar">
+    <div class="brand">
+      <a href="index.html" class="brandLink">Bracketology Builder</a>
+      <div class="subtitle">Presented by RobbyBrackets</div>
+    </div>
+
+    <nav class="siteNav">
+      <a href="index.html" class="navLink">Home</a>
+      <a href="my-brackets.html" class="navLink active">My Brackets</a>
+      <a href="best-challenge.html" class="navLink">Best Bracket Challenge</a>
+      <a href="worst-challenge.html" class="navLink">Worst Bracket Challenge</a>
+      <a href="index.html#featured" class="navLink">Featured Brackets</a>
+      <a href="index.html#upcoming" class="navLink">Upcoming Events</a>
+    </nav>
+</div>
+  </header>
+
+  <main class="content" id="myBracketsMain">
+
+    <!-- Top controls: always above ALL bracket sections (ordering of sections can change below). -->
+    <div class="topControls" id="topControls">
+      <div id="adminPhaseWrap" class="adminPhaseWrap" style="display:none;">
+        <div class="adminPhaseCard">
+          <div class="adminPhaseTitle">Admin: Tournament mode</div>
+          <label class="adminToggleLabel">
+            <input type="checkbox" id="officialToggle" />
+            <span>Official bracket is live</span>
+          </label>
+          <label class="adminToggleLabel" style="margin-top:6px;">
+            <input type="checkbox" id="sweet16Toggle" />
+            <span>Sweet 16 is set (enable Second Chance)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="topControlCard">
+        <button id="createNewBtn" class="btn primary">Create new bracket</button>
+      </div>
+
+      <div class="topControlCard">
+        <button id="createSecondChanceBtn" class="btn">Create Second Chance Bracket</button>
+        <div id="secondChanceHint" class="tinyMuted" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <section class="panel" id="secBracketology">
+      <h2>Bracketology Brackets</h2>
+      <div id="projEmpty" class="muted">No brackets yet. Click “Create new bracket”.</div>
+      <div id="projList" class="bracketsGrid"></div>
+    </section>
+
+    <section class="panel" style="margin-top:16px;" id="secSecondChance">
+      <h2>Second Chance Brackets</h2>
+      <div id="scEmpty" class="muted">Second Chance Brackets unlock once the Sweet 16 is set.</div>
+      <div id="scList" class="bracketsGrid"></div>
+    </section>
+
+    <section class="panel" style="margin-top:16px;" id="secOfficial">
+      <h2>Official Brackets</h2>
+      <div id="offEmpty" class="muted">No official brackets yet.</div>
+      <div id="offList" class="bracketsGrid"></div>
+    </section>
+  </main>
+
+  <script src="./public-config.js?v=1"></script>
+<script src="my-brackets.js"></script>
+
+<footer class="bbFooter">
+  <div class="bbFooterInner">
+    <p>
+      BracketologyBuilder is a free entertainment platform and is not a sportsbook or gambling operator.
+      We do not accept wagers or conduct betting.
+    </p>
+    <p>
+      Some links on this site may be affiliate links. We may receive compensation if users sign up through these links.
+    </p>
+    <p>21+ where applicable. Please gamble responsibly.</p>
+    <p>
+      <a href="affiliate-disclosure.html">Affiliate Disclosure</a> |
+      <a href="terms.html">Terms of Service</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
