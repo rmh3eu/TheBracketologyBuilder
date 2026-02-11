@@ -135,7 +135,7 @@ export async function onRequestPost({ request, env }){
 
   const htmlFor = (row) => {
     const unsub = `${base}/unsubscribe.html?t=${encodeURIComponent(row.unsub_token||'')}`;
-    const button = finalLink ? `<p><a href="${finalLink}" style="display:inline-block;padding:12px 16px;border-radius:12px;background:#111827;color:#fff;text-decoration:none;font-weight:800">Open Challenge</a></p>` : '';
+    const button = finalLink ? `<p><a href="${finalLink}" style="display:inline-block;padding:12px 16px;border-radius:12px;background:#111827;color:#fff;text-decoration:none;font-weight:800">Enter Now</a></p>` : '';
     return `
       <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5">
         <h2 style="margin:0 0 10px">${subject.replace(/</g,'&lt;')}</h2>
