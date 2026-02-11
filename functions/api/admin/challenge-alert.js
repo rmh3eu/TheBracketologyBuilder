@@ -1,5 +1,13 @@
 import { json, requireUser, isAdmin, rateLimit, sendResendEmail, getSiteDomain, randomB64 } from "../_util.js";
 
+function isValidEmail(email){
+  if(!email || typeof email !== 'string') return false;
+  const e=email.trim();
+  return /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(e);
+}
+const sleep = (ms)=> new Promise(r=>setTimeout(r, ms));
+
+
 async function ensureLeadTables(env){
   const stmts = [
     `CREATE TABLE IF NOT EXISTS marketing_leads (
@@ -54,6 +62,7 @@ async function sendWithConcurrency(items, worker, concurrency=8){
       if(idx >= items.length) break;
       try{
         await worker(items[idx], idx);
+        await sleep(250);
         results.ok += 1;
       }catch(e){
         results.fail += 1;
@@ -106,7 +115,9 @@ export async function onRequestPost({ request, env }){
      ORDER BY updated_at DESC`
   ).all();
   const rows = rs.results || [];
-  if(!rows.length) return json({ ok:true, sent:0, message:'No opted-in recipients found.' });
+  // Skip invalid/partial emails that might exist from past autosaves.
+  const validRows = rows.filter(r=>isValidEmail(r.email));
+  if(!validRows.length) return json({ ok:true, sent:0, message:'No opted-in recipients found.' });
 
   const domain = getSiteDomain(env);
   const base = `https://${domain}`;
@@ -135,9 +146,9 @@ export async function onRequestPost({ request, env }){
   };
 
   // Send emails (requires RESEND_API_KEY)
-  const summary = await sendWithConcurrency(rows, async (row) => {
+  const summary = await sendWithConcurrency(validRows, async (row) => {
     await sendResendEmail(env, row.email, subject, htmlFor(row), textFor(row));
   }, 8);
 
-  return json({ ok:true, recipients: rows.length, sent: summary.ok, failed: summary.fail });
+  return json({ ok:true, recipients: validRows.length, sent: summary.ok, failed: summary.fail });
 }
