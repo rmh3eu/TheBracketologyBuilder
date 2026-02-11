@@ -852,22 +852,20 @@ function fillRandomPicks(){
     MIDWEST: picks[wKey('REGION_MIDWEST',3,0)] || null,
   };
 
-  // Final Four pairing matches pruneInvalidPicks + UI:
-  // Left half: South vs West. Right half: East vs Midwest.
-  if(champs.SOUTH && champs.WEST){
-    picks['FF__G0__winner'] = (Math.random() < 0.5) ? champs.SOUTH : champs.WEST;
+  if(champs.SOUTH && champs.EAST){
+    picks['FF__G0__winner'] = (Math.random() < 0.5) ? champs.SOUTH : champs.EAST;
   }
-  if(champs.EAST && champs.MIDWEST){
-    picks['FF__G1__winner'] = (Math.random() < 0.5) ? champs.EAST : champs.MIDWEST;
+  if(champs.WEST && champs.MIDWEST){
+    picks['FF__G1__winner'] = (Math.random() < 0.5) ? champs.WEST : champs.MIDWEST;
   }
-
   const f0 = picks['FF__G0__winner']||null;
   const f1 = picks['FF__G1__winner']||null;
   if(f0 && f1){
     picks['FINAL__winner'] = (Math.random() < 0.5) ? f0 : f1;
     picks['CHAMPION'] = picks['FINAL__winner'];
   }
-commitPicks(picks, 'random');
+
+  commitPicks(picks, 'random');
 }
 
 function pruneInvalidPicks(picks){
@@ -1092,7 +1090,7 @@ async function doSignup(email, password){
 
   // Persist email marketing selections locally so the same options disappear on all pages.
   // (Sign-up checkboxes are the same three options; any checked box at signup should not
-  // appear on the "Get email alerts" sections elsewhere.)
+  // appear on the "Get Challenge Reminders" sections elsewhere.)
   try{ localStorage.setItem('bb_lead_email', String(email||'').trim()); }catch(_e){}
   saveLeadPrefs({ live: optin_live, upcoming: optin_upcoming, offers: optin_ads });
   saveLeadSigned({ live: optin_live, upcoming: optin_upcoming, offers: optin_ads }, email);
@@ -1366,31 +1364,25 @@ return `
   <div class="rulesInner">
     <div class="rulesHeader">
       <div class="rulesTitle">Rules <span class="muted">— Best Bracket</span></div>
-      <div class="rulesBadge">🏆 pick winners</div>
+      <div class="rulesBadge">🏆 10 points per correct pick</div>
     </div>
 
     <div class="rulesGrid">
       <div class="ruleItem">
-        <b>Format</b>
-        <ul style="margin:8px 0 0 18px">
-          <li>Full Tournament</li>
-          <li>Round of 64 through Championship</li>
-        </ul>
-      </div>
-      <div class="ruleItem">
         <b>Scoring</b>
-        <ul style="margin:8px 0 0 18px">
-          <li>Earn 10 points if you have the <b>winner</b> of the game</li>
-          <li>No round multipliers</li>
-        </ul>
+        Every correct game pick = <b>10 points</b>. No extra weight for later rounds.
       </div>
       <div class="ruleItem">
-        <b>Leaderboard</b>
-        Ranked by total points (10 points per correct pick).
+        <b>Entry</b>
+        You must be logged in. Choose a saved bracket (or use your current bracket) and enter.
       </div>
       <div class="ruleItem">
-        <b>Tip</b>
-        Every game counts equally.
+        <b>Tie-breaker</b>
+        Enter the <b>combined score</b> of the National Championship game.
+      </div>
+      <div class="ruleItem">
+        <b>Visibility</b>
+        Leaderboards show a public link to each entry bracket as results update.
       </div>
     </div>
   </div>
@@ -1402,38 +1394,30 @@ return `
   <div class="rulesInner">
     <div class="rulesHeader">
       <div class="rulesTitle">Rules <span class="muted">— Worst Bracket</span></div>
-      <div class="rulesBadge">😈 pick losers</div>
+      <div class="rulesBadge">😈 score when your pick LOSES</div>
     </div>
 
     <div class="rulesGrid">
       <div class="ruleItem">
-        <b>Format</b>
-        <ul style="margin:8px 0 0 18px">
-          <li>Full Tournament</li>
-          <li>Round of 64 through Championship</li>
-          <li>Select the team to advance that you think will lose</li>
-        </ul>
+        <b>Scoring</b>
+        You earn <b>10 points</b> when the team you picked to win actually <b>loses</b>.
       </div>
       <div class="ruleItem">
-        <b>Scoring</b>
-        <ul style="margin:8px 0 0 18px">
-          <li>Earn 10 points if you have the <b>loser</b> of the game</li>
-          <li>The worse your bracket is the better</li>
-        </ul>
+        <b>Stages</b>
+        Stage 1 plays until the field reaches the <b>Sweet 16</b>, then Stage 2 unlocks. Final Four unlocks Stage 3.
       </div>
       <div class="ruleItem">
         <b>Leaderboard</b>
-        Ranked by total points (10 points per incorrect pick).
+        Ranked by <b>total points across all stages</b> (Stage 1 + Stage 2 + Stage 3).
       </div>
       <div class="ruleItem">
-        <b>Tip</b>
-        If your pick wins, you get 0 points for that game.
+        <b>Colors</b>
+        <b>Green</b> = you earned a point (your pick lost). <b>Red</b> = your pick won (no point).
       </div>
     </div>
   </div>
 `;
 }
-
 
 async function renderChallenges(){
   qs('#bestRules').innerHTML = rulesHtmlBest();
@@ -1585,11 +1569,14 @@ function lbTableWorst(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    <th>Score</th>
+    <th>Total</th>
     <th>Total Possible</th>
+    <th>S1</th>
+    <th>S2</th>
+    <th>S3</th>
     <th>x/y</th>
     <th>%</th>
-    <th>Entry</th>
+    <th>Entries</th>
   </tr>`;
   t.appendChild(thead);
   const tb = document.createElement('tbody');
@@ -1599,7 +1586,10 @@ function lbTableWorst(rows){
     const pct = (r.pct*100).toFixed(1) + '%';
     const displayName = r.display_name || r.title || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const entryLink = r.bracket_id ? `<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.bracket_id)}&challenge=worst&stage=pre">View</a>` : '—';
+    const links = [];
+    if(r.brackets?.pre) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.pre)}&challenge=worst&stage=pre">S1</a>`);
+    if(r.brackets?.r16) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.r16)}&challenge=worst&stage=r16">S2</a>`);
+    if(r.brackets?.f4) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.f4)}&challenge=worst&stage=f4">S3</a>`);
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
@@ -1608,9 +1598,12 @@ function lbTableWorst(rows){
       <td class="lbUser">${escapeHtml(displayName)}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
+      <td>${r.stage1}</td>
+      <td>${r.stage2}</td>
+      <td>${r.stage3}</td>
       <td class="lbPct"><span class="lbX">${r.x}</span><span class="lbSlash">/${r.y}</span></td>
       <td class="lbPct">${pct}</td>
-      <td>${entryLink}</td>
+      <td>${links.join(' ') || '—'}</td>
     `;
     tb.appendChild(tr);
   });
@@ -1618,7 +1611,6 @@ function lbTableWorst(rows){
   wrap.appendChild(t);
   return wrap;
 }
-
 
 function renderLbMeta(challenge, group, selectedGroupId){
   const bar = el('div','lbMetaBar');
@@ -2310,26 +2302,45 @@ async function renderWorstActions(){
 
   const row = el('div','challengeActions');
   const s1 = el('button','primaryBtn');
-  s1.textContent='Enter Worst Bracket Challenge';
+  s1.textContent='Enter Stage 1 (through Round of 32)';
   s1.addEventListener('click', async ()=>{
-    await enterWorstFromCurrent();
+    await enterWorstStage1FromCurrent();
   });
 
+  const s2 = el('button','btn');
+  s2.textContent='Enter Stage 2 (Sweet 16 reset)';
+  s2.addEventListener('click', async ()=>{ await openWorstStage('r16'); });
+
+  const s3 = el('button','btn');
+  s3.textContent='Enter Stage 3 (Final Four reset)';
+  s3.addEventListener('click', async ()=>{ await openWorstStage('f4'); });
+
   row.appendChild(s1);
+  row.appendChild(s2);
+  row.appendChild(s3);
   mount.appendChild(row);
 }
 
-async function enterWorstFromCurrent(){
+async function enterWorstStage1FromCurrent(){
   if(!state.me){ openAuth('signin'); return; }
+  // prune to allow picks only through Round of 32 (no Sweet16+)
   const picks = {...state.picks};
-  const title = 'Worst Bracket Challenge Entry';
+  Object.keys(picks).forEach(k=>{
+    if(k.startsWith('FF__') || k.startsWith('FINAL') || k==='CHAMPION' || k==='TIEBREAKER_TOTAL') delete picks[k];
+    // region rounds >=2
+    const m = k.match(/__(R\d)__G\d+__winner$/);
+    if(m){
+      const r = Number(m[1].replace('R',''));
+      if(r>=2) delete picks[k];
+    }
+  });
+  const title = 'Worst Challenge Stage 1';
   const bracket_type = state.bracket_type || 'bracketology';
   const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
   await enterChallenge('worst','pre', d.id);
-  toast('Entered Worst Bracket Challenge!');
+  toast('Entered Worst Challenge Stage 1!');
   await renderWorstLeaderboard();
 }
-
 
 
 async function openBracketsOverlay(){
@@ -3288,7 +3299,7 @@ function showView(name){
   if(name==='featured') loadFeatured();
   if(name==='best' || name==='worst') renderChallenges();
 
-  // UX: when a view contains the "Get email alerts" input, focus it automatically
+  // UX: when a view contains the "Get Challenge Reminders" input, focus it automatically
   // so the blinking cursor is already in the box.
   focusEmailAlertInput(name);
   try{ bindLeadFormsForPage(); }catch(_e){}
