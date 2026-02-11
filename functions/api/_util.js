@@ -278,4 +278,7 @@ async function sendEmail(env, to, subject, html, text){
   return await sendResendEmail(env, to, subject, html, text);
 }
 
-export { json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, sendEmail, sendResendEmail, getSiteDomain, getIp, rateLimit, uid, normalizeEmail, isValidEmail };
+// NOTE: getIp, rateLimit, normalizeEmail, and isValidEmail are already exported
+// via `export function ...` declarations above. Re-exporting them here causes
+// Cloudflare Pages Functions builds to fail with "Multiple exports with the same name".
+export { json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, sendEmail, sendResendEmail, getSiteDomain, uid };
