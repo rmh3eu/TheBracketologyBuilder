@@ -1,14 +1,5 @@
 import { json, getIp, rateLimit, randomB64 } from './_util.js';
 
-// Server-side email validation (keep it simple + strict enough to block partial emails like 'a@b.c').
-function isValidEmail(email){
-  if(!email || typeof email !== 'string') return false;
-  const e = email.trim();
-  // Basic RFC-ish pattern + require 2+ letter TLD.
-  return /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(e);
-}
-
-
 async function ensureLeadTables(env){
   // IMPORTANT: D1 can be picky about multi-statement exec strings during builds.
   // Keep schema setup as single statements for maximum compatibility.
@@ -77,7 +68,6 @@ export async function onRequest({ request, env }){
     }
 
     const email = String(body?.email || '').trim().toLowerCase();
-  if(!isValidEmail(email)) return json({ ok:false, error:'INVALID_EMAIL', message:'Enter a valid email.' }, 400);
     const source = String(body?.source || '').trim().slice(0, 80);
     const optinLive = !!body?.optin_live;
     const optinUpcoming = !!body?.optin_upcoming;
