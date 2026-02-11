@@ -252,21 +252,6 @@ async function rateLimit(env, key, limit, windowSec){
   return { ok:true };
 }
 
-// --- Email helpers (shared by lead capture + admin sends) ---
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-
-export function normalizeEmail(email) {
-  if (typeof email !== "string") return "";
-  return email.trim().toLowerCase();
-}
-
-export function isValidEmail(email) {
-  const e = normalizeEmail(email);
-  if (!e) return false;
-  // basic + requires a dot-TLD of length >= 2 (prevents things like "gmail.c")
-  return EMAIL_REGEX.test(e);
-}
-
 function uid(){
   return crypto.randomUUID();
 }
@@ -278,7 +263,4 @@ async function sendEmail(env, to, subject, html, text){
   return await sendResendEmail(env, to, subject, html, text);
 }
 
-// NOTE: getIp, rateLimit, normalizeEmail, and isValidEmail are already exported
-// via `export function ...` declarations above. Re-exporting them here causes
-// Cloudflare Pages Functions builds to fail with "Multiple exports with the same name".
-export { json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, sendEmail, sendResendEmail, getSiteDomain, uid };
+export {json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, sendEmail, sendResendEmail, getSiteDomain, getIp, rateLimit, uid};
