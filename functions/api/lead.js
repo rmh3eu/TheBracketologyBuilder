@@ -41,11 +41,6 @@ async function ensureLeadTables(env){
   }catch(e){}
 }
 
-
-function isValidEmail(email){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
 export async function onRequest({ request, env }){
   if(request.method !== 'POST') return json({ ok:false, error:'Method not allowed' }, 405);
   try{
