@@ -852,20 +852,22 @@ function fillRandomPicks(){
     MIDWEST: picks[wKey('REGION_MIDWEST',3,0)] || null,
   };
 
-  if(champs.SOUTH && champs.EAST){
-    picks['FF__G0__winner'] = (Math.random() < 0.5) ? champs.SOUTH : champs.EAST;
+  // Final Four pairing matches pruneInvalidPicks + UI:
+  // Left half: South vs West. Right half: East vs Midwest.
+  if(champs.SOUTH && champs.WEST){
+    picks['FF__G0__winner'] = (Math.random() < 0.5) ? champs.SOUTH : champs.WEST;
   }
-  if(champs.WEST && champs.MIDWEST){
-    picks['FF__G1__winner'] = (Math.random() < 0.5) ? champs.WEST : champs.MIDWEST;
+  if(champs.EAST && champs.MIDWEST){
+    picks['FF__G1__winner'] = (Math.random() < 0.5) ? champs.EAST : champs.MIDWEST;
   }
+
   const f0 = picks['FF__G0__winner']||null;
   const f1 = picks['FF__G1__winner']||null;
   if(f0 && f1){
     picks['FINAL__winner'] = (Math.random() < 0.5) ? f0 : f1;
     picks['CHAMPION'] = picks['FINAL__winner'];
   }
-
-  commitPicks(picks, 'random');
+commitPicks(picks, 'random');
 }
 
 function pruneInvalidPicks(picks){
