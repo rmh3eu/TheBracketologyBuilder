@@ -436,35 +436,8 @@ function bindLeadForm(prefix, source){
   // Hide any options already successfully signed up for on other pages.
   applyLeadSignedVisibility(prefix, emailEl);
 
-  let autosaveTimer = null;
-  async function maybeAutoSave(){
-    const email = (emailEl.value || '').trim();
-    const optin_live = !!liveEl?.checked;
-    const optin_upcoming = !!upcomingEl?.checked;
-    const optin_offers = !!offersEl?.checked;
-
-    // Persist prefs locally even if we can't save yet (no email entered).
-    saveLeadPrefs({ live: optin_live, upcoming: optin_upcoming, offers: optin_offers });
-
-    if(!email || !isValidEmailBasic(email)) return;
-    if(!(optin_live || optin_upcoming || optin_offers)) return;
-
-    // Debounce server writes a bit to avoid spamming the API on quick clicks.
-    if(autosaveTimer) clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(async ()=>{
-      const ok = await saveLead({ email, source, optin_live, optin_upcoming, optin_offers, msgEl });
-      if(ok){
-        const nextSigned = saveLeadSigned({ live: optin_live, upcoming: optin_upcoming, offers: optin_offers }, email);
-        applyLeadSignedVisibility(prefix, emailEl);
-        // Keep the blinking cursor (focus) until all three boxes have been signed.
-        try{
-          if(!(nextSigned.live && nextSigned.upcoming && nextSigned.offers)){
-            emailEl.focus();
-          }
-        }catch(_e){}
-      }
-    }, 250);
-  }
+  // IMPORTANT: Only create/track a lead when the user explicitly clicks "Sign me up".
+  // (Typing an email and clicking away should NOT create partial/invalid records.)
 
   function preventUncheck(chk, keyLabel){
     if(!chk) return;
@@ -474,16 +447,25 @@ function bindLeadForm(prefix, source){
         chk.checked = true;
         if(msgEl) msgEl.textContent = 'To stop emails, use the unsubscribe link in an email.';
       }
-      maybeAutoSave();
+      // Persist opt-in choices locally (server save happens only on button click).
+      try{
+        saveLeadPrefs({
+          live: !!liveEl?.checked,
+          upcoming: !!upcomingEl?.checked,
+          offers: !!offersEl?.checked
+        });
+      }catch(_e){}
     });
   }
   preventUncheck(liveEl, 'official');
   preventUncheck(upcomingEl, 'upcoming');
   preventUncheck(offersEl, 'offers');
 
-  // Auto-save when email changes (so user doesn't need to click Sign me up).
-  emailEl.addEventListener('input', ()=>{ if(msgEl) msgEl.textContent=''; maybeAutoSave(); });
-  emailEl.addEventListener('blur', ()=>{ maybeAutoSave(); });
+  // No auto-save on typing/blur; keep it purely local until the user clicks the button.
+  emailEl.addEventListener('input', ()=>{ if(msgEl) msgEl.textContent=''; });
+  emailEl.addEventListener('blur', ()=>{
+    try{ localStorage.setItem('bb_lead_email', (emailEl.value||'').trim()); }catch(_e){}
+  });
 
   btn.addEventListener('click', async ()=>{
     const email = (emailEl.value || '').trim();
@@ -510,9 +492,6 @@ function bindLeadForm(prefix, source){
       setTimeout(()=>{ try{ btn.textContent = prevText; btn.classList.remove('saved'); }catch(_e){} }, 1400);
     }
   });
-
-  // If a saved email exists AND at least one box is checked, auto-save once on load.
-  setTimeout(()=>{ try{ maybeAutoSave(); }catch(_e){} }, 50);
 }
 
 

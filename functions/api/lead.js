@@ -1,4 +1,4 @@
-import { json, getIp, rateLimit, randomB64 } from './_util.js';
+import { json, getIp, rateLimit, randomB64, normalizeEmail, isValidEmail } from './_util.js';
 
 async function ensureLeadTables(env){
   // IMPORTANT: D1 can be picky about multi-statement exec strings during builds.

@@ -1,4 +1,4 @@
-import { json, requireUser, isAdmin, rateLimit, sendResendEmail, getSiteDomain, randomB64 } from "../_util.js";
+import { json, requireUser, isAdmin, rateLimit, sendResendEmail, getSiteDomain, randomB64, isValidEmail, normalizeEmail } from "../_util.js";
 
 async function ensureLeadTables(env){
   const stmts = [
@@ -45,23 +45,33 @@ function isValidDestination(s){
   }catch{ return false; }
 }
 
-async function sendWithConcurrency(items, worker, concurrency=8){
-  const results = { ok:0, fail:0, errors:[] };
-  let i=0;
-  const runners = Array.from({length: Math.max(1, concurrency)}, async () => {
-    while(true){
-      const idx = i++;
-      if(idx >= items.length) break;
-      try{
-        await worker(items[idx], idx);
-        results.ok += 1;
-      }catch(e){
-        results.fail += 1;
-        results.errors.push(String(e?.message || e || 'Failed'));
+async function sendWithConcurrency(items, worker, { concurrency = 1, delayMs = 300 } = {}){
+  // NOTE: Resend enforces fairly low rate limits on some plans (e.g. ~2 req/sec).
+  // We keep concurrency at 1 and add a small delay to avoid 429s.
+  concurrency = Math.max(1, Math.min(1, Number(concurrency) || 1)); // force 1
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  const results = [];
+  for (const item of items) {
+    let attempt = 0;
+    while (true) {
+      attempt++;
+      try {
+        results.push(await worker(item));
+        break;
+      } catch (err) {
+        const msg = String(err && (err.message || err));
+        // If we hit rate limits, backoff and retry a couple times.
+        if (msg.includes('429') && attempt <= 3) {
+          await sleep(800 * attempt);
+          continue;
+        }
+        throw err;
       }
     }
-  });
-  await Promise.all(runners);
+    if (delayMs) await sleep(delayMs);
+  }
   return results;
 }
 
@@ -106,7 +116,19 @@ export async function onRequestPost({ request, env }){
      ORDER BY updated_at DESC`
   ).all();
   const rows = rs.results || [];
-  if(!rows.length) return json({ ok:true, sent:0, message:'No opted-in recipients found.' });
+  // Normalize + validate emails, and dedupe by email (prevents partial/invalid addresses from being used).
+  const cleanedRows = [];
+  const seenEmails = new Set();
+  for (const r of rows) {
+    const email = normalizeEmail(r.email);
+    if (!isValidEmail(email)) continue;
+    if (seenEmails.has(email)) continue;
+    seenEmails.add(email);
+    cleanedRows.push({ ...r, email });
+  }
+  if(!cleanedRows.length) return json({ ok:true, sent:0, message:'No valid opted-in recipients found.' });
+
+  
 
   const domain = getSiteDomain(env);
   const base = `https://${domain}`;
@@ -135,9 +157,9 @@ export async function onRequestPost({ request, env }){
   };
 
   // Send emails (requires RESEND_API_KEY)
-  const summary = await sendWithConcurrency(rows, async (row) => {
+  const summary = await sendWithConcurrency(cleanedRows, async (row) => {
     await sendResendEmail(env, row.email, subject, htmlFor(row), textFor(row));
   }, 8);
 
-  return json({ ok:true, recipients: rows.length, sent: summary.ok, failed: summary.fail });
+  return json({ ok:true, recipients: cleanedRows.length, sent: summary.ok, failed: summary.fail });
 }

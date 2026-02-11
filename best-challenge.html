@@ -183,6 +183,8 @@
         const optin_upcoming = !!document.getElementById('leadUpcoming')?.checked;
         const optin_offers = !!document.getElementById('leadOffers')?.checked;
         if(!email){ msg.textContent = 'Please enter an email.'; return; }
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
+        if(!emailOk){ msg.textContent = 'Please enter a valid email address.'; return; }
         try{ localStorage.setItem('bb_lead_email', email); }catch(e){}
         msg.textContent = 'Saving...';
         try{
