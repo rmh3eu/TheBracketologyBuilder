@@ -244,8 +244,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
 
   if (createNewBtn) {
-    createNewBtn.addEventListener('click', (ev) => {
+    createNewBtn.addEventListener('click', async (ev) => {
       ev.preventDefault();
+
+      // Decide which section this new bracket should belong to based on admin phase toggles.
+      // Priority: Second Chance (Sweet16 set) > Official (Official live) > Bracketology (default).
+      try {
+        const cfg = await (window.getPublicConfig ? window.getPublicConfig() : api('/api/public-config'));
+        const sweet16Set = !!(cfg && (cfg.sweet16_set || (cfg.config && cfg.config.sweet16_set)));
+        const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
+
+        if (sweet16Set) {
+          window.location.href = 'bracket.html?new=1&second=1';
+          return;
+        }
+        if (officialLive) {
+          window.location.href = 'bracket.html?new=1&official=1';
+          return;
+        }
+      } catch {
+        // fall through to default
+      }
+
       window.location.href = 'bracket.html?new=1';
     });
   }

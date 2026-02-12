@@ -1295,7 +1295,7 @@ async function ensureSavedToAccount(){
     // Create a new bracket row first (server enforces unique name per user).
     let create;
     try{
-      create = await apiPost('/api/brackets', { title: desiredTitle });
+      create = await apiPost('/api/brackets', { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') });
     }catch(e){
       // If the API returns 409 for duplicate name, ask again.
       if(e && e.status === 409){
@@ -3380,6 +3380,18 @@ function escapeHtml(str){
 document.addEventListener('DOMContentLoaded', async ()=>{
   await loadPublicConfig();
   updateChallengeAvailability();
+  // Determine which bracket "type" this page is creating/saving.
+  // Priority: explicit URL params > current phase (Official live) > default.
+  try {
+    const qs = new URLSearchParams(location.search);
+    if (qs.get('second') === '1') state.bracket_type = 'second_chance';
+    else if (qs.get('official') === '1') state.bracket_type = 'official';
+    else if (OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
+    else state.bracket_type = 'bracketology';
+  } catch {
+    state.bracket_type = OFFICIAL_BRACKET_LIVE ? 'official' : 'bracketology';
+  }
+
   // Load local picks + meta
   state.picks = loadLocal();
   const meta = loadMeta();
