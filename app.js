@@ -3706,8 +3706,17 @@ wireRandomPicks('#randomPicksBtn');
       const liveTitle = getBracketTitleFromDom();
       if(liveTitle) state.bracketTitle = liveTitle;
 
-      // Force-create a new bracket if we are on home page or if ?new=1 on bracket page
-      const isNewFlow = (location.pathname.endsWith('index.html') || location.pathname === '/' || new URLSearchParams(location.search).get('new')==='1');
+      // Force-create a new bracket if we are on home page or if ?new=1 on bracket page.
+      // BUT: if the user is currently editing an existing bracket (e.g., opened from My Brackets),
+      // we should SAVE that bracket instead of forcing a new one. Otherwise Save/Enter can
+      // wrongly trigger “You already have a bracket with that name.”
+      const sp = new URLSearchParams(location.search);
+      const isNewParam = (sp.get('new') === '1');
+      const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+      const urlMeta = getBracketMetaFromUrl();
+      const hasExisting = !!(urlMeta.bracketId || state.bracketId);
+
+      const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
       if(isNewFlow){
         // IMPORTANT: determine the correct bracket_type for NEW brackets created from this page.
         // Priority: Sweet 16 mode (Second Chance) > Official live > Bracketology.
