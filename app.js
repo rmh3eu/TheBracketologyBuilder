@@ -917,26 +917,34 @@ function fillRandomPicks(){
   }
 
   // Final Four + Final + Champion
+  // IMPORTANT: Final Four pairing must match pruneInvalidPicks() / UI pairing.
+  // Left half: South + West. Right half: East + Midwest.
   const champs = {
-    SOUTH: picks[wKey('REGION_SOUTH',3,0)] || null,
-    EAST: picks[wKey('REGION_EAST',3,0)] || null,
-    WEST: picks[wKey('REGION_WEST',3,0)] || null,
-    MIDWEST: picks[wKey('REGION_MIDWEST',3,0)] || null,
+    REGION_SOUTH: picks[wKey('REGION_SOUTH',3,0)] || null,
+    REGION_EAST: picks[wKey('REGION_EAST',3,0)] || null,
+    REGION_WEST: picks[wKey('REGION_WEST',3,0)] || null,
+    REGION_MIDWEST: picks[wKey('REGION_MIDWEST',3,0)] || null,
   };
 
-  if(champs.SOUTH && champs.EAST){
-    picks['FF__G0__winner'] = (Math.random() < 0.5) ? champs.SOUTH : champs.EAST;
+  const ffPairs = [
+    [champs.REGION_SOUTH, champs.REGION_WEST],
+    [champs.REGION_EAST, champs.REGION_MIDWEST],
+  ];
+  for(let i=0;i<2;i++){
+    const a = ffPairs[i][0];
+    const b = ffPairs[i][1];
+    if(a && b){
+      picks[`FF__G${i}__winner`] = (Math.random() < 0.5) ? a : b;
+    }
   }
-  if(champs.WEST && champs.MIDWEST){
-    picks['FF__G1__winner'] = (Math.random() < 0.5) ? champs.WEST : champs.MIDWEST;
-  }
+
   const f0 = picks['FF__G0__winner']||null;
   const f1 = picks['FF__G1__winner']||null;
   if(f0 && f1){
     picks['FINAL__winner'] = (Math.random() < 0.5) ? f0 : f1;
+    // Champion mirrors FINAL winner in this UI
     picks['CHAMPION'] = picks['FINAL__winner'];
   }
-
   commitPicks(picks, 'random');
 }
 
