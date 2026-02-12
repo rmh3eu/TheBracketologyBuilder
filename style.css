@@ -2160,3 +2160,24 @@ button:has(span:contains('My Brackets')) { display:none !important; }
 @media (max-width: 820px){
   .bbFooter{ display:block !important; }
 }
+
+
+/* Tiebreaker (Combined Score) */
+.tiebreakerRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+}
+.tiebreakerLabel{
+  font-weight:700;
+}
+.tiebreakerInput{
+  width:140px;
+  max-width:45vw;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #d3d3d3;
+  font-size:16px;
+}

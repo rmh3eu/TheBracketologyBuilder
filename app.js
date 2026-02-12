@@ -3306,6 +3306,8 @@ function setupRoundBar(){
     qsa('.geo').forEach(s=> s.addEventListener('scroll', update, {passive:true}));
   }
   update();
+  updateTiebreakerUI();
+
 }
 
 // -------------------- Share --------------------
@@ -3623,8 +3625,44 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       toast('Could not auto-fill picks.');
     }
   });
-  wireRandomPicks('#randomPicksBtn');
+  
+  // Tiebreaker (Combined Score) — stored in picks["TIEBREAKER_TOTAL"] as a number.
+  const bindTiebreakerInput = ()=>{
+    const el = qs('#tiebreakerTotal');
+    if(!el) return;
+    // Init value from state (if any)
+    const v = (state.picks||{})['TIEBREAKER_TOTAL'];
+    el.value = (v===undefined || v===null || v==='') ? '' : String(v);
+
+    el.addEventListener('input', ()=>{
+      if(!state.picks) state.picks = {};
+      const raw = (el.value||'').trim();
+      if(!raw){
+        delete state.picks['TIEBREAKER_TOTAL'];
+        return;
+      }
+      const n = Number(raw);
+      if(!Number.isFinite(n)){
+        delete state.picks['TIEBREAKER_TOTAL'];
+        return;
+      }
+      // Store as integer (combined score is an integer)
+      state.picks['TIEBREAKER_TOTAL'] = Math.max(0, Math.round(n));
+    });
+  };
+
+  const updateTiebreakerUI = ()=>{
+    const el = qs('#tiebreakerTotal');
+    if(!el) return;
+    const v = (state.picks||{})['TIEBREAKER_TOTAL'];
+    const next = (v===undefined || v===null || v==='') ? '' : String(v);
+    if(el.value !== next) el.value = next;
+  };
+
+wireRandomPicks('#randomPicksBtn');
   wireRandomPicks('#randomPicksBtnTop');
+  bindTiebreakerInput();
+
 
   const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
