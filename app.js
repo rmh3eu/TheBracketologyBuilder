@@ -771,9 +771,28 @@ function buildRoundTeams(regionKey, baseTeams, picks, roundIdx){
   return out;
 }
 
-// Sweet 16 mode (Second Chance): use placeholder Sweet 16 field until real results are entered.
+// Sweet 16 mode (Second Chance):
+// - Home page: always show Sweet 16 bracket when enabled.
+// - Bracket pages: ONLY show Sweet 16 for second_chance brackets.
+//   Official + Bracketology brackets must remain full even when Sweet 16 is enabled.
 function sweet16ModeEnabled(){
-  return !!(PUBLIC_CONFIG && PUBLIC_CONFIG.sweet16_set);
+  if(!(PUBLIC_CONFIG && PUBLIC_CONFIG.sweet16_set)) return false;
+
+  const path = (window.location && window.location.pathname) ? window.location.pathname : '';
+  const isHome = (path === '/' || path === '' || path.endsWith('/index.html'));
+  if(isHome) return true;
+
+  // Bracket page: gate on bracket type (or URL hints for new second-chance brackets).
+  try{
+    if(document.body && document.body.classList.contains('page-bracket')){
+      const u = new URL(window.location.href);
+      const urlSecond = (u.searchParams.get('second') === '1');
+      const urlKind = (u.searchParams.get('kind') || u.searchParams.get('type') || '').toLowerCase();
+      const bt = String(state.bracket_type || state.bracketType || '').toLowerCase();
+      return urlSecond || urlKind === 'second_chance' || bt === 'second_chance';
+    }
+  }catch(e){}
+  return false;
 }
 
 function getTeamBySeed(regionKey, seed){
@@ -2463,6 +2482,9 @@ async function loadBracketFromServer(id){
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
   state.bracketTitle = d.bracket.title || 'My Bracket';
+  state.bracket_type = d.bracket.bracket_type || 'bracketology';
+  state.bracketType = state.bracket_type;
+
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   // Ensure the visible title matches the latest value from D1, not stale local meta.
   setBracketTitleDisplay(state.bracketTitle);
