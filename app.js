@@ -771,6 +771,58 @@ function buildRoundTeams(regionKey, baseTeams, picks, roundIdx){
   return out;
 }
 
+// Sweet 16 mode (Second Chance): use placeholder Sweet 16 field until real results are entered.
+function sweet16ModeEnabled(){
+  return !!(PUBLIC_CONFIG && PUBLIC_CONFIG.sweet16_set);
+}
+
+function getTeamBySeed(regionKey, seed){
+  const r = REGIONS.find(x=>x.key===regionKey);
+  if(!r) return null;
+  const base = listToSeedArray(r.teams);
+  return base[seed-1] || null;
+}
+
+function ensurePlaceholderToSweet16(picks){
+  // When Sweet 16 is enabled but early-round results aren't entered yet,
+  // force rounds 0-1 picks to advance the top 4 seeds (1,2,3,4) in each region.
+  // This makes the bracket effectively start at Sweet 16 without breaking existing key scheme.
+  const np = { ...(picks||{}) };
+  for(const r of REGIONS){
+    const base = listToSeedArray(r.teams);
+    const t1 = base[0], t2 = base[1], t3 = base[2], t4 = base[3];
+    const t5 = base[4], t6 = base[5], t7 = base[6], t8 = base[7];
+    const t16 = base[15], t15 = base[14], t14 = base[13], t13 = base[12], t12 = base[11], t11 = base[10], t10 = base[9], t9 = base[8];
+    // Round of 64 (R0) winners to set up Round of 32 matchups that lead to top 4 seeds.
+    // Pairings: (1/16),(8/9),(5/12),(4/13),(6/11),(3/14),(7/10),(2/15)
+    if(t1 && t16) np[wKey(r.key,0,0)] = t1;
+    if(t8 && t9)  np[wKey(r.key,0,1)] = t8;
+    if(t5 && t12) np[wKey(r.key,0,2)] = t5;
+    if(t4 && t13) np[wKey(r.key,0,3)] = t4;
+    if(t6 && t11) np[wKey(r.key,0,4)] = t6;
+    if(t3 && t14) np[wKey(r.key,0,5)] = t3;
+    if(t7 && t10) np[wKey(r.key,0,6)] = t7;
+    if(t2 && t15) np[wKey(r.key,0,7)] = t2;
+    // Round of 32 (R1) winners: 1 over 8, 4 over 5, 3 over 6, 2 over 7
+    if(t1 && t8) np[wKey(r.key,1,0)] = t1;
+    if(t5 && t4) np[wKey(r.key,1,1)] = t4;
+    if(t6 && t3) np[wKey(r.key,1,2)] = t3;
+    if(t7 && t2) np[wKey(r.key,1,3)] = t2;
+  }
+  return np;
+}
+
+function getPlaceholderSweet16Field(regionKey){
+  // Returns 4 teams in bracket order: (t0 vs t1), (t2 vs t3).
+  // Use 1 vs 4 and 3 vs 2 as a simple placeholder field.
+  const t1 = getTeamBySeed(regionKey, 1);
+  const t2 = getTeamBySeed(regionKey, 2);
+  const t3 = getTeamBySeed(regionKey, 3);
+  const t4 = getTeamBySeed(regionKey, 4);
+  return [t1, t4, t3, t2];
+}
+
+
 // Fill the bracket with random picks.
 
 function updateUndoUI(){
@@ -1980,12 +2032,15 @@ function renderWorstStage2(picks, onUpdate){
     const h = el('div','regionHead'); h.textContent = rKey;
     box.appendChild(h);
 
-    const t0 = state.resultsMap[`${rKey}__R1__G0`];
-    const t1 = state.resultsMap[`${rKey}__R1__G1`];
-    const t2 = state.resultsMap[`${rKey}__R1__G2`];
-    const t3 = state.resultsMap[`${rKey}__R1__G3`];
+    let t0 = state.resultsMap[`${rKey}__R1__G0`];
+    let t1 = state.resultsMap[`${rKey}__R1__G1`];
+    let t2 = state.resultsMap[`${rKey}__R1__G2`];
+    let t3 = state.resultsMap[`${rKey}__R1__G3`];
+    if(sweet16ModeEnabled() && (!t0 || !t1 || !t2 || !t3)){
+      const ph = getPlaceholderSweet16Field(rKey);
+      t0 = ph[0]; t1 = ph[1]; t2 = ph[2]; t3 = ph[3];
+    }
     const s16a=[t0,t1], s16b=[t2,t3];
-
     const colWrap = el('div','rounds');
     const colS16 = el('div','roundCol');
     colS16.appendChild(el('div','roundTitle')).textContent='Sweet 16';
@@ -2050,12 +2105,15 @@ function renderLateStage2(picks, onUpdate){
     const h = el('div','regionHead'); h.textContent = rKey;
     box.appendChild(h);
 
-    const t0 = state.resultsMap[`${rKey}__R1__G0`];
-    const t1 = state.resultsMap[`${rKey}__R1__G1`];
-    const t2 = state.resultsMap[`${rKey}__R1__G2`];
-    const t3 = state.resultsMap[`${rKey}__R1__G3`];
+    let t0 = state.resultsMap[`${rKey}__R1__G0`];
+    let t1 = state.resultsMap[`${rKey}__R1__G1`];
+    let t2 = state.resultsMap[`${rKey}__R1__G2`];
+    let t3 = state.resultsMap[`${rKey}__R1__G3`];
+    if(sweet16ModeEnabled() && (!t0 || !t1 || !t2 || !t3)){
+      const ph = getPlaceholderSweet16Field(rKey);
+      t0 = ph[0]; t1 = ph[1]; t2 = ph[2]; t3 = ph[3];
+    }
     const s16a=[t0,t1], s16b=[t2,t3];
-
     const colWrap = el('div','rounds');
     const colS16 = el('div','roundCol');
     colS16.appendChild(el('div','roundTitle')).textContent='Sweet 16';
@@ -2531,6 +2589,12 @@ function renderRegion(r, picks, opts={}){
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
   const isMirror = (!isMobile) && (r.name === 'East' || r.name === 'Midwest');
 
+  const startRound = (opts && Number.isFinite(opts.startRound)) ? opts.startRound : 0;
+  const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
+  const ALL_ROUND_LABELS = ['Round of 64','Round of 32','Sweet 16','Elite 8'];
+  const roundLabels = ALL_ROUND_LABELS.slice(startRound, startRound + roundsToRender);
+
+
   // Region header + per-round labels (requested: show round names aligned above
   // each column, and keep the region name visible on mobile when the bracket
   // auto-scrolls between rounds).
@@ -2539,13 +2603,13 @@ function renderRegion(r, picks, opts={}){
   const nm = el('div','regionName');
   nm.textContent = r.name;
   const roundRow = el('div','regionRoundRow');
-  const roundLabels = ['Round of 64','Round of 32','Sweet 16','Elite 8'];
   // Keep header labels aligned to tightened columns.
-  const headerLefts = isMirror ? [COL_STEP*3, COL_STEP*2, COL_STEP, 0] : [0, COL_STEP, COL_STEP*2, COL_STEP*3];
+  const headerLefts = isMirror
+    ? roundLabels.map((_,i)=> (roundLabels.length-1-i)*COL_STEP)
+    : roundLabels.map((_,i)=> i*COL_STEP);
   for(let i=0;i<roundLabels.length;i++){
     const sp = el('div','regionRoundLabel');
     sp.textContent = roundLabels[i];
-    if(i===4) sp.classList.add('final4Label');
     sp.style.left = (headerLefts[i] + 10) + 'px';
     roundRow.appendChild(sp);
   }
@@ -2570,30 +2634,31 @@ function renderRegion(r, picks, opts={}){
 
   // Slightly more compact on desktop so the full bracket fits better
   const matchH = 72, gap = 10;
-  const tops = computeTops(matchH, gap, 8);
+  const gamesCountByStart = {0:8,1:4,2:2,3:1};
+  const tops = computeTops(matchH, gap, gamesCountByStart[startRound] || 8);
 
-  const roundTitles = ['Round of 64','Round of 32','Sweet 16','Elite 8'];
   // Bring columns closer together so users scroll less on desktop.
-  // Tight, ESPN-like columns (game width is set in CSS to ~130px)
-  const roundLefts = isMirror ? [COL_STEP*3, COL_STEP*2, COL_STEP, 0] : [0, COL_STEP, COL_STEP*2, COL_STEP*3];
+  const roundLefts = isMirror
+    ? roundLabels.map((_,i)=> (roundLabels.length-1-i)*COL_STEP)
+    : roundLabels.map((_,i)=> i*COL_STEP);
 
   const canvasH = tops[0][tops[0].length-1] + matchH;
   canvas.style.height = `${canvasH}px`;
   canvas.style.minHeight = `${canvasH}px`;
 
-  // Build + render each round col
-  const maxRounds = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
-  for(let roundIdx=0; roundIdx<maxRounds; roundIdx++){
+  // Build + render each displayed round col
+  for(let displayIdx=0; displayIdx<roundLabels.length; displayIdx++){
+    const roundIdx = startRound + displayIdx;
     const games = buildRoundTeams(r.key, base, picks, roundIdx);
     const col = el('div','roundCol');
-    col.style.left = `${roundLefts[roundIdx]}px`;
+    col.style.left = `${roundLefts[displayIdx]}px`;
     col.style.height = `${canvasH}px`;
 
     // Round names are now shown in the region header row (black) so we don't
     // duplicate them inside the scrolling columns.
 
     games.forEach((pair, gIdx)=>{
-      const game = el('div','game'); game.style.top = `${tops[roundIdx][gIdx]}px`;
+      const game = el('div','game'); game.style.top = `${tops[displayIdx][gIdx]}px`;
       const curWinner = picks[wKey(r.key, roundIdx, gIdx)] || null;
 
       pair.forEach((team)=>{
@@ -2993,6 +3058,7 @@ function renderChallengeCallout(){
 
 
 function sweet16Set(){
+  if(sweet16ModeEnabled()) return true;
   const regions = ['REGION_SOUTH','REGION_EAST','REGION_WEST','REGION_MIDWEST'];
   return regions.every(r=>{
     return [0,1,2,3].every(g=>!!state.resultsMap[`${r}__R1__G${g}`]);
@@ -3021,7 +3087,7 @@ function renderNCAALateSweet16(picks){
   const title = qs('#ncaaLateTitle');
   const sub = qs('#ncaaLateSub');
   title.textContent = 'NCAA Sweet 16 Bracket';
-  sub.textContent = 'Actual Sweet 16 field — make picks from here to champion.';
+  sub.textContent = (sweet16ModeEnabled() && !state.resultsMap['REGION_SOUTH__R1__G0']) ? 'Top 4 seeds placeholder — make picks from Sweet 16 to champion.' : 'Actual Sweet 16 field — make picks from here to champion.';
   const bracket = renderLateStage2(picks, (np)=>{ commitPicks(np,'pick'); });
   mount.appendChild(bracket);
 }
@@ -3049,14 +3115,21 @@ function renderAll(){
   renderBubble();
   renderChallengeCallout();
 
-  const phase = currentNCAAPhase();
+  const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
+  let phase = currentNCAAPhase();
+  // On bracket.html, always render the bracket section (even during Sweet 16 / Final Four phases).
+  if(isBracketPage && phase !== 'full') phase = 'full';
+
+  if(sweet16ModeEnabled()){
+    state.picks = ensurePlaceholderToSweet16(state.picks);
+  }
 
   // Show/hide core NCAA bracket sections
-  setSectionVisible('#ncaaFullSection', phase==='full');
-  setSectionVisible('#ncaaLateSection', phase==='sweet16' || phase==='final4');
+  setSectionVisible('#ncaaFullSection', phase==='full' || isBracketPage);
+  setSectionVisible('#ncaaLateSection', !isBracketPage && (phase==='sweet16' || phase==='final4'));
 
   // Next sports panels appear starting at Sweet 16 and remain
-  const showNext = (phase==='sweet16' || phase==='final4' || phase==='post');
+  const showNext = (!isBracketPage) && (phase==='sweet16' || phase==='final4' || phase==='post');
   setSectionVisible('#nextSportsPanel', showNext);
   setSectionVisible('#preNbaSection', showNext);
   setSectionVisible('#preNhlSection', showNext);
@@ -3080,7 +3153,7 @@ function renderAll(){
     REGIONS.forEach(r=>{
       const mount = qs(`#region-${r.name}`);
       mount.innerHTML='';
-      const { card, scroller } = renderRegion(r, state.picks);
+      const { card, scroller } = renderRegion(r, state.picks, sweet16ModeEnabled()?{startRound:2,maxRounds:2}:undefined);
       mount.appendChild(card);
       scrollers.push(scroller);
     });
@@ -3394,6 +3467,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   // Load local picks + meta
   state.picks = loadLocal();
+  // If Sweet 16 mode is enabled, lock in placeholder early-round winners so the bracket starts at Sweet 16.
+  if(sweet16ModeEnabled()){
+    state.picks = ensurePlaceholderToSweet16(state.picks);
+    saveLocal(state.picks);
+  }
+
   const meta = loadMeta();
   state.bracketId = meta.bracketId || null;
   state.bracketTitle = meta.bracketTitle || 'My Bracket';
@@ -3682,5 +3761,3 @@ document.addEventListener("click", function(e) {
     window.location.href = link.href;
   }
 });
-
-
