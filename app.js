@@ -646,6 +646,7 @@ async function loadPublicConfig(){
       const ms = Date.parse(PUBLIC_CONFIG.lock_at_iso);
       if(!Number.isNaN(ms)) LOCK_AT_MS = ms;
     }
+    OFFICIAL_BRACKET_LIVE = !!(PUBLIC_CONFIG && PUBLIC_CONFIG.official_bracket_live);
   }catch(e){
     PUBLIC_CONFIG = {ok:false, affiliate_join_url:"", group_upgrade_checkout_url_base:""};
   }
@@ -3483,11 +3484,13 @@ function escapeHtml(str){
 document.addEventListener('DOMContentLoaded', async ()=>{
   await loadPublicConfig();
   updateChallengeAvailability();
+  const IS_HOME = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+
   // Determine which bracket "type" this page is creating/saving.
   // Priority: explicit URL params > Sweet 16 mode (home only) > Official live > default.
   try {
     const qs = new URLSearchParams(location.search);
-    const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/');
+    const isHome = IS_HOME;
     if (qs.get('second') === '1') state.bracket_type = 'second_chance';
     else if (qs.get('official') === '1') state.bracket_type = 'official';
     else if (isHome && sweet16ModeEnabled()) state.bracket_type = 'second_chance';
@@ -3498,16 +3501,25 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
 
   // Load local picks + meta
-  state.picks = loadLocal();
+  // Home page should ALWAYS start as a fresh bracket (never resume the last bracket).
+  if(IS_HOME){
+    state.picks = {};
+    state.bracketId = null;
+    state.bracketTitle = '';
+    saveLocal(state.picks);
+    saveMeta({ bracketId: null, bracketTitle: '' });
+  }else{
+    state.picks = loadLocal();
+    const meta = loadMeta();
+    state.bracketId = meta.bracketId || null;
+    state.bracketTitle = meta.bracketTitle || 'My Bracket';
+  }
+
   // If Sweet 16 mode is enabled, lock in placeholder early-round winners so the bracket starts at Sweet 16.
   if(sweet16ModeEnabled()){
     state.picks = ensurePlaceholderToSweet16(state.picks);
     saveLocal(state.picks);
   }
-
-  const meta = loadMeta();
-  state.bracketId = meta.bracketId || null;
-  state.bracketTitle = meta.bracketTitle || 'My Bracket';
 
   // If creating a new bracket, start untitled and ask for a name later (on My Brackets)
   if (location.pathname.endsWith('bracket.html') && new URLSearchParams(location.search).get('new')==='1') {
@@ -3700,7 +3712,7 @@ wireRandomPicks('#randomPicksBtn');
         // IMPORTANT: determine the correct bracket_type for NEW brackets created from this page.
         // Priority: Sweet 16 mode (Second Chance) > Official live > Bracketology.
         // This ensures home-page Save/Enter routes to the right My Brackets section.
-        const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/');
+        const isHome = IS_HOME;
         if(isHome){
           if(sweet16ModeEnabled()) state.bracket_type = 'second_chance';
           else if(OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
