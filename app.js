@@ -3120,6 +3120,11 @@ function renderAll(){
   // On bracket.html, always render the bracket section (even during Sweet 16 / Final Four phases).
   if(isBracketPage && phase !== 'full') phase = 'full';
 
+  // Home page doesn't have the separate "late stage" NCAA section mounts.
+  // To keep Sweet 16 mode stable (and match bracket.html rendering), render inside the
+  // existing full bracket layout but starting at Sweet 16.
+  if(!isBracketPage && sweet16ModeEnabled() && phase !== 'full') phase = 'full';
+
   if(sweet16ModeEnabled()){
     state.picks = ensurePlaceholderToSweet16(state.picks);
   }
