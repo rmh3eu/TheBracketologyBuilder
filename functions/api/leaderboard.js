@@ -270,7 +270,14 @@ export async function onRequestGet({ request, env }){
     const r16Title = u.brackets.r16 ? (bmap.get(u.brackets.r16)?.title || null) : null;
     const f4Title  = u.brackets.f4  ? (bmap.get(u.brackets.f4 )?.title || null) : null;
     const display_name = preTitle || r16Title || f4Title || (u.email ? u.email.split('@')[0] : 'Bracket');
-    rows.push({
+        // Tie-breaker: use the first provided tiebreaker across the user's stage brackets (prefer latest stage)
+    const tb =
+      (u.brackets.f4  ? tieBreaker((bmap.get(u.brackets.f4 )?.data)||{}) : null) ??
+      (u.brackets.r16 ? tieBreaker((bmap.get(u.brackets.r16)?.data)||{}) : null) ??
+      (u.brackets.pre ? tieBreaker((bmap.get(u.brackets.pre)?.data)||{}) : null);
+    const diff = (actualFinalTotal!==null && tb!==null) ? Math.abs(tb-actualFinalTotal) : null;
+
+rows.push({
       user_id: u.user_id,
       email: u.email,
       display_name,
@@ -279,6 +286,8 @@ export async function onRequestGet({ request, env }){
       stage2: stageScores.r16,
       stage3: stageScores.f4,
       x, y, pct,
+      tiebreaker: tb,
+      tiebreaker_diff: diff,
       total_possible: totalScore + (remainingGames * 10),
       brackets: u.brackets
     });
@@ -286,15 +295,24 @@ export async function onRequestGet({ request, env }){
 
   rows.sort((a,b)=>{
     if(b.score!==a.score) return b.score-a.score;
+    // If final is known + total provided, use closest tiebreaker
+    if(actualFinalTotal!==null){
+      const ad = (a.tiebreaker_diff===null)? 10**9 : a.tiebreaker_diff;
+      const bd = (b.tiebreaker_diff===null)? 10**9 : b.tiebreaker_diff;
+      if(ad!==bd) return ad-bd;
+    }
     return (a.display_name||'').localeCompare(b.display_name||'');
   });
 
-  // ranks with ties on total only (tie-breaker not needed for worst per your latest message)
-  let rank=0, prev=null, count=0;
-  const out = rows.map(r=>{
+  // assign ranks with ties (score first; at the end of the tournament, apply tiebreaker closeness if available)
+  let rank=0, prevScore=null, prevDiff=null, count=0;
+  const out = rows.map(row=>{
     count+=1;
-    if(prev!==r.score){ rank=count; prev=r.score; }
-    return { rank, ...r };
+    const curScore=row.score;
+    const curDiff=actualFinalTotal!==null ? (row.tiebreaker_diff===null?10**9:row.tiebreaker_diff) : null;
+    const same = (prevScore===curScore) && (actualFinalTotal===null || prevDiff===curDiff);
+    if(!same){ rank=count; prevScore=curScore; prevDiff=curDiff; }
+    return { rank, ...row };
   });
 
   return json({ok:true, leaderboard: out, totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});

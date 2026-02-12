@@ -1553,12 +1553,13 @@ function ensureTiebreakerIfChampion(picks){
   if(!picks || !picks.CHAMPION) return true;
   const tb = picks.TIEBREAKER_TOTAL;
   if(tb!==null && tb!==undefined && tb!=='' && Number.isFinite(Number(tb))) return true;
-  const v = prompt('Tiebreaker: total combined score in the National Championship game (e.g., 141)');
-  if(v===null) return false;
-  const n = Number(String(v).trim());
-  if(!Number.isFinite(n)){ toast('Enter a number for the tiebreaker.'); return false; }
-  picks.TIEBREAKER_TOTAL = n;
-  return true;
+  // Require user-entered tiebreaker (no prompts — keep UX stable on iOS Safari).
+  toast('Please enter Tiebreaker: Total Points in Final.');
+  try{
+    const el = qs('#tiebreakerTotal');
+    if(el){ el.focus(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }catch(_e){}
+  return false;
 }
 
 async function enterBestWithCurrent(){
@@ -3667,6 +3668,18 @@ wireRandomPicks('#randomPicksBtn');
   const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
     saveLocal(state.picks);
+    // Require a championship tiebreaker if a champion has been selected.
+    if(state.picks && state.picks.CHAMPION){
+      const tb = state.picks.TIEBREAKER_TOTAL;
+      if(tb===null || tb===undefined || tb==='' || !Number.isFinite(Number(tb))){
+        toast('Please enter Tiebreaker: Total Points in Final.');
+        try{
+          const el = qs('#tiebreakerTotal');
+          if(el){ el.focus(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+        }catch(_e){}
+        return;
+      }
+    }
     if(!state.me){
       // Show sign-in prompt with a clear message
       try{
