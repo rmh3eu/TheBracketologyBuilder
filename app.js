@@ -3481,11 +3481,13 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   await loadPublicConfig();
   updateChallengeAvailability();
   // Determine which bracket "type" this page is creating/saving.
-  // Priority: explicit URL params > current phase (Official live) > default.
+  // Priority: explicit URL params > Sweet 16 mode (home only) > Official live > default.
   try {
     const qs = new URLSearchParams(location.search);
+    const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/');
     if (qs.get('second') === '1') state.bracket_type = 'second_chance';
     else if (qs.get('official') === '1') state.bracket_type = 'official';
+    else if (isHome && sweet16ModeEnabled()) state.bracket_type = 'second_chance';
     else if (OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
     else state.bracket_type = 'bracketology';
   } catch {
@@ -3644,6 +3646,15 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       // Force-create a new bracket if we are on home page or if ?new=1 on bracket page
       const isNewFlow = (location.pathname.endsWith('index.html') || location.pathname === '/' || new URLSearchParams(location.search).get('new')==='1');
       if(isNewFlow){
+        // IMPORTANT: determine the correct bracket_type for NEW brackets created from this page.
+        // Priority: Sweet 16 mode (Second Chance) > Official live > Bracketology.
+        // This ensures home-page Save/Enter routes to the right My Brackets section.
+        const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/');
+        if(isHome){
+          if(sweet16ModeEnabled()) state.bracket_type = 'second_chance';
+          else if(OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
+          else state.bracket_type = 'bracketology';
+        }
         // Clear any existing bracketId so we create a fresh bracket
         state.bracketId = null;
         state.bracketTitle = null;
