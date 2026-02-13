@@ -2219,8 +2219,4 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     text-align: center;
   }
 
-  /* Hide My Brackets tab on mobile (button exists above) */
-  .siteNav a[href="my-brackets.html"] {
-    display: none !important;
-  }
 }
