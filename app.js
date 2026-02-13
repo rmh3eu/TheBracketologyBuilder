@@ -2622,7 +2622,7 @@ function renderRegion(r, picks, opts={}){
   // Desktop only: mirror the right-side regions (East/Midwest) so they
   // start on the far RIGHT with Round of 64 and funnel LEFT to Final 4.
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-  const isMirror = (!isMobile) && (r.name === 'East' || r.name === 'Midwest');
+  const isMirror = (!isMobile) && (r.name === 'West' || r.name === 'South');
 
   const startRound = (opts && Number.isFinite(opts.startRound)) ? opts.startRound : 0;
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
