@@ -2196,3 +2196,31 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   border:1px solid #d3d3d3;
   font-size:16px;
 }
+
+
+
+/* Mobile-only header button grid + hide My Brackets tab */
+@media (max-width: 640px) {
+  /* Make each action row a clean 2-column grid */
+  .actions .actionRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .actions .actionRow .btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Ensure Undo text is centered like other buttons */
+  #undoBtnHeader {
+    text-align: center;
+  }
+
+  /* Hide My Brackets tab on mobile (button exists above) */
+  .siteNav a[href="my-brackets.html"] {
+    display: none !important;
+  }
+}
