@@ -26,6 +26,7 @@
 </div>
 <div class="actionRow">
 <button class="btn ghost" id="saveBtn" title="Saves your current picks">Save</button>
+<button class="btn ghost mobileOnlyInline" id="randomPicksBtnHeader" type="button" title="Fill the bracket with random picks">Random picks</button>
 <button class="btn danger" id="resetBtn">Reset</button>
 </div>
 <div class="signinHint" id="signinHint">Sign in to save your picks.</div>
@@ -62,9 +63,12 @@
 <div class="bracketTitleRow homeTitleRow">
   <input id="bracketPageTitle" class="bracketPageTitle bracketPageTitleInput" type="text" maxlength="80" value="" />
   <button class="btn primary btnCompact" id="saveEnterBtnTop" type="button">Save &amp; Enter</button>
-  <button class="btn btnCompact" id="randomPicksBtnTop" type="button">Random picks</button>
   <button class="btn btnCompact" id="undoBtnTop" type="button" disabled>Undo</button>
 </div>
+<div class="bracketTitleRow homeTitleRow" style="margin-top:8px">
+  <button class="btn btnCompact" id="randomPicksBtnTop" type="button">Random picks</button>
+</div>
+
 <div class="centerStack">
   <!-- Box 1: Final 4 + Championship -->
       <div class="panel final4Panel">

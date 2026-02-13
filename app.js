@@ -3682,6 +3682,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
 wireRandomPicks('#randomPicksBtn');
   wireRandomPicks('#randomPicksBtnTop');
+  wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
 
 

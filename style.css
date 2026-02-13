@@ -100,6 +100,7 @@ body{
 .signinHint{font-size:12px;color:var(--muted);text-align:right}
 .taglineShort{display:none}
 .taglineFull{display:inline}
+.mobileOnlyInline{display:none !important;}
 .btn{
   border:1px solid var(--line);
   background: var(--panel);
@@ -2183,10 +2184,9 @@ button:has(span:contains('My Brackets')) { display:none !important; }
 }
 
 
-/* Mobile: keep Random Picks next to Save/Enter in the top title row */
-@media (max-width: 768px){
-  .bracketTitleRow #bracketPageTitle{
-    flex: 1 1 100%;
-    min-width: 0;
-  }
+/* Mobile-only: show header Random picks next to Save */
+@media (max-width: 899px){
+  .mobileOnlyInline{display:inline-flex !important;}
+  /* Prevent duplicate top random button in bracket header area on mobile */
+  #randomPicksBtnTop{display:none !important;}
 }
