@@ -109,6 +109,7 @@ body{
   border-radius:10px;
   font-size:12px;
   cursor:pointer;
+  text-align:center;
 }
 .btn:hover{border-color: rgba(255,255,255,0.18)}
 .btn.danger{border-color: rgba(255,107,107,0.35); color: var(--danger); background: var(--panel)}
@@ -1248,7 +1249,7 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 /* Title row and quick buttons on bracket page */
 .bracketTitleRow{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
 .bracketTitleRow #bracketPageTitle{min-width:180px; flex:1 1 auto;}
-.btnCompact{padding:8px 12px; font-size:14px; line-height:1; border-radius:10px;}
+.btnCompact{padding:8px 12px; font-size:14px; line-height:1; border-radius:10px; text-align:center;}
 
 
 

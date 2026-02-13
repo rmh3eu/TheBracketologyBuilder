@@ -32,21 +32,8 @@
     <a class="navLink" href="index.html#home">Home</a>
     <a class="navLink" href="my-brackets.html">My Brackets</a>
 
-    <div class="navDrop">
-      <button class="navDropBtn" type="button">Best Bracket Challenge</button>
-      <div class="navDropMenu">
-        <a class="navLink navDropItem" href="best-challenge.html">Full Bracket</a>
-        <a class="navLink navDropItem" href="index.html#best2">Second Chance Bracket</a>
-      </div>
-    </div>
-
-    <div class="navDrop worstActive">
-      <button class="navDropBtn" type="button">Worst Bracket Challenge</button>
-      <div class="navDropMenu">
-        <a class="navLink navDropItem active" href="worst-challenge.html">Full Bracket</a>
-        <a class="navLink navDropItem" href="index.html#worst2">Second Chance Bracket</a>
-      </div>
-    </div>
+    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+    <a class="navLink active" href="worst-challenge.html">Worst Bracket Challenge</a>
 
     <a class="navLink" href="index.html#featured">Featured Brackets</a>
     <a class="navLink" href="index.html#upcoming">Upcoming Events</a>
@@ -54,6 +41,9 @@
 </div>
 
 <div class="challengeTop">
+  <div style="margin: 10px 14px 0;">
+    <a class="btn" href="index.html#worst2">Second Chance Bracket</a>
+  </div>
   
 
   <div class="challengeTopGrid">
@@ -226,30 +216,6 @@
     </p>
   </div>
 </footer>
-
-
-<script>
-// PATCH 23: lightweight dropdown behavior for navDrop on static pages
-(function(){
-  function closeAll(){
-    document.querySelectorAll('.navDrop.open').forEach(d=>d.classList.remove('open'));
-  }
-  document.addEventListener('click', function(e){
-    const btn = e.target.closest('.navDropBtn');
-    if(btn){
-      const drop = btn.closest('.navDrop');
-      const isOpen = drop.classList.contains('open');
-      closeAll();
-      if(!isOpen) drop.classList.add('open');
-      e.preventDefault();
-      return;
-    }
-    // click inside menu -> allow navigation
-    if(e.target.closest('.navDropMenu')) return;
-    closeAll();
-  });
-})();
-</script>
 
 
 <script>
