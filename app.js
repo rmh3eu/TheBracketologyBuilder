@@ -3623,6 +3623,17 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   qs('#createBtn')?.addEventListener('click', ()=>{ window.location.href = 'my-brackets.html?create=1'; });
   qs('#closeBrackets')?.addEventListener('click', closeBracketsOverlay);
 
+  // Mobile-only: move the "My Brackets" button down next to the Save button
+  // (we hide the My Brackets tab on mobile, so this keeps navigation accessible).
+  try{
+    const bracketsBtn = qs('#bracketsBtn');
+    const saveBtn = qs('#saveBtn');
+    const rowFull = saveBtn ? saveBtn.closest('.actionRowFull') : null;
+    if(bracketsBtn && saveBtn && rowFull && window.matchMedia('(max-width: 720px)').matches){
+      rowFull.appendChild(bracketsBtn);
+    }
+  }catch{}
+
   qs('#saveBtn')?.addEventListener('click', async ()=>{
     // Guest: local save already; Logged-in: force save to account now.
     saveLocal(state.picks);

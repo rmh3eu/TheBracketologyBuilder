@@ -653,10 +653,20 @@ body{
   .team .seed{color:#0b1220}
   /* Buttons layout: 2 rows */
   .actions{flex-wrap:wrap;gap:8px}
-  #accountBtn,#bracketsBtn{flex:1 1 auto;min-width:40%}
+  /* Hide My Brackets tab in the nav on mobile (button exists above). */
+  .siteNav .navLink[data-view="mybrackets"]{display:none;}
+
+  /* Header buttons layout on mobile */
+  #accountBtn{flex:1 1 auto;min-width:40%}
+
   #undoBtnHeader,#randomPicksBtnHeader{display:inline-flex}
   #undoBtnHeader,#randomPicksBtnHeader{flex:1 1 45%}
-  .actionRowFull #saveBtn{flex:1 1 100%}
+  #undoBtnHeader,#randomPicksBtnHeader{align-items:center;justify-content:center;}
+
+  /* Save row: allow Save + My Brackets side-by-side when JS moves the button */
+  .actionRowFull{display:flex;gap:8px}
+  .actionRowFull #saveBtn{flex:1 1 45%}
+  .actionRowFull #bracketsBtn{flex:1 1 45%}
 }
 
 /* Subtle basketball background */
