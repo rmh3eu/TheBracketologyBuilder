@@ -2181,3 +2181,12 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   border:1px solid #d3d3d3;
   font-size:16px;
 }
+
+
+/* Mobile: keep Random Picks next to Save/Enter in the top title row */
+@media (max-width: 768px){
+  .bracketTitleRow #bracketPageTitle{
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
