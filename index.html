@@ -25,9 +25,11 @@
 <button class="btn ghost" id="bracketsBtn">My Brackets</button>
 </div>
 <div class="actionRow">
-<button class="btn ghost" id="saveBtn" title="Saves your current picks">Save</button>
-<button class="btn ghost mobileOnlyInline" id="randomPicksBtnHeader" type="button" title="Fill the bracket with random picks">Random picks</button>
-<button class="btn danger" id="resetBtn">Reset</button>
+  <button class="btn ghost" id="undoBtnHeader" type="button" disabled>Undo</button>
+  <button class="btn" id="randomPicksBtnHeader" type="button">Random picks</button>
+</div>
+<div class="actionRow actionRowFull">
+  <button class="btn ghost" id="saveBtn" title="Saves your current picks" type="button">Save</button>
 </div>
 <div class="signinHint" id="signinHint">Sign in to save your picks.</div>
 </div>
@@ -35,9 +37,7 @@
 <div class="stickyNav">
 <nav aria-label="Primary" class="siteNav">
 <a class="navLink active" data-view="build" href="#home">Home</a>
-<a class="navLink" data-view="mybrackets" href="my-brackets.html">My Brackets</a>
-<a class="navLink" data-view="best" href="best-challenge.html">Best Bracket Challenge</a>
-<a class="navLink" data-view="worst" href="worst-challenge.html">Worst Bracket Challenge</a>
+<a class="navLink" data-view="mybrackets" href="my-brackets.html">My Brackets</a><div class="navDrop"><button class="navDropBtn" type="button">Best Bracket Challenge</button><div class="navDropMenu"><a class="navLink navDropItem" data-view="best" href="best-challenge.html">Full Bracket</a><a class="navLink navDropItem" data-view="best2" href="#best2">Second Chance Bracket</a></div></div><div class="navDrop"><button class="navDropBtn" type="button">Worst Bracket Challenge</button><div class="navDropMenu"><a class="navLink navDropItem" data-view="worst" href="worst-challenge.html">Full Bracket</a><a class="navLink navDropItem" data-view="worst2" href="#worst2">Second Chance Bracket</a></div></div>
 <a class="navLink" data-view="featured" href="#featured">Featured Brackets</a>
 <a class="navLink" data-view="upcoming" href="#upcoming">Upcoming Events</a>
 </nav>

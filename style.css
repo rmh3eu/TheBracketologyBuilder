@@ -97,10 +97,11 @@ body{
 .tagline{margin-top:4px;font-size:12px;color:var(--muted);max-width:820px}
 .actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .actionRow{display:flex;gap:8px;justify-content:flex-end}
+/* Mobile-only topbar buttons (shown in mobile media query) */
+#undoBtnHeader,#randomPicksBtnHeader{display:none}
 .signinHint{font-size:12px;color:var(--muted);text-align:right}
 .taglineShort{display:none}
 .taglineFull{display:inline}
-.mobileOnlyInline{display:none !important;}
 .btn{
   border:1px solid var(--line);
   background: var(--panel);
@@ -652,7 +653,9 @@ body{
   /* Buttons layout: 2 rows */
   .actions{flex-wrap:wrap;gap:8px}
   #accountBtn,#bracketsBtn{flex:1 1 auto;min-width:40%}
-  #saveBtn,#resetBtn{flex:1 1 45%}
+  #undoBtnHeader,#randomPicksBtnHeader{display:inline-flex}
+  #undoBtnHeader,#randomPicksBtnHeader{flex:1 1 45%}
+  .actionRowFull #saveBtn{flex:1 1 100%}
 }
 
 /* Subtle basketball background */
@@ -2181,12 +2184,4 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   border-radius:10px;
   border:1px solid #d3d3d3;
   font-size:16px;
-}
-
-
-/* Mobile-only: show header Random picks next to Save */
-@media (max-width: 899px){
-  .mobileOnlyInline{display:inline-flex !important;}
-  /* Prevent duplicate top random button in bracket header area on mobile */
-  #randomPicksBtnTop{display:none !important;}
 }

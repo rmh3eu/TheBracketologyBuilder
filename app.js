@@ -846,11 +846,14 @@ function getPlaceholderSweet16Field(regionKey){
 // Fill the bracket with random picks.
 
 function updateUndoUI(){
-  const btn = qs('#undoBtnTop');
-  if(!btn) return;
   const has = state.undoStack && state.undoStack.length>0;
-  btn.disabled = !has;
-  btn.classList.toggle('disabled', !has);
+  // Support multiple Undo buttons (e.g., bracket header + mobile topbar)
+  const btns = [qs('#undoBtnTop'), qs('#undoBtnHeader')].filter(Boolean);
+  if(!btns.length) return;
+  for(const btn of btns){
+    btn.disabled = !has;
+    btn.classList.toggle('disabled', !has);
+  }
 }
 
 function pushUndoSnapshot(){
@@ -3680,8 +3683,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     if(el.value !== next) el.value = next;
   };
 
-wireRandomPicks('#randomPicksBtn');
+  wireRandomPicks('#randomPicksBtn');
   wireRandomPicks('#randomPicksBtnTop');
+  // Mobile topbar button (Home only)
   wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
 
@@ -3755,8 +3759,9 @@ wireRandomPicks('#randomPicksBtn');
   });
   wireSaveEnter('#saveEnterBtn');
   wireSaveEnter('#saveEnterBtnTop');
-  // Undo button near title
+  // Undo buttons (bracket header + mobile topbar)
   qs('#undoBtnTop')?.addEventListener('click', ()=>undoLastAction());
+  qs('#undoBtnHeader')?.addEventListener('click', ()=>undoLastAction());
   updateUndoUI();
 
   qs('#resetBtn')?.addEventListener('click', ()=>{
