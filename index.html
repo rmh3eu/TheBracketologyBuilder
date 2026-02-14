@@ -19,15 +19,19 @@
 <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
 </div>
 <div class="actions">
-<div class="actionRow">
+<div class="actionRow" id="actionRow1">
 <button class="btn ghost" id="accountBtn">Sign in</button>
 <button class="btn" id="signupQuickBtn">Sign up</button>
 </div>
-<div class="actionRow">
+<div class="actionRow" id="anonStartRow" style="display:none; flex-direction:column; gap:6px; align-items:stretch;">
+        <button class="btn btnPrimary btnBig" id="startNoLoginBtn">🏀 Start a Bracket (No Login)</button>
+        <div class="subtext" id="startNoLoginSubtext">Build first. Save anytime.</div>
+      </div>
+      <div class="actionRow" id="actionRow2">
   <button class="btn ghost" id="undoBtnHeader" type="button" disabled>Undo</button>
   <button class="btn" id="randomPicksBtnHeader" type="button">Random picks</button>
 </div>
-<div class="actionRow">
+<div class="actionRow" id="actionRow3">
   <button class="btn ghost" id="saveBtn" title="Saves your current picks" type="button">Save</button>
   <button class="btn ghost" id="bracketsBtn" type="button">My Brackets</button>
 </div>

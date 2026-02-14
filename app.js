@@ -1130,7 +1130,37 @@ function renderAccountState(){
   }
 
   wireAdminBroadcastPanels();
+  applyAnonHomeUI();
 }
+
+
+function applyAnonHomeUI() {
+  const isLoggedIn = !!(state && state.me && state.me.id);
+  const isHome = (state && state.view === 'build');
+  const anonHome = (!isLoggedIn && isHome);
+
+  document.body.classList.toggle('anonHome', anonHome);
+
+  const anonRow = qs('#anonStartRow');
+  if (anonRow) anonRow.style.display = anonHome ? 'flex' : 'none';
+
+  const row1 = qs('#actionRow1');
+  const row3 = qs('#actionRow3');
+  const hint = qs('#signinHint');
+  if (row1) row1.style.display = anonHome ? 'none' : '';
+  if (row3) row3.style.display = anonHome ? 'none' : '';
+  if (hint) hint.style.display = anonHome ? 'none' : '';
+
+  // Hide any nav/challenge/admin UI on the homepage for anon users (CSS also enforces this)
+  const seasonBar = qs('#seasonBar');
+  if (seasonBar) seasonBar.style.display = anonHome ? 'none' : '';
+  const stickyNav = qs('.stickyNav');
+  if (stickyNav) stickyNav.style.display = anonHome ? 'none' : '';
+
+  // Ensure Random Picks + Undo remain visible (actionRow2 stays)
+}
+
+
 
 function openAuth(mode='signin', titleText=null) {
   // Default to sign-in when opening the auth modal
@@ -3559,6 +3589,20 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   initBracketTitleInlineRename();
 
   initNav();
+
+
+  // Phase 1: anon homepage CTA scroll
+  const startNoLoginBtn = qs('#startNoLoginBtn');
+  if (startNoLoginBtn) {
+    startNoLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = qs('#region-Midwest') || qs('#buildView');
+      if (target && target.scrollIntoView) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
 
   // Support deep-links like index.html#upcoming or /?tab=upcoming.
   // This also prevents the "sometimes it sends me back to Home" issue when
