@@ -3898,3 +3898,22 @@ document.addEventListener("click", function(e) {
     window.location.href = link.href;
   }
 });
+
+/* === DYNAMIC_ROUND_HEADER_PATCH === */
+(function(){
+  const roundBar = document.getElementById('roundBar');
+  const scrollers = document.querySelectorAll('.geo');
+  if(!roundBar || !scrollers.length) return;
+
+  const labels = ['Round of 64','Round of 32','Sweet 16','Elite 8','Final 4'];
+
+  function updateHeader(scroller){
+    const colWidth = scroller.scrollWidth / 5;
+    const idx = Math.min(4, Math.max(0, Math.round(scroller.scrollLeft / colWidth)));
+    roundBar.textContent = labels[idx];
+  }
+
+  scrollers.forEach(s => {
+    s.addEventListener('scroll', () => updateHeader(s), { passive:true });
+  });
+})();
