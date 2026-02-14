@@ -3291,9 +3291,11 @@ function setupRoundBar(){
   if(!roundBar) return;
 
   const labelForLeft = (x) => {
-    const idx = x < 100 ? 0 : (x < 300 ? 1 : (x < 500 ? 2 : (x < 700 ? 3 : 4)));
-    const labels = ['Round of 64','Round of 32','Sweet 16','Elite 8','Final 4'];
-    return labels[idx] || labels[0];
+    // Use column step sizing (COL_STEP) so labels stay correct even if widths change.
+    // 0=R64, 1=R32, 2=S16, 3=E8, 4=F4
+    const step = (typeof COL_STEP === 'number' && COL_STEP > 0) ? COL_STEP : 220;
+    const idx = Math.max(0, Math.min(4, Math.round(x / step)));
+    return ['Round of 64','Round of 32','Sweet 16','Elite 8','Final 4'][idx] || 'Round of 64';
   };
 
   const update = () => {
