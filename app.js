@@ -2648,6 +2648,11 @@ function renderRegion(r, picks, opts={}){
     sp.style.left = (headerLefts[i] + 10) + 'px';
     roundRow.appendChild(sp);
   }
+
+  // Ensure header border includes all round labels (incl. Elite 8) on mobile.
+  const headerW = (roundLabels.length * COL_STEP) + 140;
+  header.style.minWidth = headerW + 'px';
+  roundRow.style.minWidth = headerW + 'px';
   // In mirrored regions, show round labels first and the region name on the far right
   // (slightly lower) to avoid overlapping.
   if(isMirror){
@@ -2657,12 +2662,20 @@ function renderRegion(r, picks, opts={}){
     header.appendChild(nm);
     header.appendChild(roundRow);
   }
-  card.appendChild(header);
-
   const scroller = el('div','geo regionGeo');
   scroller.dataset.region = r.name;
   const canvas = el('div','geoCanvas');
-  scroller.appendChild(canvas);
+
+  // Mobile: put the region header INSIDE the horizontal scroller so it moves
+  // with the bracket when swiping anywhere within the region.
+  if(isMobile){
+    header.classList.add('inGeo');
+    scroller.appendChild(header);
+    scroller.appendChild(canvas);
+  }else{
+    card.appendChild(header);
+    scroller.appendChild(canvas);
+  }
   card.appendChild(scroller);
 
   const base = listToSeedArray(r.teams);
