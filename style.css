@@ -224,7 +224,7 @@ body{
   position:relative;
   overflow-x:auto;
   padding-bottom:10px;
-  scroll-behavior:smooth;
+  scroll-behavior:auto;
 }
 .geoCanvas{
   position:relative;
@@ -348,7 +348,7 @@ body{
 /* Center board */
 .centerStage{margin: 6px 0 12px 0;}
 .finalFourBoard{overflow-x:auto}
-.finalFourBoard .geo{scroll-behavior:smooth}
+.finalFourBoard .geo{scroll-behavior:auto}
 .footer{text-align:center;margin:12px 0 6px}
 
 
