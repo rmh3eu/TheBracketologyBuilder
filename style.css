@@ -2395,13 +2395,13 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   max-width: 420px;
   padding: 10px 12px;
   font-size: 16px;
-  border: 1px solid #cfd8e3;
+  border: 2px dotted #9db4d8;
   border-radius: 6px;
   background: #f9fbff;
   outline: none;
 }
 
 #bracketNameInput:focus {
-  border-color: #2563eb;
+  border: 2px solid #2563eb;
   background: #ffffff;
 }
