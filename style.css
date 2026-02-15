@@ -2297,3 +2297,24 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     display: none !important;
   }
 }
+
+
+/* === MOBILE_BUTTON_SIZE_ADJUST === */
+@media (max-width: 900px) {
+  body.anonMobile .anonMobileBar {
+    grid-template-columns: 1fr;
+  }
+
+  body.anonMobile .anonStartBtn {
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+    font-size: 18px !important;
+  }
+
+  body.anonMobile #anonRandomBtn,
+  body.anonMobile #anonUndoBtn {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    font-size: 14px !important;
+  }
+}
