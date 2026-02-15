@@ -2387,3 +2387,21 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     width: 92%;
   }
 }
+
+
+/* === TITLE_INPUT_BOX_STYLE === */
+#bracketNameInput {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: #f9fbff;
+  outline: none;
+}
+
+#bracketNameInput:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+}
