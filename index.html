@@ -38,7 +38,7 @@
   <button class="btn ghost" id="saveBtn" title="Saves your current picks" type="button">Save</button>
   <button class="btn ghost" id="bracketsBtn" type="button">My Brackets</button>
 </div>
-<div class="signinHint" id="signinHint">Sign in to save your picks.</div>
+<div class="signinHint" id="signinHint">Save your bracket.</div>
 </div>
 </header>
 <div class="stickyNav">
@@ -362,7 +362,7 @@
 <div aria-modal="true" class="overlay hidden" id="authOverlay" role="dialog">
 <div class="modal">
 <div class="modalHead">
-<div class="modalTitle">Sign in to save your picks</div>
+<div class="modalTitle">Save your bracket</div>
 <button aria-label="Close" class="iconBtn" id="authClose">✕</button>
 </div>
 <div aria-label="Authentication" class="authTabs" role="tablist">
@@ -378,19 +378,8 @@
 <span>Password</span>
 <input autocomplete="current-password" id="authPassword" placeholder="••••••••" type="password"/>
 </label>
-<div class="signupOnly" id="signupExtras" style="display:none">
-<label class="field">
-<span>Phone (optional)</span>
-<input autocomplete="tel" id="authPhone" placeholder="(555) 555-5555" type="tel"/>
-</label>
-<div class="checks">
-<label class="checkRow"><input id="optLive" type="checkbox"/> <span>Get alerts when official brackets go live</span></label>
-<label class="checkRow"><input id="optUpcoming" type="checkbox"/> <span>Get notified of upcoming challenges</span></label>
-<label class="checkRow"><input id="optAds" type="checkbox"/> <span>Get alerted of sports betting partner offers</span></label>
-</div>
-</div>
 <button class="primaryBtn" id="authSubmit">Continue</button>
-<div class="smallNote">You must be signed in to enter challenges and appear on leaderboards.</div>
+<div class="smallNote">Create a free account to keep it and edit later.</div>
 </div>
 
 <div class="toast" id="toast"></div>
