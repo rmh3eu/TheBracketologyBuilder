@@ -96,6 +96,11 @@ body{
 .brand{font-weight:800;font-size:18px;letter-spacing:0.2px}
 .tagline{margin-top:4px;font-size:12px;color:var(--muted);max-width:820px}
 .actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+
+/* Phase 1 (mobile guest homepage CTA) */
+.guestStartWrap{display:none;width:100%;max-width:360px;align-self:flex-end}
+.guestStartBtn{width:100%;font-weight:700}
+.guestStartSub{margin-top:6px;font-size:13px;opacity:.8;text-align:center}
 .actionRow{display:flex;gap:8px;justify-content:flex-end}
 /* Mobile-only topbar buttons (shown in mobile media query) */
 #undoBtnHeader,#randomPicksBtnHeader{display:none}
@@ -2230,4 +2235,17 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   z-index: 2;
   background: #fff;
   margin-bottom: 8px;
+}
+
+/* Phase 1: mobile-only guest homepage simplification (no desktop changes) */
+@media (max-width: 820px){
+  body.phase1GuestMobile #guestStartWrap{display:block}
+  body.phase1GuestMobile #accountBtn,
+  body.phase1GuestMobile #signupQuickBtn,
+  body.phase1GuestMobile #bracketsBtn,
+  body.phase1GuestMobile #saveBtn,
+  body.phase1GuestMobile #signinHint{display:none !important}
+
+  /* Hide navigation tabs + admin tools on mobile homepage for guests */
+  body.phase1GuestMobile #navBar{display:none !important}
 }

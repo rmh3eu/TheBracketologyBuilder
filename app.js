@@ -732,6 +732,19 @@ const state = {
   },
 };
 
+// PHASE 1 (mobile-only): guest homepage simplification
+function isMobileViewport(){
+  return window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+}
+
+function applyPhase1GuestMobileUI(){
+  // Guardrails: UI-only + mobile-only + homepage-only + guest-only
+  const on = isMobileViewport() && state.view === 'build' && !state.me;
+  document.body.classList.toggle('phase1GuestMobile', !!on);
+  const wrap = document.getElementById('guestStartWrap');
+  if(wrap){ wrap.setAttribute('aria-hidden', on ? 'false' : 'true'); }
+}
+
 // -------------------- Key Scheme --------------------
 // Region keys are the data constants names.
 const REGIONS = [
@@ -1130,6 +1143,7 @@ function renderAccountState(){
   }
 
   wireAdminBroadcastPanels();
+  applyPhase1GuestMobileUI();
 }
 
 function openAuth(mode='signin', titleText=null) {
@@ -3433,6 +3447,9 @@ function showView(name){
   // so the blinking cursor is already in the box.
   focusEmailAlertInput(name);
   try{ bindLeadFormsForPage(); }catch(_e){}
+
+  // Phase 1 (mobile-only guest homepage) toggles based on auth + current view.
+  applyPhase1GuestMobileUI();
 }
 
 function focusEmailAlertInput(viewName){
@@ -3573,6 +3590,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const v = viewFromHash(location.hash);
     if(v) showView(v);
   });
+
+  // Keep Phase 1 (mobile guest homepage) in sync with viewport changes.
+  window.addEventListener('resize', ()=>applyPhase1GuestMobileUI());
 
   // Lead capture forms
   bindLeadFormsForPage();
@@ -3789,6 +3809,18 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   qs('#undoBtnTop')?.addEventListener('click', ()=>undoLastAction());
   qs('#undoBtnHeader')?.addEventListener('click', ()=>undoLastAction());
   updateUndoUI();
+
+  // Phase 1: guest/mobile primary CTA
+  qs('#guestStartBtn')?.addEventListener('click', ()=>{
+    // No login prompts here. Just take them straight into the bracket.
+    try{
+      // Ensure we start at the beginning of the region scroll (Round of 64).
+      const regionScroller = document.querySelector('.regionWrap');
+      if(regionScroller){ regionScroller.scrollLeft = 0; }
+      (document.getElementById('bracketArea') || document.querySelector('.bracketGrid') || regionScroller)
+        ?.scrollIntoView({ behavior:'smooth', block:'start' });
+    }catch(_e){}
+  });
 
   qs('#resetBtn')?.addEventListener('click', ()=>{
     if(!confirm('Reset all picks?')) return;
