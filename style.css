@@ -2552,3 +2552,20 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   /* Slightly lower the title-row buttons for a more centered look */
   .bracketTitleRow.homeTitleRow .btnCompact{ margin-top:2px; }
 }
+
+
+/* ===== Bracket Name Field Styling Update ===== */
+.bracket-name-input,
+#bracketName,
+input[name="bracketName"] {
+  background-color: #1e63d6 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.bracket-name-input::placeholder,
+#bracketName::placeholder,
+input[name="bracketName"]::placeholder {
+  color: #ffffff !important;
+  opacity: 1;
+}
