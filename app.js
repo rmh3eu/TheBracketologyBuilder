@@ -2712,7 +2712,8 @@ function renderRegion(r, picks, opts={}){
   // Desktop only: mirror the right-side regions (East/Midwest) so they
   // start on the far RIGHT with Round of 64 and funnel LEFT to Final 4.
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-  const isMirror = (!isMobile) && (r.name === 'East' || r.name === 'Midwest');
+  const forcedMirror = (opts && typeof opts.isMirror === 'boolean') ? opts.isMirror : null;
+  const isMirror = (!isMobile) && (forcedMirror!==null ? forcedMirror : (r.name === 'East' || r.name === 'Midwest'));
 
   const startRound = (opts && Number.isFinite(opts.startRound)) ? opts.startRound : 0;
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
@@ -3296,7 +3297,10 @@ function renderAll(){
     REGIONS.forEach(r=>{
       const mount = qs(`#region-${r.name}`);
       mount.innerHTML='';
-      const { card, scroller } = renderRegion(r, state.picks, sweet16ModeEnabled()?{startRound:2,maxRounds:2}:undefined);
+      const isRightSide = !!(mount && mount.closest && mount.closest('.deskCol.right'));
+      const baseOpts = sweet16ModeEnabled()?{startRound:2,maxRounds:2}:undefined;
+      const opts = baseOpts ? {...baseOpts, isMirror:isRightSide} : {isMirror:isRightSide};
+      const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       scrollers.push(scroller);
     });

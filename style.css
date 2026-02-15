@@ -760,6 +760,15 @@ body{
   .deskCol.center .panel{ margin-top:0 !important; }
 }
 
+
+@media (max-width: 820px){
+  /* Mobile: show a clean button row (Random, Undo, Save) with bracket name input below */
+  .bracketTitleRow.homeTitleRow{align-items:center;}
+  .bracketTitleRow.homeTitleRow #randomPicksBtnTop{order:0;}
+  .bracketTitleRow.homeTitleRow #undoBtnTop{order:1;}
+  .bracketTitleRow.homeTitleRow #saveEnterBtnTop{order:2;}
+  .bracketTitleRow.homeTitleRow #bracketPageTitle{order:3; width:100%; min-width:0; flex:1 1 100%;}
+}
 /* Big champion display */
 .championBig{ padding:18px 16px; text-align:center; border:1px solid var(--line); border-radius:16px; background:#fff; }
 .championSeed{ font-size:14px; font-weight:800; margin-bottom:6px; }
@@ -2289,7 +2298,6 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   /* ONLY 3 buttons visible above bracket */
   body.anonMobile header .actions .actionRow,
   body.anonMobile header .actions .signinHint,
-  body.anonMobile #saveEnterBtnTop,
   body.anonMobile #saveBtn,
   body.anonMobile #bracketsBtn {
     display: none !important;
@@ -2538,4 +2546,9 @@ button:has(span:contains('My Brackets')) { display:none !important; }
 }
 #championBoard .championName{
   color: #ffffff !important;
+}
+
+@media (min-width: 821px){
+  /* Slightly lower the title-row buttons for a more centered look */
+  .bracketTitleRow.homeTitleRow .btnCompact{ margin-top:2px; }
 }
