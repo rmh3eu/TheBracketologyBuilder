@@ -2487,14 +2487,18 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   }
 }
 
-/* Mobile: black text + black placeholder on bracket title inputs */
+/* Mobile: make bracket title inputs obvious (grey box + black text) */
 @media (max-width: 900px) {
   #bracketNameInput,
   #bracketPageTitle {
     color: #000000;
+    background: #d1d5db;
+    border: 1px solid #9ca3af;
+    border-radius: 8px;
   }
   #bracketNameInput::placeholder,
   #bracketPageTitle::placeholder {
     color: #000000;
+    opacity: 0.65;
   }
 }

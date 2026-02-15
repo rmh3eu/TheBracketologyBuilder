@@ -237,7 +237,7 @@ const GENERATED_AT_VALUE = (typeof GENERATED_AT !== 'undefined') ? GENERATED_AT 
 
 
 function promptBracketTitle(defaultTitle){
-  const t = prompt('Name this bracket:', defaultTitle || 'My Bracket');
+  const t = prompt('Name this bracket:', defaultTitle || '');
   if(t===null) return null;
   const name = String(t).trim();
   if(!name){ toast('Please enter a bracket name.'); return null; }
@@ -799,7 +799,7 @@ const state = {
 
   me: null,
   bracketId: null,      // D1 bracket id if saved
-  bracketTitle: 'My Bracket',
+  bracketTitle: '',
   picks: {},
   undoStack: [],
   autosaveTimer: null,
@@ -1268,7 +1268,7 @@ async function signOut(){
 // -------------------- Brackets CRUD --------------------
 async function promptForBracketName(defaultName){
   // Returns a trimmed name string, or null if the user cancels.
-  let name = (defaultName && String(defaultName).trim()) ? String(defaultName).trim() : 'My Bracket';
+  let name = (defaultName && String(defaultName).trim()) ? String(defaultName).trim() : '';
   while(true){
     const input = window.prompt('Name your bracket', name);
     if(input === null) return null;
@@ -1315,7 +1315,9 @@ function setBracketTitleDisplay(title) {
     document.querySelector('[data-bracket-title]');
   if (!el) return;
   const t = String(title || '').trim();
-  const val = t ? t : '';
+  // Never show legacy/default titles in the editable field; use placeholder instead.
+  const isDefault = !t || /^my bracket$/i.test(t) || /^untitled bracket$/i.test(t);
+  const val = isDefault ? '' : t;
   // Support either a DIV (contentEditable) or an INPUT.
   if ('value' in el) el.value = val;
   else el.textContent = val;
@@ -1345,7 +1347,7 @@ function initBracketTitleInlineRename(){
     const raw = ('value' in el) ? el.value : el.textContent;
     const desired = normalize(raw);
     if(!desired){
-      setBracketTitleDisplay(state.bracketTitle || 'My Bracket');
+      setBracketTitleDisplay(state.bracketTitle);
       return;
     }
     if(desired === (state.bracketTitle||'')) return;
@@ -1368,7 +1370,7 @@ function initBracketTitleInlineRename(){
       setBracketTitleDisplay(desired);
     }else{
       // Revert UI back to last known good title
-      setBracketTitleDisplay(state.bracketTitle || 'My Bracket');
+      setBracketTitleDisplay(state.bracketTitle);
       if(res && (res.status===409 || res.error==='NAME_TAKEN')) toast('You already have a bracket with that name.');
       else toast('Could not rename bracket.');
     }
@@ -1418,11 +1420,11 @@ async function ensureSavedToAccount(){
     try{
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
-        title: desiredTitle || 'My Bracket',
+        title: desiredTitle || '',
         data: state.picks || {}
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
-      const savedTitle = (desiredTitle || state.bracketTitle || 'My Bracket').trim();
+      const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
       state.bracketTitle = savedTitle;
       saveMeta({ bracketId: existingId, bracketTitle: savedTitle });
       setUrlBracketId(existingId, savedTitle);
@@ -1439,7 +1441,7 @@ async function ensureSavedToAccount(){
 
   // New bracket flow: only prompt if the user hasn't already typed a real name in the title box.
   if(isDefaultTitle){
-    desiredTitle = await promptForBracketName(currentTitleRaw || 'My Bracket');
+    desiredTitle = await promptForBracketName(currentTitleRaw || '');
     if(!desiredTitle) throw new Error('CANCELLED');
   }
 
@@ -2525,7 +2527,7 @@ async function openBracketsOverlay(){
     items.forEach(b=>{
       const row = el('div','brRow');
       row.innerHTML = `
-        <div class="brTitle">${escapeHtml(b.title || 'My Bracket')}</div>
+        <div class="brTitle">${escapeHtml(b.title || 'Enter Bracket Name Here')}</div>
         <div class="brMeta">${new Date(b.updated_at).toLocaleString()}</div>
         <button class="btn ghost smallBtn" data-open="${b.id}">Open</button>
         <button class="btn ghost smallBtn" data-share="${b.id}">Share</button>
@@ -2563,7 +2565,7 @@ async function loadBracketFromServer(id){
   const d = await api(`/api/bracket?id=${encodeURIComponent(id)}`, { method:'GET' });
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
-  state.bracketTitle = d.bracket.title || 'My Bracket';
+  state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
 
@@ -3609,7 +3611,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     state.picks = loadLocal();
     const meta = loadMeta();
     state.bracketId = meta.bracketId || null;
-    state.bracketTitle = meta.bracketTitle || 'My Bracket';
+    state.bracketTitle = meta.bracketTitle || '';
   }
 
   // If Sweet 16 mode is enabled, lock in placeholder early-round winners so the bracket starts at Sweet 16.
