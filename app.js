@@ -3974,3 +3974,18 @@ document.addEventListener("click", function(e) {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
 })();
+
+/* === PHASE1_FORCE_TABS_DESKTOP === */
+/* Prevent post-hydration flicker: if anon styling hid tabs via JS, force them visible on desktop. */
+(function(){
+  try {
+    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 901px)').matches;
+    if (!isDesktop) return;
+    const nav = document.querySelector('.siteNav');
+    if (nav) {
+      nav.style.display = '';
+      nav.style.visibility = '';
+      nav.hidden = false;
+    }
+  } catch(e) {}
+})();
