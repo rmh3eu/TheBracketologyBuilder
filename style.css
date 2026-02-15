@@ -2281,3 +2281,26 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     display: none !important;
   }
 }
+
+
+/* Hide legal/disclaimer footer until betting partners are live */
+.footer{display:none;}
+.authLegal{display:none;}
+
+/* Mobile auth modal: wider, less tall */
+@media (max-width: 520px){
+  .authCard{
+    width: calc(100vw - 24px);
+    max-width: none;
+    max-height: calc(100vh - 40px);
+    padding: 18px 18px;
+    overflow: auto;
+  }
+  .authCard h2{
+    font-size: 34px;
+    line-height: 1.05;
+    margin: 0 0 10px;
+  }
+  .authModeBtns{width:100%;}
+  .authModeBtns button{flex:1;}
+}

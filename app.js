@@ -713,6 +713,8 @@ const state = {
   bracket_type: null,
 
   me: null,
+  pendingSaveAfterAuth: false,
+  pendingPostAuthGoTo: null,
   bracketId: null,      // D1 bracket id if saved
   bracketTitle: 'My Bracket',
   picks: {},
@@ -3812,6 +3814,19 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
       closeAuth();
       toast('Signed in.');
+
+      // If user initiated Save while logged out, complete the save flow now.
+      if(state.pendingSaveAfterAuth){
+        state.pendingSaveAfterAuth = false;
+        try{
+          const ok = await ensureSavedToAccount();
+          if(ok && state.pendingPostAuthGoTo){
+            showView(state.pendingPostAuthGoTo);
+          }
+        }catch(err){ console.warn(err); }
+        state.pendingPostAuthGoTo = null;
+      }
+
       // Do NOT force-create/name a bracket on first login/signup.
       // If user was editing an existing saved bracket (bracketId in URL/meta), we can save silently.
       const meta = getBracketMetaFromUrl();
