@@ -3714,11 +3714,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       }
     }
     if(!state.me){
-      // Show sign-in prompt with a clear message
+      // Default to sign-up when a guest tries to Save/Enter
       try{
-        openAuth('signin', 'Sign in to create new bracket');
+        openAuth('signup', 'Save your bracket');
       }catch(_){
-        openAuth('signin');
+        openAuth('signup');
       }
       return;
     }
