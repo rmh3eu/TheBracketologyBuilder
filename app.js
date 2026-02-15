@@ -699,6 +699,29 @@ function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 
 
 function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+// ===== Phase 3 (mobile): Final Four completion cue (informational only) =====
+const __phase3 = { hasInteracted: false, hasSaved: false };
+
+function phase3UpdateVisibility(){
+  const el = document.getElementById('phase3Cue');
+  if(!el) return;
+  const show = isMobile() && __phase3.hasInteracted && !__phase3.hasSaved;
+  el.style.display = show ? 'block' : 'none';
+  el.setAttribute('aria-hidden', show ? 'false' : 'true');
+}
+
+function phase3MarkInteracted(){
+  if(__phase3.hasInteracted) return;
+  __phase3.hasInteracted = true;
+  phase3UpdateVisibility();
+}
+
+function phase3MarkSaved(){
+  if(__phase3.hasSaved) return;
+  __phase3.hasSaved = true;
+  phase3UpdateVisibility();
+}
 function nowStamp(){
   const d = new Date(GENERATED_AT_VALUE || Date.now());
   return d.toLocaleString();
@@ -872,6 +895,8 @@ function pushUndoSnapshot(){
 function commitPicks(np, reason){
   // reason: 'pick' | 'random' | 'load'
   if(reason === 'pick' || reason === 'random'){
+    // Phase 3 cue: show after first interaction (mobile only)
+    phase3MarkInteracted();
     pushUndoSnapshot();
   }
   state.picks = normalize(np || {});
@@ -3591,6 +3616,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   renderAll();
 
+  // Phase 3 cue: initialize (informational only)
+  __phase3.hasSaved = !!state.bracketId;
+  phase3UpdateVisibility();
+  window.addEventListener('resize', ()=>{ phase3UpdateVisibility(); });
+
   // Home page challenge buttons
   qs('#homeGoBest')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='best-challenge.html'; });
   qs('#homeGoWorst')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='worst-challenge.html'; });
@@ -3637,6 +3667,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     if(state.me){
       try{
         await ensureSavedToAccount();
+        // Phase 3 cue: hide after a successful save
+        phase3MarkSaved();
         toast('Saved to your account.');
       }catch(e){
         if(e && e.message==='CANCELLED') return;
@@ -3754,6 +3786,8 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         saveMeta({ bracketId:null, bracketTitle: null });
       }
       const id = await ensureSavedToAccount();
+      // Phase 3 cue: hide after a successful save
+      phase3MarkSaved();
       window.location.href = `my-brackets.html?newId=${encodeURIComponent(id)}`;
     }catch(e){
       if(e && e.message==='CANCELLED') return;

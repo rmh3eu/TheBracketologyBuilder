@@ -2362,3 +2362,28 @@ button:has(span:contains('My Brackets')) { display:none !important; }
 
 /* Hide betting/affiliate disclaimers for now (no partners live yet) */
 .bbFooter{display:none !important;}
+
+/* ===== Phase 3 (mobile): Final Four completion cue ===== */
+.phase3Cue{
+  display:none;
+  margin: 10px auto 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  text-align: center;
+}
+.phase3Headline{
+  font-size: 14px;
+}
+.phase3Subtext{
+  margin-top: 4px;
+  font-size: 13px;
+  color: rgba(0,0,0,0.70);
+}
+
+@media (max-width: 900px){
+  .phase3Cue{
+    width: 92%;
+  }
+}
