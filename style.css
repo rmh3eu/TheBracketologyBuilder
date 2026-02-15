@@ -98,7 +98,7 @@ body{
 .actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .actionRow{display:flex;gap:8px;justify-content:flex-end}
 /* Mobile-only topbar buttons (shown in mobile media query) */
-#undoBtnHeader,#randomPicksBtnHeader{display:none}
+#undoBtnHeader,#randomPicksBtnHeader,#saveBtnHeader{display:none}
 .signinHint{font-size:12px;color:var(--muted);text-align:right}
 .taglineShort{display:none}
 .taglineFull{display:inline}
@@ -660,9 +660,11 @@ body{
   /* Header buttons layout on mobile */
   #accountBtn{flex:1 1 auto;min-width:40%}
 
-  #undoBtnHeader,#randomPicksBtnHeader{display:inline-flex}
-  #undoBtnHeader,#randomPicksBtnHeader{flex:1 1 45%}
-  #undoBtnHeader,#randomPicksBtnHeader{align-items:center;justify-content:center;}
+  #undoBtnHeader,#saveBtnHeader,#randomPicksBtnHeader{display:inline-flex}
+  #undoBtnHeader,#saveBtnHeader{flex:1 1 45%}
+  #randomPicksBtnHeader{flex:1 1 100%}
+  #saveBtn{display:none}
+  #undoBtnHeader,#saveBtnHeader,#randomPicksBtnHeader{align-items:center;justify-content:center;}
 
   /* Save row: allow Save + My Brackets side-by-side when JS moves the button */
   .actionRowFull{display:flex;gap:8px}

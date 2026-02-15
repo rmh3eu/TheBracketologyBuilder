@@ -706,7 +706,7 @@ const __phase3 = { hasInteracted: false, hasSaved: false };
 function phase3UpdateVisibility(){
   const el = document.getElementById('phase3Cue');
   if(!el) return;
-  const show = isMobile() && __phase3.hasInteracted && !__phase3.hasSaved;
+  const show = isMobile();
   el.style.display = show ? 'block' : 'none';
   el.setAttribute('aria-hidden', show ? 'false' : 'true');
 }
@@ -2712,7 +2712,7 @@ function renderRegion(r, picks, opts={}){
   // Desktop only: mirror the right-side regions (East/Midwest) so they
   // start on the far RIGHT with Round of 64 and funnel LEFT to Final 4.
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-  const isMirror = (!isMobile) && (r.name === 'West' || r.name === 'South');
+  const isMirror = (!isMobile) && (r.name === 'East' || r.name === 'Midwest');
 
   const startRound = (opts && Number.isFinite(opts.startRound)) ? opts.startRound : 0;
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
@@ -3774,6 +3774,30 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }catch{}
 
   qs('#saveBtn')?.addEventListener('click', async ()=>{
+    // Guest: local save already; Logged-in: force save to account now.
+    saveLocal(state.picks);
+    if(state.me){
+      try{
+        await ensureSavedToAccount();
+        // Phase 3 cue: hide after a successful save
+        phase3MarkSaved();
+        toast('Saved to your account.');
+      }catch(e){
+        if(e && e.message==='CANCELLED') return;
+        toast('Could not save. Please try again.');
+      }
+    }else{
+      __pendingPostAuth = { action: 'save' };
+      try{
+        openAuth('signup', 'Save your bracket');
+      }catch(_){
+        openAuth('signup');
+      }
+      toast('Create a free account to keep it and edit later.');
+    }
+  });
+
+qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
     // Guest: local save already; Logged-in: force save to account now.
     saveLocal(state.picks);
     if(state.me){
