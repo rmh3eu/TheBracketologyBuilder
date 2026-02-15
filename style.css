@@ -2527,3 +2527,13 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     opacity: 0.65;
   }
 }
+
+
+/* === CHAMPION_BLUE_WHITE_FORCE === */
+#championBoard .championBox{
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+}
+#championBoard .championName{
+  color: #ffffff !important;
+}
