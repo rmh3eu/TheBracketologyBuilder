@@ -708,6 +708,8 @@ function nowStamp(){
 const STORAGE_KEY = 'bb_v30_picks_local';
 const STORAGE_META = 'bb_v30_meta';
 const state = {
+window.__bb_state = state;
+
   // set from URL param second=1
 
   bracket_type: null,
@@ -731,19 +733,6 @@ const state = {
     regionScrollLeft: {},
   },
 };
-
-// PHASE 1 (mobile-only): guest homepage simplification
-function isMobileViewport(){
-  return window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-}
-
-function applyPhase1GuestMobileUI(){
-  // Guardrails: UI-only + mobile-only + homepage-only + guest-only
-  const on = isMobileViewport() && state.view === 'build' && !state.me;
-  document.body.classList.toggle('phase1GuestMobile', !!on);
-  const wrap = document.getElementById('guestStartWrap');
-  if(wrap){ wrap.setAttribute('aria-hidden', on ? 'false' : 'true'); }
-}
 
 // -------------------- Key Scheme --------------------
 // Region keys are the data constants names.
@@ -1143,7 +1132,6 @@ function renderAccountState(){
   }
 
   wireAdminBroadcastPanels();
-  applyPhase1GuestMobileUI();
 }
 
 function openAuth(mode='signin', titleText=null) {
@@ -3447,9 +3435,6 @@ function showView(name){
   // so the blinking cursor is already in the box.
   focusEmailAlertInput(name);
   try{ bindLeadFormsForPage(); }catch(_e){}
-
-  // Phase 1 (mobile-only guest homepage) toggles based on auth + current view.
-  applyPhase1GuestMobileUI();
 }
 
 function focusEmailAlertInput(viewName){
@@ -3590,9 +3575,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const v = viewFromHash(location.hash);
     if(v) showView(v);
   });
-
-  // Keep Phase 1 (mobile guest homepage) in sync with viewport changes.
-  window.addEventListener('resize', ()=>applyPhase1GuestMobileUI());
 
   // Lead capture forms
   bindLeadFormsForPage();
@@ -3810,18 +3792,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   qs('#undoBtnHeader')?.addEventListener('click', ()=>undoLastAction());
   updateUndoUI();
 
-  // Phase 1: guest/mobile primary CTA
-  qs('#guestStartBtn')?.addEventListener('click', ()=>{
-    // No login prompts here. Just take them straight into the bracket.
-    try{
-      // Ensure we start at the beginning of the region scroll (Round of 64).
-      const regionScroller = document.querySelector('.regionWrap');
-      if(regionScroller){ regionScroller.scrollLeft = 0; }
-      (document.getElementById('bracketArea') || document.querySelector('.bracketGrid') || regionScroller)
-        ?.scrollIntoView({ behavior:'smooth', block:'start' });
-    }catch(_e){}
-  });
-
   qs('#resetBtn')?.addEventListener('click', ()=>{
     if(!confirm('Reset all picks?')) return;
     state.undoStack = [];
@@ -3961,4 +3931,40 @@ document.addEventListener("click", function(e) {
   scrollers.forEach(s => {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
+})();
+
+
+/* === PHASE1_ANON_MOBILE_CTA === */
+(function(){
+  function isMobile(){ try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; } }
+  function applyAnonMobile(){
+    // state.me exists when logged in
+    const anon = !window.__bb_state || !window.__bb_state.me;
+    document.body.classList.toggle('anonMobile', !!(anon && isMobile()));
+  }
+  // run after state is created
+  try { applyAnonMobile(); } catch(e){}
+  window.addEventListener('resize', () => { try { applyAnonMobile(); } catch(e){} }, { passive:true });
+
+  // Hook after auth state updates if an existing hook exists
+  const _origSetMe = window.setMe;
+  if(typeof _origSetMe === 'function'){
+    window.setMe = function(me){
+      const r = _origSetMe.apply(this, arguments);
+      try { applyAnonMobile(); } catch(e){}
+      return r;
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target && e.target.closest && e.target.closest('#startBracketBtn');
+    if(!btn) return;
+    // Do not trigger login; just scroll to Round of 64 area.
+    try {
+      // ensure horizontal scrollers are at start
+      document.querySelectorAll('.geo').forEach(g => { g.scrollLeft = 0; });
+      const topTarget = document.querySelector('#region-Midwest') || document.querySelector('#view-build') || document.body;
+      topTarget.scrollIntoView({ behavior:'smooth', block:'start' });
+    } catch(err){}
+  }, true);
 })();
