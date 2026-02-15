@@ -2569,3 +2569,23 @@ input[name="bracketName"]::placeholder {
   color: #ffffff !important;
   opacity: 1;
 }
+
+
+/* ===== Bracket Name Input: force blue + white (iOS/Safari-safe) ===== */
+#bracketPageTitle,
+.bracketPageTitleInput,
+.bracketPageTitleInput:focus,
+.bracketPageTitleInput:active{
+  background-color:#2563eb !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  caret-color:#ffffff !important;
+  border-color:rgba(255,255,255,0.35) !important;
+}
+
+#bracketPageTitle::placeholder,
+.bracketPageTitleInput::placeholder{
+  color:rgba(255,255,255,0.95) !important;
+  -webkit-text-fill-color:rgba(255,255,255,0.95) !important;
+  opacity:1 !important;
+}
