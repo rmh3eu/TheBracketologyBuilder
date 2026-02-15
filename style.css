@@ -2252,6 +2252,11 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   text-align:center;
 }
 
+@media (min-width: 900px){
+  #anonStartRow{ align-items:flex-start !important; }
+  #anonStartRow .subtext{ text-align:left; }
+}
+
 /* Hide extra homepage UI for non-logged-in users (home/build view only) */
 body.anonHome .stickyNav{ display:none !important; }
 body.anonHome #seasonBar{ display:none !important; }
