@@ -2233,58 +2233,38 @@ button:has(span:contains('My Brackets')) { display:none !important; }
 }
 
 
-/* Phase 1: anon homepage CTA */
-.btnPrimary{
-  background:#1d4ed8;
-  color:#fff;
-  border:1px solid #1d4ed8;
-}
-.btnPrimary:hover{ filter:brightness(0.95); }
-.btnBig{
-  padding:14px 14px;
-  font-size:18px;
-  font-weight:700;
-  border-radius:14px;
-}
-#anonStartRow .subtext{
-  color:#6b7280;
-  font-size:14px;
-  text-align:center;
-}
+/* === MOBILE_ANON_3BUTTONS_SAFE === */
+.anonMobileBar { display: none; }
 
-@media (min-width: 900px){
-  #anonStartRow{ align-items:flex-start !important; }
-  #anonStartRow .subtext{ text-align:left; }
-}
-
-/* Hide extra homepage UI for non-logged-in users (home/build view only) */
-body.anonHome .stickyNav{ display:none !important; }
-body.anonHome #seasonBar{ display:none !important; }
-body.anonHome #homeChallengePanel{ display:none !important; }
-body.anonHome #actionRow3{ display:none !important; }
-body.anonHome #signinHint{ display:none !important; }
-body.anonHome #accountBtn,
-body.anonHome #signupQuickBtn{ display:none !important; }
-body.anonHome #saveBtn,
-body.anonHome #bracketsBtn,
-body.anonHome #saveEnterBtn{ display:none !important; }
-/* In case Featured CTA exists on home sidebar */
-body.anonHome #submitFeaturedBtn,
-body.anonHome .submitFeaturedBtn{ display:none !important; }
-
-
-/* === PHASE1_DESKTOP_RULES === */
-/* Desktop: no Start a Bracket CTA for anon users */
-@media (min-width: 901px) {
-  .anonHome .startBracketCta {
-    display: none !important;
-  }
-}
-/* Mobile: hide nav tabs for anon users (desktop keeps tabs) */
 @media (max-width: 900px) {
-  .anonHome .siteNav {
+  body.anonMobile .anonMobileBar {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+    margin-top: 8px;
+    margin-bottom: 6px;
+  }
+  body.anonMobile .anonMobileBar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  body.anonMobile .anonStartBtn {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: 0 !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    padding-left: 14px !important;
+    font-weight: 700;
+  }
+
+  /* ONLY 3 buttons visible above bracket */
+  body.anonMobile header .actions .actionRow,
+  body.anonMobile header .actions .signinHint,
+  body.anonMobile #saveEnterBtnTop,
+  body.anonMobile #saveBtn,
+  body.anonMobile #bracketsBtn {
     display: none !important;
   }
 }
-
-

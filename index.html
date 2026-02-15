@@ -19,19 +19,21 @@
 <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
 </div>
 <div class="actions">
-<div class="actionRow" id="actionRow1">
+
+<div class="anonMobileBar" id="anonMobileBar" aria-label="Quick actions">
+  <button class="btn anonStartBtn" id="anonStartBtn" type="button">🏀 Start a Bracket</button>
+  <button class="btn" id="anonRandomBtn" type="button">Random picks</button>
+  <button class="btn ghost" id="anonUndoBtn" type="button">Undo</button>
+</div>
+<div class="actionRow">
 <button class="btn ghost" id="accountBtn">Sign in</button>
 <button class="btn" id="signupQuickBtn">Sign up</button>
 </div>
-<div class="actionRow" id="anonStartRow" style="display:none; flex-direction:column; gap:6px; align-items:stretch;">
-        <button class="btn btnPrimary btnBig" id="startNoLoginBtn">🏀 Start a Bracket</button>
-        <div class="subtext" id="startNoLoginSubtext">Build first. Save anytime.</div>
-      </div>
-      <div class="actionRow" id="actionRow2">
+<div class="actionRow">
   <button class="btn ghost" id="undoBtnHeader" type="button" disabled>Undo</button>
   <button class="btn" id="randomPicksBtnHeader" type="button">Random picks</button>
 </div>
-<div class="actionRow" id="actionRow3">
+<div class="actionRow">
   <button class="btn ghost" id="saveBtn" title="Saves your current picks" type="button">Save</button>
   <button class="btn ghost" id="bracketsBtn" type="button">My Brackets</button>
 </div>
@@ -412,5 +414,59 @@
   </div>
 </footer>
 
+
+<!-- MOBILE_ANON_3BUTTONS_SAFE -->
+<script>
+(function(){
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+  function isAnon(){
+    var b = document.getElementById('accountBtn');
+    if(!b) return true;
+    var t = (b.textContent || '').trim().toLowerCase();
+    return (t === 'sign in' || t === 'signin' || t === 'log in' || t === 'login');
+  }
+  function apply(){
+    document.body.classList.toggle('anonMobile', !!(isMobile() && isAnon()));
+  }
+  function wire(){
+    var start = document.getElementById('anonStartBtn');
+    var rand  = document.getElementById('anonRandomBtn');
+    var undo  = document.getElementById('anonUndoBtn');
+    if(start){
+      start.addEventListener('click', function(){
+        try{
+          document.querySelectorAll('.geo').forEach(function(g){ g.scrollLeft = 0; });
+          var target = document.querySelector('#region-Midwest') || document.querySelector('#view-build') || document.querySelector('main') || document.body;
+          target.scrollIntoView({behavior:'smooth', block:'start'});
+        }catch(e){}
+      });
+    }
+    if(rand){
+      rand.addEventListener('click', function(){
+        var b = document.getElementById('randomPicksBtnHeader') || document.getElementById('randomBtnHeader');
+        if(b) b.click();
+      });
+    }
+    if(undo){
+      undo.addEventListener('click', function(){
+        var b = document.getElementById('undoBtnHeader') || document.getElementById('undoBtn');
+        if(b) b.click();
+      });
+    }
+    var acct = document.getElementById('accountBtn');
+    if(acct && window.MutationObserver){
+      var mo = new MutationObserver(function(){ apply(); });
+      mo.observe(acct, { childList:true, characterData:true, subtree:true });
+    }
+    window.addEventListener('resize', function(){ apply(); }, {passive:true});
+    apply();
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
+</script>
 </body>
 </html>
