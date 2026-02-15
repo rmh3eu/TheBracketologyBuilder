@@ -1253,7 +1253,7 @@ function setBracketTitleDisplay(title) {
     document.querySelector('[data-bracket-title]');
   if (!el) return;
   const t = String(title || '').trim();
-  const val = t ? t : 'Untitled bracket';
+  const val = t ? t : 'Name Your Bracket Here';
   // Support either a DIV (contentEditable) or an INPUT.
   if ('value' in el) el.value = val;
   else el.textContent = val;
@@ -1276,6 +1276,20 @@ function initBracketTitleInlineRename(){
     el.spellcheck = false;
   }
   el.title = 'Click to edit bracket name';
+
+  const PLACEHOLDER_TITLE = 'Name Your Bracket Here';
+
+  // Clear placeholder on focus/tap so the user can type immediately.
+  const clearIfPlaceholder = ()=>{
+    const cur = ('value' in el) ? String(el.value || '').trim() : String(el.textContent || '').trim();
+    if(cur === PLACEHOLDER_TITLE){
+      if('value' in el) el.value = '';
+      else el.textContent = '';
+    }
+  };
+  el.addEventListener('focus', clearIfPlaceholder);
+  el.addEventListener('mousedown', clearIfPlaceholder);
+  el.addEventListener('touchstart', clearIfPlaceholder, { passive: true });
 
   const normalize = (s)=>String(s||'').replace(/\s+/g,' ').trim().slice(0,80);
 
@@ -1345,7 +1359,7 @@ async function ensureSavedToAccount(){
   // Normalize the desired title (what the user typed in the top-left title box).
   // IMPORTANT: read from DOM so Save/Enter captures edits even without blur.
   const currentTitleRaw = (getBracketTitleFromDom() || state.bracketTitle || '').trim();
-  const isDefaultTitle = !currentTitleRaw || ['My Bracket','Untitled bracket','Untitled Bracket'].includes(currentTitleRaw);
+  const isDefaultTitle = !currentTitleRaw || ['My Bracket','Untitled bracket','Untitled Bracket','Name Your Bracket Here'].includes(currentTitleRaw);
   let desiredTitle = currentTitleRaw;
 
   // If this is an existing bracket, just save data + title (no prompts, no creates).
