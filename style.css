@@ -414,8 +414,9 @@ body{
 	    width:100%;
 	    height:56px;
 	    border-radius:14px;
-	    background:#ffffff;
-	    border:1px solid rgba(0,0,0,0.12);
+	    background: var(--accent);
+	    color: #fff;
+	    border:1px solid rgba(255,255,255,0.22);
 	    display:flex;
 	    align-items:center;
 	    justify-content:center;
@@ -1455,15 +1456,20 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 
 
 
-/* My Brackets: slightly darker grey cards (desktop + mobile) */
+/* My Brackets: blue cards to match site accent (desktop + mobile) */
 .page-mybrackets .bracketCard{
-  background: rgba(200,200,200,0.28) !important;
-  border: 1px solid rgba(255,255,255,0.30) !important;
+  background: var(--accent) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
   box-shadow: 0 1px 0 rgba(0,0,0,0.28) !important;
   transition: background 0.15s ease;
 }
 .page-mybrackets .bracketCard:hover{
-  background: rgba(200,200,200,0.38) !important;
+  background: rgba(37, 99, 235, 0.92) !important;
+}
+
+.page-mybrackets .bracketCard,
+.page-mybrackets .bracketCard *{
+  color: #fff !important;
 }
 
 
@@ -1522,6 +1528,10 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 	    max-width: 280px;
 	    margin: 0 auto;
 
+  background: var(--accent) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  border-radius: 999px;
   font-size:32px !important;
 }
 

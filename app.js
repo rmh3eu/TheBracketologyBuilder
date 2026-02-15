@@ -1316,12 +1316,24 @@ function setBracketTitleDisplay(title) {
   if (!el) return;
   const t = String(title || '').trim();
   // Never show legacy/default titles in the editable field; use placeholder instead.
-  const isDefault = !t || /^my bracket$/i.test(t) || /^untitled bracket$/i.test(t);
+  const isDefault =
+    !t ||
+    /^my bracket$/i.test(t) ||
+    /^untitled bracket$/i.test(t) ||
+    /^name your bracket here$/i.test(t) ||
+    /^enter bracket name here$/i.test(t);
   const val = isDefault ? '' : t;
   // Support either a DIV (contentEditable) or an INPUT.
-  if ('value' in el) el.value = val;
-  else el.textContent = val;
+  if ('value' in el) {
+    el.placeholder = 'Enter Bracket Name Here';
+    el.value = val;
+  } else {
+    el.textContent = val || 'Enter Bracket Name Here';
+  }
 }
+
+// If a guest triggers Save / Save & Enter, we queue the action and resume it after auth.
+let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' }
 
 function initBracketTitleInlineRename(){
   const el =
@@ -1409,7 +1421,14 @@ async function ensureSavedToAccount(){
   // Normalize the desired title (what the user typed in the top-left title box).
   // IMPORTANT: read from DOM so Save/Enter captures edits even without blur.
   const currentTitleRaw = (getBracketTitleFromDom() || state.bracketTitle || '').trim();
-  const isDefaultTitle = !currentTitleRaw || ['My Bracket','',''].includes(currentTitleRaw);
+  const isDefaultTitle = !currentTitleRaw || [
+    'My Bracket',
+    'Untitled Bracket',
+    'Untitled bracket',
+    'Name Your Bracket Here',
+    'Enter Bracket Name Here',
+    ''
+  ].includes(currentTitleRaw);
   let desiredTitle = currentTitleRaw;
 
   // If this is an existing bracket, just save data + title (no prompts, no creates).
@@ -3768,7 +3787,13 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         toast('Could not save. Please try again.');
       }
     }else{
-      toast('Saved on this device. Sign in to save to your account.');
+      __pendingPostAuth = { action: 'save' };
+      try{
+        openAuth('signup', 'Save your bracket');
+      }catch(_){
+        openAuth('signup');
+      }
+      toast('Create a free account to keep it and edit later.');
     }
   });
 
@@ -3840,6 +3865,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     }
     if(!state.me){
       // Default to sign-up when a guest tries to Save/Enter
+      __pendingPostAuth = { action: 'saveEnter' };
       try{
         openAuth('signup', 'Save your bracket');
       }catch(_){
@@ -3937,6 +3963,26 @@ document.addEventListener('DOMContentLoaded', async ()=>{
         await doSignup(email, password);
       }else{
         await doSignin(email, password);
+      }
+
+      // If a guest initiated a save flow, resume it now that we're authenticated.
+      if(__pendingPostAuth && state.me){
+        const pending = __pendingPostAuth;
+        __pendingPostAuth = null;
+        closeAuth();
+        try{
+          await ensureSavedToAccount(false);
+          toast('Saved to your account.');
+          if(pending.action === 'saveEnter'){
+            showTab('mybrackets');
+            await renderMyBrackets();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }catch(e){
+          console.error(e);
+          toast('Signed in, but we could not save your bracket. Please try Save again.');
+        }
+        return;
       }
 
       closeAuth();
