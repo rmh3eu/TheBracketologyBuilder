@@ -79,7 +79,7 @@ function renderBracketSection({ listId, emptyId, items }) {
     const title = document.createElement('div');
     title.className = 'bracketTitle';
     const nm = (b.title && String(b.title).trim()) ? String(b.title).trim() : ((b.bracket_name && String(b.bracket_name).trim()) ? String(b.bracket_name).trim() : '');
-    title.textContent = nm || 'Untitled bracket';
+    title.textContent = nm || '';
 
     const meta = document.createElement('div');
     meta.className = 'bracketMeta';

@@ -1407,7 +1407,7 @@ async function ensureSavedToAccount(){
   // Normalize the desired title (what the user typed in the top-left title box).
   // IMPORTANT: read from DOM so Save/Enter captures edits even without blur.
   const currentTitleRaw = (getBracketTitleFromDom() || state.bracketTitle || '').trim();
-  const isDefaultTitle = !currentTitleRaw || ['My Bracket','Untitled bracket','Untitled Bracket'].includes(currentTitleRaw);
+  const isDefaultTitle = !currentTitleRaw || ['My Bracket','',''].includes(currentTitleRaw);
   let desiredTitle = currentTitleRaw;
 
   // If this is an existing bracket, just save data + title (no prompts, no creates).
