@@ -548,6 +548,19 @@ body{
 .authCard .muted{color:#000;opacity:1}
 .authCard label{color:#000;opacity:1}
 .authCard .tabs button{color:#000}
+
+/* Mobile auth modal sizing: wider + less tall */
+@media (max-width: 720px){
+  .authCard{
+    max-width: 560px;
+    padding:14px 14px 10px;
+    border-radius:16px;
+  }
+  .authCard h2{ margin:0 0 8px; }
+  .authCard .field{ margin:8px 0; }
+  .authCard .btnPrimary{ margin-top:12px; }
+  .authCard .muted{ margin-top:8px; }
+}
 .modal{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px}
 .modalHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .modalTitle{font-weight:800}
