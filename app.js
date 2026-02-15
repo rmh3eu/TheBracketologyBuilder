@@ -708,7 +708,10 @@ function nowStamp(){
 const STORAGE_KEY = 'bb_v30_picks_local';
 const STORAGE_META = 'bb_v30_meta';
 const state = {
-window.__bb_state = state;
+/* === PHASE1_MOBILE_ONLY_GUARD === */
+function isMobileUI(){
+  try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; }
+}
 
   // set from URL param second=1
 
@@ -1132,7 +1135,37 @@ function renderAccountState(){
   }
 
   wireAdminBroadcastPanels();
+  applyAnonHomeUI();
 }
+
+
+function applyAnonHomeUI() {
+  const isLoggedIn = !!(state && state.me && state.me.id);
+  const isHome = (state && state.view === 'build');
+  const anonHome = (!isLoggedIn && isHome);
+
+  document.body.classList.toggle('anonHome', anonHome);
+
+  const anonRow = qs('#anonStartRow');
+  if (anonRow) anonRow.style.display = anonHome ? 'flex' : 'none';
+
+  const row1 = qs('#actionRow1');
+  const row3 = qs('#actionRow3');
+  const hint = qs('#signinHint');
+  if (row1) row1.style.display = anonHome ? 'none' : '';
+  if (row3) row3.style.display = anonHome ? 'none' : '';
+  if (hint) hint.style.display = anonHome ? 'none' : '';
+
+  // Hide any nav/challenge/admin UI on the homepage for anon users (CSS also enforces this)
+  const seasonBar = qs('#seasonBar');
+  if (seasonBar) seasonBar.style.display = anonHome ? 'none' : '';
+  const stickyNav = qs('.stickyNav');
+  if (stickyNav) stickyNav.style.display = anonHome ? 'none' : '';
+
+  // Ensure Random Picks + Undo remain visible (actionRow2 stays)
+}
+
+
 
 function openAuth(mode='signin', titleText=null) {
   // Default to sign-in when opening the auth modal
@@ -3562,6 +3595,20 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   initNav();
 
+
+  // Phase 1: anon homepage CTA scroll
+  const startNoLoginBtn = qs('#startNoLoginBtn');
+  if (startNoLoginBtn) {
+    startNoLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = qs('#region-Midwest') || qs('#buildView');
+      if (target && target.scrollIntoView) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
+
   // Support deep-links like index.html#upcoming or /?tab=upcoming.
   // This also prevents the "sometimes it sends me back to Home" issue when
   // navigating in from standalone pages (best-challenge.html, worst-challenge.html).
@@ -3933,37 +3980,3 @@ document.addEventListener("click", function(e) {
   });
 })();
 
-
-/* === ANON_MOBILE_3BUTTONS_JS === */
-(function(){
-  function isMobile(){ try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; } }
-  function isAnon(){
-    try { return !window.__bb_state || !window.__bb_state.me; } catch(e){ return true; }
-  }
-  function apply(){
-    document.body.classList.toggle('anonMobile', !!(isMobile() && isAnon()));
-  }
-  try { apply(); } catch(e){}
-  window.addEventListener('resize', () => { try { apply(); } catch(e){} }, { passive:true });
-
-  // Wire the 3 buttons to existing handlers/buttons (no logic changes)
-  document.addEventListener('click', (e) => {
-    const t = e.target && e.target.closest && e.target.closest('#anonRandomBtn, #anonUndoBtn, #anonStartBtn');
-    if(!t) return;
-
-    if (t.id === 'anonRandomBtn') {
-      const btn = document.getElementById('randomBtnHeader') || document.getElementById('randomBtn');
-      if (btn) btn.click();
-    } else if (t.id === 'anonUndoBtn') {
-      const btn = document.getElementById('undoBtnHeader') || document.getElementById('undoBtn');
-      if (btn) btn.click();
-    } else if (t.id === 'anonStartBtn') {
-      // Scroll to Round of 64 view
-      try {
-        document.querySelectorAll('.geo').forEach(g => { g.scrollLeft = 0; });
-        const topTarget = document.querySelector('#region-Midwest') || document.querySelector('#view-build') || document.querySelector('main') || document.body;
-        topTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch(err){}
-    }
-  }, true);
-})();
