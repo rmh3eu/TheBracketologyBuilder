@@ -717,6 +717,68 @@ function phase3MarkInteracted(){
   phase3UpdateVisibility();
 }
 
+
+// ===== Phase 4: Submit for Featured (post-save, logged-in only) =====
+const __phase4 = { submittedByBracket: {} };
+
+async function phase4RefreshStatus(bracketId){
+  if(!bracketId || !state.me) return null;
+  if(__phase4.submittedByBracket[bracketId] !== undefined) return __phase4.submittedByBracket[bracketId];
+  try{
+    const res = await api('/api/feature-status?bracket_id=' + encodeURIComponent(bracketId), { method:'GET' });
+    __phase4.submittedByBracket[bracketId] = !!(res && res.submitted);
+    return __phase4.submittedByBracket[bracketId];
+  }catch(e){
+    return null;
+  }
+}
+
+async function phase4UpdateFeatureCTA(){
+  const row = qs('#featureAfterSaveRow');
+  const btn = qs('#submitFeaturedAfterSaveBtn');
+  const msg = qs('#featureAfterSaveMsg');
+  if(!row || !btn) return;
+
+  // Show ONLY when logged in AND viewing a saved bracket (has bracketId).
+  const bracketId = state.bracketId;
+  const shouldConsider = !!(state.me && bracketId);
+
+  if(!shouldConsider){
+    row.style.display = 'none';
+    if(msg) msg.textContent = '';
+    return;
+  }
+
+  // Check if already submitted
+  const already = await phase4RefreshStatus(bracketId);
+  if(already){
+    row.style.display = 'none';
+    if(msg) msg.textContent = '';
+    return;
+  }
+
+  // Only visible after a save (i.e., bracketId exists). This is true for saved brackets.
+  row.style.display = 'flex';
+  if(msg) msg.textContent = '';
+
+  if(!btn.__wired){
+    btn.__wired = true;
+    btn.addEventListener('click', async ()=>{
+      try{
+        btn.disabled = true;
+        await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: state.bracketId, caption: '' })});
+        __phase4.submittedByBracket[state.bracketId] = true;
+        row.style.display = 'none';
+        toast('Submitted! If approved, your bracket may appear on the site or TikTok.');
+      }catch(e){
+        toast('Could not submit. Please try again.');
+      }finally{
+        btn.disabled = false;
+      }
+    });
+  }
+}
+
 function phase3MarkSaved(){
   if(__phase3.hasSaved) return;
   __phase3.hasSaved = true;
@@ -1253,7 +1315,7 @@ function setBracketTitleDisplay(title) {
     document.querySelector('[data-bracket-title]');
   if (!el) return;
   const t = String(title || '').trim();
-  const val = t ? t : 'Untitled bracket';
+  const val = t ? t : '';
   // Support either a DIV (contentEditable) or an INPUT.
   if ('value' in el) el.value = val;
   else el.textContent = val;
@@ -3218,6 +3280,8 @@ function renderAll(){
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);
+  // Phase 4: update Submit for Featured CTA
+  try{ phase4UpdateFeatureCTA(); }catch(_e){}
 
     // Restore scroll positions after re-render.
     if(isMobile()){

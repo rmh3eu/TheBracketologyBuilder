@@ -14,9 +14,16 @@ export async function onRequestPost({ request, env }){
   if(!row) return json({ok:false, error:"Bracket not found."}, 404);
   if(row.user_id !== user.id) return json({ok:false, error:"Not authorized."}, 403);
 
+  const existing = await env.DB.prepare(
+    "SELECT id, status FROM feature_requests WHERE bracket_id=? AND user_id=? ORDER BY created_at DESC LIMIT 1"
+  ).bind(bracketId, user.id).first();
+  if(existing){
+    return json({ok:true, already:true, status: existing.status});
+  }
+
   const now = new Date().toISOString();
   await env.DB.prepare(
-    "INSERT INTO feature_requests (bracket_id,user_id,caption,status,created_at) VALUES (?,?,?,?,?)"
+    "INSERT INTO feature_requests (bracket_id,user_id,caption,status,created_at) VALUES (?,?,?,?,?)" /* ALREADY_SUBMITTED */
   ).bind(bracketId, user.id, caption, "pending", now).run();
 
   return json({ok:true});
