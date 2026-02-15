@@ -708,6 +708,8 @@ function nowStamp(){
 const STORAGE_KEY = 'bb_v30_picks_local';
 const STORAGE_META = 'bb_v30_meta';
 const state = {
+window.__bb_state = state;
+
   // set from URL param second=1
 
   bracket_type: null,
@@ -3929,4 +3931,39 @@ document.addEventListener("click", function(e) {
   scrollers.forEach(s => {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
+})();
+
+
+/* === ANON_MOBILE_3BUTTONS_JS === */
+(function(){
+  function isMobile(){ try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; } }
+  function isAnon(){
+    try { return !window.__bb_state || !window.__bb_state.me; } catch(e){ return true; }
+  }
+  function apply(){
+    document.body.classList.toggle('anonMobile', !!(isMobile() && isAnon()));
+  }
+  try { apply(); } catch(e){}
+  window.addEventListener('resize', () => { try { apply(); } catch(e){} }, { passive:true });
+
+  // Wire the 3 buttons to existing handlers/buttons (no logic changes)
+  document.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest && e.target.closest('#anonRandomBtn, #anonUndoBtn, #anonStartBtn');
+    if(!t) return;
+
+    if (t.id === 'anonRandomBtn') {
+      const btn = document.getElementById('randomBtnHeader') || document.getElementById('randomBtn');
+      if (btn) btn.click();
+    } else if (t.id === 'anonUndoBtn') {
+      const btn = document.getElementById('undoBtnHeader') || document.getElementById('undoBtn');
+      if (btn) btn.click();
+    } else if (t.id === 'anonStartBtn') {
+      // Scroll to Round of 64 view
+      try {
+        document.querySelectorAll('.geo').forEach(g => { g.scrollLeft = 0; });
+        const topTarget = document.querySelector('#region-Midwest') || document.querySelector('#view-build') || document.querySelector('main') || document.body;
+        topTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch(err){}
+    }
+  }, true);
 })();

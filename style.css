@@ -2231,3 +2231,40 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   background: #fff;
   margin-bottom: 8px;
 }
+
+
+/* === MOBILE_ANON_3BUTTONS === */
+.anonMobileBar { display: none; }
+
+@media (max-width: 900px) {
+  body.anonMobile .anonMobileBar {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 10px;
+    align-items: stretch;
+    margin-top: 8px;
+    margin-bottom: 6px;
+  }
+  body.anonMobile .anonMobileBar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  body.anonMobile .anonStartBtn {
+    background: #2563eb !important;
+    color: #fff !important;
+    border: 0 !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    padding-left: 14px !important;
+    font-weight: 700;
+  }
+
+  /* Hide existing top controls on mobile anon so ONLY these 3 show */
+  body.anonMobile header .actions .actionRow,
+  body.anonMobile header .actions .signinHint,
+  body.anonMobile #saveEnterBtnTop,
+  body.anonMobile #saveBtn,
+  body.anonMobile #bracketsBtn {
+    display: none !important;
+  }
+}
