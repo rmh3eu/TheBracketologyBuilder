@@ -708,6 +708,11 @@ function nowStamp(){
 const STORAGE_KEY = 'bb_v30_picks_local';
 const STORAGE_META = 'bb_v30_meta';
 const state = {
+/* === PHASE1_MOBILE_ONLY_GUARD === */
+function isMobileUI(){
+  try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; }
+}
+
   // set from URL param second=1
 
   bracket_type: null,
@@ -3975,17 +3980,3 @@ document.addEventListener("click", function(e) {
   });
 })();
 
-/* === PHASE1_FORCE_TABS_DESKTOP === */
-/* Prevent post-hydration flicker: if anon styling hid tabs via JS, force them visible on desktop. */
-(function(){
-  try {
-    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 901px)').matches;
-    if (!isDesktop) return;
-    const nav = document.querySelector('.siteNav');
-    if (nav) {
-      nav.style.display = '';
-      nav.style.visibility = '';
-      nav.hidden = false;
-    }
-  } catch(e) {}
-})();

@@ -2288,10 +2288,3 @@ body.anonHome .submitFeaturedBtn{ display:none !important; }
 }
 
 
-/* === PHASE1_DESKTOP_FORCE_NAV === */
-@media (min-width: 901px) {
-  .siteNav {
-    display: flex !important;
-    visibility: visible !important;
-  }
-}
