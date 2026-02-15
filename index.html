@@ -22,6 +22,7 @@
 
 <div class="anonMobileBar" id="anonMobileBar" aria-label="Quick actions">
   <button class="btn anonStartBtn" id="anonStartBtn" type="button">🏀 Start a Bracket</button>
+  <div class="anonStartSub">Build first. Save anytime.</div>
   <button class="btn" id="anonRandomBtn" type="button">Random picks</button>
   <button class="btn ghost" id="anonUndoBtn" type="button">Undo</button>
 </div>
@@ -377,7 +378,17 @@
 <span>Password</span>
 <input autocomplete="current-password" id="authPassword" placeholder="••••••••" type="password"/>
 </label>
-<!-- Signup extras removed: no phone field and no opt-in checkboxes -->
+<div class="signupOnly" id="signupExtras" style="display:none">
+<label class="field">
+<span>Phone (optional)</span>
+<input autocomplete="tel" id="authPhone" placeholder="(555) 555-5555" type="tel"/>
+</label>
+<div class="checks">
+<label class="checkRow"><input id="optLive" type="checkbox"/> <span>Get alerts when official brackets go live</span></label>
+<label class="checkRow"><input id="optUpcoming" type="checkbox"/> <span>Get notified of upcoming challenges</span></label>
+<label class="checkRow"><input id="optAds" type="checkbox"/> <span>Get alerted of sports betting partner offers</span></label>
+</div>
+</div>
 <button class="primaryBtn" id="authSubmit">Continue</button>
 <div class="smallNote">You must be signed in to enter challenges and appear on leaderboards.</div>
 </div>

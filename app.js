@@ -1154,11 +1154,31 @@ function setAuthMode(mode){
   }
   // Username removed: email-only auth
   qs('#authPassword').setAttribute('autocomplete', mode==='signin' ? 'current-password' : 'new-password');
-  // Signup extras removed (no phone / no opt-in checkboxes)
+  const extras = qs('#signupExtras');
+  if(extras) extras.style.display = (mode==='signup') ? 'block' : 'none';
 }
 
 async function doSignup(email, password){
-  await api('/api/register', { method:'POST', body: JSON.stringify({ email, password })});
+  const phoneEl = qs('#authPhone');
+  const optLiveEl = qs('#optLive');
+  const optUpcomingEl = qs('#optUpcoming');
+  const optSmsEl = qs('#optSms');
+  // "Offers" checkbox ID may be optOffers (new) or optAds (older builds).
+  const optOffersEl = qs('#optOffers') || qs('#optAds');
+  const phone = phoneEl ? phoneEl.value.trim() : "";
+  const optin_live = optLiveEl ? !!optLiveEl.checked : false;
+  const optin_upcoming = optUpcomingEl ? !!optUpcomingEl.checked : false;
+  const optin_sms = optSmsEl ? !!optSmsEl.checked : false;
+  const optin_ads = optOffersEl ? !!optOffersEl.checked : false;
+
+  // Persist email marketing selections locally so the same options disappear on all pages.
+  // (Sign-up checkboxes are the same three options; any checked box at signup should not
+  // appear on the "Get Challenge Reminders" sections elsewhere.)
+  try{ localStorage.setItem('bb_lead_email', String(email||'').trim()); }catch(_e){}
+  saveLeadPrefs({ live: optin_live, upcoming: optin_upcoming, offers: optin_ads });
+  saveLeadSigned({ live: optin_live, upcoming: optin_upcoming, offers: optin_ads }, email);
+
+  await api('/api/register', { method:'POST', body: JSON.stringify({ email, password, phone, optin_live, optin_upcoming, optin_sms, optin_ads })});
   await doSignin(email, password);
 }
 
