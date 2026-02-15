@@ -3682,6 +3682,33 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   renderAll();
 
+  // Mobile-only UI tweak:
+  // - Put Random Picks + Undo on the same row
+  // - Move the bracket title box below that row (so it isn't directly above Undo)
+  try {
+    if (window.matchMedia && window.matchMedia('(max-width: 820px)').matches) {
+      const titleInput = document.getElementById('bracketPageTitle');
+      const randomBtn = document.getElementById('randomPicksBtnTop');
+      const undoBtn = document.getElementById('undoBtnTop');
+
+      if (titleInput && randomBtn && undoBtn) {
+        const randomRow = randomBtn.closest('.bracketTitleRow');
+        if (randomRow && undoBtn.parentElement !== randomRow) {
+          randomRow.appendChild(undoBtn);
+        }
+
+        if (randomRow) {
+          const titleRow = document.createElement('div');
+          titleRow.className = 'bracketTitleRow homeTitleRow bracketTitleNameRow';
+          titleRow.appendChild(titleInput);
+          randomRow.insertAdjacentElement('afterend', titleRow);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Mobile title/button layout tweak failed:', e);
+  }
+
   // Phase 3 cue: initialize (informational only)
   __phase3.hasSaved = !!state.bracketId;
   phase3UpdateVisibility();
