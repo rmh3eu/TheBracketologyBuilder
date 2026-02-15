@@ -2231,30 +2231,3 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   background: #fff;
   margin-bottom: 8px;
 }
-
-
-/* === PHASE1_MOBILE_SIMPLIFY_ANON === */
-@media (max-width: 900px) {
-  /* default: hide CTA unless anon */
-  .startBracketCta { display: none; margin-top: 8px; }
-  .startBracketBtn { width: 100%; text-align: left; }
-  .startBracketSub { margin-top: 6px; font-size: 13px; opacity: 0.85; }
-
-  /* anon on mobile: show CTA and simplify top controls */
-  body.anonMobile .startBracketCta { display: block; }
-  body.anonMobile header .actions .actionRow:first-child { display: none !important; } /* sign in/up row */
-  body.anonMobile #saveBtn, 
-  body.anonMobile #bracketsBtn { display: none !important; }
-  body.anonMobile header .actions .signinHint { display: none !important; }
-
-  /* hide sticky nav tabs + season bar + admin/featured/upcoming sections on home for anon */
-  body.anonMobile .stickyNav { display: none !important; }
-  body.anonMobile #seasonBar { display: none !important; }
-
-  /* hide Save & Enter on home */
-  body.anonMobile #saveEnterBtnTop { display: none !important; }
-
-  /* hide any admin tools if present */
-  body.anonMobile .adminOnly, 
-  body.anonMobile [data-admin-only="1"] { display: none !important; }
-}

@@ -708,8 +708,6 @@ function nowStamp(){
 const STORAGE_KEY = 'bb_v30_picks_local';
 const STORAGE_META = 'bb_v30_meta';
 const state = {
-window.__bb_state = state;
-
   // set from URL param second=1
 
   bracket_type: null,
@@ -3931,40 +3929,4 @@ document.addEventListener("click", function(e) {
   scrollers.forEach(s => {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
-})();
-
-
-/* === PHASE1_ANON_MOBILE_CTA === */
-(function(){
-  function isMobile(){ try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; } }
-  function applyAnonMobile(){
-    // state.me exists when logged in
-    const anon = !window.__bb_state || !window.__bb_state.me;
-    document.body.classList.toggle('anonMobile', !!(anon && isMobile()));
-  }
-  // run after state is created
-  try { applyAnonMobile(); } catch(e){}
-  window.addEventListener('resize', () => { try { applyAnonMobile(); } catch(e){} }, { passive:true });
-
-  // Hook after auth state updates if an existing hook exists
-  const _origSetMe = window.setMe;
-  if(typeof _origSetMe === 'function'){
-    window.setMe = function(me){
-      const r = _origSetMe.apply(this, arguments);
-      try { applyAnonMobile(); } catch(e){}
-      return r;
-    }
-  }
-
-  document.addEventListener('click', (e) => {
-    const btn = e.target && e.target.closest && e.target.closest('#startBracketBtn');
-    if(!btn) return;
-    // Do not trigger login; just scroll to Round of 64 area.
-    try {
-      // ensure horizontal scrollers are at start
-      document.querySelectorAll('.geo').forEach(g => { g.scrollLeft = 0; });
-      const topTarget = document.querySelector('#region-Midwest') || document.querySelector('#view-build') || document.body;
-      topTarget.scrollIntoView({ behavior:'smooth', block:'start' });
-    } catch(err){}
-  }, true);
 })();
