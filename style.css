@@ -2438,3 +2438,31 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   background: #ffffff;
   outline: none;
 }
+
+
+/* === TITLEBOX_PLACEHOLDER_COLORS === */
+/* Placeholder + text color control: desktop white, mobile black */
+#bracketNameInput::placeholder {
+  color: #000;
+  opacity: 1;
+}
+@media (min-width: 901px) {
+  #bracketNameInput {
+    background: #374151; /* darker so white text is readable */
+    color: #ffffff;
+  }
+  #bracketNameInput::placeholder {
+    color: #ffffff;
+    opacity: 1;
+  }
+}
+@media (max-width: 900px) {
+  #bracketNameInput {
+    background: #f3f4f6;
+    color: #000000;
+  }
+  #bracketNameInput::placeholder {
+    color: #000000;
+    opacity: 1;
+  }
+}
