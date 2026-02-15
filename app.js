@@ -708,11 +708,6 @@ function nowStamp(){
 const STORAGE_KEY = 'bb_v30_picks_local';
 const STORAGE_META = 'bb_v30_meta';
 const state = {
-/* === PHASE1_MOBILE_ONLY_GUARD === */
-function isMobileUI(){
-  try { return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; } catch(e){ return false; }
-}
-
   // set from URL param second=1
 
   bracket_type: null,
@@ -1135,37 +1130,7 @@ function renderAccountState(){
   }
 
   wireAdminBroadcastPanels();
-  applyAnonHomeUI();
 }
-
-
-function applyAnonHomeUI() {
-  const isLoggedIn = !!(state && state.me && state.me.id);
-  const isHome = (state && state.view === 'build');
-  const anonHome = (!isLoggedIn && isHome);
-
-  document.body.classList.toggle('anonHome', anonHome);
-
-  const anonRow = qs('#anonStartRow');
-  if (anonRow) anonRow.style.display = anonHome ? 'flex' : 'none';
-
-  const row1 = qs('#actionRow1');
-  const row3 = qs('#actionRow3');
-  const hint = qs('#signinHint');
-  if (row1) row1.style.display = anonHome ? 'none' : '';
-  if (row3) row3.style.display = anonHome ? 'none' : '';
-  if (hint) hint.style.display = anonHome ? 'none' : '';
-
-  // Hide any nav/challenge/admin UI on the homepage for anon users (CSS also enforces this)
-  const seasonBar = qs('#seasonBar');
-  if (seasonBar) seasonBar.style.display = anonHome ? 'none' : '';
-  const stickyNav = qs('.stickyNav');
-  if (stickyNav) stickyNav.style.display = anonHome ? 'none' : '';
-
-  // Ensure Random Picks + Undo remain visible (actionRow2 stays)
-}
-
-
 
 function openAuth(mode='signin', titleText=null) {
   // Default to sign-in when opening the auth modal
@@ -3595,20 +3560,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   initNav();
 
-
-  // Phase 1: anon homepage CTA scroll
-  const startNoLoginBtn = qs('#startNoLoginBtn');
-  if (startNoLoginBtn) {
-    startNoLoginBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = qs('#region-Midwest') || qs('#buildView');
-      if (target && target.scrollIntoView) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  }
-
-
   // Support deep-links like index.html#upcoming or /?tab=upcoming.
   // This also prevents the "sometimes it sends me back to Home" issue when
   // navigating in from standalone pages (best-challenge.html, worst-challenge.html).
@@ -3979,4 +3930,3 @@ document.addEventListener("click", function(e) {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
 })();
-
