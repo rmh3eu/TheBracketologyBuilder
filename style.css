@@ -2466,3 +2466,35 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     opacity: 1;
   }
 }
+
+
+/* === BRACKET_NAME_PLACEHOLDER_EVERYWHERE === */
+/* Make placeholder always visible (not faint grey) */
+#bracketNameInput::placeholder,
+#bracketPageTitle::placeholder {
+  opacity: 1;
+}
+
+/* Desktop: white text + white placeholder on bracket title inputs */
+@media (min-width: 901px) {
+  #bracketNameInput,
+  #bracketPageTitle {
+    color: #ffffff;
+  }
+  #bracketNameInput::placeholder,
+  #bracketPageTitle::placeholder {
+    color: #ffffff;
+  }
+}
+
+/* Mobile: black text + black placeholder on bracket title inputs */
+@media (max-width: 900px) {
+  #bracketNameInput,
+  #bracketPageTitle {
+    color: #000000;
+  }
+  #bracketNameInput::placeholder,
+  #bracketPageTitle::placeholder {
+    color: #000000;
+  }
+}
