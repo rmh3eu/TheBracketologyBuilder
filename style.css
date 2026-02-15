@@ -2271,3 +2271,18 @@ body.anonHome #saveEnterBtn{ display:none !important; }
 /* In case Featured CTA exists on home sidebar */
 body.anonHome #submitFeaturedBtn,
 body.anonHome .submitFeaturedBtn{ display:none !important; }
+
+
+/* === PHASE1_DESKTOP_RULES === */
+/* Desktop: no Start a Bracket CTA for anon users */
+@media (min-width: 901px) {
+  .anonHome .startBracketCta {
+    display: none !important;
+  }
+}
+/* Mobile: hide nav tabs for anon users (desktop keeps tabs) */
+@media (max-width: 900px) {
+  .anonHome .siteNav {
+    display: none !important;
+  }
+}
