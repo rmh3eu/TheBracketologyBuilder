@@ -2349,3 +2349,16 @@ button:has(span:contains('My Brackets')) { display:none !important; }
     font-size: 14px !important;
   }
 }
+
+/* ===== Phase 2 tweaks ===== */
+/* Wider auth modal on mobile so content fits without scrolling */
+@media (max-width: 600px){
+  .overlay .modal{
+    width: 92vw !important;
+    max-width: 92vw !important;
+    padding: 16px !important;
+  }
+}
+
+/* Hide betting/affiliate disclaimers for now (no partners live yet) */
+.bbFooter{display:none !important;}
