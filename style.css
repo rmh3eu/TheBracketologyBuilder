@@ -2674,3 +2674,22 @@ input[name="bracketName"]::placeholder {
   }
 
 }
+
+
+/* ===== Hide Tiebreaker unless Official Brackets are live ===== */
+.tiebreaker,
+#tiebreaker,
+#tiebreakerField,
+.tiebreakerField,
+input[name="tiebreaker"]{
+  display: none !important;
+}
+
+/* If admin sets Official Brackets live, body will receive .officialLive class */
+body.officialLive .tiebreaker,
+body.officialLive #tiebreaker,
+body.officialLive #tiebreakerField,
+body.officialLive .tiebreakerField,
+body.officialLive input[name="tiebreaker"]{
+  display: block !important;
+}

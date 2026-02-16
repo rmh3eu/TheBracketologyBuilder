@@ -183,5 +183,21 @@
   </div>
 </footer>
 
+
+<script>
+(function(){
+  try{
+    fetch('/api/public-config')
+      .then(r=>r.json())
+      .then(cfg=>{
+        if(cfg && cfg.officialLive){
+          document.body.classList.add('officialLive');
+        }
+      })
+      .catch(()=>{});
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
