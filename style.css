@@ -2655,3 +2655,22 @@ input[name="bracketName"]::placeholder {
     display: none !important;
   }
 }
+
+
+/* ===== Mobile refinement: slightly smaller CTA + move logout further right ===== */
+@media (max-width: 900px){
+
+  /* Slightly reduce big CTA size */
+  body.anonMobile #anonStartBtn,
+  body.authMobile #anonStartBtn{
+    font-size: 18px !important;
+    padding: 12px 14px !important;
+  }
+
+  /* Move logout further right and slightly higher */
+  body.authMobile #mobileLogoutBtn{
+    right: 4px !important;
+    top: 4px !important;
+  }
+
+}
