@@ -2817,3 +2817,21 @@ body.officialLive .tiebreakerInput{
     width: 100%;
   }
 }
+
+
+/* ===== My Brackets: Slightly taller create buttons ===== */
+.page-mybrackets #createNewBtn,
+.page-mybrackets #createNewRandomBtn{
+  padding: 12px 18px !important;  /* increased vertical padding */
+  font-size: 16px;                /* keep balanced */
+}
+
+
+
+/* ===== My Brackets: Slightly taller create buttons (v20 refinement) ===== */
+.page-mybrackets #createNewBtn,
+.page-mybrackets #createNewRandomBtn{
+  padding: 14px 20px !important;  /* increased vertical padding again */
+  font-size: 17px;                /* slightly stronger presence */
+}
+
