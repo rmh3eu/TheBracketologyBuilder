@@ -2709,3 +2709,19 @@ body.officialLive #tiebreakerTotal,
 body.officialLive .tiebreakerInput{
   display: block !important;
 }
+
+
+/* ===== Mobile: move Logout fully to the far right (no overlap with CTA) ===== */
+@media (max-width: 900px){
+
+  body.authMobile #anonMobileBar{
+    padding-right: 70px !important; /* create space for logout */
+  }
+
+  body.authMobile #mobileLogoutBtn{
+    right: 8px !important;
+    top: 2px !important;
+    z-index: 5;
+  }
+
+}
