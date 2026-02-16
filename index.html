@@ -426,15 +426,60 @@
     var t = (b.textContent || '').trim().toLowerCase();
     return (t === 'sign in' || t === 'signin' || t === 'log in' || t === 'login');
   }
-  function apply(){
-    document.body.classList.toggle('anonMobile', !!(isMobile() && isAnon()));
+
+  function setMetaForNewBracket(){
+    try{
+      // Keys are defined in app.js (STORAGE_KEY/STORAGE_META)
+      var STORAGE_KEY = 'bb_v30_picks_local';
+      var STORAGE_META = 'bb_v30_meta';
+
+      // Clear picks + saved bracket binding so Save creates a new bracket
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({}));
+
+      var meta = {};
+      try{ meta = JSON.parse(localStorage.getItem(STORAGE_META) || '{}'); }catch(e){ meta = {}; }
+      meta.bracketId = null;
+      meta.bracketTitle = '';
+      localStorage.setItem(STORAGE_META, JSON.stringify(meta));
+    }catch(e){}
   }
+
+  function apply(){
+    var mobile = !!isMobile();
+    var anon = !!isAnon();
+
+    document.body.classList.toggle('anonMobile',  !!(mobile && anon));
+    document.body.classList.toggle('authMobile',  !!(mobile && !anon));
+
+    // Update the big blue button label depending on auth state
+    var start = document.getElementById('anonStartBtn');
+    if(start){
+      start.textContent = (anon ? '🏀 Start a Bracket' : '🏀 Create Another Bracket');
+    }
+  }
+
   function wire(){
     var start = document.getElementById('anonStartBtn');
     var rand  = document.getElementById('anonRandomBtn');
     var undo  = document.getElementById('anonUndoBtn');
+
     if(start){
       start.addEventListener('click', function(){
+        // When signed in on mobile, reset storage so Save creates a new bracket
+        // (UI-only nudge to encourage multiple brackets; no server/schema changes)
+        try{
+          var mobile = isMobile();
+          var anon = isAnon();
+          if(mobile && !anon){
+            setMetaForNewBracket();
+            // Reload to guarantee state resets cleanly
+            window.location.hash = '#home';
+            window.location.reload();
+            return;
+          }
+        }catch(e){}
+
+        // Default behavior (anon flow): scroll to bracket builder area
         try{
           document.querySelectorAll('.geo').forEach(function(g){ g.scrollLeft = 0; });
           var target = document.querySelector('#region-Midwest') || document.querySelector('#view-build') || document.querySelector('main') || document.body;
@@ -442,18 +487,21 @@
         }catch(e){}
       });
     }
+
     if(rand){
       rand.addEventListener('click', function(){
         var b = document.getElementById('randomPicksBtnHeader') || document.getElementById('randomBtnHeader');
         if(b) b.click();
       });
     }
+
     if(undo){
       undo.addEventListener('click', function(){
         var b = document.getElementById('undoBtnHeader') || document.getElementById('undoBtn');
         if(b) b.click();
       });
     }
+
     var acct = document.getElementById('accountBtn');
     if(acct && window.MutationObserver){
       var mo = new MutationObserver(function(){ apply(); });
@@ -462,6 +510,7 @@
     window.addEventListener('resize', function(){ apply(); }, {passive:true});
     apply();
   }
+
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', wire);
   } else {

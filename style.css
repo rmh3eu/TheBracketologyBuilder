@@ -2589,3 +2589,23 @@ input[name="bracketName"]::placeholder {
   -webkit-text-fill-color:rgba(255,255,255,0.95) !important;
   opacity:1 !important;
 }
+
+
+/* ===== Mobile (Signed In): Simplify top actions to encourage multiple brackets ===== */
+@media (max-width: 900px){
+  /* Show the big blue bar on mobile even when signed in */
+  body.authMobile #anonMobileBar{
+    display: block !important;
+  }
+
+  /* Hide other header action rows/buttons on mobile when signed in */
+  body.authMobile .actions .actionRow,
+  body.authMobile .actions .signinHint{
+    display: none !important;
+  }
+
+  /* Remove anon subtext when signed in (keep it clean like requested) */
+  body.authMobile #anonMobileBar .anonStartSub{
+    display: none !important;
+  }
+}
