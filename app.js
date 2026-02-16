@@ -963,7 +963,34 @@ function commitPicks(np, reason){
   }
   state.picks = normalize(np || {});
   saveLocal(state.picks);
+
   renderAll();
+
+  /* === AUTO_RANDOM_NEW_BRACKET ===
+     If user clicked "Create new bracket with random picks" from My Brackets,
+     auto-fill random picks once when loading bracket.html?new=1&random=1.
+     Never runs when editing an existing saved bracket.
+  */
+  try{
+    const spAuto = new URLSearchParams(location.search);
+    const isBracketPage = location.pathname.endsWith('bracket.html');
+    const wantsRandom = (spAuto.get('random') === '1');
+    const isNew = (spAuto.get('new') === '1');
+    const meta = getBracketMetaFromUrl();
+    const hasExisting = !!(meta && meta.bracketId);
+    const key = 'bb_autofill_random_done:' + location.search;
+
+    if(isBracketPage && wantsRandom && isNew && !hasExisting && !sessionStorage.getItem(key)){
+      // Only if there are no picks yet (fresh new bracket)
+      const hasAnyPick = state.picks && Object.keys(state.picks).length > 0;
+      if(!hasAnyPick){
+        fillRandomPicks();
+        saveLocal(state.picks);
+      }
+      sessionStorage.setItem(key, '1');
+    }
+  }catch(_e){}
+
   scheduleAutosave();
   if(reason === 'pick') maybeAutoShiftMobile();
 }

@@ -2787,3 +2787,33 @@ body.officialLive .tiebreakerInput{
   }
 
 }
+
+
+/* ===== My Brackets: Create buttons row ===== */
+.page-mybrackets .createRow{
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.page-mybrackets .btnWithHint{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 260px;
+}
+
+@media (max-width: 900px){
+  .page-mybrackets .createRow{
+    flex-direction: column;
+  }
+  .page-mybrackets .btnWithHint{
+    width: 100%;
+    min-width: 0;
+  }
+  .page-mybrackets #createNewBtn,
+  .page-mybrackets #createNewRandomBtn{
+    width: 100%;
+  }
+}
