@@ -21,6 +21,8 @@
 <div class="actions">
 
 <div class="anonMobileBar" id="anonMobileBar" aria-label="Quick actions">
+      <button id="mobileLogoutBtn" type="button" aria-label="Log out">Log out</button>
+
   <button class="btn anonStartBtn" id="anonStartBtn" type="button">🏀 Start a Bracket</button>
   <div class="anonStartSub">Build first. Save anytime.</div>
   <button class="btn" id="anonRandomBtn" type="button">Random picks</button>
@@ -462,6 +464,7 @@
     var start = document.getElementById('anonStartBtn');
     var rand  = document.getElementById('anonRandomBtn');
     var undo  = document.getElementById('anonUndoBtn');
+    var logoutBtn = document.getElementById('mobileLogoutBtn');
 
     if(start){
       start.addEventListener('click', function(){
@@ -501,6 +504,20 @@
         if(b) b.click();
       });
     }
+
+    if(logoutBtn){
+      logoutBtn.addEventListener('click', function(){
+        // Best-effort logout. Works with either GET or POST implementations.
+        try{
+          fetch('/api/logout', { method: 'POST', credentials: 'include' })
+            .catch(function(){ return fetch('/api/logout', { method: 'GET', credentials: 'include' }); })
+            .finally(function(){ window.location.href = '/'; });
+        }catch(e){
+          window.location.href = '/api/logout';
+        }
+      });
+    }
+
 
     var acct = document.getElementById('accountBtn');
     if(acct && window.MutationObserver){

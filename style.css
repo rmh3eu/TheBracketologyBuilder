@@ -2609,3 +2609,49 @@ input[name="bracketName"]::placeholder {
     display: none !important;
   }
 }
+
+
+/* ===== Mobile (Signed In) top-right logout + Create Another Bracket styling ===== */
+@media (max-width: 900px){
+  /* Make sure the big CTA is blue/white in BOTH anon and auth mobile states */
+  body.anonMobile #anonStartBtn,
+  body.authMobile #anonStartBtn{
+    background: #1e63d6 !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    font-weight: 800;
+    width: 100%;
+    display: block;
+    font-size: 20px;
+    padding: 14px 14px;
+    border-radius: 14px;
+  }
+
+  /* Keep Random/Undo smaller underneath */
+  body.anonMobile #anonRandomBtn,
+  body.anonMobile #anonUndoBtn,
+  body.authMobile #anonRandomBtn,
+  body.authMobile #anonUndoBtn{
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  /* Logout button: top-right when signed in */
+  #anonMobileBar{ position: relative; }
+  body.authMobile #mobileLogoutBtn{
+    display: inline-block !important;
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.12);
+    color: #111;
+    line-height: 1;
+  }
+  body.anonMobile #mobileLogoutBtn{
+    display: none !important;
+  }
+}
