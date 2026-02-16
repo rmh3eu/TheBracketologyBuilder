@@ -184,13 +184,14 @@
 </footer>
 
 
-<script>
+
+<script id="officialLiveFlag">
 (function(){
   try{
     fetch('/api/public-config')
       .then(r=>r.json())
       .then(cfg=>{
-        if(cfg && cfg.officialLive){
+        if(cfg && (cfg.official_bracket_live || cfg.officialLive)){
           document.body.classList.add('officialLive');
         }
       })

@@ -2693,3 +2693,19 @@ body.officialLive .tiebreakerField,
 body.officialLive input[name="tiebreaker"]{
   display: block !important;
 }
+
+
+/* ===== Hide Tiebreaker unless Official Bracket is live (correct selectors) ===== */
+.tiebreakerRow,
+.tiebreakerLabel,
+#tiebreakerTotal,
+.tiebreakerInput{
+  display: none !important;
+}
+
+body.officialLive .tiebreakerRow,
+body.officialLive .tiebreakerLabel,
+body.officialLive #tiebreakerTotal,
+body.officialLive .tiebreakerInput{
+  display: block !important;
+}
