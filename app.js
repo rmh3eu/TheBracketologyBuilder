@@ -3879,8 +3879,8 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
     saveLocal(state.picks);
-    // Require a championship tiebreaker if a champion has been selected.
-    if(state.picks && state.picks.CHAMPION){
+    // Require a championship tiebreaker ONLY when the Official Bracket is live.
+    if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
       const tb = state.picks.TIEBREAKER_TOTAL;
       if(tb===null || tb===undefined || tb==='' || !Number.isFinite(Number(tb))){
         toast('Please enter Tiebreaker: Total Points in Final.');
