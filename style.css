@@ -2745,3 +2745,23 @@ body.officialLive .tiebreakerInput{
   }
 
 }
+
+
+/* ===== Mobile refinement: One-line Create Another Bracket ===== */
+@media (max-width: 900px){
+
+  /* Make CTA wider and shorter */
+  body.authMobile #anonStartBtn{
+    width: calc(100% - 60px) !important;
+    padding: 10px 14px !important;
+    font-size: 17px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Push logout further right and slightly higher */
+  body.authMobile #mobileLogoutBtn{
+    right: 2px !important;
+    top: 6px !important;
+  }
+
+}
