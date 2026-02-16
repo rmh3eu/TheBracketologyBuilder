@@ -2725,3 +2725,23 @@ body.officialLive .tiebreakerInput{
   }
 
 }
+
+
+/* ===== Mobile FINAL fix: fully separate Logout from CTA ===== */
+@media (max-width: 900px){
+
+  /* Make CTA not full width so logout has dedicated space */
+  body.authMobile #anonStartBtn{
+    width: calc(100% - 90px) !important;
+    display: inline-block !important;
+  }
+
+  /* Anchor logout fully to right edge */
+  body.authMobile #mobileLogoutBtn{
+    position: absolute !important;
+    right: 6px !important;
+    top: 8px !important;
+    margin-left: 0 !important;
+  }
+
+}
