@@ -261,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const cfg = await (window.getPublicConfig ? window.getPublicConfig() : api('/api/public-config'));
         const sweet16Set = !!(cfg && (cfg.sweet16_set || (cfg.config && cfg.config.sweet16_set)));
+
+        try{ document.body.classList.toggle('sweet16Set', sweet16Set); }catch{}
         const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
 
         if (sweet16Set) {

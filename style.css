@@ -2835,3 +2835,13 @@ body.officialLive .tiebreakerInput{
   font-size: 17px;                /* slightly stronger presence */
 }
 
+
+/* ===== My Brackets: hide Second Chance controls until Sweet 16 is set ===== */
+.page-mybrackets #secondChanceCard,
+.page-mybrackets #secSecondChance{
+  display: none;
+}
+.page-mybrackets.sweet16Set #secondChanceCard,
+.page-mybrackets.sweet16Set #secSecondChance{
+  display: block;
+}
