@@ -2765,3 +2765,14 @@ body.officialLive .tiebreakerInput{
   }
 
 }
+
+
+/* ===== Mobile: Balance right-side padding on Create Another Bracket ===== */
+@media (max-width: 900px){
+
+  body.authMobile #anonStartBtn{
+    padding-right: 22px !important;  /* slightly more right padding */
+    padding-left: 16px !important;   /* keep left visually balanced */
+  }
+
+}
