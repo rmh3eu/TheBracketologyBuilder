@@ -474,12 +474,17 @@
           var mobile = isMobile();
           var anon = isAnon();
           if(mobile && !anon){
-            setMetaForNewBracket();
-            // Reload to guarantee state resets cleanly
-            window.location.hash = '#home';
-            window.location.reload();
-            return;
-          }
+          setMetaForNewBracket();
+
+          // Wait a tick so layout stabilizes, then nudge down slightly (prevents flicker)
+          setTimeout(function(){
+            try{
+              window.scrollBy({ top: 100, behavior: 'smooth' });
+            }catch(e){}
+          }, 50);
+
+          return;
+        }
         }catch(e){}
 
         // Default behavior (anon flow): scroll to bracket builder area
