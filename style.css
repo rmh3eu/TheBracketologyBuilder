@@ -2776,3 +2776,14 @@ body.officialLive .tiebreakerInput{
   }
 
 }
+
+
+/* ===== Mobile: Slightly longer + slightly taller CTA ===== */
+@media (max-width: 900px){
+
+  body.authMobile #anonStartBtn{
+    width: calc(100% - 50px) !important;   /* slightly longer */
+    padding: 12px 18px !important;         /* slightly taller + more horizontal space */
+  }
+
+}
