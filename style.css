@@ -2845,3 +2845,14 @@ body.officialLive .tiebreakerInput{
 .page-mybrackets.sweet16Set #secSecondChance{
   display: block;
 }
+
+
+/* Slightly widen "Create Another Bracket" button on mobile home */
+@media (max-width: 768px) {
+  #createNewBtn {
+    width: 94%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
