@@ -2895,3 +2895,11 @@ body.officialLive .tiebreakerInput{
   text-align:center;
   line-height:1.25;
 }
+
+/* Mobile: reminders above leaderboard on challenge pages */
+@media (max-width: 768px){
+  #challengeRemindersPanel{ order: 1; }
+  #challengeLeaderboardPanel{ order: 2; }
+  /* In case panels are not in a flex container, force reminders before by using display:contents hack is risky; avoid.
+     Most layouts here use flex/grid so order works. */
+}
