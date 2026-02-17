@@ -4159,3 +4159,27 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('Random param check failed', e);
   }
 });
+
+
+// Apply officialLive body class from /api/public-config (used for conditional UI like leaderboard visibility)
+async function applyOfficialLiveClass(){
+  try{
+    const cfg = await (window.getPublicConfig ? window.getPublicConfig() : api('/api/public-config'));
+    const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
+    try{
+      document.body.classList.toggle('officialLive', officialLive);
+      document.body.classList.toggle('officialNotLive', !officialLive);
+    }catch(_){}
+  }catch(e){
+    // If config fetch fails, default to not-live (hide leaderboard on mobile)
+    try{
+      document.body.classList.remove('officialLive');
+      document.body.classList.add('officialNotLive');
+    }catch(_){}
+  }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  try{ applyOfficialLiveClass(); }catch(e){}
+});

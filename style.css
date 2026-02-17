@@ -2863,3 +2863,20 @@ body.officialLive .tiebreakerInput{
   margin-top:6px;
   text-align:center;
 }
+
+.challenge-note{
+  font-size:12px;
+  color: var(--muted);
+  margin:10px 0 14px 0;
+}
+
+/* Hide leaderboard on mobile until official bracket is live */
+@media (max-width: 768px){
+  body.officialNotLive .leaderboard,
+  body.officialNotLive #leaderboard,
+  body.officialNotLive .leaderboardSection,
+  body.officialNotLive .leaderboardWrap,
+  body.officialNotLive .lbSection{
+    display:none !important;
+  }
+}
