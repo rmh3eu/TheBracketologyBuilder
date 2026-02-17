@@ -2922,3 +2922,14 @@ body.officialLive .tiebreakerInput{
     display:none !important;
   }
 }
+
+
+/* Mobile: extend the big blue "Create Another Bracket" button slightly past container padding */
+@media (max-width: 768px){
+  #createNewBtn{
+    width: calc(100% + 16px);
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+}
+
