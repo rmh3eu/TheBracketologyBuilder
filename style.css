@@ -2903,3 +2903,15 @@ body.officialLive .tiebreakerInput{
   /* In case panels are not in a flex container, force reminders before by using display:contents hack is risky; avoid.
      Most layouts here use flex/grid so order works. */
 }
+
+
+/* Mobile: center text inside the big blue "Create Another Bracket" button */
+@media (max-width: 768px){
+  #createNewBtn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+}
+

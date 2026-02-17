@@ -4183,3 +4183,27 @@ async function applyOfficialLiveClass(){
 document.addEventListener('DOMContentLoaded', () => {
   try{ applyOfficialLiveClass(); }catch(e){}
 });
+
+
+// On mobile, ensure Get Challenge Reminders panel appears above Leaderboard on challenge pages.
+function reorderChallengePanelsMobile(){
+  try{
+    if(window.matchMedia && !window.matchMedia('(max-width: 768px)').matches) return;
+    const reminders = document.getElementById('challengeRemindersPanel');
+    const leaderboard = document.getElementById('challengeLeaderboardPanel');
+    if(!reminders || !leaderboard) return;
+    const parent = leaderboard.parentElement;
+    if(!parent) return;
+    // If leaderboard is currently before reminders, move reminders before leaderboard
+    const lbIndex = Array.from(parent.children).indexOf(leaderboard);
+    const remIndex = Array.from(parent.children).indexOf(reminders);
+    if(lbIndex !== -1 && remIndex !== -1 && lbIndex < remIndex){
+      parent.insertBefore(reminders, leaderboard);
+    }
+  }catch(e){}
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  try{ reorderChallengePanelsMobile(); }catch(e){}
+});
