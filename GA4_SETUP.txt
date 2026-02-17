@@ -1,0 +1,5 @@
+GA4 setup:
+1) Create GA4 property + Web data stream (your site URL).
+2) Copy Measurement ID (format: G-XXXXXXXXXX).
+3) In this repo, search/replace G-XXXXXXXXXX with your real ID.
+4) Commit + deploy. Data can take a few minutes to appear.
