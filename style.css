@@ -2850,7 +2850,7 @@ body.officialLive .tiebreakerInput{
 /* Slightly widen "Create Another Bracket" button on mobile home */
 @media (max-width: 768px) {
   #createNewBtn {
-    width: 98%;
+    width: 100%;
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -2915,3 +2915,10 @@ body.officialLive .tiebreakerInput{
   }
 }
 
+
+/* Hide challenge leaderboards on mobile until official bracket is live */
+@media (max-width: 768px){
+  body:not(.officialLive) #challengeLeaderboardPanel{
+    display:none !important;
+  }
+}
