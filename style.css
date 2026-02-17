@@ -2850,7 +2850,7 @@ body.officialLive .tiebreakerInput{
 /* Slightly widen "Create Another Bracket" button on mobile home */
 @media (max-width: 768px) {
   #createNewBtn {
-    width: 94%;
+    width: 98%;
     display: block;
     margin-left: auto;
     margin-right: auto;
