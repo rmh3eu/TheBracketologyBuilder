@@ -4139,3 +4139,23 @@ document.addEventListener("click", function(e) {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
 })();
+
+
+/* Auto-trigger random picks if URL contains ?random=1 */
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('random') === '1' && typeof fillRandomPicks === 'function') {
+      setTimeout(() => {
+        try {
+          fillRandomPicks();
+          console.log('Auto random picks triggered');
+        } catch (e) {
+          console.warn('Auto random trigger failed', e);
+        }
+      }, 0);
+    }
+  } catch (e) {
+    console.warn('Random param check failed', e);
+  }
+});
