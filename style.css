@@ -2879,18 +2879,19 @@ body.officialLive .tiebreakerInput{
 .champBoard .random-helper-text,
 .championBoard .random-helper-text,
 .champSection 
-.random-helper-text{
-  display:block;
-  width:100%;
-  font-size:11px;
-  color: var(--muted);
-  margin-top:8px;
-  text-align:center;
-  line-height:1.25;
-}
-
 .note-black{
   color: var(--text);
   font-size:12px;
   margin:10px 0 14px 0;
+}
+
+.random-helper-text{
+  display:block;
+  width:100%;
+  font-size:11px;
+  color: var(--text);
+  opacity:0.55;
+  margin-top:8px;
+  text-align:center;
+  line-height:1.25;
 }
