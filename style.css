@@ -2857,13 +2857,6 @@ body.officialLive .tiebreakerInput{
   }
 }
 
-.random-helper-text{
-  font-size:11px;
-  color: var(--muted);
-  margin-top:6px;
-  text-align:center;
-}
-
 .challenge-note{
   font-size:12px;
   color: var(--muted);
@@ -2879,4 +2872,25 @@ body.officialLive .tiebreakerInput{
   body.officialNotLive .lbSection{
     display:none !important;
   }
+}
+
+/* Helper text under Champion Random Picks */
+/* Give Champion action area a bit more vertical room so the helper sits below buttons cleanly */
+.champBoard .random-helper-text,
+.championBoard .random-helper-text,
+.champSection 
+.random-helper-text{
+  display:block;
+  width:100%;
+  font-size:11px;
+  color: var(--muted);
+  margin-top:8px;
+  text-align:center;
+  line-height:1.25;
+}
+
+.note-black{
+  color: var(--text);
+  font-size:12px;
+  margin:10px 0 14px 0;
 }
