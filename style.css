@@ -2856,3 +2856,10 @@ body.officialLive .tiebreakerInput{
     margin-right: auto;
   }
 }
+
+.random-helper-text{
+  font-size:11px;
+  color: var(--muted);
+  margin-top:6px;
+  text-align:center;
+}
