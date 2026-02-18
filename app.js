@@ -3718,6 +3718,24 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     await handleChallengeReminder(which);
   });
   try { await refreshMe(); } catch (e) {
+
+  /* === AUTO_OPEN_AUTH_FROM_HASH ===
+     Allow other pages (Best/Worst challenge pages) to redirect users to Home and auto-open auth modal:
+     - index.html#signin opens Sign in
+     - index.html#signup opens Sign up
+  */
+  try{
+    const h = (location.hash || '').toLowerCase();
+    if(h === '#signin' || h === '#signup'){
+      // Only if auth overlay exists on this page
+      const ov = document.querySelector('#authOverlay');
+      if(ov){
+        openAuth(h === '#signup' ? 'signup' : 'signin');
+        // Clear hash so refresh doesn't reopen
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+    }
+  }catch(_e){}
     console.warn('refreshMe failed', e);
     toast('Sign-in services temporarily unavailable. You can still fill out a bracket.');
   }

@@ -247,20 +247,57 @@
     function hasSess(){
       try{ return document.cookie.indexOf('bb_sess=') !== -1; }catch(e){ return false; }
     }
-    // Hide auth buttons when logged in
-    if(hasSess()){
-      var a=document.getElementById('accountBtn');
-      var s=document.getElementById('signupQuickBtn');
-      if(a) a.style.display='none';
-      if(s) s.style.display='none';
-    }
+
+    // Leaderboard gating (mobile) until Official Bracket is live
+    try{
+      fetch('/api/public-config').then(r=>r.json()).then(cfg=>{
+        var live = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
+        document.body.classList.toggle('officialLive', live);
+      }).catch(function(){});
+    }catch(e){}
+
+    var accountBtn = document.getElementById('accountBtn');
+    var signupBtn = document.getElementById('signupQuickBtn');
+    var bracketsBtn = document.getElementById('bracketsBtn');
+
     // Make My Brackets work
-    var b=document.getElementById('bracketsBtn');
-    if(b){
-      b.addEventListener('click', function(ev){
+    if(bracketsBtn){
+      bracketsBtn.addEventListener('click', function(ev){
         ev.preventDefault();
         window.location.href='my-brackets.html';
       });
+    }
+
+    if(hasSess()){
+      // Logged in: show Log out, hide Sign up
+      if(accountBtn){
+        accountBtn.textContent = 'Log out';
+        accountBtn.addEventListener('click', async function(ev){
+          ev.preventDefault();
+          try{
+            await fetch('/api/logout', { method:'POST' });
+          }catch(e){}
+          // Reload to update UI state
+          window.location.reload();
+        });
+      }
+      if(signupBtn) signupBtn.style.display='none';
+    }else{
+      // Logged out: Sign in / Sign up redirect to Home and open auth modal
+      if(accountBtn){
+        accountBtn.textContent = 'Sign in';
+        accountBtn.addEventListener('click', function(ev){
+          ev.preventDefault();
+          window.location.href = 'index.html#signin';
+        });
+      }
+      if(signupBtn){
+        signupBtn.style.display='';
+        signupBtn.addEventListener('click', function(ev){
+          ev.preventDefault();
+          window.location.href = 'index.html#signup';
+        });
+      }
     }
   })();
 </script>
