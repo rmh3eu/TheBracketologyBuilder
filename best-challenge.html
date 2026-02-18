@@ -255,5 +255,19 @@
   })();
 </script>
 
+
+<script>
+  (function(){
+    var btn = document.getElementById('enterBracketBtn');
+    if(btn){
+      btn.addEventListener('click', function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        return false; // Temporarily disabled until Official Bracket is live
+      });
+    }
+  })();
+</script>
+
 </body>
 </html>
