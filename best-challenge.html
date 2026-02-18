@@ -20,9 +20,7 @@
 </div>
 <div class="actions">
   <div class="actionRow">
-    <button class="btn ghost" id="accountBtn">Sign in</button>
-    <button class="btn" id="signupQuickBtn">Sign up</button>
-    <button class="btn ghost" id="bracketsBtn">My Brackets</button>
+<button class="btn ghost" id="bracketsBtn">My Brackets</button>
   </div>
 </div>
 </header>
@@ -119,86 +117,25 @@
           </div>
         </div>
   <script>
-    (function(){
-      function loadLeadSigned(){
-        try{
-          const raw = localStorage.getItem('bb_lead_signed');
-          if(!raw) return { live:false, upcoming:false, offers:false };
-          const obj = JSON.parse(raw);
-          return { live:!!obj.live, upcoming:!!obj.upcoming, offers:!!obj.offers };
-        }catch(e){
-          return { live:false, upcoming:false, offers:false };
-        }
-      }
-      function saveLeadSigned(p){
-        try{
-          const cur = loadLeadSigned();
-          const next = {
-            live: cur.live || !!p.live,
-            upcoming: cur.upcoming || !!p.upcoming,
-            offers: cur.offers || !!p.offers
-          };
-          localStorage.setItem('bb_lead_signed', JSON.stringify(next));
-          return next;
-        }catch(e){
-          return p;
-        }
-      }
-      function applySignedUI(){
-        const signed = loadLeadSigned();
-        const emailPanel = document.querySelector('.emailAlerts');
-        const live = document.getElementById('leadLive');
-        const upcoming = document.getElementById('leadUpcoming');
-        const offers = document.getElementById('leadOffers');
-        const hideRow = (inp)=>{ const row = inp?.closest?.('label'); if(row) row.style.display='none'; };
-        if(signed.live) hideRow(live);
-        if(signed.upcoming) hideRow(upcoming);
-        if(signed.offers) hideRow(offers);
-        if(emailPanel && signed.live && signed.upcoming && signed.offers){
-          emailPanel.style.display = 'none';
-        }
-      }
+  (function(){
+    // Leaderboard gating (mobile) until Official Bracket is live
+    try{
+      fetch('/api/public-config').then(r=>r.json()).then(cfg=>{
+        var live = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
+        document.body.classList.toggle('officialLive', live);
+      }).catch(function(){});
+    }catch(e){}
 
-      const btn = document.getElementById('remindBtn');
-      const emailEl = document.getElementById('remindEmail');
-
-      // Hide options already signed up for on other pages.
-      applySignedUI();
-
-      btn?.addEventListener('click', async () => {
-        const email = (document.getElementById('remindEmail').value || '').trim();
-        const msg = document.getElementById('remindMsg');
-        const optin_live = !!document.getElementById('leadLive')?.checked;
-        const optin_upcoming = !!document.getElementById('leadUpcoming')?.checked;
-        const optin_offers = !!document.getElementById('leadOffers')?.checked;
-        if(!email){ msg.textContent = 'Please enter an email.'; return; }
-        try{ localStorage.setItem('bb_lead_email', email); }catch(e){}
-        msg.textContent = 'Saving...';
-        try{
-          const res = await fetch('/api/lead', {
-            method:'POST',
-            headers:{'content-type':'application/json'},
-            body: JSON.stringify({ email, source:'best_full', optin_live, optin_upcoming, optin_offers })
-          });
-          const data = await res.json().catch(()=>null);
-          if(!res.ok){
-            msg.textContent = (data && (data.message || data.error)) || 'Could not save.';
-            return;
-          }
-          msg.textContent = 'You’re in — we’ll email you when challenges go live.';
-          const nextSigned = saveLeadSigned({ live: optin_live, upcoming: optin_upcoming, offers: optin_offers });
-          applySignedUI();
-          // Keep the blinking cursor until all three boxes have been signed.
-          try{
-            if(!(nextSigned.live && nextSigned.upcoming && nextSigned.offers)) emailEl?.focus();
-          }catch(e){}
-          if(btn){ const prev=btn.textContent; btn.textContent='Saved'; btn.classList.add('saved'); setTimeout(()=>{ try{ btn.textContent=prev; btn.classList.remove('saved'); }catch(e){} }, 1400); }
-        }catch(e){
-          msg.textContent = 'Could not save. Please try again.';
-        }
+    // Make My Brackets work
+    var b=document.getElementById('bracketsBtn');
+    if(b){
+      b.addEventListener('click', function(ev){
+        ev.preventDefault();
+        window.location.href='my-brackets.html';
       });
-    })();
-  </script>
+    }
+  })();
+</script>
 <footer class="bbFooter">
   <div class="bbFooterInner">
     <p>
