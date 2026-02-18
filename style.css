@@ -76,7 +76,7 @@ body{
   text-decoration:none;
   font-weight:700;
   font-size:13px;
-  padding:7px 9px;
+  padding:8px 10px;
   border-radius:999px;
   /* Center multi-line labels (e.g., "Best Bracket\nChallenge") */
   display:flex;
@@ -94,20 +94,20 @@ body{
 
 
 .brand{font-weight:800;font-size:18px;letter-spacing:0.2px}
-.tagline{margin-top:4px;font-size:11px;color:var(--muted);max-width:820px}
+.tagline{margin-top:4px;font-size:12px;color:var(--muted);max-width:820px}
 .actions{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .actionRow{display:flex;gap:8px;justify-content:flex-end}
 /* Mobile-only topbar buttons (shown in mobile media query) */
 #undoBtnHeader,#randomPicksBtnHeader,#saveBtnHeader{display:none}
-.signinHint{font-size:11px;color:var(--muted);text-align:right}
+.signinHint{font-size:12px;color:var(--muted);text-align:right}
 .taglineShort{display:none}
 .taglineFull{display:inline}
 .btn{
   border:1px solid var(--line);
   background: var(--panel);
-  padding:7px 9px;
+  padding:8px 10px;
   border-radius:10px;
-  font-size:11px;
+  font-size:12px;
   cursor:pointer;
   text-align:center;
 }
@@ -129,7 +129,7 @@ body{
 .panelHeadRight{margin-left:auto;text-align:right}
 
 .joinChallengeGrid{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start}
-.joinChallengeTitle{font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:11px;line-height:1.1}
+.joinChallengeTitle{font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:12px;line-height:1.1}
 .joinChallengeMsg{color:var(--muted);font-size:16px;line-height:1.35}
 
 .homeChallengePanel{margin-top:12px;display:flex;gap:12px}
@@ -147,7 +147,7 @@ body{
 }
 .panelHead.final4Head .roundTitle{
   justify-self:start;
-  font-size:11px;
+  font-size:12px;
   text-transform:uppercase;
   letter-spacing:.08em;
   color:#fff;
@@ -157,7 +157,7 @@ body{
   justify-self:center;
   margin-left:0;
   text-align:center;
-  font-size:11px;
+  font-size:12px;
   text-transform:uppercase;
   letter-spacing:.08em;
   color:#fff;
@@ -173,7 +173,7 @@ body{
   background:#fff;
 }
 .championLabel{
-  font-size:11px;
+  font-size:12px;
   text-transform:uppercase;
   letter-spacing:.08em;
   font-weight:800;
@@ -189,7 +189,7 @@ body{
 }
 .panel h2{margin:0;font-size:16px}
 .stamp{font-size:11px;color:var(--muted)}
-.label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.label{font-size:12px;color:var(--muted);margin-bottom:6px}
 .list{margin:0;padding-left:18px;color:#111827}
 .bubbleGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:10px}
 .muted{color:var(--muted)}
@@ -214,10 +214,10 @@ body{
 .regionHeader.mirror{padding-top:10px;padding-bottom:10px}
 .regionHeader.mirror .regionName{text-align:right;display:block;margin-top:8px;margin-right:12px}
 .regionRoundLabels{position:relative;height:18px;margin-top:4px}
-.regionRoundLabel{position:absolute;top:0;color:#000;font-size:11px;font-weight:700;white-space:nowrap}
+.regionRoundLabel{position:absolute;top:0;color:#000;font-size:12px;font-weight:700;white-space:nowrap}
 .regionRoundLabel.small{font-size:11px;font-weight:700}
 .regionName{font-weight:800;display:block;margin-top:6px}
-.regionMeta{font-size:11px;color:var(--muted)}
+.regionMeta{font-size:12px;color:var(--muted)}
 
 /* Geometry bracket */
 .geo{
@@ -257,8 +257,8 @@ body{
   overflow:hidden;
 }
 .slot{
-  padding:7px 9px;
-  font-size:11px;
+  padding:8px 10px;
+  font-size:12px;
   display:flex;
   gap:8px;
   align-items:center;
@@ -328,7 +328,7 @@ body{
 }
 .champSub{
   color:rgba(255,255,255,0.75);
-  font-size:11px;
+  font-size:12px;
   margin-top:2px;
 }
 
@@ -370,7 +370,7 @@ body{
   .centerStage .panelHead{
     font-weight:800;
     letter-spacing:1px;
-    font-size:11px;
+    font-size:12px;
     color:#333;
     margin:0 0 12px 0;
   }
@@ -457,7 +457,7 @@ body{
 }
 .navLink{
   font-weight:700; font-size:13px;
-  padding:7px 9px;
+  padding:8px 10px;
   border-radius:999px;
   color:#ffffff; text-decoration:none;
   border:1px solid var(--line);
@@ -536,7 +536,7 @@ body{
   border:1px solid rgba(57,211,131,.35);
 }
 
-.subbrand{font-size:11px;color:var(--muted);margin-top:2px}
+.subbrand{font-size:12px;color:var(--muted);margin-top:2px}
 .subbrand .creator{color:inherit;font-weight:700}
 .overlay{position:fixed;inset:0;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
 .overlay.hidden{display:none}
@@ -554,12 +554,12 @@ body{
 .modalTitle{font-weight:800}
 .iconBtn{border:0;background:transparent;font-size:18px;cursor:pointer;color:var(--muted)}
 .field{display:block;margin:10px 0}
-.field span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}
+.field span{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
 .field input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
 .primaryBtn{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--accent);background:var(--accent);color:white;font-weight:800;cursor:pointer}
 .switchRow{margin-top:10px;display:flex;gap:8px;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
 .linkBtn{border:0;background:transparent;color:var(--accent);font-weight:800;cursor:pointer}
-.smallNote{margin-top:10px;color:var(--muted);font-size:11px;text-align:center}
+.smallNote{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
 .view.hidden{display:none}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
 .card{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px}
@@ -570,7 +570,7 @@ body{
 /* Brand */
 .brandLine{display:flex;align-items:center;gap:12px}
 .brandLogo{width:34px;height:34px;flex:0 0 auto}
-.authHint{margin-top:6px;font-size:11px;color:var(--muted);}
+.authHint{margin-top:6px;font-size:12px;color:var(--muted);}
 
 /* Bubble badge removed (Home is bracket-only) */
 .bubbleBadge{display:none !important;}
@@ -1052,11 +1052,11 @@ body.day .btnPrimary, body.light .btnPrimary{
 }
 .btnPrimary + .btnGhost, .btnGhost + .btnPrimary, .btnGhost + .btnGhost, .btnPrimary + .btnPrimary{ margin-top: 10px; }
 
-.pillWarn{display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;background:rgba(255,165,0,0.14);border:1px solid rgba(255,165,0,0.35);color:#ffb347;font-size:11px;}
+.pillWarn{display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;background:rgba(255,165,0,0.14);border:1px solid rgba(255,165,0,0.35);color:#ffb347;font-size:12px;}
 
-.btnMini{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:inherit;border-radius:10px;padding:6px 10px;font-size:11px;cursor:pointer;}
+.btnMini{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);color:inherit;border-radius:10px;padding:6px 10px;font-size:12px;cursor:pointer;}
 .btnMini:hover{background:rgba(255,255,255,0.12);}
-.lbMetaHint{font-size:11px;opacity:0.85;margin-bottom:6px;}
+.lbMetaHint{font-size:12px;opacity:0.85;margin-bottom:6px;}
 .modalCard.wide{max-width:720px;}
 .pendingList{margin-top:10px;display:flex;flex-direction:column;gap:10px;max-height:55vh;overflow:auto;}
 .pendingRow{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);}
@@ -1166,7 +1166,7 @@ body.day .btnPrimary, body.light .btnPrimary{
   margin-left:auto;
 }
 .lockStatus{
-  font-size:11px;
+  font-size:12px;
   font-weight:700;
   opacity:0.85;
 }
@@ -1200,7 +1200,7 @@ body.desktop .pillOff, body.desktop .pillInfo{ border-color: rgba(255,255,255,0.
 .rulesCard .rulesInner{margin:0;}
 .rulesHeader{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
 .rulesHeader .rulesTitle{font-weight:900; letter-spacing:.2px;}
-.rulesHeader .rulesBadge{font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid var(--line); color: var(--muted);}
+.rulesHeader .rulesBadge{font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--line); color: var(--muted);}
 .rulesGrid{display:grid; grid-template-columns: 1fr; gap:8px; margin-top:8px;}
 @media(min-width: 700px){ .rulesGrid{grid-template-columns: 1fr 1fr;} }
 .ruleItem{border:1px solid var(--line); border-radius:12px; padding:10px; background: rgba(255,255,255,0.03);}
@@ -1251,7 +1251,7 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 .bracketCard{display:block;padding:12px;border-radius:12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);text-decoration:none;}
 .bracketCard:hover{background:rgba(255,255,255,0.12);}
 .bracketTitle{font-weight:700;color:#fff;font-size:16px;margin-bottom:6px;}
-.bracketMeta{color:rgba(255,255,255,0.75);font-size:11px;}
+.bracketMeta{color:rgba(255,255,255,0.75);font-size:12px;}
 .page-mybrackets .panel h2{color:#111827;}
 .page-mybrackets .muted{color:#6b7280;}
 
@@ -1349,7 +1349,7 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 .topControls{display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; margin-bottom:14px;}
 .topControlCard{padding:10px 12px; border:1px solid rgba(0,0,0,.15); border-radius:12px; background:rgba(255,255,255,.85);} 
 .topControlCard .btn{width:100%;}
-.adminPhaseTitle{font-size:11px; font-weight:700; letter-spacing:.02em; color:#111;}
+.adminPhaseTitle{font-size:12px; font-weight:700; letter-spacing:.02em; color:#111;}
 .adminToggleLabel{display:flex; align-items:center; gap:8px; font-size:13px; color:#111;}
 .adminToggleLabel input{transform: translateY(1px);} 
 
@@ -2105,7 +2105,7 @@ button:has(span:contains('My Brackets')) { display:none !important; }
 .challengeKicker{
   font-weight:900;
   letter-spacing:.12em;
-  font-size:11px;
+  font-size:12px;
   color: var(--muted);
 }
 .challengeTagline{
@@ -2122,13 +2122,13 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   display:inline-flex;
   gap:8px;
   align-items:center;
-  padding:7px 9px;
+  padding:8px 10px;
   border-radius:999px;
   background: var(--panel2);
   border:1px solid var(--line);
   font-weight:800;
   color: var(--text);
-  font-size:11px;
+  font-size:12px;
   white-space:nowrap;
 }
 .challengeCards2{
@@ -2165,8 +2165,8 @@ button:has(span:contains('My Brackets')) { display:none !important; }
   align-items:flex-start;
 }
 .leaderTitle{ font-weight:900; }
-.leaderSub{ color: var(--muted); font-size:11px; margin-top:2px; }
-.leaderHint{ color: var(--muted); font-size:11px; text-align:right; max-width:180px; }
+.leaderSub{ color: var(--muted); font-size:12px; margin-top:2px; }
+.leaderHint{ color: var(--muted); font-size:12px; text-align:right; max-width:180px; }
 .leaderBar{
   height:44px;
   border-radius: 14px;
@@ -2845,91 +2845,3 @@ body.officialLive .tiebreakerInput{
 .page-mybrackets.sweet16Set #secSecondChance{
   display: block;
 }
-
-
-/* Slightly widen "Create Another Bracket" button on mobile home */
-@media (max-width: 768px) {
-  #createNewBtn {
-    width: 100%;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-.challenge-note{
-  font-size:12px;
-  color: var(--muted);
-  margin:10px 0 14px 0;
-}
-
-/* Hide leaderboard on mobile until official bracket is live */
-@media (max-width: 768px){
-  body.officialNotLive .leaderboard,
-  body.officialNotLive #leaderboard,
-  body.officialNotLive .leaderboardSection,
-  body.officialNotLive .leaderboardWrap,
-  body.officialNotLive .lbSection{
-    display:none !important;
-  }
-}
-
-/* Helper text under Champion Random Picks */
-/* Give Champion action area a bit more vertical room so the helper sits below buttons cleanly */
-.champBoard .random-helper-text,
-.championBoard .random-helper-text,
-.champSection 
-.note-black{
-  color: var(--text);
-  font-size:12px;
-  margin:10px 0 14px 0;
-}
-
-.random-helper-text{
-  display:block;
-  width:100%;
-  font-size:11px;
-  color: var(--text);
-  opacity:0.55;
-  margin-top:8px;
-  text-align:center;
-  line-height:1.25;
-}
-
-/* Mobile: reminders above leaderboard on challenge pages */
-@media (max-width: 768px){
-  #challengeRemindersPanel{ order: 1; }
-  #challengeLeaderboardPanel{ order: 2; }
-  /* In case panels are not in a flex container, force reminders before by using display:contents hack is risky; avoid.
-     Most layouts here use flex/grid so order works. */
-}
-
-
-/* Mobile: center text inside the big blue "Create Another Bracket" button */
-@media (max-width: 768px){
-  #createNewBtn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-  }
-}
-
-
-/* Hide challenge leaderboards on mobile until official bracket is live */
-@media (max-width: 768px){
-  body:not(.officialLive) #challengeLeaderboardPanel{
-    display:none !important;
-  }
-}
-
-
-/* Mobile: extend the big blue "Create Another Bracket" button slightly past container padding */
-@media (max-width: 768px){
-  #createNewBtn{
-    width: calc(100% + 16px);
-    margin-left: -8px;
-    margin-right: -8px;
-  }
-}
-

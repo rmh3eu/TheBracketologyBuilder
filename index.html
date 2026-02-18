@@ -8,16 +8,6 @@
 <link href="/favicon.svg" rel="icon" type="image/svg+xml"/>
 <link href="/favicon.svg" rel="apple-touch-icon"/>
 <link href="./style.css?v=20260207f" rel="stylesheet"/>
-
-<!-- Google Analytics (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-
 </head>
 <body>
 <header class="topbar">
@@ -48,7 +38,8 @@
 </div>
 <div class="actionRow">
   <button class="btn" id="randomPicksBtnHeader" type="button">Random picks</button>
-  <button class="btn ghost" id="saveBtn" title="Saves your current picks" type="button">Save</button><button class="btn ghost" id="bracketsBtn" type="button">My Brackets</button>
+  <button class="btn ghost" id="saveBtn" title="Saves your current picks" type="button">Save</button>
+  <button class="btn ghost" id="bracketsBtn" type="button">My Brackets</button>
 </div>
 <div class="signinHint" id="signinHint">Save your bracket.</div>
 </div>
@@ -121,29 +112,29 @@
       <input id="tiebreakerTotal" class="tiebreakerInput" type="number" inputmode="numeric" min="0" max="400" placeholder="Enter total points" />
     </div>
 
+
     <div class="featureAfterSaveRow" id="featureAfterSaveRow" style="display:none;">
       <button class="btn" id="submitFeaturedAfterSaveBtn" type="button">🏀 Submit for Featured</button>
       <div class="featureAfterSaveMsg" id="featureAfterSaveMsg" aria-live="polite"></div>
     </div>
 
     <div class="bracketActionRow">
-      <button class="btn" id="randomPicksBtn" type="button">Random picks</button><button class="btn" id="saveEnterBtn" type="button">Save / Enter</button>
+      <button class="btn" id="randomPicksBtn" type="button">Random picks</button>
+      <button class="btn" id="saveEnterBtn" type="button">Save / Enter</button>
     </div>
-      <div class="random-helper-text">Random Picks are great for the Worst Bracket Challenge</div>
-
   </div>
 
   <!-- Box 3: Join a Challenge -->
   <div class="panel" id="homeChallengePanel">
     <div class="panelHead">
       <h2>Join a Challenge</h2>
-      <div class="muted"></div>
+      <div class="muted">Challenges can only be played once the official bracket comes out.</div>
     </div>
     <div class="challengeActions" style="gap:10px;flex-wrap:wrap">
       <button class="btn" id="homeGoBest">Best Bracket Challenge</button>
       <button class="btn" id="homeGoWorst">Worst Bracket Challenge</button>
     </div>
-    <div class="muted" id="homeChallengeMsg" style="margin-top:10px;display:none"></div>
+    <div class="muted" id="homeChallengeMsg" style="margin-top:10px;display:none">Challenges can only be played once the official bracket comes out.</div>
   </div>
 	</div>
 	</div>
@@ -174,7 +165,7 @@
 </div>
 </section>
 <div class="challengeMsg" id="bestChallengeMsg">
-        
+        Challenges can only be played once the official bracket comes out.
         <a class="remindLink" data-remind="best" href="#">Click here for a reminder once brackets are set.</a>
 </div>
 </div>
@@ -199,7 +190,7 @@
 </div>
 </section>
 <div class="challengeMsg" id="worstChallengeMsg">
-        
+        Challenges can only be played once the official bracket comes out.
         <a class="remindLink" data-remind="worst" href="#">Click here for a reminder once brackets are set.</a>
 </div>
 </div>
@@ -208,7 +199,7 @@
   <h2>Best Bracket Challenge — Second Chance</h2>
   <p class="muted">Second Chance brackets start once the Sweet 16 is set. This page will go live then.</p>
   <div class="challengeLockMsg">
-    
+    Challenges can only be played once the official bracket comes out.
   </div>
 
     <div class="panel emailAlerts" style="margin:14px 0">
@@ -237,7 +228,7 @@
   <h2>Worst Bracket Challenge — Second Chance</h2>
   <p class="muted">Second Chance brackets start once the Sweet 16 is set. This page will go live then.</p>
   <div class="challengeLockMsg">
-    
+    Challenges can only be played once the official bracket comes out.
   </div>
 
     <div class="panel emailAlerts" style="margin:14px 0">
@@ -426,6 +417,7 @@
   </div>
 </footer>
 
+
 <!-- MOBILE_ANON_3BUTTONS_SAFE -->
 <script>
 (function(){
@@ -531,6 +523,7 @@
       });
     }
 
+
     var acct = document.getElementById('accountBtn');
     if(acct && window.MutationObserver){
       var mo = new MutationObserver(function(){ apply(); });
@@ -547,6 +540,7 @@
   }
 })();
 </script>
+
 
 <script id="officialLiveFlag">
 (function(){

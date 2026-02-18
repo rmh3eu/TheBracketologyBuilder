@@ -14,16 +14,6 @@
   .checkRow{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.2;color:#111}
   .checkRow input{margin-top:2px}
 </style>
-
-<!-- Google Analytics (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-
 </head>
 <body class="page-bracket">
   <header class="topbar">
@@ -47,8 +37,6 @@
           <div class="bracketTitleRow homeTitleRow">
             <input id="bracketPageTitle" class="bracketPageTitle bracketPageTitleInput" type="text" maxlength="80" value="" placeholder="Enter Bracket Name Here" />
             <button class="btn btnCompact" id="randomPicksBtnTop" type="button">Random picks</button>
-
-
             <button class="btn primary btnCompact" id="saveEnterBtnTop" type="button">Save &amp; Enter</button>
             <button class="btn btnCompact" id="undoBtnTop" type="button" disabled>Undo</button>
           </div>
@@ -82,8 +70,8 @@
     </div>
 
 	              <div class="bracketActionRow centerActions">
-	                <button class="btn" id="randomPicksBtn" type="button">Random picks</button><button class="btn primary" id="saveEnterBtn" type="button">Save &amp; Enter</button>
-      <div class="random-helper-text">Random Picks are great for the Worst Bracket Challenge</div>
+	                <button class="btn" id="randomPicksBtn" type="button">Random picks</button>
+	                <button class="btn primary" id="saveEnterBtn" type="button">Save &amp; Enter</button>
 	              </div>
 	            </div>
 

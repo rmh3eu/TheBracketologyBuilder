@@ -5,16 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Best Bracket Challenge — Bracketology Builder</title>
   <link rel="stylesheet" href="style.css" />
-
-<!-- Google Analytics (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-
 </head>
 <body>
   <div class="pageWrap">
@@ -87,17 +77,18 @@
       </div>
 
       <div class="challengeActions">
-        <a onclick="return false;" aria-disabled="true" class="btn primary" href="#">Enter a Bracket</a>
+        <a class="btn primary" href="my-brackets.html">Enter a bracket</a>
         
         <a class="btn" href="best-challenge.html">Leaderboard</a>
       </div>
 
       <p class="signinHint" style="margin:12px 0 0">
-        <div class="note-black">Note: Challenges can only be played once the official bracket comes out.</div></p>
+        Note: “Enter a bracket” will work once the Official Bracket is unlocked (Round of 64 set).
+      </p>
     
 </div>
 
-    <div class="panel" id="challengeLeaderboardPanel">
+    <div class="panel">
       <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
       <div style="padding:12px 14px">
         <div class="leaderMeta">
@@ -115,9 +106,8 @@
   </div>
 </div>
 
-<div class="panel emailAlerts" style="margin:14px 0" id="challengeRemindersPanel">
-          <div class="panelHead"><h3 style="margin:0">
-Get Challenge Reminders</h3></div>
+<div class="panel emailAlerts" style="margin:14px 0">
+          <div class="panelHead"><h3 style="margin:0">Get Challenge Reminders</h3></div>
           <div style="padding:12px 16px">
             <div class="row">
               <input id="remindEmail" class="input" type="email" placeholder="Enter your email" style="max-width:360px" autofocus>
@@ -126,7 +116,7 @@ Get Challenge Reminders</h3></div>
             <div class="checks" style="margin-top:10px">
               <label class="checkRow"><input id="leadLive" type="checkbox" checked> <span>Get alerts when official brackets go live</span></label>
               <label class="checkRow"><input id="leadUpcoming" type="checkbox" checked> <span>Get notified of upcoming challenges</span></label>
-              <label class="checkRow"><input id="leadOffers" type="checkbox"> <span>Get alerted of any sponsor giveaways or other offerings</span></label>
+              <label class="checkRow"><input id="leadOffers" type="checkbox"> <span>Get alerted of sports betting partner offers</span></label>
             </div>
             <div id="remindMsg" class="signinHint" style="margin-top:8px"></div>
           </div>

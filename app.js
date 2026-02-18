@@ -826,6 +826,29 @@ const REGIONS = [
   { key:'REGION_MIDWEST',name:'Midwest',teams:REGION_MIDWEST },
 ];
 
+// Determine which two regions are on the LEFT and RIGHT halves of the desktop bracket,
+// based on the current DOM layout (index.html/bracket.html may order regions differently).
+// Returns { left: ['South','West'], right: ['East','Midwest'] } as region *names*.
+// Falls back to NCAA default if DOM is unavailable.
+function getRegionHalvesFromDom(){
+  try{
+    const leftCol = document.querySelector('.espnDesk .deskCol.left');
+    const rightCol = document.querySelector('.espnDesk .deskCol.right');
+    const getNames = (col)=>{
+      if(!col) return [];
+      return Array.from(col.querySelectorAll('div[id^="region-"]'))
+        .map(el => (el.id || '').replace('region-','').trim())
+        .filter(Boolean);
+    };
+    const left = getNames(leftCol);
+    const right = getNames(rightCol);
+    if(left.length===2 && right.length===2) return { left, right };
+  }catch(_e){}
+  // Fallback: NCAA standard halves (used previously)
+  return { left: ['South','West'], right: ['East','Midwest'] };
+}
+
+
 function wKey(regionKey, roundIdx, gameIdx){ return `${regionKey}__R${roundIdx}__G${gameIdx}__winner`; }
 
 // -------------------- Bracket Logic --------------------
@@ -1034,17 +1057,16 @@ function fillRandomPicks(){
 
   // Final Four + Final + Champion
   // IMPORTANT: Final Four pairing must match pruneInvalidPicks() / UI pairing.
-  // Left half: South + West. Right half: East + Midwest.
-  const champs = {
-    REGION_SOUTH: picks[wKey('REGION_SOUTH',3,0)] || null,
-    REGION_EAST: picks[wKey('REGION_EAST',3,0)] || null,
-    REGION_WEST: picks[wKey('REGION_WEST',3,0)] || null,
-    REGION_MIDWEST: picks[wKey('REGION_MIDWEST',3,0)] || null,
-  };
-
+  // Pairing is based on LEFT vs RIGHT halves of the bracket as currently laid out in the DOM.
+  const halves = getRegionHalvesFromDom();
+  const champs = {};
+  for(const n of [...halves.left, ...halves.right]){
+    const rk = regionsByName && regionsByName[n] ? regionsByName[n] : ('REGION_' + n.toUpperCase());
+    champs[n] = picks[wKey(rk,3,0)] || null;
+  }
   const ffPairs = [
-    [champs.REGION_SOUTH, champs.REGION_WEST],
-    [champs.REGION_EAST, champs.REGION_MIDWEST],
+    [champs[halves.left[0]] || null,  champs[halves.left[1]] || null],  // LEFT half
+    [champs[halves.right[0]] || null, champs[halves.right[1]] || null], // RIGHT half
   ];
   for(let i=0;i<2;i++){
     const a = ffPairs[i][0];
@@ -1080,17 +1102,16 @@ function pruneInvalidPicks(picks){
   }
 
   // Final Four
-  const champs = {
-    REGION_SOUTH: picks[wKey('REGION_SOUTH',3,0)] || null,
-    REGION_EAST: picks[wKey('REGION_EAST',3,0)] || null,
-    REGION_WEST: picks[wKey('REGION_WEST',3,0)] || null,
-    REGION_MIDWEST: picks[wKey('REGION_MIDWEST',3,0)] || null,
-  };
-  // Final Four pairing is based on LEFT vs RIGHT halves of the bracket (not region names).
-  // Left half: South + West. Right half: East + Midwest.
+  // Pairing is based on LEFT vs RIGHT halves of the bracket as currently laid out in the DOM.
+  const halves = getRegionHalvesFromDom();
+  const champs = {};
+  for(const n of [...halves.left, ...halves.right]){
+    const rk = regionsByName && regionsByName[n] ? regionsByName[n] : ('REGION_' + n.toUpperCase());
+    champs[n] = picks[wKey(rk,3,0)] || null;
+  }
   const ffPairs = [
-    [champs.REGION_SOUTH, champs.REGION_WEST],
-    [champs.REGION_EAST, champs.REGION_MIDWEST],
+    [champs[halves.left[0]] || null,  champs[halves.left[1]] || null],  // LEFT half
+    [champs[halves.right[0]] || null, champs[halves.right[1]] || null], // RIGHT half
   ];
   for(let i=0;i<2;i++){
     const k = `FF__G${i}__winner`;
@@ -3181,15 +3202,21 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   });
 
   // Final Four + Finals + Champion
-  const south = regionsByName['South'], west = regionsByName['West'], east = regionsByName['East'], midwest = regionsByName['Midwest'];
-  const southChamp = south ? (picks[wKey(south,3,0)] || null) : null;
-  const westChamp  = west  ? (picks[wKey(west,3,0)]  || null) : null;
-  const eastChamp  = east  ? (picks[wKey(east,3,0)]  || null) : null;
-  const midChamp   = midwest ? (picks[wKey(midwest,3,0)] || null) : null;
+  // Pair based on current left/right region placement in the DOM.
+  const halves = getRegionHalvesFromDom();
+  const leftA = regionsByName[halves.left[0]];
+  const leftB = regionsByName[halves.left[1]];
+  const rightA = regionsByName[halves.right[0]];
+  const rightB = regionsByName[halves.right[1]];
+
+  const leftChampA  = leftA  ? (picks[wKey(leftA,3,0)]  || null) : null;
+  const leftChampB  = leftB  ? (picks[wKey(leftB,3,0)]  || null) : null;
+  const rightChampA = rightA ? (picks[wKey(rightA,3,0)] || null) : null;
+  const rightChampB = rightB ? (picks[wKey(rightB,3,0)] || null) : null;
 
   const ffPairs = [
-    [southChamp, westChamp],
-    [eastChamp,  midChamp],
+    [leftChampA,  leftChampB],   // LEFT half
+    [rightChampA, rightChampB],  // RIGHT half
   ];
 
   for(let gi=0; gi<2; gi++){
@@ -4139,71 +4166,3 @@ document.addEventListener("click", function(e) {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
 })();
-
-
-/* Auto-trigger random picks if URL contains ?random=1 */
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('random') === '1' && typeof fillRandomPicks === 'function') {
-      setTimeout(() => {
-        try {
-          fillRandomPicks();
-          console.log('Auto random picks triggered');
-        } catch (e) {
-          console.warn('Auto random trigger failed', e);
-        }
-      }, 0);
-    }
-  } catch (e) {
-    console.warn('Random param check failed', e);
-  }
-});
-
-
-// Apply officialLive body class from /api/public-config (used for conditional UI like leaderboard visibility)
-async function applyOfficialLiveClass(){
-  try{
-    const cfg = await (window.getPublicConfig ? window.getPublicConfig() : api('/api/public-config'));
-    const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
-    try{
-      document.body.classList.toggle('officialLive', officialLive);
-      document.body.classList.toggle('officialNotLive', !officialLive);
-    }catch(_){}
-  }catch(e){
-    // If config fetch fails, default to not-live (hide leaderboard on mobile)
-    try{
-      document.body.classList.remove('officialLive');
-      document.body.classList.add('officialNotLive');
-    }catch(_){}
-  }
-}
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  try{ applyOfficialLiveClass(); }catch(e){}
-});
-
-
-// On mobile, ensure Get Challenge Reminders panel appears above Leaderboard on challenge pages.
-function reorderChallengePanelsMobile(){
-  try{
-    if(window.matchMedia && !window.matchMedia('(max-width: 768px)').matches) return;
-    const reminders = document.getElementById('challengeRemindersPanel');
-    const leaderboard = document.getElementById('challengeLeaderboardPanel');
-    if(!reminders || !leaderboard) return;
-    const parent = leaderboard.parentElement;
-    if(!parent) return;
-    // If leaderboard is currently before reminders, move reminders before leaderboard
-    const lbIndex = Array.from(parent.children).indexOf(leaderboard);
-    const remIndex = Array.from(parent.children).indexOf(reminders);
-    if(lbIndex !== -1 && remIndex !== -1 && lbIndex < remIndex){
-      parent.insertBefore(reminders, leaderboard);
-    }
-  }catch(e){}
-}
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  try{ reorderChallengePanelsMobile(); }catch(e){}
-});
