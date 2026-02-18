@@ -87,7 +87,7 @@
     
 </div>
 
-    <div class="panel">
+    <div class="panel" id="challengeLeaderboardPanel">
       <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
       <div style="padding:12px 14px">
         <div class="leaderMeta">
@@ -261,6 +261,23 @@
         window.location.href='my-brackets.html';
       });
     }
+  })();
+</script>
+
+
+<script>
+  (function bbOfficialLiveGate(){
+    // On mobile, hide challenge leaderboard until Official Bracket is live.
+    function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+    if(!isMobile()) return;
+
+    fetch('/api/public-config', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(cfg => {
+        var live = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
+        document.body.classList.toggle('officialLive', live);
+      })
+      .catch(function(){});
   })();
 </script>
 

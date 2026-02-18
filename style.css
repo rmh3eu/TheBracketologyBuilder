@@ -2862,3 +2862,22 @@ body.officialLive .tiebreakerInput{
 .blackNote{
   color:#000 !important;
 }
+
+
+/* ===== Home page: remove the "Challenges can only be played..." note everywhere ===== */
+#homeChallengesNote{ display:none !important; }
+
+/* ===== Home page: center the Random/Worst hint on desktop ===== */
+@media (min-width: 901px){
+  #homeRandomWorstHint{
+    text-align: center !important;
+    width: 100%;
+  }
+}
+
+/* ===== Best/Worst pages (mobile): hide leaderboard until officialLive ===== */
+@media (max-width: 900px){
+  body:not(.officialLive) #challengeLeaderboardPanel{
+    display: none !important;
+  }
+}
