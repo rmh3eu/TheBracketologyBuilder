@@ -3335,6 +3335,7 @@ function renderAll(){
     // Mobile: render the standard full bracket (with horizontal scroll via CSS).
 // Preserve mobile scroll positions across re-render (prevents jitter).
     if(isMobile()){
+      try{ state.ui.pageScrollY = window.scrollY || window.pageYOffset || 0; }catch(_e){}
       const scs = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
       scs.forEach(s=>{
         const key = s.dataset.region || '';
@@ -3374,6 +3375,38 @@ function renderAll(){
         const saved = state.ui.regionScrollLeft['Final Four'];
         if(saved!==undefined && saved!==null) ff2.scrollLeft = saved;
       }
+      // Also keep the page where the user is vertically (prevents jump back up on iOS Safari).
+      try{
+        const y = state.ui.pageScrollY;
+        if(y!==undefined && y!==null) window.scrollTo(0, y);
+      }catch(_e){}
+
+      /* === REAPPLY_SCROLL_AFTER_RENDER ===
+         Some mobile browsers adjust scroll after focus/reflow following a click.
+         Re-apply saved scroll positions on the next tick to keep the user stable.
+      */
+      try{
+        setTimeout(()=>{
+          try{
+            const scs3 = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
+            scs3.forEach(s=>{
+              const key = s.dataset.region || '';
+              if(!key) return;
+              const saved = state.ui.regionScrollLeft[key];
+              if(saved!==undefined && saved!==null) s.scrollLeft = saved;
+            });
+            const ff3 = document.querySelector('#ffScroller');
+            if(ff3){
+              const saved = state.ui.regionScrollLeft['Final Four'];
+              if(saved!==undefined && saved!==null) ff3.scrollLeft = saved;
+            }
+          }catch(_e){}
+          try{
+            const y = state.ui.pageScrollY;
+            if(y!==undefined && y!==null) window.scrollTo(0, y);
+          }catch(_e){}
+        }, 0);
+      }catch(_e){}
     }
 
 
