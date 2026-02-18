@@ -2845,3 +2845,20 @@ body.officialLive .tiebreakerInput{
 .page-mybrackets.sweet16Set #secSecondChance{
   display: block;
 }
+
+
+/* ===== Home page: hide the challenge availability note on mobile ===== */
+@media (max-width: 900px){
+  #homeChallengesNote{ display:none !important; }
+}
+
+/* ===== Home page: grey hint under Random/Save buttons on Champion board ===== */
+#homeRandomWorstHint{
+  margin-top: 8px;
+  color: #777;
+  font-size: 13px;
+}
+/* Best/Worst pages: make the Note text black */
+.blackNote{
+  color:#000 !important;
+}

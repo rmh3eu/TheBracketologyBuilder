@@ -81,8 +81,8 @@
         <a class="btn" href="best-challenge.html">Leaderboard</a>
       </div>
 
-      <p class="signinHint" style="margin:12px 0 0">
-        Note: “Enter a bracket” will work once the Official Bracket is unlocked (Round of 64 set).
+      <p class="signinHint blackNote" style="margin:12px 0 0">
+        Note: Challenges can only be played once the official bracket comes out.
       </p>
     
 </div>
@@ -239,6 +239,30 @@
 })();
 </script>
 
+
+
+<script>
+  (function(){
+    function hasSess(){
+      try{ return document.cookie.indexOf('bb_sess=') !== -1; }catch(e){ return false; }
+    }
+    // Hide auth buttons when logged in
+    if(hasSess()){
+      var a=document.getElementById('accountBtn');
+      var s=document.getElementById('signupQuickBtn');
+      if(a) a.style.display='none';
+      if(s) s.style.display='none';
+    }
+    // Make My Brackets work
+    var b=document.getElementById('bracketsBtn');
+    if(b){
+      b.addEventListener('click', function(ev){
+        ev.preventDefault();
+        window.location.href='my-brackets.html';
+      });
+    }
+  })();
+</script>
 
 </body>
 </html>
