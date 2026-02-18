@@ -2907,12 +2907,14 @@ function renderFinalRounds(picks){
   if(mountFF) mountFF.innerHTML='';
   if(mountChamp) mountChamp.innerHTML='';
 
-  const south = regionalChamp('REGION_SOUTH', picks);
-  const east  = regionalChamp('REGION_EAST', picks);
-  const west  = regionalChamp('REGION_WEST', picks);
-  const mid   = regionalChamp('REGION_MIDWEST', picks);
+  // Figure out which regions are on the left/right halves on desktop (layout may change over time).
+  const halves = getRegionKeyHalvesFromDom();
+  const leftA = regionalChamp(halves.leftKeys[0], picks);
+  const leftB = regionalChamp(halves.leftKeys[1], picks);
+  const rightA = regionalChamp(halves.rightKeys[0], picks);
+  const rightB = regionalChamp(halves.rightKeys[1], picks);
 
-  // Final Four: show the 4 region champs. Clicking a champ advances them to the Finals
+// Final Four: show the 4 region champs. Clicking a champ advances them to the Finals
   // (Finals picks are stored as FF__G0__winner and FF__G1__winner).
   if(mountFF){
     const layout = el('div','final4Layout');
@@ -2965,15 +2967,14 @@ function renderFinalRounds(picks){
       return s;
     };
 
-    // left column: South + West
-    leftCol.appendChild(makeTeamSlot(south, winnerKeys[0], true));
-    leftCol.appendChild(makeTeamSlot(west,  winnerKeys[0], true));
+    // left column: two LEFT-side regions
+    leftCol.appendChild(makeTeamSlot(leftA,  winnerKeys[0], true));
+    leftCol.appendChild(makeTeamSlot(leftB,  winnerKeys[0], true));
 
-    // right column: East + Midwest
-    rightCol.appendChild(makeTeamSlot(east, winnerKeys[1], true));
-    rightCol.appendChild(makeTeamSlot(mid,  winnerKeys[1], true));
-
-    layout.appendChild(leftCol);
+    // right column: two RIGHT-side regions
+    rightCol.appendChild(makeTeamSlot(rightA, winnerKeys[1], true));
+    rightCol.appendChild(makeTeamSlot(rightB, winnerKeys[1], true));
+layout.appendChild(leftCol);
     layout.appendChild(rightCol);
 
     mountFF.appendChild(layout);
