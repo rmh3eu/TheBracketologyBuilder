@@ -833,18 +833,32 @@ const REGIONS = [
 // Falls back to standard NCAA pairing if DOM is unavailable.
 function getRegionKeyHalvesFromDom(){
   try{
-    const leftKeys = [];
-    const rightKeys = [];
+    const left = [];
+    const right = [];
     REGIONS.forEach(r=>{
       const mount = document.querySelector(`#region-${r.name}`);
-      const isRight = !!(mount && mount.closest && mount.closest('.deskCol.right'));
-      (isRight ? rightKeys : leftKeys).push(r.key);
+      if(!mount) return;
+      const colRight = mount.closest && mount.closest('.deskCol.right');
+      const rect = mount.getBoundingClientRect();
+      const entry = { key: r.key, top: rect.top };
+      (colRight ? right : left).push(entry);
     });
-    if(leftKeys.length===2 && rightKeys.length===2){
-      return { leftKeys, rightKeys };
+
+    if(left.length===2 && right.length===2){
+      // sort by vertical position (top first = upper region)
+      left.sort((a,b)=>a.top-b.top);
+      right.sort((a,b)=>a.top-b.top);
+      return {
+        leftKeys: [left[0].key, left[1].key],   // upper left, lower left
+        rightKeys:[right[0].key,right[1].key]  // upper right, lower right
+      };
     }
   }catch(_e){}
-  return { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: ['REGION_EAST','REGION_MIDWEST'] };
+
+  return { 
+    leftKeys: ['REGION_SOUTH','REGION_WEST'], 
+    rightKeys:['REGION_EAST','REGION_MIDWEST'] 
+  };
 }
 
 
