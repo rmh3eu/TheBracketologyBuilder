@@ -826,26 +826,25 @@ const REGIONS = [
   { key:'REGION_MIDWEST',name:'Midwest',teams:REGION_MIDWEST },
 ];
 
-// Determine which two regions are on the LEFT and RIGHT halves of the desktop bracket,
-// based on the current DOM layout (index.html/bracket.html may order regions differently).
-// Returns { left: ['South','West'], right: ['East','Midwest'] } as region *names*.
-// Falls back to NCAA default if DOM is unavailable.
-function getRegionHalvesFromDom(){
+
+// Determine which two region KEYS are on the LEFT and RIGHT halves of the desktop bracket,
+// based on the current DOM layout (.deskCol.left / .deskCol.right).
+// Returns { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: [...] }.
+// Falls back to standard NCAA pairing if DOM is unavailable.
+function getRegionKeyHalvesFromDom(){
   try{
-    const leftCol = document.querySelector('.espnDesk .deskCol.left');
-    const rightCol = document.querySelector('.espnDesk .deskCol.right');
-    const getNames = (col)=>{
-      if(!col) return [];
-      return Array.from(col.querySelectorAll('div[id^="region-"]'))
-        .map(el => (el.id || '').replace('region-','').trim())
-        .filter(Boolean);
-    };
-    const left = getNames(leftCol);
-    const right = getNames(rightCol);
-    if(left.length===2 && right.length===2) return { left, right };
+    const leftKeys = [];
+    const rightKeys = [];
+    REGIONS.forEach(r=>{
+      const mount = document.querySelector(`#region-${r.name}`);
+      const isRight = !!(mount && mount.closest && mount.closest('.deskCol.right'));
+      (isRight ? rightKeys : leftKeys).push(r.key);
+    });
+    if(leftKeys.length===2 && rightKeys.length===2){
+      return { leftKeys, rightKeys };
+    }
   }catch(_e){}
-  // Fallback: NCAA standard halves (used previously)
-  return { left: ['South','West'], right: ['East','Midwest'] };
+  return { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: ['REGION_EAST','REGION_MIDWEST'] };
 }
 
 
@@ -1057,16 +1056,11 @@ function fillRandomPicks(){
 
   // Final Four + Final + Champion
   // IMPORTANT: Final Four pairing must match pruneInvalidPicks() / UI pairing.
-  // Pairing is based on LEFT vs RIGHT halves of the bracket as currently laid out in the DOM.
-  const halves = getRegionHalvesFromDom();
-  const champs = {};
-  for(const n of [...halves.left, ...halves.right]){
-    const rk = regionsByName && regionsByName[n] ? regionsByName[n] : ('REGION_' + n.toUpperCase());
-    champs[n] = picks[wKey(rk,3,0)] || null;
-  }
+  // Pairing is based on LEFT vs RIGHT halves of the bracket (not region names).
+  const halves = getRegionKeyHalvesFromDom();
   const ffPairs = [
-    [champs[halves.left[0]] || null,  champs[halves.left[1]] || null],  // LEFT half
-    [champs[halves.right[0]] || null, champs[halves.right[1]] || null], // RIGHT half
+    [picks[wKey(halves.leftKeys[0],3,0)]  || null, picks[wKey(halves.leftKeys[1],3,0)]  || null],  // LEFT half
+    [picks[wKey(halves.rightKeys[0],3,0)] || null, picks[wKey(halves.rightKeys[1],3,0)] || null], // RIGHT half
   ];
   for(let i=0;i<2;i++){
     const a = ffPairs[i][0];
@@ -1102,16 +1096,11 @@ function pruneInvalidPicks(picks){
   }
 
   // Final Four
-  // Pairing is based on LEFT vs RIGHT halves of the bracket as currently laid out in the DOM.
-  const halves = getRegionHalvesFromDom();
-  const champs = {};
-  for(const n of [...halves.left, ...halves.right]){
-    const rk = regionsByName && regionsByName[n] ? regionsByName[n] : ('REGION_' + n.toUpperCase());
-    champs[n] = picks[wKey(rk,3,0)] || null;
-  }
+  // Pairing is based on LEFT vs RIGHT halves of the bracket (not region names).
+  const halves = getRegionKeyHalvesFromDom();
   const ffPairs = [
-    [champs[halves.left[0]] || null,  champs[halves.left[1]] || null],  // LEFT half
-    [champs[halves.right[0]] || null, champs[halves.right[1]] || null], // RIGHT half
+    [picks[wKey(halves.leftKeys[0],3,0)]  || null, picks[wKey(halves.leftKeys[1],3,0)]  || null],  // LEFT half
+    [picks[wKey(halves.rightKeys[0],3,0)] || null, picks[wKey(halves.rightKeys[1],3,0)] || null], // RIGHT half
   ];
   for(let i=0;i<2;i++){
     const k = `FF__G${i}__winner`;
@@ -3202,17 +3191,12 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   });
 
   // Final Four + Finals + Champion
-  // Pair based on current left/right region placement in the DOM.
-  const halves = getRegionHalvesFromDom();
-  const leftA = regionsByName[halves.left[0]];
-  const leftB = regionsByName[halves.left[1]];
-  const rightA = regionsByName[halves.right[0]];
-  const rightB = regionsByName[halves.right[1]];
-
-  const leftChampA  = leftA  ? (picks[wKey(leftA,3,0)]  || null) : null;
-  const leftChampB  = leftB  ? (picks[wKey(leftB,3,0)]  || null) : null;
-  const rightChampA = rightA ? (picks[wKey(rightA,3,0)] || null) : null;
-  const rightChampB = rightB ? (picks[wKey(rightB,3,0)] || null) : null;
+  // Pairing is based on LEFT vs RIGHT halves of the bracket (not region names).
+  const halves = getRegionKeyHalvesFromDom();
+  const leftChampA  = picks[wKey(halves.leftKeys[0],3,0)]  || null;
+  const leftChampB  = picks[wKey(halves.leftKeys[1],3,0)]  || null;
+  const rightChampA = picks[wKey(halves.rightKeys[0],3,0)] || null;
+  const rightChampB = picks[wKey(halves.rightKeys[1],3,0)] || null;
 
   const ffPairs = [
     [leftChampA,  leftChampB],   // LEFT half
