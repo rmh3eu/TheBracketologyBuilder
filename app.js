@@ -3335,7 +3335,7 @@ function renderAll(){
     // Mobile: render the standard full bracket (with horizontal scroll via CSS).
 // Preserve mobile scroll positions across re-render (prevents jitter).
     if(isMobile()){
-      const scs = Array.from(document.querySelectorAll('.geo.regionGeo'));
+      const scs = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
       scs.forEach(s=>{
         const key = s.dataset.region || '';
         if(key) state.ui.regionScrollLeft[key] = s.scrollLeft || 0;
@@ -3362,7 +3362,7 @@ function renderAll(){
 
     // Restore scroll positions after re-render.
     if(isMobile()){
-      const scs2 = Array.from(document.querySelectorAll('.geo.regionGeo'));
+      const scs2 = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
       scs2.forEach(s=>{
         const key = s.dataset.region || '';
         if(!key) return;
