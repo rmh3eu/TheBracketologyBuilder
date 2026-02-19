@@ -2997,3 +2997,31 @@ body.page-custom #customTeamPoolBoard{ display:block !important; }
   outline:3px solid #1e88ff;
   outline-offset:2px;
 }
+
+/* ===== Custom Brackets v45: visible Team Pool + field builder ===== */
+body.page-custom .panel{
+  background:#fff;
+  border-radius:16px;
+  padding:14px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06);
+}
+body.page-custom .panelTitle{
+  font-weight:800;
+  letter-spacing:0.5px;
+  text-transform:none;
+}
+.customPoolPill{
+  border:1px solid #e5e5e5;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:13px;
+  cursor:pointer;
+  background:#fff;
+  user-select:none;
+}
+.customPoolPill:hover{ background:#fafafa; }
+.customPoolPill.used{ opacity:0.45; }
+.customPoolPill.sel{
+  outline:3px solid #1e88ff;
+  outline-offset:2px;
+}

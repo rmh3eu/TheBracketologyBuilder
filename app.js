@@ -4578,6 +4578,7 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   bindTiebreakerInput();
 
   // Custom Brackets page wiring
+    try{ document.body.classList.add('page-custom'); }catch(e){}
   if(isCustomBracketsPage()){
     // Start in Edit Teams mode
     // Snapshot the current projection field into this custom bracket so it won't drift later.

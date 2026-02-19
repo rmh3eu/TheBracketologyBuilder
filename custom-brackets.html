@@ -38,7 +38,14 @@
             <button class="btn primary btnCompact" id="saveEnterBtnTop" type="button">Save Field</button>
             <button class="btn btnCompact" id="undoBtnTop" type="button" disabled>Undo</button>
           </div>
-            <div class="muted" id="customTeamsHint" style="margin:8px 0 2px 0; text-align:center;">Tap any Round of 64 slot to add a team. You can also type a team name.</div>
+            <div class="muted" id="customTeamsHint" style="margin:8px 0 2px 0; text-align:center;">Click a team in the Team Pool, then click a Round of 64 slot to place it.</div>
+
+            <div id="customTeamPoolBoard" class="panel" style="margin-top:12px;">
+              <div class="panelTitle">Team Pool</div>
+              <div class="muted" style="margin-top:4px;">Click a team, then click a Round of 64 slot to place it.</div>
+              <div id="customTeamPool" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
+            </div>
+
 
 	          <div class="centerStack">
 	            <!-- Top: Final 4 + Championship label -->
