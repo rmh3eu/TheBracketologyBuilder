@@ -1071,6 +1071,24 @@ function updateCustomTeamsUI(){
   const t = __customEditTeams ? 'Lock Edits' : 'Edit Teams';
   const b1 = qs('#customEditTeamsBtnTop'); if(b1) b1.textContent = t;
   const b2 = qs('#customEditTeamsBtn'); if(b2) b2.textContent = t;
+  updateCustomInfoBoard();
+}
+
+
+function updateCustomInfoBoard(){
+  if(!isCustomBracketsPage()) return;
+  const board = qs('#customInfoBoard');
+  const exp = qs('#customInfoExpanded');
+  const sub = qs('#customInfoSub');
+  if(!board || !exp || !sub) return;
+
+  if(__customEditTeams){
+    sub.textContent = 'Customize your own field of 64.';
+    exp.classList.remove('hidden');
+  }else{
+    sub.textContent = 'Locked — now pick winners like a normal bracket.';
+    exp.classList.add('hidden');
+  }
 }
 
 function clearAllCustomTeams(){
@@ -3692,6 +3710,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
 
 
 function renderChallengeCallout(){
+  if(isCustomBracketsPage()) return;
   const mount = qs('#challengeCallout');
   if(!mount) return;
   mount.innerHTML = `
@@ -3765,7 +3784,7 @@ function renderAll(){
   renderBubble();
   renderChallengeCallout();
 
-  const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
+  const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html') || isCustomBracketsPage();
   let phase = currentNCAAPhase();
   // On bracket.html, always render the bracket section (even during Sweet 16 / Final Four phases).
   if(isBracketPage && phase !== 'full') phase = 'full';
@@ -4483,6 +4502,13 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
     qs('#customClearTeamsBtn')?.addEventListener('click', ()=>{
       if(confirm('Clear all custom teams?')) clearAllCustomTeams();
     });
+    // Info board toggles edit/lock and expands instructions
+    qs('#customInfoBoard')?.addEventListener('click', ()=>{
+      setCustomEditTeams(!__customEditTeams);
+      updateCustomInfoBoard();
+    });
+    updateCustomInfoBoard();
+
   }
 
 
