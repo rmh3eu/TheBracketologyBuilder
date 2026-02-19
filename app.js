@@ -1065,7 +1065,7 @@ function updateCustomTeamsUI(){
   if(hint){
     hint.textContent = complete
       ? 'Teams set! Click Save Field to save this custom field.'
-      : 'Tap any Round of 64 slot to add a team. You can also type a team name.';
+      : 'Click a team in the Team Pool, then click a Round of 64 slot to place it.';
   }
 
   const t = __customEditTeams ? 'Lock Edits' : 'Edit Teams';
@@ -1249,6 +1249,101 @@ function wireCustomEditInteractions(){
   document.addEventListener('touchmove', ()=>{ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } }, { passive: true });
 }
 
+
+let __poolSelected = null; // team name string
+
+function getAllCurrentTeams(){
+  const out = [];
+  for(const r of REGIONS){
+    const base = listToSeedArray(r.teams);
+    for(const t of base){
+      if(t && t.name) out.push(String(t.name).trim());
+    }
+  }
+  // unique preserve order
+  const seen = new Set();
+  const uniq = [];
+  out.forEach(n=>{
+    const k=n.toLowerCase();
+    if(!seen.has(k)){ seen.add(k); uniq.push(n); }
+  });
+  return uniq;
+}
+
+function renderCustomTeamPool(){
+  if(!isCustomBracketsPage()) return;
+  const host = qs('#customTeamPool');
+  if(!host) return;
+  const teams = getAllCurrentTeams();
+  const usedMap = new Set();
+  for(const r of REGIONS){
+    const base = listToSeedArray(r.teams);
+    base.forEach(t=>{ if(t && t.name) usedMap.add(String(t.name).trim().toLowerCase()); });
+  }
+
+  host.innerHTML = '';
+  teams.forEach(n=>{
+    const pill = el('div','customPoolPill');
+    pill.textContent = n;
+    const key = n.toLowerCase();
+    if(usedMap.has(key)) pill.classList.add('used');
+    if(__poolSelected && __poolSelected.toLowerCase()===key) pill.classList.add('sel');
+    pill.addEventListener('click', ()=>{
+      __poolSelected = n;
+      renderCustomTeamPool();
+      toast('Now tap a Round of 64 slot.');
+    });
+    host.appendChild(pill);
+  });
+}
+
+function findUsedSlotByName(nm, except){
+  const key = String(nm).toLowerCase();
+  for(const r of REGIONS){
+    const base = listToSeedArray(r.teams);
+    for(const t of base){
+      if(!t || !t.name) continue;
+      if(except && except.regionKey===r.key && except.seed===t.seed) continue;
+      if(String(t.name).toLowerCase()===key){
+        return { regionKey:r.key, seed:t.seed };
+      }
+    }
+  }
+  return null;
+}
+
+function wireCustomPoolPlacement(){
+  if(!isCustomBracketsPage()) return;
+
+  // Capture-phase handler to BLOCK normal pick logic entirely on this page.
+  document.addEventListener('click', (e)=>{
+    if(!isCustomBracketsPage()) return;
+    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
+    if(!slot) return;
+
+    // Always block normal bracket pick behavior on Custom Brackets page
+    e.preventDefault();
+    e.stopPropagation();
+
+    if(!__customEditTeams) return; // locked edits = do nothing (field builder only)
+
+    const meta = getRegionSeedFromSlotEl(slot);
+    if(!meta) return;
+
+    if(!__poolSelected){
+      toast('Click a team in the Team Pool first.');
+      return;
+    }
+
+    // Move if already used elsewhere
+    const used = findUsedSlotByName(__poolSelected, meta);
+    if(used){
+      setCustomSeedName(used.regionKey, used.seed, '');
+    }
+    setCustomSeedName(meta.regionKey, meta.seed, __poolSelected);
+    renderCustomTeamPool();
+  }, true);
+}
 // ====================================================
 
 
@@ -3912,6 +4007,7 @@ function renderAll(){
 
   if(isCustomBracketsPage()){
     try{ attachRegionSeedDatasets(); }catch(e){}
+    try{ renderCustomTeamPool(); }catch(e){}
   }
 }
 function overallRoundComplete(roundIdx){
@@ -4496,6 +4592,8 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
     ensureCustomTeamsOverlay();
     updateCustomTeamsUI();
     wireCustomEditInteractions();
+    wireCustomPoolPlacement();
+    renderCustomTeamPool();
 
     qs('#customEditTeamsBtnTop')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
     qs('#customEditTeamsBtn')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
