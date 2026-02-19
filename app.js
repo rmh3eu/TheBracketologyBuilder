@@ -1068,7 +1068,7 @@ function updateCustomTeamsUI(){
       : 'Tap any Round of 64 slot to add a team. You can also type a team name.';
   }
 
-  const t = __customEditTeams ? 'Done editing' : 'Edit teams';
+  const t = __customEditTeams ? 'Lock Edits' : 'Edit Teams';
   const b1 = qs('#customEditTeamsBtnTop'); if(b1) b1.textContent = t;
   const b2 = qs('#customEditTeamsBtn'); if(b2) b2.textContent = t;
 }
@@ -1080,6 +1080,155 @@ function clearAllCustomTeams(){
   pruneInvalidPicks(np);
   commitPicks(np, 'team');
   updateCustomTeamsUI();
+}
+
+
+let __swapFirst = null; // { el, regionKey, seed, name }
+
+function getRegionSeedFromSlotEl(elSlot){
+  try{
+    const reg = elSlot?.dataset?.regionKey;
+    const seed = Number(elSlot?.dataset?.seed);
+    if(reg && Number.isFinite(seed)) return { regionKey: reg, seed };
+  }catch(e){}
+  return null;
+}
+
+function attachRegionSeedDatasets(){
+  // Tag each Round-of-64 slot with region + seed so editing works reliably.
+  try{
+    REGIONS.forEach(r=>{
+      const mount = qs(`#region-${r.name}`);
+      if(!mount) return;
+      // slots are rendered into .geo region container; first round are the first 8 games x 2 slots = 16 slots.
+      // We tag any slot whose displayed seed matches 1-16 and is within round0 groups.
+      // Use a more direct approach: select slots in this region and map by PAIRINGS order.
+      const slots = Array.from(mount.querySelectorAll('.roundGroup')).slice(0,8)
+        .flatMap(g=>Array.from(g.querySelectorAll('.slot')));
+      // slots should be 16 in order matching PAIRINGS (seed pairs)
+      let idx=0;
+      for(let gi=0; gi<PAIRINGS.length; gi++){
+        const a=PAIRINGS[gi][0], b=PAIRINGS[gi][1];
+        const s1=slots[idx++]; const s2=slots[idx++];
+        if(s1){ s1.dataset.regionKey=r.key; s1.dataset.seed=String(a); }
+        if(s2){ s2.dataset.regionKey=r.key; s2.dataset.seed=String(b); }
+      }
+    });
+  }catch(e){}
+}
+
+function swapSeeds(regionKeyA, seedA, regionKeyB, seedB){
+  const a = getTeamBySeed(regionKeyA, seedA);
+  const b = getTeamBySeed(regionKeyB, seedB);
+  const nameA = a && a.name ? String(a.name) : '';
+  const nameB = b && b.name ? String(b.name) : '';
+  setCustomSeedName(regionKeyA, seedA, nameB);
+  setCustomSeedName(regionKeyB, seedB, nameA);
+}
+
+function beginInlineEdit(slotEl){
+  const meta = getRegionSeedFromSlotEl(slotEl);
+  if(!meta) return;
+  const cur = getTeamBySeed(meta.regionKey, meta.seed);
+  const curName = cur && cur.name ? String(cur.name) : '';
+  // Replace team span with input temporarily
+  const teamSpan = slotEl.querySelector('.team');
+  if(!teamSpan) return;
+  const input = document.createElement('input');
+  input.className='editInput';
+  input.type='text';
+  input.value=curName;
+  teamSpan.replaceWith(input);
+  input.focus();
+  try{ input.setSelectionRange(0, input.value.length); }catch(_e){}
+  const finish = ()=>{
+    const v = input.value;
+    const teamSpan2 = document.createElement('span');
+    teamSpan2.className='team';
+    teamSpan2.textContent = v ? v : '—';
+    input.replaceWith(teamSpan2);
+    setCustomSeedName(meta.regionKey, meta.seed, v);
+    // stay in edit mode
+  };
+  input.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); finish(); }
+    if(e.key==='Escape'){ e.preventDefault(); input.value=curName; finish(); }
+  });
+  input.addEventListener('blur', ()=>finish());
+}
+
+function wireCustomEditInteractions(){
+  if(!isCustomBracketsPage()) return;
+
+  // Attach datasets each render (regions re-render)
+  attachRegionSeedDatasets();
+
+  // Delegate clicks for swap selection
+  document.addEventListener('click', (e)=>{
+    if(!isCustomBracketsPage() || !__customEditTeams) return;
+    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
+    if(!slot) return;
+    // Only Round of 64 slots (must have dataset seed)
+    const meta = getRegionSeedFromSlotEl(slot);
+    if(!meta) return;
+
+    // Prevent normal winner-pick behavior while editing
+    e.preventDefault();
+    e.stopPropagation();
+
+    // If input currently editing, don't treat as swap selection
+    if(slot.querySelector('input.editInput')) return;
+
+    // First selection
+    if(!__swapFirst){
+      __swapFirst = { el: slot, ...meta };
+      slot.classList.add('selSwap');
+      return;
+    }
+
+    // Second selection (swap)
+    const first = __swapFirst;
+    first.el.classList.remove('selSwap');
+    __swapFirst = null;
+
+    // If same slot clicked twice, open inline edit
+    if(first.el === slot){
+      beginInlineEdit(slot);
+      return;
+    }
+
+    swapSeeds(first.regionKey, first.seed, meta.regionKey, meta.seed);
+  }, true);
+
+  // Double click to rename (desktop)
+  document.addEventListener('dblclick', (e)=>{
+    if(!isCustomBracketsPage() || !__customEditTeams) return;
+    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
+    if(!slot) return;
+    const meta = getRegionSeedFromSlotEl(slot);
+    if(!meta) return;
+    e.preventDefault(); e.stopPropagation();
+    // clear swap selection state
+    if(__swapFirst){ __swapFirst.el.classList.remove('selSwap'); __swapFirst=null; }
+    beginInlineEdit(slot);
+  }, true);
+
+  // Long press to rename (mobile)
+  let pressTimer = null;
+  document.addEventListener('touchstart', (e)=>{
+    if(!isCustomBracketsPage() || !__customEditTeams) return;
+    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
+    if(!slot) return;
+    const meta = getRegionSeedFromSlotEl(slot);
+    if(!meta) return;
+    pressTimer = setTimeout(()=>{
+      if(__swapFirst){ __swapFirst.el.classList.remove('selSwap'); __swapFirst=null; }
+      beginInlineEdit(slot);
+    }, 450);
+  }, { passive: true });
+
+  document.addEventListener('touchend', ()=>{ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } }, { passive: true });
+  document.addEventListener('touchmove', ()=>{ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } }, { passive: true });
 }
 
 // ====================================================
@@ -4308,9 +4457,18 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   // Custom Brackets page wiring
   if(isCustomBracketsPage()){
     // Start in Edit Teams mode
+    // Snapshot the current projection field into this custom bracket so it won't drift later.
+    if(!(state.picks && state.picks.__customSeedLists)){
+      const np = { ...(state.picks||{}) };
+      np.__customSeedLists = snapshotCustomSeedLists();
+      saveLocal(np);
+      state.picks = np;
+    }
+
     setCustomEditTeams(true);
     ensureCustomTeamsOverlay();
     updateCustomTeamsUI();
+    wireCustomEditInteractions();
 
     qs('#customEditTeamsBtnTop')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
     qs('#customEditTeamsBtn')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));

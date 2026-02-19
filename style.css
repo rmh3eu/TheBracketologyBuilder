@@ -2957,3 +2957,16 @@ body.page-custom.customEditOn .slot.empty .team{
   justify-content:flex-end;
   gap:10px;
 }
+
+/* ===== Custom Brackets Edit Teams UX ===== */
+body.page-custom.customEditOn .slot.selSwap{
+  outline: 3px solid #1e88ff;
+  outline-offset: 2px;
+}
+body.page-custom.customEditOn .slot .editInput{
+  width: 100%;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
