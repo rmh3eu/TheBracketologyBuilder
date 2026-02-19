@@ -1064,7 +1064,7 @@ function updateCustomTeamsUI(){
   const hint = qs('#customTeamsHint');
   if(hint){
     hint.textContent = complete
-      ? 'Teams set! Tap "Done editing" to start picking winners.'
+      ? 'Teams set! Click Save Field to save this custom field.'
       : 'Tap any Round of 64 slot to add a team. You can also type a team name.';
   }
 
@@ -3319,6 +3319,10 @@ function renderRegion(r, picks, opts={}){
                 toast('Brackets are locked (tournament has started).');
                 return;
               }
+            // Custom Brackets: this page is a FIELD BUILDER only (no winner picks here)
+            if(isCustomBracketsPage() && !__customEditTeams){
+              return;
+            }
               openCustomTeamPicker(r.key, seedNum);
             });
           }

@@ -2970,3 +2970,11 @@ body.page-custom.customEditOn .slot .editInput{
   border: 1px solid #ddd;
   border-radius: 8px;
 }
+
+/* ===== Custom Brackets: Save-only Field Builder mode ===== */
+body.page-custom .finalFourBoard,
+body.page-custom .championBoard,
+body.page-custom #joinChallengeBoard,
+body.page-custom .joinChallengeBoard{
+  display:none !important;
+}
