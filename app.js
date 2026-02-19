@@ -934,6 +934,22 @@ function getMasterTeamList(){
 
 function openCustomTeamPicker(regionKey, seed){
   ensureCustomTeamsOverlay();
+    // Delegate slot clicks in Edit Teams mode (more reliable than per-slot handlers)
+    document.addEventListener('click', (e)=>{
+      if(!isCustomBracketsPage() || !__customEditTeams) return;
+      const slot = e.target && e.target.closest ? e.target.closest('.slot') : null;
+      if(!slot) return;
+      const seed = slot.dataset && slot.dataset.seed ? Number(slot.dataset.seed) : null;
+      const regionKey = slot.dataset && slot.dataset.regionKey ? String(slot.dataset.regionKey) : null;
+      if(!seed || !regionKey) return;
+      // Only Round of 64 slots are tagged; open picker
+      if (bracketsLockedNow()){
+        toast('Brackets are locked (tournament has started).');
+        return;
+      }
+      openCustomTeamPicker(regionKey, seed);
+    }, true);
+
   __customTarget = { regionKey, seed };
   const title = qs('#customTeamsTitle');
   if(title) title.textContent = `Assign team for Seed ${seed}`;
@@ -2435,6 +2451,10 @@ function stage3Unlocked(){
 
 function miniSlot(team, isWinner, onClick){
   const s = el('div','slot');
+        // Custom Brackets: tag Round-of-64 slots with seed/region
+        if(isCustomBracketsPage() && roundIdx===0){
+          s.dataset.regionKey = r.key;
+        }
   if(!team){ s.classList.add('empty'); return s; }
   const seed = el('span','seed'); seed.textContent = team.seed;
   const name = el('span','name'); name.textContent = team.name;
@@ -3116,9 +3136,14 @@ function renderRegion(r, picks, opts={}){
 
       pair.forEach((team, tIdx)=>{
         const s = el('div','slot');
+        // Custom Brackets: tag Round-of-64 slots with seed/region
+        if(isCustomBracketsPage() && roundIdx===0){
+          s.dataset.regionKey = r.key;
+        }
         if(!team){
           s.classList.add('empty');
           const seedNum = (isCustomBracketsPage() && roundIdx===0) ? (PAIRINGS[gIdx] ? PAIRINGS[gIdx][tIdx] : '—') : '—';
+          if(isCustomBracketsPage() && roundIdx===0 && seedNum!=='—') s.dataset.seed = String(seedNum);
           const label = (isCustomBracketsPage() && __customEditTeams && roundIdx===0) ? 'Tap to add' : '—';
           s.innerHTML = `<span class="seed">${seedNum}</span><span class="team">${label}</span>`;
           if(isCustomBracketsPage() && __customEditTeams && roundIdx===0 && seedNum!=='—'){
@@ -3132,6 +3157,7 @@ function renderRegion(r, picks, opts={}){
           }
         }else{
           if(curWinner && teamEq(curWinner, team)) s.classList.add('winner');
+          if(isCustomBracketsPage() && roundIdx===0) s.dataset.seed = String(team.seed);
           const gameId = `${r.key}__R${roundIdx}__G${gIdx}`;
           const actual = state.resultsMap[gameId] || null;
           const mode = (opts && opts.scoringMode) ? opts.scoringMode : (state.shareContext.challenge || null);
@@ -3223,6 +3249,10 @@ function renderFinalRounds(picks){
     // helper to build a clickable team slot (sets semifinal winner)
     const makeTeamSlot = (team, winnerKey, allowPick)=>{
       const s = el('div','slot');
+        // Custom Brackets: tag Round-of-64 slots with seed/region
+        if(isCustomBracketsPage() && roundIdx===0){
+          s.dataset.regionKey = r.key;
+        }
       if(!team){
         s.classList.add('empty');
         s.innerHTML = `<span class="seed">—</span><span class="team">—</span>`;
