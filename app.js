@@ -3886,6 +3886,10 @@ function renderAll(){
 
   setupRoundBar();
   maybeAutoShiftMobile();
+
+  if(isCustomBracketsPage()){
+    try{ attachRegionSeedDatasets(); }catch(e){}
+  }
 }
 function overallRoundComplete(roundIdx){
   // roundIdx 0..3 for region rounds; 4=final four; 5=final; 6=champion
