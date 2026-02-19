@@ -827,6 +827,249 @@ const REGIONS = [
 ];
 
 
+// ==================== Custom Brackets Support ====================
+function isCustomBracketsPage(){
+  try{
+    return !!window.__CUSTOM_BRACKETS_PAGE__ || document.body.classList.contains('page-custom') || location.pathname.endsWith('/custom-brackets.html') || location.pathname.endsWith('custom-brackets.html');
+  }catch(e){ return false; }
+}
+
+function snapshotCustomSeedLists(){
+  const out = {};
+  for(const r of REGIONS){
+    const list = [];
+    const base = listToSeedArray(r.teams);
+    for(const t of base){
+      if(t && t.name && String(t.name).trim()){
+        list.push([t.seed, String(t.name).trim()]);
+      }
+    }
+    out[r.key] = list;
+  }
+  return out;
+}
+
+function applyCustomSeedListsFromPicks(picks){
+  try{
+    const cs = picks && (picks.__customSeedLists || picks.customSeedLists);
+    if(!cs) return;
+    for(const r of REGIONS){
+      const list = cs[r.key];
+      if(Array.isArray(list)){
+        r.teams.length = 0;
+        list.forEach(pair=>{
+          if(!pair) return;
+          const seed = Number(pair[0]);
+          const name = String(pair[1]||'').trim();
+          if(Number.isFinite(seed) && seed>=1 && seed<=16 && name){
+            r.teams.push([seed, name]);
+          }
+        });
+      }
+    }
+  }catch(e){}
+}
+
+function customTeamsComplete(){
+  try{
+    for(const r of REGIONS){
+      const base = listToSeedArray(r.teams);
+      for(const s of SEEDS){
+        const t = base[s-1];
+        if(!t || !t.name || !String(t.name).trim()) return false;
+      }
+    }
+    return true;
+  }catch(e){ return false; }
+}
+
+let __customTarget = null; // { regionKey, seed }
+let __customEditTeams = false;
+
+function ensureCustomTeamsOverlay(){
+  if(qs('#customTeamsOverlay')) return;
+  const ov = document.createElement('div');
+  ov.id = 'customTeamsOverlay';
+  ov.className = 'hidden';
+  ov.innerHTML = `
+    <div id="customTeamsModal" role="dialog" aria-modal="true">
+      <div class="head">
+        <h3 id="customTeamsTitle">Choose a team</h3>
+        <button class="btn btnCompact" id="customTeamsCloseBtn" type="button">Close</button>
+      </div>
+      <div class="body">
+        <input id="customTeamsSearch" type="text" placeholder="Search teams or type a custom name..." autocomplete="off" />
+        <div id="customTeamsList"></div>
+      </div>
+      <div class="foot">
+        <button class="btn" id="customTeamsClearSlotBtn" type="button">Clear slot</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  const close = ()=>{
+    ov.classList.add('hidden');
+    __customTarget = null;
+  };
+  qs('#customTeamsCloseBtn')?.addEventListener('click', close);
+  ov.addEventListener('click', (e)=>{ if(e.target===ov) close(); });
+
+  qs('#customTeamsClearSlotBtn')?.addEventListener('click', ()=>{
+    if(!__customTarget) return;
+    setCustomSeedName(__customTarget.regionKey, __customTarget.seed, '');
+    close();
+  });
+
+  qs('#customTeamsSearch')?.addEventListener('input', ()=>renderCustomTeamsList());
+}
+
+function getMasterTeamList(){
+  return [
+    'Duke','North Carolina','Kansas','Kentucky','Gonzaga','Arizona','UConn','Purdue','Houston','Tennessee',
+    'Auburn','Alabama','Baylor','Villanova','Michigan State','UCLA','Texas','Iowa State','Wisconsin','Illinois',
+    'Florida','Miami (FL)','Creighton','Marquette','San Diego State','Virginia','Oregon','USC','Indiana','Arkansas'
+  ];
+}
+
+function openCustomTeamPicker(regionKey, seed){
+  ensureCustomTeamsOverlay();
+  __customTarget = { regionKey, seed };
+  const title = qs('#customTeamsTitle');
+  if(title) title.textContent = `Assign team for Seed ${seed}`;
+  const ov = qs('#customTeamsOverlay');
+  ov.classList.remove('hidden');
+  const inp = qs('#customTeamsSearch');
+  const t = getTeamBySeed(regionKey, seed);
+  if(inp){
+    inp.value = (t && t.name) ? String(t.name) : '';
+    inp.focus();
+    try{ inp.setSelectionRange(0, inp.value.length); }catch(_e){}
+  }
+  renderCustomTeamsList();
+}
+
+function normalizeTeamName(n){
+  return String(n||'').trim().replace(/\s+/g,' ').slice(0, 40);
+}
+
+function setCustomSeedName(regionKey, seed, name){
+  const nm = normalizeTeamName(name);
+  const r = REGIONS.find(x=>x.key===regionKey);
+  if(!r) return;
+
+  for(let i=r.teams.length-1;i>=0;i--){
+    const p=r.teams[i];
+    if(p && Number(p[0])===Number(seed)) r.teams.splice(i,1);
+  }
+  if(nm){
+    r.teams.push([Number(seed), nm]);
+  }
+
+  const np = { ...(state.picks||{}) };
+  np.__customSeedLists = snapshotCustomSeedLists();
+  pruneInvalidPicks(np);
+  commitPicks(np, 'team');
+  if(isCustomBracketsPage()) updateCustomTeamsUI();
+}
+
+function renderCustomTeamsList(){
+  const listEl = qs('#customTeamsList');
+  if(!listEl) return;
+  const qraw = qs('#customTeamsSearch')?.value || '';
+  const q = normalizeTeamName(qraw).toLowerCase();
+  const master = getMasterTeamList();
+  const items = [];
+
+  if(q){
+    items.push({ type:'use', name: normalizeTeamName(qraw) });
+  }
+  master.forEach(n=>{
+    if(!q || n.toLowerCase().includes(q)){
+      items.push({ type:'pick', name:n });
+    }
+  });
+
+  listEl.innerHTML = '';
+  if(items.length===0){
+    listEl.innerHTML = '<div class="muted">No matches. Type a name to use it.</div>';
+    return;
+  }
+
+  const isUsedElsewhere = (nm)=>{
+    const target = __customTarget;
+    for(const r of REGIONS){
+      const base = listToSeedArray(r.teams);
+      for(const t of base){
+        if(!t || !t.name) continue;
+        if(target && r.key===target.regionKey && t.seed===target.seed) continue;
+        if(String(t.name).toLowerCase()===String(nm).toLowerCase()) return { regionKey:r.key, seed:t.seed };
+      }
+    }
+    return null;
+  };
+
+  items.slice(0, 250).forEach(it=>{
+    const row = el('div','customTeamItem' + (it.type==='use'?' useTyped':''));
+    row.innerHTML = it.type==='use'
+      ? `<div class="nm">Use "${escapeHtml(it.name)}"</div><div class="tag">Custom name</div>`
+      : `<div class="nm">${escapeHtml(it.name)}</div><div class="tag">From list</div>`;
+
+    row.addEventListener('click', ()=>{
+      if(!__customTarget) return;
+      const nm = normalizeTeamName(it.name);
+      if(!nm){ toast('Please enter a team name.'); return; }
+
+      const used = isUsedElsewhere(nm);
+      if(used){
+        setCustomSeedName(used.regionKey, used.seed, '');
+      }
+      setCustomSeedName(__customTarget.regionKey, __customTarget.seed, nm);
+      qs('#customTeamsOverlay')?.classList.add('hidden');
+      __customTarget = null;
+    });
+
+    listEl.appendChild(row);
+  });
+}
+
+function setCustomEditTeams(on){
+  __customEditTeams = !!on;
+  document.body.classList.toggle('customEditOn', __customEditTeams);
+  updateCustomTeamsUI();
+}
+
+function updateCustomTeamsUI(){
+  if(!isCustomBracketsPage()) return;
+  const complete = customTeamsComplete();
+  const saveBtns = [qs('#saveEnterBtnTop'), qs('#saveEnterBtn')].filter(Boolean);
+  saveBtns.forEach(b=> b.disabled = !complete);
+
+  const hint = qs('#customTeamsHint');
+  if(hint){
+    hint.textContent = complete
+      ? 'Teams set! Tap "Done editing" to start picking winners.'
+      : 'Tap any Round of 64 slot to add a team. You can also type a team name.';
+  }
+
+  const t = __customEditTeams ? 'Done editing' : 'Edit teams';
+  const b1 = qs('#customEditTeamsBtnTop'); if(b1) b1.textContent = t;
+  const b2 = qs('#customEditTeamsBtn'); if(b2) b2.textContent = t;
+}
+
+function clearAllCustomTeams(){
+  for(const r of REGIONS){ r.teams.length = 0; }
+  const np = { ...(state.picks||{}) };
+  np.__customSeedLists = snapshotCustomSeedLists();
+  pruneInvalidPicks(np);
+  commitPicks(np, 'team');
+  updateCustomTeamsUI();
+}
+
+// ====================================================
+
+
+
 // Determine which two region KEYS are on the LEFT and RIGHT halves of the desktop bracket,
 // based on the current DOM layout (.deskCol.left / .deskCol.right).
 // Returns { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: [...] }.
@@ -998,7 +1241,11 @@ function commitPicks(np, reason){
     pushUndoSnapshot();
   }
   state.picks = normalize(np || {});
-  saveLocal(state.picks);
+  if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
+    saveLocal(state.picks);
 
   renderAll();
 
@@ -1019,9 +1266,17 @@ function commitPicks(np, reason){
     if(isBracketPage && wantsRandom && isNew && !hasExisting && !sessionStorage.getItem(key)){
       // Force fresh state for this new bracket, then fill random picks.
       state.picks = {};
-      saveLocal(state.picks);
+      if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
+    saveLocal(state.picks);
       fillRandomPicks(); // commits + re-renders
-      saveLocal(state.picks);
+      if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
+    saveLocal(state.picks);
       sessionStorage.setItem(key, '1');
     }
   }catch(_e){} 
@@ -1040,6 +1295,10 @@ function undoLastAction(){
     const snap = st.pop();
     const prev = JSON.parse(snap || '{}');
     state.picks = normalize(prev);
+    if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
     saveLocal(state.picks);
     renderAll();
     scheduleAutosave();
@@ -2644,7 +2903,12 @@ async function loadBracketFromServer(id){
   setUrlBracketId(state.bracketId, state.bracketTitle);
   state.undoStack = [];
   state.picks = d.bracket.data || {};
-  saveLocal(state.picks);
+  applyCustomSeedListsFromPicks(state.picks);
+  if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
+    saveLocal(state.picks);
   renderAll();
   updateUndoUI();
 }
@@ -2850,11 +3114,22 @@ function renderRegion(r, picks, opts={}){
       const game = el('div','game'); game.style.top = `${tops[displayIdx][gIdx]}px`;
       const curWinner = picks[wKey(r.key, roundIdx, gIdx)] || null;
 
-      pair.forEach((team)=>{
+      pair.forEach((team, tIdx)=>{
         const s = el('div','slot');
         if(!team){
           s.classList.add('empty');
-          s.innerHTML = `<span class="seed">—</span><span class="team">—</span>`;
+          const seedNum = (isCustomBracketsPage() && roundIdx===0) ? (PAIRINGS[gIdx] ? PAIRINGS[gIdx][tIdx] : '—') : '—';
+          const label = (isCustomBracketsPage() && __customEditTeams && roundIdx===0) ? 'Tap to add' : '—';
+          s.innerHTML = `<span class="seed">${seedNum}</span><span class="team">${label}</span>`;
+          if(isCustomBracketsPage() && __customEditTeams && roundIdx===0 && seedNum!=='—'){
+            s.addEventListener('click', ()=>{
+              if (bracketsLockedNow()){
+                toast('Brackets are locked (tournament has started).');
+                return;
+              }
+              openCustomTeamPicker(r.key, seedNum);
+            });
+          }
         }else{
           if(curWinner && teamEq(curWinner, team)) s.classList.add('winner');
           const gameId = `${r.key}__R${roundIdx}__G${gIdx}`;
@@ -2874,7 +3149,12 @@ function renderRegion(r, picks, opts={}){
               toast('Brackets are locked (tournament has started).');
               return;
             }
-            if((opts && opts.readOnly) || state.readOnly) return;
+            // Custom Brackets: in Edit Teams mode, clicking Round-of-64 slots assigns teams (not winners).
+            if(isCustomBracketsPage() && __customEditTeams && roundIdx===0){
+              openCustomTeamPicker(r.key, team.seed);
+              return;
+            }
+if((opts && opts.readOnly) || state.readOnly) return;
             const basePicks = (opts && opts.picksRef) ? opts.picksRef : state.picks;
             const np = {...basePicks};
             np[wKey(r.key, roundIdx, gIdx)] = team;
@@ -3713,10 +3993,15 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     state.picks = {};
     state.bracketId = null;
     state.bracketTitle = '';
+    if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
     saveLocal(state.picks);
     saveMeta({ bracketId: null, bracketTitle: '' });
   }else{
     state.picks = loadLocal();
+    applyCustomSeedListsFromPicks(state.picks);
     const meta = loadMeta();
     state.bracketId = meta.bracketId || null;
     state.bracketTitle = meta.bracketTitle || '';
@@ -3725,6 +4010,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // If Sweet 16 mode is enabled, lock in placeholder early-round winners so the bracket starts at Sweet 16.
   if(sweet16ModeEnabled()){
     state.picks = ensurePlaceholderToSweet16(state.picks);
+    if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
     saveLocal(state.picks);
   }
 
@@ -3882,6 +4171,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   qs('#saveBtn')?.addEventListener('click', async ()=>{
     // Guest: local save already; Logged-in: force save to account now.
+    if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
     saveLocal(state.picks);
     if(state.me){
       try{
@@ -3906,6 +4199,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
 qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
     // Guest: local save already; Logged-in: force save to account now.
+    if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
     saveLocal(state.picks);
     if(state.me){
       try{
@@ -3978,9 +4275,31 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
 
+  // Custom Brackets page wiring
+  if(isCustomBracketsPage()){
+    // Start in Edit Teams mode
+    setCustomEditTeams(true);
+    ensureCustomTeamsOverlay();
+    updateCustomTeamsUI();
+
+    qs('#customEditTeamsBtnTop')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
+    qs('#customEditTeamsBtn')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
+
+    qs('#customClearTeamsBtnTop')?.addEventListener('click', ()=>{
+      if(confirm('Clear all custom teams?')) clearAllCustomTeams();
+    });
+    qs('#customClearTeamsBtn')?.addEventListener('click', ()=>{
+      if(confirm('Clear all custom teams?')) clearAllCustomTeams();
+    });
+  }
+
 
   const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
+    if(isCustomBracketsPage() && !customTeamsComplete()){
+      toast('Please fill all 64 teams before saving.');
+      return;
+    }
     saveLocal(state.picks);
     // Require a championship tiebreaker ONLY when the Official Bracket is live.
     if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
