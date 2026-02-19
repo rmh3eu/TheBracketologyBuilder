@@ -827,527 +827,6 @@ const REGIONS = [
 ];
 
 
-// ==================== Custom Brackets Support ====================
-function isCustomBracketsPage(){
-  try{
-    return !!window.__CUSTOM_BRACKETS_PAGE__ || document.body.classList.contains('page-custom') || location.pathname.endsWith('/custom-brackets.html') || location.pathname.endsWith('custom-brackets.html');
-  }catch(e){ return false; }
-}
-
-function snapshotCustomSeedLists(){
-  const out = {};
-  for(const r of REGIONS){
-    const list = [];
-    const base = listToSeedArray(r.teams);
-    for(const t of base){
-      if(t && t.name && String(t.name).trim()){
-        list.push([t.seed, String(t.name).trim()]);
-      }
-    }
-    out[r.key] = list;
-  }
-  return out;
-}
-
-function applyCustomSeedListsFromPicks(picks){
-  try{
-    const cs = picks && (picks.__customSeedLists || picks.customSeedLists);
-    if(!cs) return;
-    for(const r of REGIONS){
-      const list = cs[r.key];
-      if(Array.isArray(list)){
-        r.teams.length = 0;
-        list.forEach(pair=>{
-          if(!pair) return;
-          const seed = Number(pair[0]);
-          const name = String(pair[1]||'').trim();
-          if(Number.isFinite(seed) && seed>=1 && seed<=16 && name){
-            r.teams.push([seed, name]);
-          }
-        });
-      }
-    }
-  }catch(e){}
-}
-
-function customTeamsComplete(){
-  try{
-    for(const r of REGIONS){
-      const base = listToSeedArray(r.teams);
-      for(const s of SEEDS){
-        const t = base[s-1];
-        if(!t || !t.name || !String(t.name).trim()) return false;
-      }
-    }
-    return true;
-  }catch(e){ return false; }
-}
-
-let __customTarget = null; // { regionKey, seed }
-let __customEditTeams = false;
-
-function ensureCustomTeamsOverlay(){
-  if(qs('#customTeamsOverlay')) return;
-  const ov = document.createElement('div');
-  ov.id = 'customTeamsOverlay';
-  ov.className = 'hidden';
-  ov.innerHTML = `
-    <div id="customTeamsModal" role="dialog" aria-modal="true">
-      <div class="head">
-        <h3 id="customTeamsTitle">Choose a team</h3>
-        <button class="btn btnCompact" id="customTeamsCloseBtn" type="button">Close</button>
-      </div>
-      <div class="body">
-        <input id="customTeamsSearch" type="text" placeholder="Search teams or type a custom name..." autocomplete="off" />
-        <div id="customTeamsList"></div>
-      </div>
-      <div class="foot">
-        <button class="btn" id="customTeamsClearSlotBtn" type="button">Clear slot</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(ov);
-
-  const close = ()=>{
-    ov.classList.add('hidden');
-    __customTarget = null;
-  };
-  qs('#customTeamsCloseBtn')?.addEventListener('click', close);
-  ov.addEventListener('click', (e)=>{ if(e.target===ov) close(); });
-
-  qs('#customTeamsClearSlotBtn')?.addEventListener('click', ()=>{
-    if(!__customTarget) return;
-    setCustomSeedName(__customTarget.regionKey, __customTarget.seed, '');
-    close();
-  });
-
-  qs('#customTeamsSearch')?.addEventListener('input', ()=>renderCustomTeamsList());
-}
-
-function getMasterTeamList(){
-  return [
-    'Duke','North Carolina','Kansas','Kentucky','Gonzaga','Arizona','UConn','Purdue','Houston','Tennessee',
-    'Auburn','Alabama','Baylor','Villanova','Michigan State','UCLA','Texas','Iowa State','Wisconsin','Illinois',
-    'Florida','Miami (FL)','Creighton','Marquette','San Diego State','Virginia','Oregon','USC','Indiana','Arkansas'
-  ];
-}
-
-function openCustomTeamPicker(regionKey, seed){
-  ensureCustomTeamsOverlay();
-    // Delegate slot clicks in Edit Teams mode (more reliable than per-slot handlers)
-    document.addEventListener('click', (e)=>{
-      if(!isCustomBracketsPage() || !__customEditTeams) return;
-      const slot = e.target && e.target.closest ? e.target.closest('.slot') : null;
-      if(!slot) return;
-      const seed = slot.dataset && slot.dataset.seed ? Number(slot.dataset.seed) : null;
-      const regionKey = slot.dataset && slot.dataset.regionKey ? String(slot.dataset.regionKey) : null;
-      if(!seed || !regionKey) return;
-      // Only Round of 64 slots are tagged; open picker
-      if (bracketsLockedNow()){
-        toast('Brackets are locked (tournament has started).');
-        return;
-      }
-      openCustomTeamPicker(regionKey, seed);
-    }, true);
-
-  __customTarget = { regionKey, seed };
-  const title = qs('#customTeamsTitle');
-  if(title) title.textContent = `Assign team for Seed ${seed}`;
-  const ov = qs('#customTeamsOverlay');
-  ov.classList.remove('hidden');
-  const inp = qs('#customTeamsSearch');
-  const t = getTeamBySeed(regionKey, seed);
-  if(inp){
-    inp.value = (t && t.name) ? String(t.name) : '';
-    inp.focus();
-    try{ inp.setSelectionRange(0, inp.value.length); }catch(_e){}
-  }
-  renderCustomTeamsList();
-}
-
-function normalizeTeamName(n){
-  return String(n||'').trim().replace(/\s+/g,' ').slice(0, 40);
-}
-
-function setCustomSeedName(regionKey, seed, name){
-  const nm = normalizeTeamName(name);
-  const r = REGIONS.find(x=>x.key===regionKey);
-  if(!r) return;
-
-  for(let i=r.teams.length-1;i>=0;i--){
-    const p=r.teams[i];
-    if(p && Number(p[0])===Number(seed)) r.teams.splice(i,1);
-  }
-  if(nm){
-    r.teams.push([Number(seed), nm]);
-  }
-
-  const np = { ...(state.picks||{}) };
-  np.__customSeedLists = snapshotCustomSeedLists();
-  pruneInvalidPicks(np);
-  commitPicks(np, 'team');
-  if(isCustomBracketsPage()) updateCustomTeamsUI();
-}
-
-function renderCustomTeamsList(){
-  const listEl = qs('#customTeamsList');
-  if(!listEl) return;
-  const qraw = qs('#customTeamsSearch')?.value || '';
-  const q = normalizeTeamName(qraw).toLowerCase();
-  const master = getMasterTeamList();
-  const items = [];
-
-  if(q){
-    items.push({ type:'use', name: normalizeTeamName(qraw) });
-  }
-  master.forEach(n=>{
-    if(!q || n.toLowerCase().includes(q)){
-      items.push({ type:'pick', name:n });
-    }
-  });
-
-  listEl.innerHTML = '';
-  if(items.length===0){
-    listEl.innerHTML = '<div class="muted">No matches. Type a name to use it.</div>';
-    return;
-  }
-
-  const isUsedElsewhere = (nm)=>{
-    const target = __customTarget;
-    for(const r of REGIONS){
-      const base = listToSeedArray(r.teams);
-      for(const t of base){
-        if(!t || !t.name) continue;
-        if(target && r.key===target.regionKey && t.seed===target.seed) continue;
-        if(String(t.name).toLowerCase()===String(nm).toLowerCase()) return { regionKey:r.key, seed:t.seed };
-      }
-    }
-    return null;
-  };
-
-  items.slice(0, 250).forEach(it=>{
-    const row = el('div','customTeamItem' + (it.type==='use'?' useTyped':''));
-    row.innerHTML = it.type==='use'
-      ? `<div class="nm">Use "${escapeHtml(it.name)}"</div><div class="tag">Custom name</div>`
-      : `<div class="nm">${escapeHtml(it.name)}</div><div class="tag">From list</div>`;
-
-    row.addEventListener('click', ()=>{
-      if(!__customTarget) return;
-      const nm = normalizeTeamName(it.name);
-      if(!nm){ toast('Please enter a team name.'); return; }
-
-      const used = isUsedElsewhere(nm);
-      if(used){
-        setCustomSeedName(used.regionKey, used.seed, '');
-      }
-      setCustomSeedName(__customTarget.regionKey, __customTarget.seed, nm);
-      qs('#customTeamsOverlay')?.classList.add('hidden');
-      __customTarget = null;
-    });
-
-    listEl.appendChild(row);
-  });
-}
-
-function setCustomEditTeams(on){
-  __customEditTeams = !!on;
-  document.body.classList.toggle('customEditOn', __customEditTeams);
-  updateCustomTeamsUI();
-}
-
-function updateCustomTeamsUI(){
-  if(!isCustomBracketsPage()) return;
-  const complete = customTeamsComplete();
-  const saveBtns = [qs('#saveEnterBtnTop'), qs('#saveEnterBtn')].filter(Boolean);
-  saveBtns.forEach(b=> b.disabled = !complete);
-
-  const hint = qs('#customTeamsHint');
-  if(hint){
-    hint.textContent = complete
-      ? 'Teams set! Click Save Field to save this custom field.'
-      : 'Click a team in the Team Pool, then click a Round of 64 slot to place it.';
-  }
-
-  const t = __customEditTeams ? 'Lock Edits' : 'Edit Teams';
-  const b1 = qs('#customEditTeamsBtnTop'); if(b1) b1.textContent = t;
-  const b2 = qs('#customEditTeamsBtn'); if(b2) b2.textContent = t;
-  updateCustomInfoBoard();
-}
-
-
-function updateCustomInfoBoard(){
-  if(!isCustomBracketsPage()) return;
-  const board = qs('#customInfoBoard');
-  const exp = qs('#customInfoExpanded');
-  const sub = qs('#customInfoSub');
-  if(!board || !exp || !sub) return;
-
-  if(__customEditTeams){
-    sub.textContent = 'Customize your own field of 64.';
-    exp.classList.remove('hidden');
-  }else{
-    sub.textContent = 'Locked — now pick winners like a normal bracket.';
-    exp.classList.add('hidden');
-  }
-}
-
-function clearAllCustomTeams(){
-  for(const r of REGIONS){ r.teams.length = 0; }
-  const np = { ...(state.picks||{}) };
-  np.__customSeedLists = snapshotCustomSeedLists();
-  pruneInvalidPicks(np);
-  commitPicks(np, 'team');
-  updateCustomTeamsUI();
-}
-
-
-let __swapFirst = null; // { el, regionKey, seed, name }
-
-function getRegionSeedFromSlotEl(elSlot){
-  try{
-    const reg = elSlot?.dataset?.regionKey;
-    const seed = Number(elSlot?.dataset?.seed);
-    if(reg && Number.isFinite(seed)) return { regionKey: reg, seed };
-  }catch(e){}
-  return null;
-}
-
-function attachRegionSeedDatasets(){
-  // Tag each Round-of-64 slot with region + seed so editing works reliably.
-  try{
-    REGIONS.forEach(r=>{
-      const mount = qs(`#region-${r.name}`);
-      if(!mount) return;
-      // slots are rendered into .geo region container; first round are the first 8 games x 2 slots = 16 slots.
-      // We tag any slot whose displayed seed matches 1-16 and is within round0 groups.
-      // Use a more direct approach: select slots in this region and map by PAIRINGS order.
-      const slots = Array.from(mount.querySelectorAll('.roundGroup')).slice(0,8)
-        .flatMap(g=>Array.from(g.querySelectorAll('.slot')));
-      // slots should be 16 in order matching PAIRINGS (seed pairs)
-      let idx=0;
-      for(let gi=0; gi<PAIRINGS.length; gi++){
-        const a=PAIRINGS[gi][0], b=PAIRINGS[gi][1];
-        const s1=slots[idx++]; const s2=slots[idx++];
-        if(s1){ s1.dataset.regionKey=r.key; s1.dataset.seed=String(a); }
-        if(s2){ s2.dataset.regionKey=r.key; s2.dataset.seed=String(b); }
-      }
-    });
-  }catch(e){}
-}
-
-function swapSeeds(regionKeyA, seedA, regionKeyB, seedB){
-  const a = getTeamBySeed(regionKeyA, seedA);
-  const b = getTeamBySeed(regionKeyB, seedB);
-  const nameA = a && a.name ? String(a.name) : '';
-  const nameB = b && b.name ? String(b.name) : '';
-  setCustomSeedName(regionKeyA, seedA, nameB);
-  setCustomSeedName(regionKeyB, seedB, nameA);
-}
-
-function beginInlineEdit(slotEl){
-  const meta = getRegionSeedFromSlotEl(slotEl);
-  if(!meta) return;
-  const cur = getTeamBySeed(meta.regionKey, meta.seed);
-  const curName = cur && cur.name ? String(cur.name) : '';
-  // Replace team span with input temporarily
-  const teamSpan = slotEl.querySelector('.team');
-  if(!teamSpan) return;
-  const input = document.createElement('input');
-  input.className='editInput';
-  input.type='text';
-  input.value=curName;
-  teamSpan.replaceWith(input);
-  input.focus();
-  try{ input.setSelectionRange(0, input.value.length); }catch(_e){}
-  const finish = ()=>{
-    const v = input.value;
-    const teamSpan2 = document.createElement('span');
-    teamSpan2.className='team';
-    teamSpan2.textContent = v ? v : '—';
-    input.replaceWith(teamSpan2);
-    setCustomSeedName(meta.regionKey, meta.seed, v);
-    // stay in edit mode
-  };
-  input.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter'){ e.preventDefault(); finish(); }
-    if(e.key==='Escape'){ e.preventDefault(); input.value=curName; finish(); }
-  });
-  input.addEventListener('blur', ()=>finish());
-}
-
-function wireCustomEditInteractions(){
-  if(!isCustomBracketsPage()) return;
-
-  // Attach datasets each render (regions re-render)
-  attachRegionSeedDatasets();
-
-  // Delegate clicks for swap selection
-  document.addEventListener('click', (e)=>{
-    if(!isCustomBracketsPage() || !__customEditTeams) return;
-    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
-    if(!slot) return;
-    // Only Round of 64 slots (must have dataset seed)
-    const meta = getRegionSeedFromSlotEl(slot);
-    if(!meta) return;
-
-    // Prevent normal winner-pick behavior while editing
-    e.preventDefault();
-    e.stopPropagation();
-
-    // If input currently editing, don't treat as swap selection
-    if(slot.querySelector('input.editInput')) return;
-
-    // First selection
-    if(!__swapFirst){
-      __swapFirst = { el: slot, ...meta };
-      slot.classList.add('selSwap');
-      return;
-    }
-
-    // Second selection (swap)
-    const first = __swapFirst;
-    first.el.classList.remove('selSwap');
-    __swapFirst = null;
-
-    // If same slot clicked twice, open inline edit
-    if(first.el === slot){
-      beginInlineEdit(slot);
-      return;
-    }
-
-    swapSeeds(first.regionKey, first.seed, meta.regionKey, meta.seed);
-  }, true);
-
-  // Double click to rename (desktop)
-  document.addEventListener('dblclick', (e)=>{
-    if(!isCustomBracketsPage() || !__customEditTeams) return;
-    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
-    if(!slot) return;
-    const meta = getRegionSeedFromSlotEl(slot);
-    if(!meta) return;
-    e.preventDefault(); e.stopPropagation();
-    // clear swap selection state
-    if(__swapFirst){ __swapFirst.el.classList.remove('selSwap'); __swapFirst=null; }
-    beginInlineEdit(slot);
-  }, true);
-
-  // Long press to rename (mobile)
-  let pressTimer = null;
-  document.addEventListener('touchstart', (e)=>{
-    if(!isCustomBracketsPage() || !__customEditTeams) return;
-    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
-    if(!slot) return;
-    const meta = getRegionSeedFromSlotEl(slot);
-    if(!meta) return;
-    pressTimer = setTimeout(()=>{
-      if(__swapFirst){ __swapFirst.el.classList.remove('selSwap'); __swapFirst=null; }
-      beginInlineEdit(slot);
-    }, 450);
-  }, { passive: true });
-
-  document.addEventListener('touchend', ()=>{ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } }, { passive: true });
-  document.addEventListener('touchmove', ()=>{ if(pressTimer){ clearTimeout(pressTimer); pressTimer=null; } }, { passive: true });
-}
-
-
-let __poolSelected = null; // team name string
-
-function getAllCurrentTeams(){
-  const out = [];
-  for(const r of REGIONS){
-    const base = listToSeedArray(r.teams);
-    for(const t of base){
-      if(t && t.name) out.push(String(t.name).trim());
-    }
-  }
-  // unique preserve order
-  const seen = new Set();
-  const uniq = [];
-  out.forEach(n=>{
-    const k=n.toLowerCase();
-    if(!seen.has(k)){ seen.add(k); uniq.push(n); }
-  });
-  return uniq;
-}
-
-function renderCustomTeamPool(){
-  if(!isCustomBracketsPage()) return;
-  const host = qs('#customTeamPool');
-  if(!host) return;
-  const teams = getAllCurrentTeams();
-  const usedMap = new Set();
-  for(const r of REGIONS){
-    const base = listToSeedArray(r.teams);
-    base.forEach(t=>{ if(t && t.name) usedMap.add(String(t.name).trim().toLowerCase()); });
-  }
-
-  host.innerHTML = '';
-  teams.forEach(n=>{
-    const pill = el('div','customPoolPill');
-    pill.textContent = n;
-    const key = n.toLowerCase();
-    if(usedMap.has(key)) pill.classList.add('used');
-    if(__poolSelected && __poolSelected.toLowerCase()===key) pill.classList.add('sel');
-    pill.addEventListener('click', ()=>{
-      __poolSelected = n;
-      renderCustomTeamPool();
-      toast('Now tap a Round of 64 slot.');
-    });
-    host.appendChild(pill);
-  });
-}
-
-function findUsedSlotByName(nm, except){
-  const key = String(nm).toLowerCase();
-  for(const r of REGIONS){
-    const base = listToSeedArray(r.teams);
-    for(const t of base){
-      if(!t || !t.name) continue;
-      if(except && except.regionKey===r.key && except.seed===t.seed) continue;
-      if(String(t.name).toLowerCase()===key){
-        return { regionKey:r.key, seed:t.seed };
-      }
-    }
-  }
-  return null;
-}
-
-function wireCustomPoolPlacement(){
-  if(!isCustomBracketsPage()) return;
-
-  // Capture-phase handler to BLOCK normal pick logic entirely on this page.
-  document.addEventListener('click', (e)=>{
-    if(!isCustomBracketsPage()) return;
-    const slot = e.target && (e.target.closest ? e.target.closest('.slot') : null);
-    if(!slot) return;
-
-    // Always block normal bracket pick behavior on Custom Brackets page
-    e.preventDefault();
-    e.stopPropagation();
-
-    if(!__customEditTeams) return; // locked edits = do nothing (field builder only)
-
-    const meta = getRegionSeedFromSlotEl(slot);
-    if(!meta) return;
-
-    if(!__poolSelected){
-      toast('Click a team in the Team Pool first.');
-      return;
-    }
-
-    // Move if already used elsewhere
-    const used = findUsedSlotByName(__poolSelected, meta);
-    if(used){
-      setCustomSeedName(used.regionKey, used.seed, '');
-    }
-    setCustomSeedName(meta.regionKey, meta.seed, __poolSelected);
-    renderCustomTeamPool();
-  }, true);
-}
-// ====================================================
-
-
-
 // Determine which two region KEYS are on the LEFT and RIGHT halves of the desktop bracket,
 // based on the current DOM layout (.deskCol.left / .deskCol.right).
 // Returns { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: [...] }.
@@ -1519,11 +998,7 @@ function commitPicks(np, reason){
     pushUndoSnapshot();
   }
   state.picks = normalize(np || {});
-  if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
-    saveLocal(state.picks);
+  saveLocal(state.picks);
 
   renderAll();
 
@@ -1544,17 +1019,9 @@ function commitPicks(np, reason){
     if(isBracketPage && wantsRandom && isNew && !hasExisting && !sessionStorage.getItem(key)){
       // Force fresh state for this new bracket, then fill random picks.
       state.picks = {};
-      if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
-    saveLocal(state.picks);
+      saveLocal(state.picks);
       fillRandomPicks(); // commits + re-renders
-      if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
-    saveLocal(state.picks);
+      saveLocal(state.picks);
       sessionStorage.setItem(key, '1');
     }
   }catch(_e){} 
@@ -1573,10 +1040,6 @@ function undoLastAction(){
     const snap = st.pop();
     const prev = JSON.parse(snap || '{}');
     state.picks = normalize(prev);
-    if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
     saveLocal(state.picks);
     renderAll();
     scheduleAutosave();
@@ -2713,10 +2176,6 @@ function stage3Unlocked(){
 
 function miniSlot(team, isWinner, onClick){
   const s = el('div','slot');
-        // Custom Brackets: tag Round-of-64 slots with seed/region
-        if(isCustomBracketsPage() && roundIdx===0){
-          s.dataset.regionKey = r.key;
-        }
   if(!team){ s.classList.add('empty'); return s; }
   const seed = el('span','seed'); seed.textContent = team.seed;
   const name = el('span','name'); name.textContent = team.name;
@@ -3185,12 +2644,7 @@ async function loadBracketFromServer(id){
   setUrlBracketId(state.bracketId, state.bracketTitle);
   state.undoStack = [];
   state.picks = d.bracket.data || {};
-  applyCustomSeedListsFromPicks(state.picks);
-  if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
-    saveLocal(state.picks);
+  saveLocal(state.picks);
   renderAll();
   updateUndoUI();
 }
@@ -3396,34 +2850,13 @@ function renderRegion(r, picks, opts={}){
       const game = el('div','game'); game.style.top = `${tops[displayIdx][gIdx]}px`;
       const curWinner = picks[wKey(r.key, roundIdx, gIdx)] || null;
 
-      pair.forEach((team, tIdx)=>{
+      pair.forEach((team)=>{
         const s = el('div','slot');
-        // Custom Brackets: tag Round-of-64 slots with seed/region
-        if(isCustomBracketsPage() && roundIdx===0){
-          s.dataset.regionKey = r.key;
-        }
         if(!team){
           s.classList.add('empty');
-          const seedNum = (isCustomBracketsPage() && roundIdx===0) ? (PAIRINGS[gIdx] ? PAIRINGS[gIdx][tIdx] : '—') : '—';
-          if(isCustomBracketsPage() && roundIdx===0 && seedNum!=='—') s.dataset.seed = String(seedNum);
-          const label = (isCustomBracketsPage() && __customEditTeams && roundIdx===0) ? 'Tap to add' : '—';
-          s.innerHTML = `<span class="seed">${seedNum}</span><span class="team">${label}</span>`;
-          if(isCustomBracketsPage() && __customEditTeams && roundIdx===0 && seedNum!=='—'){
-            s.addEventListener('click', ()=>{
-              if (bracketsLockedNow()){
-                toast('Brackets are locked (tournament has started).');
-                return;
-              }
-            // Custom Brackets: this page is a FIELD BUILDER only (no winner picks here)
-            if(isCustomBracketsPage() && !__customEditTeams){
-              return;
-            }
-              openCustomTeamPicker(r.key, seedNum);
-            });
-          }
+          s.innerHTML = `<span class="seed">—</span><span class="team">—</span>`;
         }else{
           if(curWinner && teamEq(curWinner, team)) s.classList.add('winner');
-          if(isCustomBracketsPage() && roundIdx===0) s.dataset.seed = String(team.seed);
           const gameId = `${r.key}__R${roundIdx}__G${gIdx}`;
           const actual = state.resultsMap[gameId] || null;
           const mode = (opts && opts.scoringMode) ? opts.scoringMode : (state.shareContext.challenge || null);
@@ -3441,12 +2874,7 @@ function renderRegion(r, picks, opts={}){
               toast('Brackets are locked (tournament has started).');
               return;
             }
-            // Custom Brackets: in Edit Teams mode, clicking Round-of-64 slots assigns teams (not winners).
-            if(isCustomBracketsPage() && __customEditTeams && roundIdx===0){
-              openCustomTeamPicker(r.key, team.seed);
-              return;
-            }
-if((opts && opts.readOnly) || state.readOnly) return;
+            if((opts && opts.readOnly) || state.readOnly) return;
             const basePicks = (opts && opts.picksRef) ? opts.picksRef : state.picks;
             const np = {...basePicks};
             np[wKey(r.key, roundIdx, gIdx)] = team;
@@ -3515,10 +2943,6 @@ function renderFinalRounds(picks){
     // helper to build a clickable team slot (sets semifinal winner)
     const makeTeamSlot = (team, winnerKey, allowPick)=>{
       const s = el('div','slot');
-        // Custom Brackets: tag Round-of-64 slots with seed/region
-        if(isCustomBracketsPage() && roundIdx===0){
-          s.dataset.regionKey = r.key;
-        }
       if(!team){
         s.classList.add('empty');
         s.innerHTML = `<span class="seed">—</span><span class="team">—</span>`;
@@ -3809,7 +3233,6 @@ function renderUnifiedMobileBracket(picks, resultsMap){
 
 
 function renderChallengeCallout(){
-  if(isCustomBracketsPage()) return;
   const mount = qs('#challengeCallout');
   if(!mount) return;
   mount.innerHTML = `
@@ -3883,7 +3306,7 @@ function renderAll(){
   renderBubble();
   renderChallengeCallout();
 
-  const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html') || isCustomBracketsPage();
+  const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
   let phase = currentNCAAPhase();
   // On bracket.html, always render the bracket section (even during Sweet 16 / Final Four phases).
   if(isBracketPage && phase !== 'full') phase = 'full';
@@ -4004,11 +3427,6 @@ function renderAll(){
 
   setupRoundBar();
   maybeAutoShiftMobile();
-
-  if(isCustomBracketsPage()){
-    try{ attachRegionSeedDatasets(); }catch(e){}
-    try{ renderCustomTeamPool(); }catch(e){}
-  }
 }
 function overallRoundComplete(roundIdx){
   // roundIdx 0..3 for region rounds; 4=final four; 5=final; 6=champion
@@ -4295,15 +3713,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     state.picks = {};
     state.bracketId = null;
     state.bracketTitle = '';
-    if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
     saveLocal(state.picks);
     saveMeta({ bracketId: null, bracketTitle: '' });
   }else{
     state.picks = loadLocal();
-    applyCustomSeedListsFromPicks(state.picks);
     const meta = loadMeta();
     state.bracketId = meta.bracketId || null;
     state.bracketTitle = meta.bracketTitle || '';
@@ -4312,10 +3725,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // If Sweet 16 mode is enabled, lock in placeholder early-round winners so the bracket starts at Sweet 16.
   if(sweet16ModeEnabled()){
     state.picks = ensurePlaceholderToSweet16(state.picks);
-    if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
     saveLocal(state.picks);
   }
 
@@ -4473,10 +3882,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   qs('#saveBtn')?.addEventListener('click', async ()=>{
     // Guest: local save already; Logged-in: force save to account now.
-    if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
     saveLocal(state.picks);
     if(state.me){
       try{
@@ -4501,10 +3906,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
 qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
     // Guest: local save already; Logged-in: force save to account now.
-    if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
     saveLocal(state.picks);
     if(state.me){
       try{
@@ -4577,50 +3978,9 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
 
-  // Custom Brackets page wiring
-    try{ document.body.classList.add('page-custom'); }catch(e){}
-  if(isCustomBracketsPage()){
-    // Start in Edit Teams mode
-    // Snapshot the current projection field into this custom bracket so it won't drift later.
-    if(!(state.picks && state.picks.__customSeedLists)){
-      const np = { ...(state.picks||{}) };
-      np.__customSeedLists = snapshotCustomSeedLists();
-      saveLocal(np);
-      state.picks = np;
-    }
-
-    setCustomEditTeams(true);
-    ensureCustomTeamsOverlay();
-    updateCustomTeamsUI();
-    wireCustomEditInteractions();
-    wireCustomPoolPlacement();
-    renderCustomTeamPool();
-
-    qs('#customEditTeamsBtnTop')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
-    qs('#customEditTeamsBtn')?.addEventListener('click', ()=>setCustomEditTeams(!__customEditTeams));
-
-    qs('#customClearTeamsBtnTop')?.addEventListener('click', ()=>{
-      if(confirm('Clear all custom teams?')) clearAllCustomTeams();
-    });
-    qs('#customClearTeamsBtn')?.addEventListener('click', ()=>{
-      if(confirm('Clear all custom teams?')) clearAllCustomTeams();
-    });
-    // Info board toggles edit/lock and expands instructions
-    qs('#customInfoBoard')?.addEventListener('click', ()=>{
-      setCustomEditTeams(!__customEditTeams);
-      updateCustomInfoBoard();
-    });
-    updateCustomInfoBoard();
-
-  }
-
 
   const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
-    if(isCustomBracketsPage() && !customTeamsComplete()){
-      toast('Please fill all 64 teams before saving.');
-      return;
-    }
     saveLocal(state.picks);
     // Require a championship tiebreaker ONLY when the Official Bracket is live.
     if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
@@ -4742,11 +4102,12 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
         __pendingPostAuth = null;
         closeAuth();
         try{
-          const __savedId = await ensureSavedToAccount(false);
+          await ensureSavedToAccount(false);
           toast('Saved to your account.');
           if(pending.action === 'saveEnter'){
-            // Match the normal Save/Enter behavior: go to My Brackets page.
-            window.location.href = `my-brackets.html?newId=${encodeURIComponent(__savedId)}`;
+            showTab('mybrackets');
+            await renderMyBrackets();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }catch(e){
           console.error(e);
