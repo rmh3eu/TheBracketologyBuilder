@@ -4421,12 +4421,11 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
         __pendingPostAuth = null;
         closeAuth();
         try{
-          await ensureSavedToAccount(false);
+          const __savedId = await ensureSavedToAccount(false);
           toast('Saved to your account.');
           if(pending.action === 'saveEnter'){
-            showTab('mybrackets');
-            await renderMyBrackets();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Match the normal Save/Enter behavior: go to My Brackets page.
+            window.location.href = `my-brackets.html?newId=${encodeURIComponent(__savedId)}`;
           }
         }catch(e){
           console.error(e);
