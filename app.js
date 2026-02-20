@@ -4216,3 +4216,12 @@ document.addEventListener("click", function(e) {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
 })();
+
+
+function triggerSaveAndGoMyBrackets(){
+  try{
+    saveBracket().then(()=>{
+      window.location.href = '/my-brackets.html';
+    });
+  }catch(e){}
+}
