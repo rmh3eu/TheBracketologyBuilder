@@ -3460,7 +3460,7 @@ function maybeAutoShiftMobile(){
   lastAutoShiftIdx = nextRound;
   // For rounds 0-3, we scroll within each region.
   // For the Final 4 (after Elite 8), we bring the Final 4 board into view.
-  if (nextRound >= 4){
+  if (nextRound === 4){
     const ff = document.getElementById('finalFourBoard');
     if (ff) {
       try{ ff.scrollIntoView({ behavior:'smooth', block:'nearest' }); }catch{}
