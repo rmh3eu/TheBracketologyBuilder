@@ -2652,7 +2652,17 @@ input[name="bracketName"]::placeholder {
     line-height: 1;
   }
   body.anonMobile #mobileLogoutBtn{
-    display: none !important;
+    display: inline-block !important;
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 14px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.12);
+    color: #111;
+    line-height: 1;
   }
 }
 
