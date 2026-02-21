@@ -491,6 +491,13 @@
     if(start){
       start.textContent = (anon ? '🏀 Start a Bracket' : '🏀 Create Another Bracket');
     }
+
+    // Mobile top-right button: show Log in when anon, Log out when signed in
+    var logoutBtn = document.getElementById('mobileLogoutBtn');
+    if(logoutBtn){
+      logoutBtn.textContent = (anon ? 'Log in' : 'Log out');
+      logoutBtn.setAttribute('aria-label', (anon ? 'Log in' : 'Log out'));
+    }
   }
 
   function wire(){
@@ -545,8 +552,17 @@
 
     if(logoutBtn){
       logoutBtn.addEventListener('click', function(){
-        // Best-effort logout. Works with either GET or POST implementations.
+        // If the user is logged out, this acts as a quick "Log in" entry point on mobile.
+        // If the user is logged in, it behaves as Log out.
         try{
+          var anon = isAnon();
+          if(anon){
+            var acct = document.getElementById('accountBtn');
+            if(acct) acct.click();
+            return;
+          }
+
+          // Best-effort logout. Works with either GET or POST implementations.
           fetch('/api/logout', { method: 'POST', credentials: 'include' })
             .catch(function(){ return fetch('/api/logout', { method: 'GET', credentials: 'include' }); })
             .finally(function(){ window.location.href = '/'; });
