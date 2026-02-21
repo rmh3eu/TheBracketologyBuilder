@@ -600,7 +600,7 @@ async function maybeAskSubmitFeatured(bracketId){
     if(!bracketId) return;
 
     const msg = "Do you want to Submit Your Bracket to the Featured Brackets Page for a chance to have your bracket name and picks appear on our site and/or our TikTok?";
-    const yes = window.confirm(msg);
+    const yes = await confirmModal(msg, 'Yes', 'No');
     if(!yes) return;
 
     // Create a pending feature request for admin review.
@@ -2878,7 +2878,9 @@ async function loadAdminFeaturedReview(){
       const title = escapeHtml(req.title || 'Bracket');
       const email = escapeHtml(req.user_email || '');
       const caption = escapeHtml(req.caption || '');
-      const when = req.created_at ? new Date(req.created_at).toLocaleString() : '';
+      const when = req.created_at
+        ? new Date(req.created_at).toLocaleString([], { year:'numeric', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' })
+        : '';
       const openHref = `/?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
 
       card.innerHTML = `

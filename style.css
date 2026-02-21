@@ -1483,6 +1483,29 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
   color: #fff !important;
 }
 
+/* Featured + Admin Featured Review: match My Brackets blue cards */
+#view-featured .card,
+#view-adminfeatured .card{
+  background: var(--accent) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.28) !important;
+}
+#view-featured .card,
+#view-featured .card *,
+#view-adminfeatured .card,
+#view-adminfeatured .card *{
+  color:#fff !important;
+}
+#view-featured .muted,
+#view-adminfeatured .muted{
+  color: rgba(255,255,255,0.86) !important;
+}
+#view-featured .btn.ghost,
+#view-adminfeatured .btn.ghost{
+  border-color: rgba(255,255,255,0.42) !important;
+  color:#fff !important;
+}
+
 
 
 
