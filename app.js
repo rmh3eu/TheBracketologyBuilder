@@ -605,7 +605,7 @@ async function maybeAskSubmitFeatured(bracketId){
     if(!state || !state.me) return;
     if(!bracketId) return;
 
-    const msg = "Do you want to Submit Your Bracket to the Featured Brackets Page for a chance to have your bracket name and picks appear on our site and/or our TikTok?";
+    const msg = "Do you want to Submit Your Bracket for a Chance to be on our Featured Brackets Page and/or Appear on our TikTok?";
     const yes = await confirmModal(msg, 'Yes', 'No');
     if(!yes) return;
 
@@ -898,6 +898,24 @@ const SEEDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
 function listToSeedArray(seedList){
   const map = new Map();
   (seedList||[]).forEach(([seed, name])=> map.set(seed, name));
+
+  // Home-page-only seed tweak: show Miami (OH) instead of UCLA on the projection/home bracket.
+  // IMPORTANT: Only applies when the user is on the home page AND not viewing an existing saved bracket.
+  try{
+    const path = (window.location && window.location.pathname) ? window.location.pathname : '';
+    const isHome = (path === '/' || path === '' || path.endsWith('/index.html'));
+    const sp = new URLSearchParams(window.location.search || '');
+    const hasBracketId = !!(sp.get('bracketId') || sp.get('id'));
+    if(isHome && !hasBracketId){
+      // Replace the seed name without mutating the source data constants.
+      for(const [seed, name] of map.entries()){
+        if(name === 'UCLA'){
+          map.set(seed, 'Miami (OH)');
+        }
+      }
+    }
+  }catch(_e){}
+
   return SEEDS.map(s => map.get(s) ? ({ seed:s, name: map.get(s) }) : null);
 }
 
@@ -1437,8 +1455,6 @@ function setUrlBracketId(bracketId, bracketTitle) {
   }
   if (bracketTitle) u.searchParams.set('bracketTitle', bracketTitle);
   // Clean up legacy params if present.
-  u.searchParams.delete('id');
-  u.searchParams.delete('title');
   window.history.replaceState({}, '', u.toString());
 }
 
