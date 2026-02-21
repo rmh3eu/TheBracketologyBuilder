@@ -74,7 +74,7 @@ function renderBracketSection({ listId, emptyId, items }) {
   for (const b of items) {
     const a = document.createElement('a');
     a.className = 'bracketCard';
-    a.href = `bracket.html?id=${encodeURIComponent(b.id)}`;
+    a.href = `/?id=${encodeURIComponent(b.id)}`;
 
     const title = document.createElement('div');
     title.className = 'bracketTitle';
