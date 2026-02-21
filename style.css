@@ -2881,3 +2881,13 @@ body.officialLive .tiebreakerInput{
     display: none !important;
   }
 }
+
+/* ===== Admin tables ===== */
+.adminTable{ width:100%; border-collapse:collapse; }
+.adminTable th, .adminTable td{ padding:10px 8px; border-bottom:1px solid rgba(0,0,0,0.08); text-align:left; vertical-align:top; }
+.adminTable th{ font-size:12px; text-transform:uppercase; letter-spacing:0.06em; color:rgba(0,0,0,0.6); }
+
+/* ===== Read-only views ===== */
+body.readOnly .slot.readonly{ opacity:0.85; }
+body.readOnly .bracketPageTitleInput.readonly{ opacity:0.85; cursor:not-allowed; }
+body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }

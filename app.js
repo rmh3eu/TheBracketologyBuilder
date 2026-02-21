@@ -1242,6 +1242,48 @@ function wireAdminBroadcastPanels(){
     }
   });
 }
+
+function wireAdminNavLinks(){
+  const isAdm = !!(state && state.me && state.me.isAdmin);
+  qsa('.adminOnly').forEach(a=>{
+    a.style.display = isAdm ? '' : 'none';
+  });
+}
+
+function applyReadOnlyUI(){
+  const ro = !!(state && state.readOnly);
+  document.body.classList.toggle('readOnly', ro);
+
+  const disable = (sel)=>{
+    const b = qs(sel);
+    if(!b) return;
+    b.disabled = ro ? true : b.disabled;
+    if(ro) b.classList.add('disabled');
+  };
+
+  // Prevent local edits in a read-only view.
+  disable('#saveBtnHeader');
+  disable('#saveBtn');
+  disable('#saveEnterBtnTop');
+  disable('#undoBtnTop');
+  disable('#undoBtnHeader');
+  disable('#randomPicksBtnTop');
+  disable('#randomPicksBtnHeader');
+
+  const title = qs('#bracketPageTitle');
+  if(title){
+    if(ro){
+      title.setAttribute('readonly','readonly');
+      title.classList.add('readonly');
+    }else{
+      title.removeAttribute('readonly');
+      title.classList.remove('readonly');
+    }
+  }
+
+  const hint = qs('#signinHint');
+  if(hint && ro) hint.textContent = 'Read-only view.';
+}
 function renderAccountState(){
   const accountBtn = qs('#accountBtn');
   const bracketsBtn = qs('#bracketsBtn');
@@ -1267,6 +1309,9 @@ function renderAccountState(){
   }
 
   wireAdminBroadcastPanels();
+  wireAdminNavLinks();
+  // If a shared bracket flips into read-only after auth resolves, reflect it.
+  applyReadOnlyUI();
 }
 
 function openAuth(mode='signin', titleText=null) {
@@ -2181,7 +2226,12 @@ function miniSlot(team, isWinner, onClick){
   const name = el('span','name'); name.textContent = team.name;
   s.appendChild(seed); s.appendChild(name);
   if(isWinner) s.classList.add('winner');
-  s.addEventListener('click', onClick);
+  // Read-only safety: disable interaction in shared/admin views.
+  if(!(state && state.readOnly)){
+    s.addEventListener('click', onClick);
+  }else{
+    s.classList.add('readonly');
+  }
   return s;
 }
 
@@ -2700,6 +2750,160 @@ async function submitFeatured(){
   const caption = prompt('Caption (optional):') || '';
   await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: bracketId, caption })});
   toast('Submitted! Admin will approve it.');
+}
+
+// -------------------- Admin: All Brackets + Featured Review --------------------
+let __adminBracketsOffset = 0;
+
+async function loadAdminBracketsView(reset=true){
+  if(!(state && state.me && state.me.isAdmin)) return;
+  const mount = qs('#adminBracketsMount');
+  const btnMore = qs('#adminBracketsMore');
+  const status = qs('#adminBracketsStatus');
+  if(!mount) return;
+
+  const limit = 100;
+  if(reset){
+    __adminBracketsOffset = 0;
+    mount.innerHTML = '';
+  }
+  if(status) status.textContent = 'Loading…';
+  if(btnMore) btnMore.disabled = true;
+
+  try{
+    const d = await api(`/api/admin/brackets?limit=${limit}&offset=${__adminBracketsOffset}`, { method:'GET' });
+    const rows = d.brackets || [];
+
+    if(reset){
+      mount.innerHTML = '';
+      const table = el('table','adminTable');
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Bracket</th>
+            <th>User</th>
+            <th>Type</th>
+            <th>Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="adminBracketsBody"></tbody>
+      `;
+      mount.appendChild(table);
+    }
+
+    const body = qs('#adminBracketsBody');
+    if(!body) return;
+
+    rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      const t = String(r.title || 'Enter Bracket Name Here');
+      const email = String(r.user_email || ('User #' + (r.user_id||'')));
+      const typ = String(r.bracket_type || 'bracketology');
+      const upd = r.updated_at ? new Date(r.updated_at).toLocaleString() : '';
+      const href = `/?id=${encodeURIComponent(r.id)}&readonly=1`;
+      tr.innerHTML = `
+        <td>${escapeHtml(t)}</td>
+        <td class="muted">${escapeHtml(email)}</td>
+        <td>${escapeHtml(typ)}</td>
+        <td class="muted">${escapeHtml(upd)}</td>
+        <td><a class="btn ghost smallBtn" href="${href}" target="_blank" rel="noopener">Open</a></td>
+      `;
+      body.appendChild(tr);
+    });
+
+    __adminBracketsOffset += rows.length;
+    if(status) status.textContent = rows.length ? '' : (reset ? 'No brackets found.' : 'No more results.');
+    if(btnMore) btnMore.disabled = (rows.length < limit);
+  }catch(e){
+    if(status) status.textContent = 'Could not load brackets.';
+    if(btnMore) btnMore.disabled = false;
+  }
+}
+
+async function loadAdminFeaturedReview(){
+  if(!(state && state.me && state.me.isAdmin)) return;
+  const mount = qs('#adminFeaturedMount');
+  const status = qs('#adminFeaturedStatus');
+  const filter = qs('#adminFeaturedFilter');
+  if(!mount) return;
+
+  const st = (filter && filter.value) ? String(filter.value) : 'pending';
+  mount.innerHTML = '';
+  if(status) status.textContent = 'Loading…';
+
+  try{
+    const d = await api(`/api/feature?status=${encodeURIComponent(st)}`, { method:'GET' });
+    const items = d.requests || [];
+    if(items.length === 0){
+      if(status) status.textContent = 'No requests.';
+      return;
+    }
+    if(status) status.textContent = '';
+
+    items.forEach(req=>{
+      const card = el('div','card');
+      const title = escapeHtml(req.title || 'Bracket');
+      const email = escapeHtml(req.user_email || '');
+      const caption = escapeHtml(req.caption || '');
+      const when = req.created_at ? new Date(req.created_at).toLocaleString() : '';
+      const openHref = `/?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
+
+      card.innerHTML = `
+        <div class="cardTitle">${title}</div>
+        <div class="cardBody">
+          <div class="muted" style="margin-bottom:6px;">${email} • ${escapeHtml(when)}</div>
+          ${caption ? `<div style="margin-bottom:10px;">${caption}</div>` : ''}
+          <div class="row" style="gap:8px; flex-wrap:wrap;">
+            <a class="btn ghost smallBtn" href="${openHref}" target="_blank" rel="noopener">Open (read-only)</a>
+            <button class="btn smallBtn" data-approve="${req.id}">Approve</button>
+            <button class="btn danger smallBtn" data-reject="${req.id}">Reject</button>
+          </div>
+        </div>
+      `;
+      // If not pending, hide action buttons
+      if(st !== 'pending'){
+        const a = card.querySelector('[data-approve]');
+        const r = card.querySelector('[data-reject]');
+        if(a) a.style.display = 'none';
+        if(r) r.style.display = 'none';
+      }
+      mount.appendChild(card);
+    });
+
+    qsa('[data-approve]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const id = btn.getAttribute('data-approve');
+        btn.disabled = true;
+        try{
+          await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'approved' }) });
+          toast('Approved.');
+          await loadAdminFeaturedReview();
+        }catch(e){
+          toast('Could not approve.');
+        }finally{
+          btn.disabled = false;
+        }
+      });
+    });
+    qsa('[data-reject]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const id = btn.getAttribute('data-reject');
+        btn.disabled = true;
+        try{
+          await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'rejected' }) });
+          toast('Rejected.');
+          await loadAdminFeaturedReview();
+        }catch(e){
+          toast('Could not reject.');
+        }finally{
+          btn.disabled = false;
+        }
+      });
+    });
+  }catch(e){
+    if(status) status.textContent = 'Could not load requests.';
+  }
 }
 
 // -------------------- Rendering --------------------
@@ -3557,7 +3761,7 @@ function viewFromHash(hash){
   if(!h) return null;
   if(h === 'home') return 'build';
   // Direct view ids
-  if(['build','best','worst','best2','worst2','featured','upcoming'].includes(h)) return h;
+  if(['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured'].includes(h)) return h;
   // Common aliases
   if(h === 'bracket') return 'build';
   return null;
@@ -3569,7 +3773,7 @@ function viewFromQuery(){
     if(!tab) return null;
     const t = String(tab).trim().toLowerCase();
     if(t === 'home') return 'build';
-    if(['build','best','worst','best2','worst2','featured','upcoming'].includes(t)) return t;
+    if(['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured'].includes(t)) return t;
   }catch(e){}
   return null;
 }
@@ -3582,7 +3786,9 @@ function setHashForView(viewName){
     best2: '#best2',
     worst2: '#worst2',
     featured: '#featured',
-    upcoming: '#upcoming'
+    upcoming: '#upcoming',
+    adminbrackets: '#adminbrackets',
+    adminfeatured: '#adminfeatured'
   };
   const h = map[viewName] || '#home';
   // Use replaceState to avoid jump/scroll and keep back button sane.
@@ -3595,7 +3801,13 @@ function showView(name){
     name = 'build';
   }
 
-  const views = ['build','best','worst','best2','worst2','featured','upcoming'];
+  // Admin views require admin session.
+  if((name === 'adminbrackets' || name === 'adminfeatured') && !(state && state.me && state.me.isAdmin)){
+    try{ toast('Not authorized.'); }catch(e){}
+    name = 'build';
+  }
+
+  const views = ['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured'];
   views.forEach(v=>{
     const node = qs('#view-'+v);
     if(!node) return;
@@ -3609,6 +3821,8 @@ function showView(name){
   state.view = name;
   if(name==='featured') loadFeatured();
   if(name==='best' || name==='worst') renderChallenges();
+  if(name==='adminbrackets') loadAdminBracketsView().catch(()=>{});
+  if(name==='adminfeatured') loadAdminFeaturedReview().catch(()=>{});
 
   // UX: when a view contains the "Get Challenge Reminders" input, focus it automatically
   // so the blinking cursor is already in the box.
@@ -3795,16 +4009,21 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // If url includes id, load that bracket
   const u = new URL(location.href);
   const id = u.searchParams.get('id');
+  const roParam = u.searchParams.get('readonly');
   const ch = u.searchParams.get('challenge');
   const st = u.searchParams.get('stage');
   if(ch) state.shareContext.challenge = String(ch);
   if(st) state.shareContext.stage = String(st);
+
+  if(roParam === '1') state.readOnly = true;
 
   if(id){
     try{ await loadBracketFromServer(id); }catch(e){ console.warn(e); }
     // If viewing someone else's shared bracket, disable edits
     if(state.sharedOwnerId && (!state.me || state.me.id !== state.sharedOwnerId)) state.readOnly = true;
   }
+
+  applyReadOnlyUI();
 
   renderAll();
 
@@ -3843,6 +4062,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // Home page challenge buttons
   qs('#homeGoBest')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='best-challenge.html'; });
   qs('#homeGoWorst')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='worst-challenge.html'; });
+
+  // Admin view controls
+  qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
+  qs('#adminFeaturedFilter')?.addEventListener('change', ()=>loadAdminFeaturedReview());
 
 
   // Header buttons
