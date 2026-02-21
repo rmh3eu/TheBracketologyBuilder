@@ -2950,8 +2950,8 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* Approve/Deny outline buttons */
 .btnOutline{background:transparent !important;border:1px solid rgba(255,255,255,0.7) !important;}
-.approveBtn{color:#22c55e !important;border-color:#22c55e !important;}
-.denyBtn{color:#ef4444 !important;border-color:#ef4444 !important;}
+.approveBtn{background:#22c55e !important;color:#fff !important;border-color:#22c55e !important;}
+.denyBtn{background:#ef4444 !important;color:#fff !important;border-color:#ef4444 !important;}
 
 /* Admin: All Brackets - make Open link text black */
 #view-adminbrackets .adminTable a.btn{color:#111 !important;}
@@ -2969,7 +2969,7 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .openBtnBlack{ color:#111 !important; }
 .openBtnBlack:hover{ color:#000 !important; }
 
-.btnOutline.approveBtn{ color:#128a2e !important; border-color: rgba(18,138,46,0.55) !important; }
+.btnOutline.approveBtn{background:#22c55e !important;color:#fff !important;border-color:#22c55e !important;}
 .btnOutline.approveBtn:hover{ background: rgba(18,138,46,0.08) !important; }
-.btnOutline.denyBtn{ color:#c01616 !important; border-color: rgba(192,22,22,0.55) !important; }
+.btnOutline.denyBtn{background:#ef4444 !important;color:#fff !important;border-color:#ef4444 !important;}
 .btnOutline.denyBtn:hover{ background: rgba(192,22,22,0.08) !important; }

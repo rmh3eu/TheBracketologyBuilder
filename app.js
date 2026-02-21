@@ -1424,7 +1424,11 @@ function getBracketMetaFromUrl() {
 
 function setUrlBracketId(bracketId, bracketTitle) {
   const u = new URL(window.location.href);
-  if (bracketId) u.searchParams.set('bracketId', bracketId);
+  // Keep both param names for backward compatibility (some pages read id, others read bracketId)
+  if (bracketId) {
+    u.searchParams.set('bracketId', bracketId);
+    u.searchParams.set('id', bracketId);
+  }
   if (bracketTitle) u.searchParams.set('bracketTitle', bracketTitle);
   // Clean up legacy params if present.
   u.searchParams.delete('id');
@@ -4061,7 +4065,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   // If url includes id, load that bracket
   const u = new URL(location.href);
-  const id = u.searchParams.get('id');
+  const id = u.searchParams.get('id') || u.searchParams.get('bracketId');
   const roParam = u.searchParams.get('readonly');
   const ch = u.searchParams.get('challenge');
   const st = u.searchParams.get('stage');
