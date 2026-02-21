@@ -2955,3 +2955,21 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* Admin: All Brackets - make Open link text black */
 #view-adminbrackets .adminTable a.btn{color:#111 !important;}
+
+
+/* --- Admin Featured Review: My Brackets-style sections --- */
+.sectionBlock{ margin-top:18px; }
+.sectionHeading{ margin:10px 0 8px; font-size:18px; font-weight:800; color:#fff; }
+.whiteBoard{
+  background:#fff;
+  border-radius:16px;
+  padding:14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+.openBtnBlack{ color:#111 !important; }
+.openBtnBlack:hover{ color:#000 !important; }
+
+.btnOutline.approveBtn{ color:#128a2e !important; border-color: rgba(18,138,46,0.55) !important; }
+.btnOutline.approveBtn:hover{ background: rgba(18,138,46,0.08) !important; }
+.btnOutline.denyBtn{ color:#c01616 !important; border-color: rgba(192,22,22,0.55) !important; }
+.btnOutline.denyBtn:hover{ background: rgba(192,22,22,0.08) !important; }

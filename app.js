@@ -2886,7 +2886,7 @@ async function loadAdminFeaturedReview(){
     }
 
     items.forEach(req=>{
-      const title = String(req.bracket_title || 'Untitled Bracket');
+      const title = String(req.bracket_title || req.title || 'Untitled Bracket');
       const email = String(req.user_email || '');
       const when = fmtNoSeconds(req.created_at);
       const href = `/?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
