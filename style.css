@@ -700,30 +700,43 @@ body{
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
 }
 .bb-confirm-message{
-  color: #111;
-  font-size: 14px;
+  color: #000;
+  font-size: 15px;
   line-height: 1.4;
   margin: 0 0 14px;
 }
 .bb-confirm-actions{
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
 }
 .bb-confirm-btn{
   border: none;
-  border-radius: 10px;
-  padding: 9px 14px;
-  font-size: 14px;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
+  min-width: 110px;
+  transition: transform .08s ease, box-shadow .12s ease, filter .12s ease;
 }
 .bb-confirm-btn.cancel{
-  background: #eee;
+  background: #ffffff;
   color: #111;
+  border: 2px solid rgba(11,18,32,.18);
 }
 .bb-confirm-btn.ok{
-  background: #1c5cff;
+  background: linear-gradient(180deg, #2f79ff 0%, #1c5cff 100%);
   color: #fff;
+  box-shadow: 0 10px 18px rgba(28,92,255,.22);
+}
+.bb-confirm-btn.ok:hover{
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+.bb-confirm-btn.cancel:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px rgba(0,0,0,.08);
 }
 .hidden{display:none !important}
 

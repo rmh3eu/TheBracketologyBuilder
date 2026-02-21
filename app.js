@@ -544,16 +544,22 @@ function confirmModal(message, okText='OK', cancelText='Cancel'){
     // Build lightweight modal (so we can control button labels; Safari's window.confirm can't).
     const overlay = el('div','bb-confirm-overlay');
     const box = el('div','bb-confirm-box');
-    const msg = el('div','bb-confirm-msg');
+
+    const msg = el('div','bb-confirm-message');
     msg.textContent = message;
-    const btnRow = el('div','bb-confirm-btns');
-    const cancel = el('button','bb-confirm-cancel');
-    cancel.type = 'button';
-    cancel.textContent = cancelText;
-    const ok = el('button','bb-confirm-ok');
+
+    const btnRow = el('div','bb-confirm-actions');
+
+    // Primary (OK) first, then secondary (Cancel)
+    const ok = el('button','bb-confirm-btn ok');
     ok.type = 'button';
     ok.textContent = okText;
-    btnRow.append(cancel, ok);
+
+    const cancel = el('button','bb-confirm-btn cancel');
+    cancel.type = 'button';
+    cancel.textContent = cancelText;
+
+    btnRow.append(ok, cancel);
     box.append(msg, btnRow);
     overlay.append(box);
     document.body.append(overlay);
