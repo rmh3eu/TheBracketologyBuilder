@@ -4109,29 +4109,50 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   /* === AUTO_RANDOM_NEW_BRACKET (init hook) ===
      When user clicks "Create new bracket with random picks" from My Brackets,
      they land on bracket.html?new=1&random=1.
-     The bracket must auto-fill immediately on first load.
 
-     NOTE: We also keep a similar safeguard inside commitPicks(), but that won't
-     run on an empty brand-new bracket until the user interacts. So we trigger
-     once here after first render.
+     Some pages/loads can render before the region DOM is fully mounted, so we:
+     - trigger on initial load
+     - use a small timeout retry
+     - only auto-fill if there are no picks yet
   */
   try {
     const spAuto = new URLSearchParams(location.search);
-    const isBracketPage = location.pathname.endsWith('bracket.html');
     const wantsRandom = (spAuto.get('random') === '1');
     const isNew = (spAuto.get('new') === '1');
+
+    // Detect a bracket build page by DOM (more robust than pathname)
+    const isBracketBuild = !!document.querySelector('#region-South, #region-East, #finalFourBoard');
+
     const meta = getBracketMetaFromUrl();
     const hasExisting = !!(meta && meta.bracketId);
-    const key = 'bb_autofill_random_done:' + location.search;
 
-    if (isBracketPage && wantsRandom && isNew && !hasExisting && !sessionStorage.getItem(key)) {
-      state.picks = {};
-      saveLocal(state.picks);
-      fillRandomPicks();
-      saveLocal(state.picks);
-      sessionStorage.setItem(key, '1');
+    const hasAnyPicks = (() => {
+      const pk = state.picks || {};
+      // If there is at least one winner key or FF/Final/Champion key, treat as filled
+      return Object.keys(pk).some(k => k.includes('__winner') || k === 'FINAL__winner' || k === 'CHAMPION');
+    })();
+
+    const tryAutoFill = () => {
+      try {
+        const meta2 = getBracketMetaFromUrl();
+        const hasExisting2 = !!(meta2 && meta2.bracketId);
+        const pk = state.picks || {};
+        const filled = Object.keys(pk).some(k => k.includes('__winner') || k === 'FINAL__winner' || k === 'CHAMPION');
+        if (isBracketBuild && wantsRandom && isNew && !hasExisting2 && !filled) {
+          fillRandomPicks(); // commits + re-renders
+        }
+      } catch(_e) {}
+    };
+
+    if (isBracketBuild && wantsRandom && isNew && !hasExisting && !hasAnyPicks) {
+      // Immediate attempt
+      tryAutoFill();
+      // Retry shortly in case DOM mounts late
+      setTimeout(tryAutoFill, 60);
+      setTimeout(tryAutoFill, 200);
     }
   } catch (_e) {}
+
 
   // Mobile-only UI tweak:
   // - Put Random Picks + Undo on the same row
