@@ -4106,6 +4106,33 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   renderAll();
 
+  /* === AUTO_RANDOM_NEW_BRACKET (init hook) ===
+     When user clicks "Create new bracket with random picks" from My Brackets,
+     they land on bracket.html?new=1&random=1.
+     The bracket must auto-fill immediately on first load.
+
+     NOTE: We also keep a similar safeguard inside commitPicks(), but that won't
+     run on an empty brand-new bracket until the user interacts. So we trigger
+     once here after first render.
+  */
+  try {
+    const spAuto = new URLSearchParams(location.search);
+    const isBracketPage = location.pathname.endsWith('bracket.html');
+    const wantsRandom = (spAuto.get('random') === '1');
+    const isNew = (spAuto.get('new') === '1');
+    const meta = getBracketMetaFromUrl();
+    const hasExisting = !!(meta && meta.bracketId);
+    const key = 'bb_autofill_random_done:' + location.search;
+
+    if (isBracketPage && wantsRandom && isNew && !hasExisting && !sessionStorage.getItem(key)) {
+      state.picks = {};
+      saveLocal(state.picks);
+      fillRandomPicks();
+      saveLocal(state.picks);
+      sessionStorage.setItem(key, '1');
+    }
+  } catch (_e) {}
+
   // Mobile-only UI tweak:
   // - Put Random Picks + Undo on the same row
   // - Move the bracket title box below that row (so it isn't directly above Undo)
