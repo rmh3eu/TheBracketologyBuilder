@@ -284,6 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
     createNewRandomBtn.addEventListener('click', async (ev) => {
       ev.preventDefault();
 
+      // IMPORTANT: ensure each click generates a unique URL so the bracket auto-random
+      // logic (which uses sessionStorage keyed by location.search) runs every time.
+      const nonce = Date.now();
+
       // Decide which section this new bracket should belong to based on admin phase toggles.
       // Priority: Second Chance (Sweet16 set) > Official (Official live) > Bracketology (default).
       try {
@@ -292,18 +296,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
 
         if (sweet16Set) {
-          window.location.href = 'bracket.html?new=1&second=1&random=1';
+          window.location.href = `bracket.html?new=1&second=1&random=1&nonce=${nonce}`;
           return;
         }
         if (officialLive) {
-          window.location.href = 'bracket.html?new=1&official=1&random=1';
+          window.location.href = `bracket.html?new=1&official=1&random=1&nonce=${nonce}`;
           return;
         }
       } catch {
         // fall through to default
       }
 
-      window.location.href = 'bracket.html?new=1&random=1';
+      window.location.href = `bracket.html?new=1&random=1&nonce=${nonce}`;
     });
   }
 
