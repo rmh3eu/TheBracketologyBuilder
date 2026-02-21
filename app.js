@@ -2855,90 +2855,109 @@ async function loadAdminBracketsView(reset=true){
 
 async function loadAdminFeaturedReview(){
   if(!(state && state.me && state.me.isAdmin)) return;
-  const mount = qs('#adminFeaturedMount');
-  const status = qs('#adminFeaturedStatus');
-  const filter = qs('#adminFeaturedFilter');
-  if(!mount) return;
 
-  const st = (filter && filter.value) ? String(filter.value) : 'pending';
-  mount.innerHTML = '';
-  if(status) status.textContent = 'Loading…';
+  const statusNode = qs('#adminFeaturedStatus');
+  const mounts = {
+    pending: qs('#adminFeaturedPending'),
+    approved: qs('#adminFeaturedApproved'),
+    rejected: qs('#adminFeaturedDenied')
+  };
 
-  try{
-    const d = await api(`/api/feature?status=${encodeURIComponent(st)}`, { method:'GET' });
-    const items = d.requests || [];
-    if(items.length === 0){
-      if(status) status.textContent = 'No requests.';
+  // Clear mounts
+  Object.values(mounts).forEach(n=>{ if(n) n.innerHTML = ''; });
+  if(statusNode) statusNode.textContent = 'Loading…';
+
+  // Format without seconds (matches your preference)
+  const fmtNoSeconds = (dstr)=>{
+    try{
+      if(!dstr) return '';
+      const d = new Date(dstr);
+      return d.toLocaleString(undefined, { year:'numeric', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' });
+    }catch(e){ return ''; }
+  };
+
+  const renderList = (st, items)=>{
+    const mount = mounts[st];
+    if(!mount) return;
+
+    if(!items || items.length===0){
+      mount.innerHTML = `<div class="muted" style="padding:10px 2px;">No ${st === 'rejected' ? 'denied' : st} submissions.</div>`;
       return;
     }
-    if(status) status.textContent = '';
 
     items.forEach(req=>{
-      const card = el('div','card');
-      const title = escapeHtml(req.title || 'Bracket');
-      const email = escapeHtml(req.user_email || '');
-      const caption = escapeHtml(req.caption || '');
-      const when = req.created_at
-        ? new Date(req.created_at).toLocaleString([], { year:'numeric', month:'numeric', day:'numeric', hour:'numeric', minute:'2-digit' })
-        : '';
-      const openHref = `/?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
+      const title = String(req.bracket_title || 'Untitled Bracket');
+      const email = String(req.user_email || '');
+      const when = fmtNoSeconds(req.created_at);
+      const href = `/?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
 
+      const card = el('div','bracketCard');
+      card.classList.add('featuredCard'); // reuse featured/mybrackets visual language
       card.innerHTML = `
-        <div class="cardTitle">${title}</div>
-        <div class="cardBody">
-          <div class="muted" style="margin-bottom:6px;">${email} • ${escapeHtml(when)}</div>
-          ${caption ? `<div style="margin-bottom:10px;">${caption}</div>` : ''}
-          <div class="row" style="gap:8px; flex-wrap:wrap;">
-            <a class="btn ghost smallBtn" href="${openHref}" target="_blank" rel="noopener">Open (read-only)</a>
-            <button class="btn smallBtn" data-approve="${req.id}">Approve</button>
-            <button class="btn danger smallBtn" data-reject="${req.id}">Reject</button>
-          </div>
+        <div class="bracketCardTop">
+          <div class="bracketTitle">${escapeHtml(title)}</div>
+          <div class="bracketMeta">${escapeHtml(email)}${email ? ' • ' : ''}${escapeHtml(when)}</div>
+        </div>
+        <div class="row" style="gap:10px; margin-top:10px; flex-wrap:wrap;">
+          <a class="btn ghost smallBtn openBtnBlack" href="${href}" target="_blank" rel="noopener">Open (read-only)</a>
+          ${st === 'pending' ? `
+            <button class="btnOutline approveBtn smallBtn" data-approve="${req.id}">Approve</button>
+            <button class="btnOutline denyBtn smallBtn" data-deny="${req.id}">Deny</button>
+          ` : ``}
         </div>
       `;
-      // If not pending, hide action buttons
-      if(st !== 'pending'){
-        const a = card.querySelector('[data-approve]');
-        const r = card.querySelector('[data-reject]');
-        if(a) a.style.display = 'none';
-        if(r) r.style.display = 'none';
-      }
       mount.appendChild(card);
     });
+  };
 
-    qsa('[data-approve]').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const id = btn.getAttribute('data-approve');
-        btn.disabled = true;
-        try{
-          await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'approved' }) });
-          toast('Approved.');
-          await loadAdminFeaturedReview();
-        }catch(e){
-          toast('Could not approve.');
-        }finally{
-          btn.disabled = false;
-        }
-      });
-    });
-    qsa('[data-reject]').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const id = btn.getAttribute('data-reject');
-        btn.disabled = true;
-        try{
-          await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'rejected' }) });
-          toast('Rejected.');
-          await loadAdminFeaturedReview();
-        }catch(e){
-          toast('Could not reject.');
-        }finally{
-          btn.disabled = false;
-        }
-      });
-    });
+  try{
+    const [p,a,r] = await Promise.all([
+      api(`/api/feature?status=pending`, { method:'GET' }),
+      api(`/api/feature?status=approved`, { method:'GET' }),
+      api(`/api/feature?status=rejected`, { method:'GET' })
+    ]);
+
+    renderList('pending', (p && p.requests) || []);
+    renderList('approved', (a && a.requests) || []);
+    renderList('rejected', (r && r.requests) || []);
+
+    if(statusNode) statusNode.textContent = '';
   }catch(e){
-    if(status) status.textContent = 'Could not load requests.';
+    if(statusNode) statusNode.textContent = 'Could not load featured submissions.';
   }
+
+  // Wire actions (only pending cards have them)
+  qsa('[data-approve]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-approve');
+      btn.disabled = true;
+      try{
+        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'approved' }) });
+        toast('Approved.');
+        await loadAdminFeaturedReview();
+      }catch(e){
+        toast('Could not approve.');
+        btn.disabled = false;
+      }
+    });
+  });
+
+  qsa('[data-deny]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-deny');
+      btn.disabled = true;
+      try{
+        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'rejected' }) });
+        toast('Denied.');
+        await loadAdminFeaturedReview();
+      }catch(e){
+        toast('Could not deny.');
+        btn.disabled = false;
+      }
+    });
+  });
 }
+
 
 // -------------------- Rendering --------------------
 function renderBubble(){
