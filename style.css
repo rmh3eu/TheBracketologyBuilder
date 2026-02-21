@@ -2901,3 +2901,15 @@ body.officialLive .tiebreakerInput{
 body.readOnly .slot.readonly{ opacity:0.85; }
 body.readOnly .bracketPageTitleInput.readonly{ opacity:0.85; cursor:not-allowed; }
 body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
+
+/* ===== v36_4: Mobile top-right Log in/Log out button should NOT overlap hero CTA ===== */
+@media (max-width: 900px){
+  body.authMobile #mobileLogoutBtn,
+  body.anonMobile #mobileLogoutBtn{
+    display: inline-block !important;
+    position: fixed !important;
+    top: calc(10px + env(safe-area-inset-top)) !important;
+    right: 12px !important;
+    z-index: 1000 !important;
+  }
+}
