@@ -593,6 +593,27 @@ async function apiGet(path){
 async function apiPost(path, body){
   return api(path, { method: 'POST', body: JSON.stringify(body ?? {}) });
 }
+
+async function maybeAskSubmitFeatured(bracketId){
+  try{
+    if(!state || !state.me) return;
+    if(!bracketId) return;
+
+    const msg = "Do you want to Submit Your Bracket to the Featured Brackets Page for a chance to have your bracket name and picks appear on our site and/or our TikTok?";
+    const yes = window.confirm(msg);
+    if(!yes) return;
+
+    // Create a pending feature request for admin review.
+    // Safe: API de-dupes if already submitted.
+    try{
+      await apiPost('/api/feature', { bracket_id: bracketId, caption: '' });
+    }catch(e){
+      // Do not block redirect on email/API issues
+      console.warn('feature submit failed', e);
+    }
+  }catch(_){}
+}
+
 async function apiPut(path, body){
   return api(path, { method: 'PUT', body: JSON.stringify(body ?? {}) });
 }
@@ -4211,9 +4232,7 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   // Mobile topbar button (Home only)
   wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
-
-
-  const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
+const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
     saveLocal(state.picks);
     // Require a championship tiebreaker ONLY when the Official Bracket is live.
@@ -4272,6 +4291,7 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
       const id = await ensureSavedToAccount();
       // Phase 3 cue: hide after a successful save
       phase3MarkSaved();
+      await maybeAskSubmitFeatured(id);
       window.location.href = `my-brackets.html?newId=${encodeURIComponent(id)}`;
     }catch(e){
       if(e && e.message==='CANCELLED') return;
@@ -4344,8 +4364,9 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
         __pendingPostAuth = null;
         closeAuth();
         try{
-          await ensureSavedToAccount(false);
+          const __savedId = await ensureSavedToAccount(false);
           toast('Saved to your account.');
+          await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
             showTab('mybrackets');
             await renderMyBrackets();
