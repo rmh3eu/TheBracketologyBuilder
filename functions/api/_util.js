@@ -190,6 +190,31 @@ async function ensureMilestones(env){
   )`).run();
 }
 
+async function ensurePasswordResetSchema(env){
+  // Password reset tokens (one-time use)
+  if(!env || !env.DB) throw new Error("Missing D1 binding 'DB'.");
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS password_resets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    used_at TEXT,
+    request_ip TEXT,
+    request_ua TEXT
+  );`).run();
+  // Helpful index for lookups
+  try{ await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_password_resets_token_hash ON password_resets(token_hash)").run(); }catch(e){}
+  try{ await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_password_resets_user_id ON password_resets(user_id)").run(); }catch(e){}
+}
+
+async function sha256Hex(input){
+  const data = new TextEncoder().encode(String(input||""));
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  const arr = Array.from(new Uint8Array(buf));
+  return arr.map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
 function getSiteDomain(env){
   return (env.SITE_DOMAIN || "bracketologybuilder.com").replace(/^https?:\/\//,"").replace(/\/+$/,"");
 }
@@ -263,4 +288,4 @@ async function sendEmail(env, to, subject, html, text){
   return await sendResendEmail(env, to, subject, html, text);
 }
 
-export {json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, sendEmail, sendResendEmail, getSiteDomain, getIp, rateLimit, uid};
+export {json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, ensurePasswordResetSchema, sha256Hex, sendEmail, sendResendEmail, getSiteDomain, getIp, rateLimit, uid};

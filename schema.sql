@@ -97,6 +97,21 @@ CREATE TABLE IF NOT EXISTS milestones (
   fired_at TEXT NOT NULL
 );
 
+-- Password reset tokens (one-time use)
+CREATE TABLE IF NOT EXISTS password_resets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  token_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  request_ip TEXT,
+  request_ua TEXT,
+  FOREIGN KEY(user_id) REFERENCES users(id)
+);
+CREATE INDEX IF NOT EXISTS idx_password_resets_token_hash ON password_resets(token_hash);
+CREATE INDEX IF NOT EXISTS idx_password_resets_user_id ON password_resets(user_id);
+
 
 -- v35: group size tiers
 ALTER TABLE groups ADD COLUMN max_members INTEGER NOT NULL DEFAULT 6;

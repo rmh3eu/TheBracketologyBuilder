@@ -1352,6 +1352,17 @@ async function doSignin(email, password){
   await refreshMe();
 }
 
+async function requestPasswordReset(email){
+  const e = String(email||'').trim().toLowerCase();
+  if(!e || !e.includes('@')){ toast('Enter a valid email.'); return; }
+  try{
+    await api('/api/forgot-password', { method:'POST', body: JSON.stringify({ email: e })});
+  }catch(_){
+    // Intentionally ignore errors to avoid leaking account state.
+  }
+  toast("If an account exists for that email, we'll send a reset link.");
+}
+
 async function signOut(){
   await api('/api/logout', { method:'POST' });
   state.me = null;
@@ -4299,6 +4310,14 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   qs('#signInBtn')?.addEventListener('click', ()=>setAuthMode('signin'));
   qs('#signUpBtn')?.addEventListener('click', ()=>setAuthMode('signup'));
   setAuthMode('signin');
+
+  qs('#forgotPwLink')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const prefill = (qs('#authEmail')?.value || '').trim();
+    const email = window.prompt('Enter your email to reset your password:', prefill);
+    if(email === null) return;
+    await requestPasswordReset(email);
+  });
 
   qs('#authSubmit')?.addEventListener('click', async ()=>{
     const btn = qs('#authSubmit');
