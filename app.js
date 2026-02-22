@@ -917,19 +917,6 @@ const TEAM_BY_NAME = (()=>{
   return m;
 })();
 
-// Normalized team-name map to handle legacy punctuation/spacing differences.
-// Example: "Miami (OH)" vs "Miami OH".
-const _normName = (s)=> String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-const TEAM_BY_NORM = (()=>{
-  const m = new Map();
-  try{
-    for(const [name,obj] of TEAM_BY_NAME.entries()){
-      m.set(_normName(name), obj);
-    }
-  }catch(_e){}
-  return m;
-})();
-
 function coerceTeamValue(v){
   // Returns {name, seed} or null.
   if(!v) return null;
@@ -937,22 +924,31 @@ function coerceTeamValue(v){
     const raw = v.trim();
     if(!raw) return null;
 
-    // Direct match
-    if(TEAM_BY_NAME.get(raw)) return ({...TEAM_BY_NAME.get(raw)});
-
-    // Try "SEED TEAM" format e.g. "6 Louisville"
-    const m = raw.match(/^([1-9]|1[0-6])\s+(.+)$/);
+    // Common legacy formats:
+    //  - "2 Nebraska"
+    //  - "Nebraska (2)"
+    //  - "2 - Nebraska"
+    let m = raw.match(/^\s*(\d{1,2})\s*[-–—]?\s+(.+?)\s*$/);
     if(m){
       const seed = Number(m[1]);
       const name = String(m[2]||'').trim();
-      if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
+      if(Number.isFinite(seed) && SEEDS.includes(seed)){
+        if(TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
+        if(name) return { seed, name };
+      }
+    }
+    m = raw.match(/^\s*(.+?)\s*\(\s*(\d{1,2})\s*\)\s*$/);
+    if(m){
+      const name = String(m[1]||'').trim();
+      const seed = Number(m[2]);
+      if(Number.isFinite(seed) && SEEDS.includes(seed)){
+        if(TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
+        if(name) return { seed, name };
+      }
     }
 
-    // Normalized match (handles punctuation/parentheses differences)
-    const norm = _normName(raw);
-    if(TEAM_BY_NORM.get(norm)) return ({...TEAM_BY_NORM.get(norm)});
-
-    return null;
+    // Plain team name
+    return TEAM_BY_NAME.get(raw) ? ({...TEAM_BY_NAME.get(raw)}) : null;
   }
   if(typeof v === "object"){
     const name = (typeof v.name === "string") ? v.name.trim() : "";
@@ -960,12 +956,106 @@ function coerceTeamValue(v){
     if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
     // If seed is missing/invalid but name exists, look it up.
     if(name && TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
-    if(name){
-      const norm = _normName(name);
-      if(TEAM_BY_NORM.get(norm)) return ({...TEAM_BY_NORM.get(norm)});
-    }
   }
   return null;
+}
+
+function extractLikelyPicksObject(raw){
+  // Some legacy rows stored { picks: {...} } or { data: {...} }.
+  if(!raw || typeof raw !== 'object') return (raw||{});
+  if(raw.picks && typeof raw.picks === 'object') return raw.picks;
+  if(raw.data && typeof raw.data === 'object') return raw.data;
+  return raw;
+}
+
+function applyLegacyPickAliases(out, raw){
+  // Map common legacy key formats into the current canonical keys.
+  // Canonical examples:
+  //   SOUTH__R3__G0__winner
+  //   FF__G0__winner
+  //   FINAL__winner
+  //   CHAMPION
+  const src = extractLikelyPicksObject(raw);
+
+  // 1) Key aliasing (underscores/dashes)
+  for(const [k0,v] of Object.entries(src||{})){
+    if(!k0) continue;
+    const k = String(k0);
+    if(k in out) continue;
+
+    // CHAMPION (case-insensitive)
+    if(/^champion$/i.test(k)){
+      const tv = coerceTeamValue(v);
+      if(tv) out['CHAMPION'] = tv;
+      continue;
+    }
+
+    // FINAL winner
+    if(/^final(?:__)?[_-]?winner$/i.test(k) || /^final[_-]winner$/i.test(k)){
+      const tv = coerceTeamValue(v);
+      if(tv) out['FINAL__winner'] = tv;
+      continue;
+    }
+
+    // Final Four winners
+    let m = k.match(/^FF[_-]?G([01])(?:__)?[_-]?winner$/i);
+    if(m){
+      const tv = coerceTeamValue(v);
+      if(tv) out[`FF__G${m[1]}__winner`] = tv;
+      continue;
+    }
+
+    // Region round winners
+    // Accept:
+    //  - SOUTH_R3_G0_winner
+    //  - SOUTH-R3-G0-winner
+    m = k.match(/^([A-Za-z]+)[_\-]?R(\d)[_\-]?G(\d+)[_\-]?(?:__)?winner$/);
+    if(m){
+      const region = String(m[1]||'').toUpperCase();
+      const round = Number(m[2]);
+      const game = Number(m[3]);
+      if(['SOUTH','EAST','WEST','MIDWEST'].includes(region) && Number.isFinite(round) && Number.isFinite(game)){
+        const tv = coerceTeamValue(v);
+        if(tv) out[`${region}__R${round}__G${game}__winner`] = tv;
+      }
+      continue;
+    }
+  }
+
+  // 2) Structured legacy fields (arrays/objects)
+  // finalFour: [t0,t1,t2,t3] in left/right half order
+  const ffArr = (src && (src.finalFour || src.final_four || src.final4)) ? (src.finalFour || src.final_four || src.final4) : null;
+  if(Array.isArray(ffArr) && ffArr.length >= 4){
+    const halves = getRegionKeyHalvesFromDom();
+    const ffTeams = ffArr.slice(0,4).map(coerceTeamValue);
+    const targetKeys = [
+      wKey(halves.leftKeys[0],3,0),
+      wKey(halves.leftKeys[1],3,0),
+      wKey(halves.rightKeys[0],3,0),
+      wKey(halves.rightKeys[1],3,0),
+    ];
+    const haveAny = targetKeys.some(k => !!out[k]);
+    if(!haveAny){
+      for(let i=0;i<4;i++){
+        if(ffTeams[i]) out[targetKeys[i]] = ffTeams[i];
+      }
+    }
+  }
+
+  // finalists: [left,right] -> FF__G0__winner / FF__G1__winner
+  const finArr = (src && (src.finalists || src.finals || src.finalTeams || src.final_teams)) ? (src.finalists || src.finals || src.finalTeams || src.final_teams) : null;
+  if(Array.isArray(finArr) && finArr.length >= 2){
+    const a = coerceTeamValue(finArr[0]);
+    const b = coerceTeamValue(finArr[1]);
+    if(a && !out['FF__G0__winner']) out['FF__G0__winner'] = a;
+    if(b && !out['FF__G1__winner']) out['FF__G1__winner'] = b;
+  }
+
+  // champion: value
+  if(!out['CHAMPION'] && src && (src.champion || src.winner)){
+    const tv = coerceTeamValue(src.champion || src.winner);
+    if(tv) out['CHAMPION'] = tv;
+  }
 }
 
 function listToSeedArray(seedList){
@@ -1297,7 +1387,12 @@ function pruneInvalidPicks(picks){
 }
 
 function normalize(picks){
-  const out = {...(picks||{})};
+  const raw = extractLikelyPicksObject(picks||{});
+  const out = {...(raw||{})};
+
+  // Apply legacy aliasing + structured fallbacks BEFORE coercion/prune.
+  try{ applyLegacyPickAliases(out, picks||{}); }catch(_e){}
+
   for(const [k,v] of Object.entries(out)){
     if(!(k.endsWith('__winner') || k==='FINAL__winner' || k==='CHAMPION')) continue;
 
