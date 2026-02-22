@@ -1125,6 +1125,34 @@ function fillRandomPicks(){
     [picks[wKey(halves.leftKeys[0],3,0)]  || null, picks[wKey(halves.leftKeys[1],3,0)]  || null],  // LEFT half
     [picks[wKey(halves.rightKeys[0],3,0)] || null, picks[wKey(halves.rightKeys[1],3,0)] || null], // RIGHT half
   ];
+
+  // Back-compat: some older brackets may have Final Four winners stored with the halves swapped
+  // relative to the current left/right pairing. If so, swap them instead of pruning.
+  const _ff0 = picks['FF__G0__winner'] || null;
+  const _ff1 = picks['FF__G1__winner'] || null;
+
+  const _pair0Ready = ffPairs[0][0] && ffPairs[0][1];
+  const _pair1Ready = ffPairs[1][0] && ffPairs[1][1];
+
+  if(_pair0Ready && _pair1Ready){
+    if(_ff0 && _ff1 &&
+       !teamInPair(_ff0, ffPairs[0]) && !teamInPair(_ff1, ffPairs[1]) &&
+       teamInPair(_ff0, ffPairs[1]) && teamInPair(_ff1, ffPairs[0])){
+      // swap winners
+      picks['FF__G0__winner'] = _ff1;
+      picks['FF__G1__winner'] = _ff0;
+    }else{
+      // If only one winner exists (or one is invalid), move it to the correct half if possible.
+      if(_ff0 && !teamInPair(_ff0, ffPairs[0]) && teamInPair(_ff0, ffPairs[1]) && !_ff1){
+        picks['FF__G1__winner'] = _ff0;
+        delete picks['FF__G0__winner'];
+      }
+      if(_ff1 && !teamInPair(_ff1, ffPairs[1]) && teamInPair(_ff1, ffPairs[0]) && !_ff0){
+        picks['FF__G0__winner'] = _ff1;
+        delete picks['FF__G1__winner'];
+      }
+    }
+  }
   for(let i=0;i<2;i++){
     const a = ffPairs[i][0];
     const b = ffPairs[i][1];
