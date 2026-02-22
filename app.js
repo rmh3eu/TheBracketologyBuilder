@@ -895,6 +895,45 @@ function wKey(regionKey, roundIdx, gameIdx){ return `${regionKey}__R${roundIdx}_
 const PAIRINGS = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
 const SEEDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
 
+// -------------------- Team Lookup (for legacy pick formats) --------------------
+// Some older brackets may have winners stored as plain strings ("Duke") or objects
+// missing a valid seed. To keep Final Four / Finalists / Champion rendering stable
+// across My Brackets, Featured, Admin review, etc., we coerce those legacy values
+// into the current canonical team object format: { name, seed }.
+const TEAM_BY_NAME = (()=>{
+  const m = new Map();
+  try{
+    const all = [REGION_SOUTH, REGION_WEST, REGION_EAST, REGION_MIDWEST];
+    for(const region of all){
+      for(const row of (region||[])){
+        if(!row || row.length<2) continue;
+        const seed = Number(row[0]);
+        const name = String(row[1]||"").trim();
+        if(!name || !Number.isFinite(seed)) continue;
+        if(!m.has(name)) m.set(name, { name, seed });
+      }
+    }
+  }catch(_e){}
+  return m;
+})();
+
+function coerceTeamValue(v){
+  // Returns {name, seed} or null.
+  if(!v) return null;
+  if(typeof v === "string"){
+    const name = v.trim();
+    return TEAM_BY_NAME.get(name) ? ({...TEAM_BY_NAME.get(name)}) : null;
+  }
+  if(typeof v === "object"){
+    const name = (typeof v.name === "string") ? v.name.trim() : "";
+    const seed = (typeof v.seed === "number") ? v.seed : Number(v.seed);
+    if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
+    // If seed is missing/invalid but name exists, look it up.
+    if(name && TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
+  }
+  return null;
+}
+
 function listToSeedArray(seedList){
   const map = new Map();
   (seedList||[]).forEach(([seed, name])=> map.set(seed, name));
@@ -1227,9 +1266,10 @@ function normalize(picks){
   const out = {...(picks||{})};
   for(const [k,v] of Object.entries(out)){
     if(!(k.endsWith('__winner') || k==='FINAL__winner' || k==='CHAMPION')) continue;
-    if(!v || typeof v !== 'object') { delete out[k]; continue; }
-    if(typeof v.name !== 'string' || v.name.trim()==='') { delete out[k]; continue; }
-    if(typeof v.seed !== 'number' || !SEEDS.includes(v.seed)) { delete out[k]; continue; }
+
+    const tv = coerceTeamValue(v);
+    if(!tv){ delete out[k]; continue; }
+    out[k] = tv;
   }
   pruneInvalidPicks(out);
   return out;
