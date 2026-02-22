@@ -1,4 +1,28 @@
 
+// --- Featured submission requires complete bracket ---
+function __bb_isBracketComplete(picks){
+  try{
+    if(!picks) return false;
+
+    const required = [
+      "FF__G0__winner",
+      "FF__G1__winner",
+      "FINAL__G0__team",
+      "FINAL__G1__team",
+      "FINAL__winner",
+      "CHAMPION"
+    ];
+
+    for(const k of required){
+      if(!picks[k]) return false;
+    }
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+
 function setSeasonBar(){
   const bar = document.getElementById('seasonBar');
   if(!bar) return;
@@ -250,7 +274,30 @@ let OFFICIAL_BRACKET_LIVE = false;
 
 async function loadPublicConfig(){
   try{
-    const r = await fetch('/api/public-config', { cache: 'no-store' });
+    const r = await 
+// --- Ensure top picks always persist ---
+(function ensureTopPicksPersistence(){
+  try {
+    if (!picks) return;
+
+    const ff0 = picks["FF__G0__winner"];
+    const ff1 = picks["FF__G1__winner"];
+
+    if (ff0) picks["FINAL__G0__team"] = ff0;
+    if (ff1) picks["FINAL__G1__team"] = ff1;
+
+    const champ = picks["CHAMPION"] || picks["FINAL__winner"];
+
+    if (champ) {
+      picks["CHAMPION"] = champ;
+      picks["FINAL__winner"] = champ;
+    }
+  } catch(e){
+    console.warn("top pick persistence skipped", e);
+  }
+})();
+
+fetch('/api/public-config', { cache: 'no-store' });
     if(!r.ok) return;
     const cfg = await r.json();
     if(typeof cfg?.official_bracket_live === 'boolean'){
@@ -605,6 +652,9 @@ async function maybeAskSubmitFeatured(bracketId){
     if(!state || !state.me) return;
     if(!bracketId) return;
 
+    // Only prompt for Featured submission when the bracket is fully completed.
+    if(!isBracketCompletePicks(state.picks)) return;
+
     const msg = "Do you want to Submit Your Bracket for a Chance to be on our Featured Brackets Page and/or Appear on our TikTok?";
     const yes = await confirmModal(msg, 'Yes', 'No');
     if(!yes) return;
@@ -793,6 +843,10 @@ async function phase4UpdateFeatureCTA(){
     btn.addEventListener('click', async ()=>{
       try{
         btn.disabled = true;
+        if(!isBracketCompletePicks(state.picks)){
+          toast('Please complete your bracket to submit to featured');
+          return;
+        }
         await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: state.bracketId, caption: '' })});
         __phase4.submittedByBracket[state.bracketId] = true;
         row.style.display = 'none';
@@ -890,6 +944,34 @@ function getRegionKeyHalvesFromDom(){
 
 
 function wKey(regionKey, roundIdx, gameIdx){ return `${regionKey}__R${roundIdx}__G${gameIdx}__winner`; }
+
+function isBracketCompletePicks(picks){
+  try{
+    if(!picks) return false;
+    const regionKeys = ['REGION_SOUTH','REGION_WEST','REGION_EAST','REGION_MIDWEST'];
+    for(const rKey of regionKeys){
+      // R0: 8 games, R1: 4 games, R2: 2 games, R3: 1 game
+      for(let g=0; g<8; g++){
+        if(!picks[`${rKey}__R0__G${g}__winner`]) return false;
+      }
+      for(let g=0; g<4; g++){
+        if(!picks[`${rKey}__R1__G${g}__winner`]) return false;
+      }
+      for(let g=0; g<2; g++){
+        if(!picks[`${rKey}__R2__G${g}__winner`]) return false;
+      }
+      if(!picks[`${rKey}__R3__G0__winner`]) return false;
+    }
+    if(!picks['FF__G0__winner']) return false;
+    if(!picks['FF__G1__winner']) return false;
+    const champ = picks['FINAL__winner'] || picks['CHAMPION'];
+    if(!champ) return false;
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
 
 // -------------------- Bracket Logic --------------------
 const PAIRINGS = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
@@ -1086,7 +1168,6 @@ function commitPicks(np, reason){
     pushUndoSnapshot();
   }
   state.picks = normalize(np || {});
-  ensureTopPicks(state.picks);
   saveLocal(state.picks);
 
   renderAll();
@@ -1275,29 +1356,6 @@ function normalize(picks){
   pruneInvalidPicks(out);
   return out;
 }
-
-function ensureTopPicks(p){
-  try{
-    if(!p) return p;
-    // Final Four winners -> finalists
-    if(p["FF__G0__winner"] && !p["FINAL__G0__team"]) p["FINAL__G0__team"] = p["FF__G0__winner"];
-    if(p["FF__G1__winner"] && !p["FINAL__G1__team"]) p["FINAL__G1__team"] = p["FF__G1__winner"];
-
-    // Champion mirror
-    const champ = p["CHAMPION"] || p["FINAL__winner"];
-    if(champ){
-      p["CHAMPION"] = champ;
-      p["FINAL__winner"] = champ;
-    }
-
-    // If finalists exist but FF winners missing (legacy), keep finalists as-is (do not prune here)
-    return p;
-  }catch(e){
-    console.warn("ensureTopPicks failed", e);
-    return p;
-  }
-}
-
 
 // -------------------- Local storage --------------------
 function loadLocal(){
@@ -1726,7 +1784,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
         title: desiredTitle || '',
-        data: (ensureTopPicks(state.picks || {}), state.picks || {})
+        data: state.picks || {}
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
       const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
@@ -1780,7 +1838,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, {
         id: newId,
         title: desiredTitle,
-        data: (ensureTopPicks(state.picks || {}), state.picks || {})
+        data: state.picks || {}
       });
 
       return newId;
@@ -2938,6 +2996,21 @@ async function submitFeatured(){
   const n = parseInt(pick||'',10);
   if(!n || n<1 || n>items.length) return;
   const bracketId = items[n-1].id;
+
+  // Only allow submission when the bracket is fully completed.
+  try{
+    const bd = await api(`/api/bracket?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
+    const picks = (bd && bd.bracket && bd.bracket.data && bd.bracket.data.picks) ? bd.bracket.data.picks : null;
+    if(!isBracketCompletePicks(picks)){
+      toast('Please complete your bracket to submit to featured');
+      return;
+    }
+  }catch(e){
+    // If we can't verify, do not submit.
+    toast('Please complete your bracket to submit to featured');
+    return;
+  }
+
   const caption = prompt('Caption (optional):') || '';
   await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: bracketId, caption })});
   toast('Submitted! Admin will approve it.');
