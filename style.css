@@ -3031,3 +3031,7 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* Submitted badge text color fix */
 .badge-submitted{color:#000 !important;}
+
+/* Submitted badge stronger override */
+.submitted, .badge-submitted, .pill-submitted { color:#000 !important; }
+.submitted { background:#e9eef7; }
