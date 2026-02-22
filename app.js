@@ -1506,6 +1506,29 @@ function setBracketTitleDisplay(title) {
 // If a guest triggers Save / Save & Enter, we queue the action and resume it after auth.
 let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' }
 
+
+// Clear any unwanted browser autofill (some browsers inject the user's email into the bracket title input).
+function clearBracketTitleAutofill(){
+  const el = document.getElementById('bracketPageTitle');
+  if(!el) return;
+  // If a browser/password manager autofilled an email, clear it so the placeholder shows.
+  const looksLikeEmail = (v)=> typeof v==='string' && v.includes('@') && v.includes('.');
+  const tryClear = ()=>{
+    // Don't fight the user if they're actively typing.
+    if(document.activeElement === el) return false;
+    if(looksLikeEmail(el.value)){
+      el.value = '';
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      return true;
+    }
+    return false;
+  };
+  // Immediate + a couple retries (Safari sometimes applies autofill after initial paint).
+  tryClear();
+  setTimeout(tryClear, 250);
+  setTimeout(tryClear, 900);
+}
+
 function initBracketTitleInlineRename(){
   const el =
     qs('#bracketPageTitle') ||
@@ -4049,6 +4072,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // Render title + enable inline rename
   setBracketTitleDisplay(state.bracketTitle);
   initBracketTitleInlineRename();
+  clearBracketTitleAutofill();
 
   initNav();
 

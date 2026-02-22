@@ -2994,3 +2994,17 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .btnOutline.approveBtn:hover{ background: rgba(18,138,46,0.08) !important; }
 .btnOutline.denyBtn{background:#ef4444 !important;color:#fff !important;border-color:#ef4444 !important;}
 .btnOutline.denyBtn:hover{ background: rgba(192,22,22,0.08) !important; }
+
+
+/* --- Bracket title autofill hardening (Safari/Chrome) --- */
+#bracketPageTitle{ background:#1f5bd6; color:#fff; }
+#bracketPageTitle::placeholder{ color: rgba(255,255,255,0.9); }
+#bracketPageTitle:-webkit-autofill,
+#bracketPageTitle:-webkit-autofill:hover,
+#bracketPageTitle:-webkit-autofill:focus,
+#bracketPageTitle:-webkit-autofill:active{
+  -webkit-text-fill-color:#fff !important;
+  caret-color:#fff;
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0px 1000px #1f5bd6 inset !important;
+}

@@ -76,7 +76,10 @@
 <div class="deskCol center">
 
 <div class="bracketTitleRow homeTitleRow">
-  <input id="bracketPageTitle" class="bracketPageTitle bracketPageTitleInput" type="text" maxlength="80" value="" placeholder="Enter Bracket Name Here" name="bracket_title" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" data-lpignore="true" />
+  <!-- Autofill guard: prevent browsers/password managers from injecting email into bracket title -->
+  <input type="text" name="bb_fake_username" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute; left:-9999px; top:-9999px; height:0; width:0; opacity:0;" />
+  <input type="password" name="bb_fake_password" autocomplete="current-password" tabindex="-1" aria-hidden="true" style="position:absolute; left:-9999px; top:-9999px; height:0; width:0; opacity:0;" />
+  <input id="bracketPageTitle" class="bracketPageTitle bracketPageTitleInput" type="text" maxlength="80" value="" placeholder="Name Your Bracket Here" name="bb_bracket_title" autocomplete="new-password" data-lpignore="true" autocapitalize="none" autocorrect="off" spellcheck="false" data-lpignore="true" />
             <button class="btn btnCompact" id="randomPicksBtnTop" type="button">Random picks</button>
   <button class="btn primary btnCompact" id="saveEnterBtnTop" type="button">Save &amp; Enter</button>
   <button class="btn btnCompact" id="undoBtnTop" type="button" disabled>Undo</button>
