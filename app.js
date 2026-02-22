@@ -1168,15 +1168,29 @@ function pruneInvalidPicks(picks){
   for(let i=0;i<2;i++){
     const k = `FF__G${i}__winner`;
     const w = picks[k];
-    if(w && (!ffPairs[i][0] || !ffPairs[i][1] || !teamInPair(w, ffPairs[i]))) delete picks[k];
+    // Only prune the FF winner if BOTH region champs for that half exist.
+    // (Older saved brackets may lack some FF keys; we still want Finals/Champion to render.)
+    if(w && ffPairs[i][0] && ffPairs[i][1] && !teamInPair(w, ffPairs[i])) delete picks[k];
+  }
+
+  // Back-compat: if an older bracket saved CHAMPION but not FINAL__winner, treat it as the FINAL winner too.
+  if(picks['CHAMPION'] && !picks['FINAL__winner']){
+    picks['FINAL__winner'] = picks['CHAMPION'];
   }
 
   const finalPair = [picks['FF__G0__winner']||null, picks['FF__G1__winner']||null];
-  if(picks['FINAL__winner'] && (!finalPair[0] || !finalPair[1] || !teamInPair(picks['FINAL__winner'], finalPair))) delete picks['FINAL__winner'];
-  if(picks['CHAMPION'] && !teamEq(picks['CHAMPION'], picks['FINAL__winner'])) delete picks['CHAMPION'];
+  // Only prune FINAL__winner if BOTH Finalists exist.
+  if(picks['FINAL__winner'] && finalPair[0] && finalPair[1] && !teamInPair(picks['FINAL__winner'], finalPair)){
+    delete picks['FINAL__winner'];
+  }
 
-  // If a Final winner exists, treat it as the Champion (we don't render a separate Champion box).
-  if(picks['FINAL__winner']) picks['CHAMPION'] = picks['FINAL__winner'];
+  // Champion should mirror FINAL__winner (this UI infers Champion from the Final winner).
+  if(picks['FINAL__winner']){
+    picks['CHAMPION'] = picks['FINAL__winner'];
+  }else{
+    // If FINAL__winner was removed but CHAMPION remains for some reason, keep it (display-only safety).
+    // (We may not have enough info to reconstruct finalists.)
+  }
 
   return picks;
 }
