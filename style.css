@@ -3028,3 +3028,6 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
   transition: background-color 9999s ease-in-out 0s;
   -webkit-box-shadow: 0 0 0px 1000px #1f5bd6 inset !important;
 }
+
+/* Submitted badge text color fix */
+.badge-submitted{color:#000 !important;}
