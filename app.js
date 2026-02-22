@@ -917,12 +917,42 @@ const TEAM_BY_NAME = (()=>{
   return m;
 })();
 
+// Normalized team-name map to handle legacy punctuation/spacing differences.
+// Example: "Miami (OH)" vs "Miami OH".
+const _normName = (s)=> String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const TEAM_BY_NORM = (()=>{
+  const m = new Map();
+  try{
+    for(const [name,obj] of TEAM_BY_NAME.entries()){
+      m.set(_normName(name), obj);
+    }
+  }catch(_e){}
+  return m;
+})();
+
 function coerceTeamValue(v){
   // Returns {name, seed} or null.
   if(!v) return null;
   if(typeof v === "string"){
-    const name = v.trim();
-    return TEAM_BY_NAME.get(name) ? ({...TEAM_BY_NAME.get(name)}) : null;
+    const raw = v.trim();
+    if(!raw) return null;
+
+    // Direct match
+    if(TEAM_BY_NAME.get(raw)) return ({...TEAM_BY_NAME.get(raw)});
+
+    // Try "SEED TEAM" format e.g. "6 Louisville"
+    const m = raw.match(/^([1-9]|1[0-6])\s+(.+)$/);
+    if(m){
+      const seed = Number(m[1]);
+      const name = String(m[2]||'').trim();
+      if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
+    }
+
+    // Normalized match (handles punctuation/parentheses differences)
+    const norm = _normName(raw);
+    if(TEAM_BY_NORM.get(norm)) return ({...TEAM_BY_NORM.get(norm)});
+
+    return null;
   }
   if(typeof v === "object"){
     const name = (typeof v.name === "string") ? v.name.trim() : "";
@@ -930,6 +960,10 @@ function coerceTeamValue(v){
     if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
     // If seed is missing/invalid but name exists, look it up.
     if(name && TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
+    if(name){
+      const norm = _normName(name);
+      if(TEAM_BY_NORM.get(norm)) return ({...TEAM_BY_NORM.get(norm)});
+    }
   }
   return null;
 }
