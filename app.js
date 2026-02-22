@@ -1036,6 +1036,10 @@ function pushUndoSnapshot(){
 }
 
 function commitPicks(np, reason){
+  // READONLY_GUARD: prevent any local edits when viewing read-only (e.g., Featured Brackets)
+  if(state && state.readOnly && (reason === 'pick' || reason === 'random')){
+    return;
+  }
   // reason: 'pick' | 'random' | 'load'
   if(reason === 'pick' || reason === 'random'){
     // Phase 3 cue: show after first interaction (mobile only)

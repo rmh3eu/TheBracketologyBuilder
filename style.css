@@ -2936,6 +2936,14 @@ body.officialLive .tiebreakerInput{
 /* ===== Read-only views ===== */
 body.readOnly .slot.readonly{ opacity:0.85; }
 body.readOnly .bracketPageTitleInput.readonly{ opacity:0.85; cursor:not-allowed; }
+/* Read-only hard lock: prevent changing picks in shared/featured views */
+body.readOnly .slot{
+  pointer-events:none;
+}
+body.readOnly .final4WinnerSlot{
+  pointer-events:none;
+}
+
 body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* ===== v36_4: Mobile top-right Log in/Log out button should NOT overlap hero CTA ===== */
