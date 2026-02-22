@@ -915,63 +915,22 @@ const TEAM_BY_NAME = (()=>{
     }
   }catch(_e){}
   return m;
-})()
-
-const normName = (s)=> String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-const TEAM_BY_NORM = (()=>{
-  const m = new Map();
-  for(const [name,obj] of TEAM_BY_NAME.entries()){
-    m.set(normName(name), obj);
-  }
-  return m;
 })();
-;
 
 function coerceTeamValue(v){
   // Returns {name, seed} or null.
   if(!v) return null;
-
-  // Handle legacy string values.
   if(typeof v === "string"){
-    const raw = v.trim();
-    if(!raw) return null;
-
-    // Direct match
-    if(TEAM_BY_NAME.get(raw)) return ({...TEAM_BY_NAME.get(raw)});
-
-    // Try "SEED TEAM" format e.g. "6 Louisville"
-    const m = raw.match(/^([1-9]|1[0-6])\s+(.+)$/);
-    if(m){
-      const seed = Number(m[1]);
-      const name = String(m[2]||'').trim();
-      if(name && SEEDS.includes(seed)) return { name, seed };
-    }
-
-    // Normalized match (handles punctuation/parentheses differences)
-    const norm = normName(raw);
-    if(TEAM_BY_NORM.get(norm)) return ({...TEAM_BY_NORM.get(norm)});
-
-    return null;
+    const name = v.trim();
+    return TEAM_BY_NAME.get(name) ? ({...TEAM_BY_NAME.get(name)}) : null;
   }
-
-  // Handle object values.
   if(typeof v === "object"){
     const name = (typeof v.name === "string") ? v.name.trim() : "";
     const seed = (typeof v.seed === "number") ? v.seed : Number(v.seed);
-
-    // If both are present and seed is valid, accept even if the team list has since changed.
     if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
-
-    // If seed is missing/invalid but name exists, look it up (direct then normalized).
+    // If seed is missing/invalid but name exists, look it up.
     if(name && TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
-    if(name){
-      const norm = normName(name);
-      if(TEAM_BY_NORM.get(norm)) return ({...TEAM_BY_NORM.get(norm)});
-    }
-
-    // If name missing but seed present, we cannot reliably recover.
   }
-
   return null;
 }
 
@@ -1305,22 +1264,7 @@ function pruneInvalidPicks(picks){
 
 function normalize(picks){
   const out = {...(picks||{})};
-
-  // Legacy key aliases (do not remove old keys; just map into the current canonical ones)
-  const ALIAS = {
-    'FF_G0_winner':'FF__G0__winner',
-    'FF_G1_winner':'FF__G1__winner',
-    'FF__0__winner':'FF__G0__winner',
-    'FF__1__winner':'FF__G1__winner',
-    'FINAL_winner':'FINAL__winner',
-    'FINALWINNER':'FINAL__winner',
-    'champion':'CHAMPION',
-    'CHAMP':'CHAMPION',
-  };
-  for(const [from,to] of Object.entries(ALIAS)){
-    if(out[from] && !out[to]) out[to] = out[from];
-  }
-
+  for(const [k,v] of Object.entries(out)){
     if(!(k.endsWith('__winner') || k==='FINAL__winner' || k==='CHAMPION')) continue;
 
     const tv = coerceTeamValue(v);
