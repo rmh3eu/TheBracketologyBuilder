@@ -250,30 +250,7 @@ let OFFICIAL_BRACKET_LIVE = false;
 
 async function loadPublicConfig(){
   try{
-    const r = await 
-// --- Ensure top picks always persist ---
-(function ensureTopPicksPersistence(){
-  try {
-    if (!picks) return;
-
-    const ff0 = picks["FF__G0__winner"];
-    const ff1 = picks["FF__G1__winner"];
-
-    if (ff0) picks["FINAL__G0__team"] = ff0;
-    if (ff1) picks["FINAL__G1__team"] = ff1;
-
-    const champ = picks["CHAMPION"] || picks["FINAL__winner"];
-
-    if (champ) {
-      picks["CHAMPION"] = champ;
-      picks["FINAL__winner"] = champ;
-    }
-  } catch(e){
-    console.warn("top pick persistence skipped", e);
-  }
-})();
-
-fetch('/api/public-config', { cache: 'no-store' });
+    const r = await fetch('/api/public-config', { cache: 'no-store' });
     if(!r.ok) return;
     const cfg = await r.json();
     if(typeof cfg?.official_bracket_live === 'boolean'){
@@ -1109,6 +1086,7 @@ function commitPicks(np, reason){
     pushUndoSnapshot();
   }
   state.picks = normalize(np || {});
+  ensureTopPicks(state.picks);
   saveLocal(state.picks);
 
   renderAll();
@@ -1297,6 +1275,29 @@ function normalize(picks){
   pruneInvalidPicks(out);
   return out;
 }
+
+function ensureTopPicks(p){
+  try{
+    if(!p) return p;
+    // Final Four winners -> finalists
+    if(p["FF__G0__winner"] && !p["FINAL__G0__team"]) p["FINAL__G0__team"] = p["FF__G0__winner"];
+    if(p["FF__G1__winner"] && !p["FINAL__G1__team"]) p["FINAL__G1__team"] = p["FF__G1__winner"];
+
+    // Champion mirror
+    const champ = p["CHAMPION"] || p["FINAL__winner"];
+    if(champ){
+      p["CHAMPION"] = champ;
+      p["FINAL__winner"] = champ;
+    }
+
+    // If finalists exist but FF winners missing (legacy), keep finalists as-is (do not prune here)
+    return p;
+  }catch(e){
+    console.warn("ensureTopPicks failed", e);
+    return p;
+  }
+}
+
 
 // -------------------- Local storage --------------------
 function loadLocal(){
@@ -1725,7 +1726,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
         title: desiredTitle || '',
-        data: state.picks || {}
+        data: (ensureTopPicks(state.picks || {}), state.picks || {})
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
       const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
@@ -1779,7 +1780,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, {
         id: newId,
         title: desiredTitle,
-        data: state.picks || {}
+        data: (ensureTopPicks(state.picks || {}), state.picks || {})
       });
 
       return newId;
