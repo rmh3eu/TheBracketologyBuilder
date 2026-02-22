@@ -2777,7 +2777,7 @@ async function loadFeatured(){
         <div class="cardTitle">${escapeHtml(it.title || 'Featured Bracket')}</div>
         <div class="cardBody">${escapeHtml(it.caption || '')}</div>
         <div class="row" style="gap:8px;flex-wrap:wrap">
-          <a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(it.bracket_id)}" target="_blank" rel="noopener">Open</a>
+          <a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(it.bracket_id)}&readonly=1" target="_blank" rel="noopener">Open</a>
         </div>
       `;
       grid.appendChild(c);
