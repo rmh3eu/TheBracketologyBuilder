@@ -67,7 +67,15 @@ export async function onRequest(context){
               bracket_name,
               bracket_type,
               created_at,
-              updated_at
+              updated_at,
+              (
+                SELECT fr.status
+                  FROM feature_requests fr
+                 WHERE fr.bracket_id = brackets.id
+                   AND fr.user_id = brackets.user_id
+                 ORDER BY fr.created_at DESC
+                 LIMIT 1
+              ) AS feature_status
          FROM brackets
         WHERE user_id=?
         ORDER BY COALESCE(updated_at, created_at) DESC`

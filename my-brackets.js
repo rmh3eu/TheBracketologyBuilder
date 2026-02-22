@@ -76,6 +76,9 @@ function renderBracketSection({ listId, emptyId, items }) {
     a.className = 'bracketCard';
     a.href = `/?id=${encodeURIComponent(b.id)}`;
 
+    const titleRow = document.createElement('div');
+    titleRow.className = 'bracketTitleRow';
+
     const title = document.createElement('div');
     title.className = 'bracketTitle';
     const nmRaw = (b.title && String(b.title).trim())
@@ -89,11 +92,22 @@ function renderBracketSection({ listId, emptyId, items }) {
       /^enter bracket name here$/i.test(nmRaw);
     title.textContent = isDefault ? 'Enter Bracket Name Here' : nmRaw;
 
+    // Featured badge (user-visible): show when submitted/approved.
+    const fs = String(b.feature_status || '').toLowerCase();
+    if (fs === 'approved' || fs === 'pending') {
+      const badge = document.createElement('span');
+      badge.className = (fs === 'approved') ? 'featuredBadge featuredBadgeApproved' : 'featuredBadge featuredBadgePending';
+      badge.textContent = (fs === 'approved') ? 'Featured' : 'Submitted';
+      titleRow.appendChild(badge);
+    }
+
+    titleRow.insertBefore(title, titleRow.firstChild);
+
     const meta = document.createElement('div');
     meta.className = 'bracketMeta';
     meta.textContent = b.updated_at ? `Updated: ${formatUpdatedAt(b.updated_at)}` : '';
 
-    a.appendChild(title);
+    a.appendChild(titleRow);
     a.appendChild(meta);
     grid.appendChild(a);
   }

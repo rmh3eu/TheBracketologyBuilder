@@ -1271,6 +1271,26 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 .page-mybrackets .bracketCard{color:#111827; text-decoration:none;}
 .page-mybrackets .bracketCard:hover{background:var(--panel2);}
 .page-mybrackets .bracketTitle{color:#111827;}
+
+/* My Brackets: Featured status badge */
+.page-mybrackets .featuredBadge{
+  display:inline-flex;
+  align-items:center;
+  font-size:12px;
+  font-weight:700;
+  padding:4px 10px;
+  border-radius:999px;
+  line-height:1;
+  white-space:nowrap;
+}
+.page-mybrackets .featuredBadgeApproved{
+  background:#111827;
+  color:#fff;
+}
+.page-mybrackets .featuredBadgePending{
+  background:#e5e7eb;
+  color:#111827;
+}
 .page-mybrackets .bracketMeta{color:#374151;}
 .page-mybrackets .panelActions{display:flex;gap:10px;justify-content:flex-start;flex-wrap:wrap;margin:10px 0 14px;}
 .page-mybrackets .panelActions #secondChanceHint{flex-basis:100%;}

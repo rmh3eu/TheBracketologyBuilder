@@ -1,4 +1,4 @@
-import { json, requireUser, isAdmin } from "./_util.js";
+import { json, requireUser, isAdmin, sendEmail, getSiteDomain } from "./_util.js";
 
 export async function onRequestPost({ request, env }){
   // submit a feature request
@@ -64,6 +64,40 @@ export async function onRequestPut({ request, env }){
   await env.DB.prepare(
     "UPDATE feature_requests SET status=?, approved_at=? WHERE id=?"
   ).bind(status, now, id).run();
+
+  // Send an email when a bracket is approved (strong moment).
+  if(status === 'approved'){
+    try{
+      const info = await env.DB.prepare(
+        `SELECT u.email AS email, b.title AS title
+           FROM feature_requests fr
+           JOIN users u ON u.id = fr.user_id
+           JOIN brackets b ON b.id = fr.bracket_id
+          WHERE fr.id = ?
+          LIMIT 1`
+      ).bind(id).first();
+
+      if(info && info.email){
+        const domain = getSiteDomain(env);
+        const siteUrl = `https://${domain}`;
+        const featuredUrl = `${siteUrl}/featured.html`;
+        const subject = "Your bracket was approved for Featured 🎉";
+        const safeTitle = (info.title || 'Your bracket').toString();
+        const text = `Congratulations — your bracket ("${safeTitle}") was approved and is now eligible to appear on our Featured Brackets page.\n\nView Featured Brackets: ${featuredUrl}\n\nThanks for choosing BracketologyBuilder.com!`;
+        const html = `
+          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4">
+            <h2 style="margin:0 0 12px 0">Your bracket was approved 🎉</h2>
+            <p style="margin:0 0 12px 0">Congratulations — your bracket <b>${safeTitle.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</b> was approved and is now eligible to appear on our Featured Brackets page.</p>
+            <p style="margin:0 0 16px 0"><a href="${featuredUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px">View Featured Brackets</a></p>
+            <p style="margin:0">Thank you for choosing BracketologyBuilder.com!</p>
+          </div>
+        `;
+        await sendEmail(env, info.email, subject, html, text);
+      }
+    }catch(e){
+      // Best-effort only; approval should still succeed.
+    }
+  }
 
   return json({ok:true});
 }
