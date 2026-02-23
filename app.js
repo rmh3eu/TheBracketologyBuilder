@@ -843,7 +843,9 @@ async function phase4UpdateFeatureCTA(){
     btn.addEventListener('click', async ()=>{
       try{
         btn.disabled = true;
-        if(!isBracketCompletePicks(state.picks)){
+                const picksToCheck = (state.picks && Object.keys(state.picks).length) ? state.picks : (state._loadedPicks || null);
+        // Only block client-side if we actually have the full picks loaded.
+        if (picksToCheck && Object.keys(picksToCheck).length && !isBracketCompletePicks(picksToCheck)) {
           toast('Please complete your bracket to submit to featured');
           return;
         }
@@ -1168,6 +1170,8 @@ function commitPicks(np, reason){
     pushUndoSnapshot();
   }
   state.picks = normalize(np || {});
+    state._loadedPicks = state.picks;
+
   saveLocal(state.picks);
 
   renderAll();
