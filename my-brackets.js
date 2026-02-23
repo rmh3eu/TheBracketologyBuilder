@@ -30,6 +30,66 @@ async function api(path, opts = {}) {
   return data;
 }
 
+
+function setSubmitFeaturedMsg(text, ok){
+  const el = document.getElementById('submitFeaturedMsg');
+  if(!el) return;
+  el.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
+  el.textContent = text || '';
+}
+
+function initSubmitFeaturedToolbar(brackets){
+  const bar = document.getElementById('submitFeaturedToolbar');
+  const sel = document.getElementById('submitFeaturedSelect');
+  const btn = document.getElementById('submitFeaturedBtn');
+  if(!bar || !sel || !btn) return;
+
+  const eligible = (brackets || []).filter(b=>{
+    const fs = String(b.feature_status || '').toLowerCase();
+    return !(fs === 'pending' || fs === 'approved');
+  });
+
+  if(!eligible.length){
+    bar.style.display = 'none';
+    return;
+  }
+
+  // Populate select
+  sel.innerHTML = '';
+  for(const b of eligible){
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    const nm = (b.title && String(b.title).trim()) ? String(b.title).trim() :
+      ((b.bracket_name && String(b.bracket_name).trim()) ? String(b.bracket_name).trim() : 'Untitled');
+    opt.textContent = nm;
+    sel.appendChild(opt);
+  }
+
+  bar.style.display = 'block';
+
+  btn.addEventListener('click', async ()=>{
+    const bracketId = sel.value;
+    if(!bracketId) return;
+    btn.disabled = true;
+    setSubmitFeaturedMsg('', true);
+    try{
+      await api('/api/feature', { method:'POST', body: { bracket_id: bracketId, caption: '' } });
+      setSubmitFeaturedMsg('Submitted! If approved, your bracket may appear on the site or TikTok.', true);
+      // Remove option and hide if none left
+      sel.querySelector('option[value="'+bracketId+'"]')?.remove();
+      if(!sel.options.length){
+        bar.style.display='none';
+      }
+    }catch(e){
+      // Server should enforce completion and return the desired message
+      const msg = (e && e.message) ? e.message : 'Please complete your bracket to submit to featured';
+      setSubmitFeaturedMsg(msg, false);
+    }finally{
+      btn.disabled = false;
+    }
+  }, { once: true });
+}
+
 function formatUpdatedAt(iso) {
   if (!iso) return '';
   try {
@@ -109,6 +169,33 @@ function renderBracketSection({ listId, emptyId, items }) {
 
     a.appendChild(titleRow);
     a.appendChild(meta);
+
+    // Inline submit button (only if not already submitted/featured)
+    if (!(fs === 'approved' || fs === 'pending')) {
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'button';
+      submitBtn.className = 'submitFeaturedInlineBtn';
+      submitBtn.textContent = '🏀 Submit for Featured';
+      submitBtn.addEventListener('click', async (ev)=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        submitBtn.disabled = true;
+        try{
+          const r = await api('/api/feature', { method:'POST', body: { bracket_id: b.id, caption: '' } });
+          // if server returns error structure, it will throw in api()
+          // Mark as pending locally and re-render
+          b.feature_status = 'pending';
+          // refresh page list
+          location.reload();
+        }catch(e){
+          alert((e && e.message) ? e.message : 'Please complete your bracket to submit to featured');
+        }finally{
+          submitBtn.disabled = false;
+        }
+      });
+      a.appendChild(submitBtn);
+    }
+
     grid.appendChild(a);
   }
 }
@@ -218,6 +305,10 @@ async function loadPage() {
   try {
     const data = await api('/api/brackets');
     const brackets = Array.isArray(data?.brackets) ? data.brackets : [];
+
+    // Top submit-to-featured toolbar
+    initSubmitFeaturedToolbar(brackets);
+
 
     // Split brackets by type
     const lower = (v) => String(v || '').toLowerCase();

@@ -3035,3 +3035,16 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 /* Submitted badge stronger override */
 .submitted, .badge-submitted, .pill-submitted { color:#000 !important; }
 .submitted { background:#e9eef7; }
+
+/* My Brackets submit-to-featured toolbar */
+.submitFeaturedToolbarInner{background:#fff;border-radius:14px;padding:14px 14px 10px 14px;max-width:920px;margin:0 auto;border:1px solid rgba(0,0,0,0.08);}
+.submitFeaturedToolbarTitle{font-weight:800;margin-bottom:10px;}
+.submitFeaturedToolbarControls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.submitFeaturedSelect{min-width:220px;max-width:100%;padding:10px 12px;border-radius:999px;border:1px solid rgba(0,0,0,0.18);}
+.submitFeaturedBtn{padding:10px 14px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}
+.submitFeaturedBtn:disabled{opacity:0.6;cursor:not-allowed;}
+.submitFeaturedMsg{margin-top:8px;font-size:14px;}
+.submitFeaturedMsg.ok{color:#166534;font-weight:700;}
+.submitFeaturedMsg.err{color:#b91c1c;font-weight:700;}
+.submitFeaturedInlineBtn{margin-top:10px;padding:8px 12px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}
+.submitFeaturedInlineBtn:disabled{opacity:0.6;cursor:not-allowed;}
