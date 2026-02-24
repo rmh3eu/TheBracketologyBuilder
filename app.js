@@ -3004,7 +3004,7 @@ async function submitFeatured(){
   // Only allow submission when the bracket is fully completed.
   try{
     const bd = await api(`/api/bracket?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
-    const picks = (bd && bd.bracket && bd.bracket.data && bd.bracket.data.picks) ? bd.bracket.data.picks : null;
+    const picks = (bd && bd.bracket && bd.bracket.data) ? (bd.bracket.data.picks || bd.bracket.data) : null;
     if(!isBracketCompletePicks(picks)){
       toast('Please complete your bracket to submit to featured');
       return;
@@ -3565,7 +3565,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   }
   mount.innerHTML = '';
 
-  const regionOrder = ['South','West','East','Midwest'];
+  const regionOrder = ['East','Midwest','West','South'];
   const regionsByName = {};
   (state.regions||[]).forEach(r=> regionsByName[r.name]=r);
 

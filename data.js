@@ -21,15 +21,15 @@ const EAST = [
   ],
   [
     2,
-    "Nebraska"
+    "Purdue"
   ],
   [
     3,
-    "Michigan St"
+    "Nebraska"
   ],
   [
     4,
-    "Texas Tech"
+    "Michigan St"
   ],
   [
     5,
@@ -37,23 +37,90 @@ const EAST = [
   ],
   [
     6,
-    "St. John's"
+    "Wisconsin"
   ],
   [
     7,
-    "Kentucky"
+    "Villanova"
   ],
   [
     8,
-    "Texas A&M"
+    "Miami FLA"
   ],
   [
     9,
-    "Utah St"
+    "Texas A&M"
   ],
   [
     10,
-    "Indiana"
+    "UCLA"
+  ],
+  [
+    11,
+    "Ohio St"
+  ],
+  [
+    12,
+    "High Point"
+  ],
+  [
+    13,
+    "Liberty"
+  ],
+  [
+    14,
+    "Navy"
+  ],
+  [
+    15,
+    "Merrimack"
+  ],
+  [
+    16,
+    "LIU"
+  ]
+];
+
+const WEST = [
+  [
+    1,
+    "Arizona"
+  ],
+  [
+    2,
+    "Florida"
+  ],
+  [
+    3,
+    "Virginia"
+  ],
+  [
+    4,
+    "Kansas"
+  ],
+  [
+    5,
+    "North Carolina"
+  ],
+  [
+    6,
+    "Vanderbilt"
+  ],
+  [
+    7,
+    "Saint Mary's"
+  ],
+  [
+    8,
+    "Utah State"
+  ],
+  [
+    9,
+    "Iowa"
+  ],
+  [
+    10,
+    "Clemson"
   ],
   [
     11,
@@ -65,91 +132,26 @@ const EAST = [
   ],
   [
     13,
-    "High Point"
+    "Utah Valley"
   ],
   [
     14,
-    "Troy"
+    "ETSU"
   ],
   [
     15,
-    "Portland St"
+    "Wright State"
   ],
   [
     16,
-    "Merrimack"
+    "App St"
   ]
 ];
-const WEST = [
-  [
-    1,
-    "Arizona"
-  ],
-  [
-    2,
-    "Illinois"
-  ],
-  [
-    3,
-    "Gonzaga"
-  ],
-  [
-    4,
-    "Kansas"
-  ],
-  [
-    5,
-    "Virginia"
-  ],
-  [
-    6,
-    "North Carolina"
-  ],
-  [
-    7,
-    "Saint Louis"
-  ],
-  [
-    8,
-    "Villanova"
-  ],
-  [
-    9,
-    "NC St"
-  ],
-  [
-    10,
-    "St. Mary's"
-  ],
-  [
-    11,
-    "UCLA"
-  ],
-  [
-    12,
-    "Tulsa"
-  ],
-  [
-    13,
-    "SF Austin"
-  ],
-  [
-    14,
-    "Hawaii"
-  ],
-  [
-    15,
-    "Wright St"
-  ],
-  [
-    16,
-    "Navy"
-  ]
-];
+
 const SOUTH = [
   [
     1,
-    "UConn"
+    "Iowa State"
   ],
   [
     2,
@@ -157,11 +159,11 @@ const SOUTH = [
   ],
   [
     3,
-    "Vanderbilt"
+    "Gonzaga"
   ],
   [
     4,
-    "BYU"
+    "Texas Tech"
   ],
   [
     5,
@@ -169,11 +171,11 @@ const SOUTH = [
   ],
   [
     6,
-    "Clemson"
+    "Tennessee"
   ],
   [
     7,
-    "UCF"
+    "Miami (OH)"
   ],
   [
     8,
@@ -185,33 +187,34 @@ const SOUTH = [
   ],
   [
     10,
-    "Miami (FLA.)"
+    "Auburn"
   ],
   [
     11,
-    "Virginia Tech"
+    "Missouri"
   ],
   [
     12,
-    "Yale"
+    "USF"
   ],
   [
     13,
-    "UNC-Wilmington"
+    "UNCW"
   ],
   [
     14,
-    "ETSU"
+    "UC Irvine"
   ],
   [
     15,
-    "UT Martin"
+    "Portland State"
   ],
   [
     16,
-    "B-CU"
+    "UMBC"
   ]
 ];
+
 const MIDWEST = [
   [
     1,
@@ -219,19 +222,19 @@ const MIDWEST = [
   ],
   [
     2,
-    "Iowa St"
+    "UConn"
   ],
   [
     3,
-    "Purdue"
+    "Illinois"
   ],
   [
     4,
-    "Florida"
+    "St. John's"
   ],
   [
     5,
-    "Tennessee"
+    "BYU"
   ],
   [
     6,
@@ -239,31 +242,31 @@ const MIDWEST = [
   ],
   [
     7,
-    "Auburn"
+    "Saint Louis"
   ],
   [
     8,
-    "Iowa"
+    "NC State"
   ],
   [
     9,
-    "Wisconsin"
+    "UCF"
   ],
   [
     10,
-    "USC"
+    "Texas"
   ],
   [
     11,
-    "Ohio St"
+    "Santa Clara"
   ],
   [
     12,
-    "Liberty"
+    "Yale"
   ],
   [
     13,
-    "Utah Valley"
+    "SF Austin"
   ],
   [
     14,
@@ -275,9 +278,10 @@ const MIDWEST = [
   ],
   [
     16,
-    "Long Island"
+    "Howard"
   ]
 ];
+
 
 const GENERATED_AT = new Date().toISOString();
 

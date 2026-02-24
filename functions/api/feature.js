@@ -3,7 +3,7 @@ import { json, requireUser, isAdmin, sendEmail, getSiteDomain } from "./_util.js
 
 function isCompleteBracketData(data){
   try{
-    const picks = data && data.picks ? data.picks : null;
+    const picks = (data && data.picks) ? data.picks : (data || null);
     if(!picks) return false;
     const regionKeys = ['REGION_SOUTH','REGION_WEST','REGION_EAST','REGION_MIDWEST'];
     for(const rKey of regionKeys){
