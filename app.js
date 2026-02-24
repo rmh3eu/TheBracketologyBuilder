@@ -10,7 +10,6 @@ function getBaseRegionsForBracket(bracket){
   return null;
 }
 
-
 // --- Featured submission requires complete bracket ---
 function __bb_isBracketComplete(picks){
   try{
@@ -33,7 +32,6 @@ function __bb_isBracketComplete(picks){
     return false;
   }
 }
-
 
 function setSeasonBar(){
   const bar = document.getElementById('seasonBar');
@@ -139,7 +137,6 @@ function openSeasonBannerModal(currentText){
     }
   };
 }
-
 
 async function adminSetSetting(key, value){
   try{
@@ -250,8 +247,6 @@ function openLockModal(){
   });
 }
 
-
-
 // Data is defined in data.js as top-level consts (EAST/WEST/SOUTH/MIDWEST, LAST_FOUR_IN, FIRST_FOUR_OUT, etc.).
 // In classic-script mode (Safari), do NOT redeclare those same names here.
 // Instead, read them (or fall back to window.BRACKET_DATA if present).
@@ -270,7 +265,6 @@ const GENERATED_AT_VALUE = (typeof GENERATED_AT !== 'undefined') ? GENERATED_AT 
  * - Logged-in users: picks auto-save to D1 (DB) via /api/bracket PUT/ /api/brackets POST
  * - Admin: /api/admin/emails export (locked to ADMIN_EMAIL)
  */
-
 
 function promptBracketTitle(defaultTitle){
   const t = prompt('Name this bracket:', defaultTitle || '');
@@ -362,7 +356,6 @@ async function maybeDispatchReminderEmails(){
 const qs = (s, el=document) => el.querySelector(s);
 const qsa = (s, el=document) => Array.from(el.querySelectorAll(s));
 const el = (tag, cls) => { const n=document.createElement(tag); if(cls) n.className=cls; return n; };
-
 
 function loadLeadPrefs(){
   try{
@@ -574,7 +567,6 @@ function bindLeadForm(prefix, source){
   setTimeout(()=>{ try{ maybeAutoSave(); }catch(_e){} }, 50);
 }
 
-
 function bindLeadFormsForPage(){
   const path = (location && location.pathname) ? String(location.pathname) : '';
   // Full bracket challenge pages (standalone)
@@ -689,7 +681,6 @@ async function apiDelete(path, body){
   return api(path, { method: 'DELETE', body: body === undefined ? undefined : JSON.stringify(body) });
 }
 
-
 // -------------------- Challenge helpers (global-safe) --------------------
 // Some Safari/strict-mode builds can scope function declarations unexpectedly.
 // These helpers are attached to window so view-switching never crashes.
@@ -786,7 +777,6 @@ function escapeHtml(s){
 }
 function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 
-
 function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
 
 // ===== Phase 3 (mobile): Final Four completion cue (informational only) =====
@@ -805,7 +795,6 @@ function phase3MarkInteracted(){
   __phase3.hasInteracted = true;
   phase3UpdateVisibility();
 }
-
 
 // ===== Phase 4: Submit for Featured (post-save, logged-in only) =====
 const __phase4 = { submittedByBracket: {} };
@@ -921,7 +910,6 @@ const REGIONS = [
   { key:'REGION_MIDWEST',name:'Midwest',teams:REGION_MIDWEST },
 ];
 
-
 // Determine which two region KEYS are on the LEFT and RIGHT halves of the desktop bracket,
 // based on the current DOM layout (.deskCol.left / .deskCol.right).
 // Returns { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: [...] }.
@@ -956,7 +944,6 @@ function getRegionKeyHalvesFromDom(){
   };
 }
 
-
 function wKey(regionKey, roundIdx, gameIdx){ return `${regionKey}__R${roundIdx}__G${gameIdx}__winner`; }
 
 function isBracketCompletePicks(picks){
@@ -985,7 +972,6 @@ function isBracketCompletePicks(picks){
     return false;
   }
 }
-
 
 // -------------------- Bracket Logic --------------------
 const PAIRINGS = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
@@ -1033,23 +1019,6 @@ function coerceTeamValue(v){
 function listToSeedArray(seedList){
   const map = new Map();
   (seedList||[]).forEach(([seed, name])=> map.set(seed, name));
-
-  // Home-page-only seed tweak: show Miami (OH) instead of UCLA on the projection/home bracket.
-  // IMPORTANT: Only applies when the user is on the home page AND not viewing an existing saved bracket.
-  try{
-    const path = (window.location && window.location.pathname) ? window.location.pathname : '';
-    const isHome = (path === '/' || path === '' || path.endsWith('/index.html'));
-    const sp = new URLSearchParams(window.location.search || '');
-    const hasBracketId = !!(sp.get('bracketId') || sp.get('id'));
-    if(isHome && !hasBracketId){
-      // Replace the seed name without mutating the source data constants.
-      for(const [seed, name] of map.entries()){
-        if(name === 'UCLA'){
-          map.set(seed, 'Miami (OH)');
-        }
-      }
-    }
-  }catch(_e){}
 
   return SEEDS.map(s => map.get(s) ? ({ seed:s, name: map.get(s) }) : null);
 }
@@ -1142,7 +1111,6 @@ function getPlaceholderSweet16Field(regionKey){
   const t4 = getTeamBySeed(regionKey, 4);
   return [t1, t4, t3, t2];
 }
-
 
 // Fill the bracket with random picks.
 
@@ -1415,8 +1383,6 @@ async function loadResults(){
   }
 }
 
-
-
 // ---------- Admin Broadcast (Email Alerts) ----------
 async function sendAdminBroadcast(panel){
   const seg = (panel && panel.dataset && panel.dataset.segment) ? panel.dataset.segment : 'live';
@@ -1575,7 +1541,6 @@ async function doSignup(email, password){
     .then(()=> doSignin(email, password));
 }
 
-
 async function doSignin(email, password){
   await api('/api/login', { method:'POST', body: JSON.stringify({ email, password })});
   await refreshMe();
@@ -1671,7 +1636,6 @@ function setBracketTitleDisplay(title) {
 
 // If a guest triggers Save / Save & Enter, we queue the action and resume it after auth.
 let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' }
-
 
 // Clear any unwanted browser autofill (some browsers inject the user's email into the bracket title input).
 function clearBracketTitleAutofill(){
@@ -2164,7 +2128,6 @@ function renderLbMeta(challenge, group, selectedGroupId){
       : 'Worst Bracket Challenge (pick losers)';
   }
 
-
 // Right side: hint + admin tools
 right.innerHTML = '';
 const hint = document.createElement('div');
@@ -2203,7 +2166,6 @@ async function renderWorstLeaderboard(){
   }
 
 }
-
 
 async function renderStatsBadge(){
   const badge = qs('#statsBadge');
@@ -2464,7 +2426,6 @@ async function renderLeaderboardsForCurrentGroups(){
     }
   }catch{}
 }
-
 
 function stage2Unlocked(){
   const regions = ['REGION_SOUTH','REGION_EAST','REGION_WEST','REGION_MIDWEST'];
@@ -2887,7 +2848,6 @@ async function enterWorstStage1FromCurrent(){
   await renderWorstLeaderboard();
 }
 
-
 async function openBracketsOverlay(){
   const ov = qs('#bracketsOverlay');
   ov.classList.remove('hidden');
@@ -3206,7 +3166,6 @@ async function loadAdminFeaturedReview(){
   });
 }
 
-
 // -------------------- Rendering --------------------
 function renderBubble(){
   // Bubble panel removed (Home is bracket-only). Keep this as a safe no-op.
@@ -3274,7 +3233,6 @@ function renderRegion(r, picks, opts={}){
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
   const ALL_ROUND_LABELS = ['Round of 64','Round of 32','Sweet 16','Elite 8'];
   const roundLabels = ALL_ROUND_LABELS.slice(startRound, startRound + roundsToRender);
-
 
   // Region header + per-round labels (requested: show round names aligned above
   // each column, and keep the region name visible on mobile when the bracket
@@ -3736,7 +3694,6 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   mount.appendChild(scroller);
 }
 
-
 function renderChallengeCallout(){
   const mount = qs('#challengeCallout');
   if(!mount) return;
@@ -3751,7 +3708,6 @@ function renderChallengeCallout(){
   qs('#goBest')?.addEventListener('click', ()=>showView('best'));
   qs('#goWorst')?.addEventListener('click', ()=>showView('worst'));
 }
-
 
 function sweet16Set(){
   if(sweet16ModeEnabled()) return true;
@@ -3913,7 +3869,6 @@ function renderAll(){
         }, 0);
       }catch(_e){}
     }
-
 
   }else{
     // Clear full bracket mounts
@@ -4191,7 +4146,6 @@ function updateChallengeAvailability(){
   ids.forEach(id=>{ const el = qs('#'+id); if(el) el.classList.toggle('hidden', OFFICIAL_BRACKET_LIVE); });
 }
 
-
 // -------------------- Helpers --------------------
 function escapeHtml(str){
   return String(str||'')
@@ -4376,7 +4330,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     }
   } catch (_e) {}
 
-
   // Mobile-only UI tweak:
   // - Put Random Picks + Undo on the same row
   // - Move the bracket title box below that row (so it isn't directly above Undo)
@@ -4416,7 +4369,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
   qs('#adminFeaturedFilter')?.addEventListener('change', ()=>loadAdminFeaturedReview());
-
 
   // Header buttons
   qs('#accountBtn')?.addEventListener('click', async ()=>{
@@ -4761,11 +4713,9 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
   });
 });
 
-
 // Ensure global access (classic script navigation)
 try { window.renderChallenges = renderChallenges; } catch(e) {}
 try { window.renderChallengeCallout = renderChallengeCallout; } catch(e) {}
-
 
 /* PATCH 19: Age confirmation modal for sportsbook links */
 document.addEventListener("click", function(e) {
@@ -4797,7 +4747,6 @@ document.addEventListener("click", function(e) {
     s.addEventListener('scroll', () => updateHeader(s), { passive:true });
   });
 })();
-
 
 function triggerSaveAndGoMyBrackets(){
   try{
