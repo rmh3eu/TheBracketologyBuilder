@@ -57,10 +57,7 @@ const WEST = [
     9,
     "Iowa"
   ],
-  [
-    10,
-    "Clemson"
-  ],
+  [10,"Clemson"],
   [
     11,
     "New Mexico"
