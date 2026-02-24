@@ -3577,7 +3577,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   }
   mount.innerHTML = '';
 
-  const regionOrder = ['South','West','East','Midwest'];
+  const regionOrder = ['East','Midwest','West','South'];
   const regionsByName = {};
   (state.regions||[]).forEach(r=> regionsByName[r.name]=r);
 
