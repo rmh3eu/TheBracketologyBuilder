@@ -1,4 +1,16 @@
 
+// ---- R64 snapshot rendering protection ----
+function getBaseRegionsForBracket(bracket){
+  if(bracket && bracket.data && bracket.data.base){
+    return bracket.data.base;
+  }
+  if(typeof R64_SNAPSHOT !== 'undefined'){
+    return R64_SNAPSHOT;
+  }
+  return null;
+}
+
+
 // --- Featured submission requires complete bracket ---
 function __bb_isBracketComplete(picks){
   try{
@@ -3004,7 +3016,7 @@ async function submitFeatured(){
   // Only allow submission when the bracket is fully completed.
   try{
     const bd = await api(`/api/bracket?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
-    const picks = (bd && bd.bracket && bd.bracket.data) ? (bd.bracket.data.picks || bd.bracket.data) : null;
+    const picks = (bd && bd.bracket && bd.bracket.data && bd.bracket.data.picks) ? bd.bracket.data.picks : null;
     if(!isBracketCompletePicks(picks)){
       toast('Please complete your bracket to submit to featured');
       return;
@@ -3565,7 +3577,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   }
   mount.innerHTML = '';
 
-  const regionOrder = ['East','Midwest','West','South'];
+  const regionOrder = ['South','West','East','Midwest'];
   const regionsByName = {};
   (state.regions||[]).forEach(r=> regionsByName[r.name]=r);
 

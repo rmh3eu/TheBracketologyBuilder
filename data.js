@@ -15,49 +15,46 @@ const FIRST_FOUR_OUT = [
 ];
 
 const EAST = [
- [1,"Duke"], [2,"Gonzaga"], [3,"Nebraska"], [4,"Michigan St"], [5,"Alabama"], [6,"Wisconsin"], [7,"Villanova"], [8,"Miami FLA"],
- [9,"Texas A&M"], [10,"UCLA"], [11,"Missouri"], [12,"High Point"], [13,"Liberty"], [14,"Navy"], [15,"Merrimack"], [16,"LIU"]
-];
-
-
-const WEST = [
   [
     1,
-    "Arizona"
+    "Duke"
   ],
   [
     2,
-    "Florida"
+    "Nebraska"
   ],
   [
     3,
-    "Virginia"
+    "Michigan St"
   ],
   [
     4,
-    "Kansas"
+    "Texas Tech"
   ],
   [
     5,
-    "North Carolina"
+    "Alabama"
   ],
   [
     6,
-    "Vanderbilt"
+    "St. John's"
   ],
   [
     7,
-    "Saint Mary's"
+    "Kentucky"
   ],
   [
     8,
-    "Utah State"
+    "Texas A&M"
   ],
   [
     9,
-    "Iowa"
+    "Utah St"
   ],
-  [10,"Clemson"],
+  [
+    10,
+    "Indiana"
+  ],
   [
     11,
     "New Mexico"
@@ -68,52 +65,45 @@ const WEST = [
   ],
   [
     13,
-    "Utah Valley"
+    "High Point"
   ],
   [
     14,
-    "ETSU"
+    "Troy"
   ],
   [
     15,
-    "Wright State"
+    "Portland St"
   ],
   [
     16,
-    "App St"
+    "Merrimack"
   ]
 ];
-
-const SOUTH = [
- [1,"Iowa State"], [2,"Houston"], [3,"Purdue"], [4,"Texas Tech"], [5,"Arkansas"], [6,"Tennessee"], [7,"Miami (OH)"], [8,"SMU"],
- [9,"Georgia"], [10,"Auburn"], [11,"Ohio St"], [12,"USF"], [13,"UNCW"], [14,"UC Irvine"], [15,"Portland State"], [16,"UMBC"]
-];
-
-
-const MIDWEST = [
+const WEST = [
   [
     1,
-    "Michigan"
+    "Arizona"
   ],
   [
     2,
-    "UConn"
-  ],
-  [
-    3,
     "Illinois"
   ],
   [
+    3,
+    "Gonzaga"
+  ],
+  [
     4,
-    "St. John's"
+    "Kansas"
   ],
   [
     5,
-    "BYU"
+    "Virginia"
   ],
   [
     6,
-    "Louisville"
+    "North Carolina"
   ],
   [
     7,
@@ -121,19 +111,85 @@ const MIDWEST = [
   ],
   [
     8,
-    "NC State"
+    "Villanova"
   ],
   [
     9,
-    "UCF"
+    "NC St"
   ],
   [
     10,
-    "Texas"
+    "St. Mary's"
   ],
   [
     11,
-    "Santa Clara"
+    "UCLA"
+  ],
+  [
+    12,
+    "Tulsa"
+  ],
+  [
+    13,
+    "SF Austin"
+  ],
+  [
+    14,
+    "Hawaii"
+  ],
+  [
+    15,
+    "Wright St"
+  ],
+  [
+    16,
+    "Navy"
+  ]
+];
+const SOUTH = [
+  [
+    1,
+    "UConn"
+  ],
+  [
+    2,
+    "Houston"
+  ],
+  [
+    3,
+    "Vanderbilt"
+  ],
+  [
+    4,
+    "BYU"
+  ],
+  [
+    5,
+    "Arkansas"
+  ],
+  [
+    6,
+    "Clemson"
+  ],
+  [
+    7,
+    "UCF"
+  ],
+  [
+    8,
+    "SMU"
+  ],
+  [
+    9,
+    "Georgia"
+  ],
+  [
+    10,
+    "Miami (FLA.)"
+  ],
+  [
+    11,
+    "Virginia Tech"
   ],
   [
     12,
@@ -141,7 +197,73 @@ const MIDWEST = [
   ],
   [
     13,
-    "SF Austin"
+    "UNC-Wilmington"
+  ],
+  [
+    14,
+    "ETSU"
+  ],
+  [
+    15,
+    "UT Martin"
+  ],
+  [
+    16,
+    "B-CU"
+  ]
+];
+const MIDWEST = [
+  [
+    1,
+    "Michigan"
+  ],
+  [
+    2,
+    "Iowa St"
+  ],
+  [
+    3,
+    "Purdue"
+  ],
+  [
+    4,
+    "Florida"
+  ],
+  [
+    5,
+    "Tennessee"
+  ],
+  [
+    6,
+    "Louisville"
+  ],
+  [
+    7,
+    "Auburn"
+  ],
+  [
+    8,
+    "Iowa"
+  ],
+  [
+    9,
+    "Wisconsin"
+  ],
+  [
+    10,
+    "USC"
+  ],
+  [
+    11,
+    "Ohio St"
+  ],
+  [
+    12,
+    "Liberty"
+  ],
+  [
+    13,
+    "Utah Valley"
   ],
   [
     14,
@@ -153,10 +275,9 @@ const MIDWEST = [
   ],
   [
     16,
-    "Howard"
+    "Long Island"
   ]
 ];
-
 
 const GENERATED_AT = new Date().toISOString();
 
@@ -174,3 +295,12 @@ window.BRACKET_DATA.GENERATED_AT = GENERATED_AT;
 
 // v37.1: editable seasonal banner text (shown above Bubble section)
 const SEASON_BANNER_TEXT = 'It’s College Basketball Season! 🏀 Time to Make a Bracket!';
+
+
+// === R64 SNAPSHOT (used for existing brackets) ===
+const R64_SNAPSHOT = {
+  EAST: EAST,
+  WEST: WEST,
+  MIDWEST: MIDWEST,
+  SOUTH: SOUTH
+};
