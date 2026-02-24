@@ -3065,6 +3065,8 @@ async function loadAdminFeaturedReview(){
   if(!(state && state.me && state.me.isAdmin)) return;
 
   const statusNode = qs('#adminFeaturedStatus');
+  const repairBtn = qs('#adminRepairBasesBtn');
+  if(repairBtn){ repairBtn.onclick = async ()=>{ repairBtn.disabled=true; try{ const r=await api('/api/admin/repair_bases_nearest', {method:'GET'}); toast(`Repaired ${r.would_update||0} brackets.`); }catch(e){ toast('Repair failed.'); } repairBtn.disabled=false; await loadAdminFeaturedReview(); }; }
   const mounts = {
     pending: qs('#adminFeaturedPending'),
     approved: qs('#adminFeaturedApproved'),
@@ -3164,6 +3166,21 @@ async function loadAdminFeaturedReview(){
       }
     });
   });
+  qsa('[data-pending]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-pending');
+      btn.disabled = true;
+      try{
+        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'pending' }) });
+        toast('Moved to pending.');
+        await loadAdminFeaturedReview();
+      }catch(e){
+        toast('Could not move to pending.');
+        btn.disabled = false;
+      }
+    });
+  });
+
 }
 
 // -------------------- Rendering --------------------

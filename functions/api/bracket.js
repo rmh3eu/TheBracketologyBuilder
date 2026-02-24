@@ -90,6 +90,10 @@ export async function onRequestPut({ request, env }){
 
   const now = new Date().toISOString();
 
+  // Preserve frozen Round of 64 snapshot (base) even if client omits it
+  let existingData = {};
+  try{ existingData = JSON.parse(existing.data_json || '{}'); }catch(e){ existingData = {}; }
+
   // If data was not provided, treat this as a rename-only update.
   const nextDataJson = (data === null) ? (existing.data_json || "{}") : JSON.stringify(data);
   await env.DB.prepare(
