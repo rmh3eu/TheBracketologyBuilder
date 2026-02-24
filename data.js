@@ -15,71 +15,10 @@ const FIRST_FOUR_OUT = [
 ];
 
 const EAST = [
-  [
-    1,
-    "Duke"
-  ],
-  [
-    2,
-    "Purdue"
-  ],
-  [
-    3,
-    "Nebraska"
-  ],
-  [
-    4,
-    "Michigan St"
-  ],
-  [
-    5,
-    "Alabama"
-  ],
-  [
-    6,
-    "Wisconsin"
-  ],
-  [
-    7,
-    "Villanova"
-  ],
-  [
-    8,
-    "Miami FLA"
-  ],
-  [
-    9,
-    "Texas A&M"
-  ],
-  [
-    10,
-    "UCLA"
-  ],
-  [
-    11,
-    "Ohio St"
-  ],
-  [
-    12,
-    "High Point"
-  ],
-  [
-    13,
-    "Liberty"
-  ],
-  [
-    14,
-    "Navy"
-  ],
-  [
-    15,
-    "Merrimack"
-  ],
-  [
-    16,
-    "LIU"
-  ]
+ [1,"Duke"], [2,"Purdue"], [3,"Nebraska"], [4,"Michigan St"], [5,"Alabama"], [6,"Wisconsin"], [7,"Villanova"], [8,"Miami FLA"],
+ [9,"Texas A&M"], [10,"UCLA"], [11,"Missouri"], [12,"High Point"], [13,"Liberty"], [14,"Navy"], [15,"Merrimack"], [16,"LIU"]
 ];
+
 
 const WEST = [
   [
@@ -149,71 +88,10 @@ const WEST = [
 ];
 
 const SOUTH = [
-  [
-    1,
-    "Iowa State"
-  ],
-  [
-    2,
-    "Houston"
-  ],
-  [
-    3,
-    "Gonzaga"
-  ],
-  [
-    4,
-    "Texas Tech"
-  ],
-  [
-    5,
-    "Arkansas"
-  ],
-  [
-    6,
-    "Tennessee"
-  ],
-  [
-    7,
-    "Miami (OH)"
-  ],
-  [
-    8,
-    "SMU"
-  ],
-  [
-    9,
-    "Georgia"
-  ],
-  [
-    10,
-    "Auburn"
-  ],
-  [
-    11,
-    "Missouri"
-  ],
-  [
-    12,
-    "USF"
-  ],
-  [
-    13,
-    "UNCW"
-  ],
-  [
-    14,
-    "UC Irvine"
-  ],
-  [
-    15,
-    "Portland State"
-  ],
-  [
-    16,
-    "UMBC"
-  ]
+ [1,"Iowa State"], [2,"Houston"], [3,"Gonzaga"], [4,"Texas Tech"], [5,"Arkansas"], [6,"Tennessee"], [7,"Miami (OH)"], [8,"SMU"],
+ [9,"Georgia"], [10,"Auburn"], [11,"Ohio St"], [12,"USF"], [13,"UNCW"], [14,"UC Irvine"], [15,"Portland State"], [16,"UMBC"]
 ];
+
 
 const MIDWEST = [
   [
