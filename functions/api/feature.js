@@ -40,11 +40,11 @@ export async function onRequestPost({ request, env }){
   try{
     const data = JSON.parse(row.data_json || '{}');
     if(!isCompleteBracketData(data)){
-      return json({ok:false, error:"Please complete your bracket to submit to featured"}, 400);
-    }
+      return json({ ok:false, error:"Unable to submit bracket." }, 400);
+}
   }catch(e){
-    return json({ok:false, error:"Please complete your bracket to submit to featured"}, 400);
-  }
+    return json({ ok:false, error:"Unable to submit bracket." }, 400);
+}
 
   const existing = await env.DB.prepare(
     "SELECT id, status FROM feature_requests WHERE bracket_id=? AND user_id=? ORDER BY created_at DESC LIMIT 1"
