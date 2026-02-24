@@ -95,7 +95,13 @@ export async function onRequestPut({ request, env }){
   try{ existingData = JSON.parse(existing.data_json || '{}'); }catch(e){ existingData = {}; }
 
   // If data was not provided, treat this as a rename-only update.
-  const nextDataJson = (data === null) ? (existing.data_json || "{}") : JSON.stringify(data);
+  let mergedData = data;
+  if(mergedData && typeof mergedData === "object"){
+    if(!mergedData.base && existingData && existingData.base){
+      mergedData.base = existingData.base;
+    }
+  }
+  const nextDataJson = (mergedData === null) ? (existing.data_json || "{}") : JSON.stringify(mergedData);
   await env.DB.prepare(
     "UPDATE brackets SET title=?, bracket_name=?, data_json=?, updated_at=? WHERE id=?"
   ).bind(title, bracket_name, nextDataJson, now, id).run();

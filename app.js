@@ -3113,7 +3113,9 @@ async function loadAdminFeaturedReview(){
           ${st === 'pending' ? `
             <button class="btnOutline approveBtn smallBtn" data-approve="${req.id}">Approve</button>
             <button class="btnOutline denyBtn smallBtn" data-deny="${req.id}">Deny</button>
-          ` : ``}
+          ` : `
+            <button class="btnOutline pendingBtn smallBtn" data-pending="${req.id}">Send to Pending</button>
+          `}
         </div>
       `;
       mount.appendChild(card);
