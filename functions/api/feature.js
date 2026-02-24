@@ -39,10 +39,7 @@ export async function onRequestPost({ request, env }){
   // Only allow featured submission for fully completed brackets.
   try{
     const data = JSON.parse(row.data_json || '{}');
-    if(!isCompleteBracketData(data)){
-      return json({ ok:false, error:"Unable to submit bracket." }, 400);
-}
-  }catch(e){
+}catch(e){
     return json({ ok:false, error:"Unable to submit bracket." }, 400);
 }
 
