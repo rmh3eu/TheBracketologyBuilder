@@ -268,11 +268,11 @@ const SNAPSHOT = {
   ]
 };
 
-import { requireAdmin } from '../_util.js';
-
+import { json, requireUser, isAdmin } from '../_util.js';
 export async function onRequest(context) {
   const { request, env } = context;
-  await requireAdmin(request, env);
+  const user = await requireUser(request, env);
+  if(!isAdmin(user, env)) return json({ok:false, error:'forbidden'}, 403);
 
   const db = env.DB;
   const rows = await db.prepare("SELECT id, data_json FROM brackets").all();
@@ -292,7 +292,5 @@ export async function onRequest(context) {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, updated }), {
-    headers: { "content-type": "application/json" }
-  });
+    return json({ ok: true, updated });
 }
