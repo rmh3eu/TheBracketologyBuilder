@@ -2982,7 +2982,9 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* Admin Featured Review - section boards */
 .sectionHeading{font-size:18px;font-weight:800;color:#fff;margin:10px 0 6px;}
-.whiteBoard{background:#fff;border-radius:14px;padding:14px;border:1px solid rgba(0,0,0,0.08);}
+.whiteBoard{background:#fff;border-radius:14px;padding:14px;border:1px solid rgba(0,0,0,0.08);
+  color: #111;
+}
 .whiteBoard .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
 .whiteBoard .bracketCard{background:#2563eb !important;border:1px solid rgba(0,0,0,0.12) !important;}
 .whiteBoard .bracketCard .bracketTitle,
@@ -3048,3 +3050,15 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .submitFeaturedMsg.err{color:#b91c1c;font-weight:700;}
 .submitFeaturedInlineBtn{margin-top:10px;padding:8px 12px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}
 .submitFeaturedInlineBtn:disabled{opacity:0.6;cursor:not-allowed;}
+
+
+/* Ensure text is visible inside white sections (Admin Featured Review boards) */
+.whiteBoard, .whiteBoard * { color: #111; }
+.whiteBoard a { color: #111; }
+.whiteBoard .approveBtn, .whiteBoard .denyBtn, .whiteBoard .pendingBtn, .whiteBoard .sendPendingBtn {
+  color: #fff !important;
+}
+.whiteBoard .approveBtn { background: #1f9d55; border-color: #1f9d55; }
+.whiteBoard .denyBtn, .whiteBoard .sendPendingBtn { background: #e3342f; border-color: #e3342f; }
+.whiteBoard .pendingBtn { background: #4b5563; border-color: #4b5563; }
+
