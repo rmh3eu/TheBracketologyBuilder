@@ -1,6 +1,5 @@
 import { json, requireUser, uid } from "./_util.js";
 
-import { json, requireUser, uid } from "./_util.js";
 
 async function ensureProjectionTables(env){
   await env.DB.prepare(`
