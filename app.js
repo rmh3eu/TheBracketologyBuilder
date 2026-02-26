@@ -4099,12 +4099,12 @@ function showView(name){
   }
 
   // Admin views require admin session.
-  if((name === 'adminbrackets' || name === 'adminfeatured') && !(state && state.me && state.me.isAdmin)){
+  if((name === 'adminbrackets' || name === 'adminfeatured' || name === 'adminprojections') && !(state && state.me && state.me.isAdmin)){
     try{ toast('Not authorized.'); }catch(e){}
     name = 'build';
   }
 
-  const views = ['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured'];
+  const views = ['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured','adminprojections'];
   views.forEach(v=>{
     const node = qs('#view-'+v);
     if(!node) return;
@@ -4120,6 +4120,7 @@ function showView(name){
   if(name==='best' || name==='worst') renderChallenges();
   if(name==='adminbrackets') loadAdminBracketsView().catch(()=>{});
   if(name==='adminfeatured') loadAdminFeaturedReview().catch(()=>{});
+  if(name==='adminprojections') { try{ initAdminProjections(); }catch(e){} }
 
   // UX: when a view contains the "Get Challenge Reminders" input, focus it automatically
   // so the blinking cursor is already in the box.
@@ -4795,4 +4796,185 @@ function triggerSaveAndGoMyBrackets(){
       window.location.href = '/my-brackets.html';
     });
   }catch(e){}
+
+// ------------------------------
+// Admin Projections UI (v57)
+// ------------------------------
+function _projPairsToObjs(pairs){ return (pairs||[]).map(([seed, team])=>({seed, team})); }
+function _projObjsToPairs(objs){ return (objs||[]).map(x=>[x.seed, x.team]); }
+
+function getProjectionFromSite(){
+  // data.js defines EAST/WEST/MIDWEST/SOUTH arrays of [seed, team]
+  try{
+    return {
+      east: _projPairsToObjs(window.EAST || EAST),
+      west: _projPairsToObjs(window.WEST || WEST),
+      midwest: _projPairsToObjs(window.MIDWEST || MIDWEST),
+      south: _projPairsToObjs(window.SOUTH || SOUTH),
+    };
+  }catch(e){
+    return null;
+  }
+}
+
+function setProjectionEditor(snapshot){
+  const regions = [
+    {key:'east', mount:'#projEast'},
+    {key:'west', mount:'#projWest'},
+    {key:'midwest', mount:'#projMidwest'},
+    {key:'south', mount:'#projSouth'},
+  ];
+  regions.forEach(r=>{
+    const mount = qs(r.mount);
+    if(!mount) return;
+    mount.innerHTML = '';
+    const arr = (snapshot && snapshot[r.key]) ? snapshot[r.key] : [];
+    // ensure seeds 1..16
+    const bySeed = {};
+    arr.forEach(x=>{ bySeed[x.seed] = x.team; });
+    for(let seed=1; seed<=16; seed++){
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.style = 'gap:10px; align-items:center; margin:6px 0;';
+      const lab = document.createElement('div');
+      lab.style = 'width:28px; font-weight:700;';
+      lab.textContent = seed;
+      const inp = document.createElement('input');
+      inp.className = 'input';
+      inp.style = 'flex:1;';
+      inp.placeholder = 'Team name';
+      inp.value = bySeed[seed] || '';
+      inp.setAttribute('data-proj-region', r.key);
+      inp.setAttribute('data-proj-seed', String(seed));
+      row.appendChild(lab);
+      row.appendChild(inp);
+      mount.appendChild(row);
+    }
+  });
+}
+
+function readProjectionEditor(){
+  const inputs = qsa('input[data-proj-region][data-proj-seed]');
+  const snap = { east:[], west:[], midwest:[], south:[] };
+  inputs.forEach(inp=>{
+    const r = inp.getAttribute('data-proj-region');
+    const s = parseInt(inp.getAttribute('data-proj-seed'), 10);
+    const team = (inp.value || '').trim();
+    if(!r || !s) return;
+    snap[r].push({ seed:s, team });
+  });
+  // sort seeds
+  ['east','west','midwest','south'].forEach(r=>{
+    snap[r].sort((a,b)=>a.seed-b.seed);
+  });
+  return snap;
+}
+
+async function adminFetchProjections(){
+  const res = await fetch('/api/admin/projections', { credentials:'include' });
+  const txt = await res.text();
+  let data = null;
+  try{ data = JSON.parse(txt); }catch(e){ data = { ok:false, error:'Non-JSON response', raw: txt }; }
+  if(!res.ok) throw Object.assign(new Error(data.error || ('HTTP '+res.status)), { status: res.status, data });
+  return data;
+}
+
+async function adminPublishProjection(label, snapshot){
+  const res = await fetch('/api/admin/projections/publish', {
+    method:'POST',
+    credentials:'include',
+    headers:{ 'content-type':'application/json' },
+    body: JSON.stringify({ label: label||'', snapshot })
+  });
+  const txt = await res.text();
+  let data = null;
+  try{ data = JSON.parse(txt); }catch(e){ data = { ok:false, error:'Non-JSON response', raw: txt }; }
+  if(!res.ok) throw Object.assign(new Error(data.error || ('HTTP '+res.status)), { status: res.status, data });
+  return data;
+}
+
+async function refreshProjectionsAdminUI(){
+  const status = qs('#projStatus');
+  const cur = qs('#projCurrent');
+  if(status) status.textContent = 'Loading...';
+  try{
+    const d = await adminFetchProjections();
+    const c = d.current;
+    if(cur){
+      cur.textContent = c ? (`#${c.id} — ${c.created_at}${c.label ? (' — '+c.label) : ''}`) : '(none yet)';
+    }
+    if(status) status.textContent = '';
+  }catch(e){
+    if(status) status.textContent = (e.data && e.data.error) ? e.data.error : e.message;
+  }
+}
+
+function initAdminProjections(){
+  const loadBtn = qs('#projLoadBtn');
+  const loadPubBtn = qs('#projLoadPublishedBtn');
+  const pubBtn = qs('#projPublishBtn');
+  if(loadBtn){
+    loadBtn.addEventListener('click', ()=>{
+      const snap = getProjectionFromSite();
+      if(!snap){ try{ toast('Could not load projection from site'); }catch(e){} return; }
+      setProjectionEditor(snap);
+      try{ toast('Loaded current projection from site'); }catch(e){}
+    });
+  }
+  if(loadPubBtn){
+    loadPubBtn.addEventListener('click', async ()=>{
+      const status = qs('#projStatus');
+      if(status) status.textContent = 'Loading published...';
+      try{
+        const pc = await fetch('/api/projection-current', { credentials:'include' });
+        const txt = await pc.text();
+        const d = JSON.parse(txt);
+        if(d && d.current && d.current.snapshot){
+          setProjectionEditor(d.current.snapshot);
+          if(status) status.textContent = '';
+          try{ toast('Loaded published projection'); }catch(e){}
+        }else{
+          if(status) status.textContent = 'No published projection yet.';
+        }
+      }catch(e){
+        if(status) status.textContent = 'Failed to load published projection.';
+      }
+    });
+  }
+  if(pubBtn){
+    pubBtn.addEventListener('click', async ()=>{
+      const label = (qs('#projLabel') && qs('#projLabel').value) ? qs('#projLabel').value : '';
+      const snapshot = readProjectionEditor();
+
+      // validate: all seeds filled
+      for(const r of ['east','west','midwest','south']){
+        for(const x of snapshot[r]){
+          if(!x.team){
+            try{ toast('Missing team for ' + r + ' seed ' + x.seed); }catch(e){}
+            return;
+          }
+        }
+      }
+
+      if(!confirm('Publish a new projection version? This affects HOME + NEW brackets only.')) return;
+
+      const status = qs('#projStatus');
+      if(status) status.textContent = 'Publishing...';
+      try{
+        const d = await adminPublishProjection(label, snapshot);
+        if(status) status.textContent = 'Published version #' + d.id;
+        await refreshProjectionsAdminUI();
+      }catch(e){
+        if(status) status.textContent = (e.data && e.data.error) ? e.data.error : e.message;
+      }
+    });
+  }
+
+  // initial load: editor from site arrays
+  const snap = getProjectionFromSite();
+  if(snap) setProjectionEditor(snap);
+
+  refreshProjectionsAdminUI();
+}
+
 }
