@@ -83,15 +83,10 @@ export async function onRequest(context) {
         return json({ ok: false, error: "Not allowed" }, 403);
       }
 
-      // If there is already a pending request for this bracket, treat as success.
-      const existing = await env.DB.prepare(
-        "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
-      )
-        .bind(bracket_id)
-        .first();
-
-      if (existing && normalizeStatus(existing.status) === "pending") {
-        return json({ ok: true, already: true, request_id: existing.id });
+      // If there is already a request for this bracket (any status), treat as success (idempotent).
+      // This prevents UNIQUE constraint errors if users click multiple times or if admin already approved/denied.
+      if (existing) {
+        return json({ ok: true, already: true, status: normalizeStatus(existing.status), request_id: existing.id });
       }
 
       const now = new Date().toISOString();
@@ -103,12 +98,17 @@ export async function onRequest(context) {
         .bind(now, bracket_id)
         .run();
       const insert = await env.DB.prepare(
-        "INSERT INTO feature_requests (bracket_id, user_id, status, created_at) VALUES (?, ?, ?, ?)"
+        "INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at) VALUES (?, ?, ?, ?)"
       )
         .bind(bracket_id, b.user_id, "pending", now)
         .run();
 
-      return json({ ok: true, request_id: insert.meta?.last_row_id || null });
+      // If it was ignored (already exists), return the existing request id/status.
+      const fr = await env.DB.prepare(
+        "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
+      ).bind(bracket_id).first();
+
+      return json({ ok: true, request_id: fr?.id || insert.meta?.last_row_id || null, status: normalizeStatus(fr?.status || "pending") });
     }
 
     if (method === "GET") {
