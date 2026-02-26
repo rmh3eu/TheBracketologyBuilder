@@ -1,4 +1,4 @@
-import { json, requireAdmin } from "../_util.js";
+import { json, requireAdmin } from "../../_util.js";
 
 async function ensureTables(env){
   // projection_versions stores snapshots, app_config stores current pointer
