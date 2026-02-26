@@ -351,6 +351,7 @@
 
 
 <!-- ADMIN: PROJECTIONS -->
+
 <section class="view hidden" id="view-adminprojections">
   <h2>Admin: Projections</h2>
   <div class="muted">Edit the full 64-team projection for <strong>home page + new brackets only</strong>, then publish as a new version. Existing brackets should never change.</div>
@@ -368,22 +369,294 @@
       <div class="muted" style="margin-top:10px;">Enter teams for each region (seeds 1–16). Keep naming conventions consistent.</div>
 
       <div class="row" style="gap:12px; align-items:flex-start; margin-top:12px; flex-wrap:wrap;">
-        <div style="flex:1; min-width:240px;">
-          <h3 style="margin:6px 0;">East</h3>
-          <div id="projEast"></div>
+        
+      <div style="flex:1; min-width:240px;">
+        <h3 style="margin:6px 0;">East</h3>
+        <div id="projEastStatic">
+          
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">1</div>
+          <input class="input" style="flex:1;" id="proj_east_1" data-proj-region="east" data-proj-seed="1" placeholder="Team name" />
         </div>
-        <div style="flex:1; min-width:240px;">
-          <h3 style="margin:6px 0;">West</h3>
-          <div id="projWest"></div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">2</div>
+          <input class="input" style="flex:1;" id="proj_east_2" data-proj-region="east" data-proj-seed="2" placeholder="Team name" />
         </div>
-        <div style="flex:1; min-width:240px;">
-          <h3 style="margin:6px 0;">Midwest</h3>
-          <div id="projMidwest"></div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">3</div>
+          <input class="input" style="flex:1;" id="proj_east_3" data-proj-region="east" data-proj-seed="3" placeholder="Team name" />
         </div>
-        <div style="flex:1; min-width:240px;">
-          <h3 style="margin:6px 0;">South</h3>
-          <div id="projSouth"></div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">4</div>
+          <input class="input" style="flex:1;" id="proj_east_4" data-proj-region="east" data-proj-seed="4" placeholder="Team name" />
         </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">5</div>
+          <input class="input" style="flex:1;" id="proj_east_5" data-proj-region="east" data-proj-seed="5" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">6</div>
+          <input class="input" style="flex:1;" id="proj_east_6" data-proj-region="east" data-proj-seed="6" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">7</div>
+          <input class="input" style="flex:1;" id="proj_east_7" data-proj-region="east" data-proj-seed="7" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">8</div>
+          <input class="input" style="flex:1;" id="proj_east_8" data-proj-region="east" data-proj-seed="8" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">9</div>
+          <input class="input" style="flex:1;" id="proj_east_9" data-proj-region="east" data-proj-seed="9" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">10</div>
+          <input class="input" style="flex:1;" id="proj_east_10" data-proj-region="east" data-proj-seed="10" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">11</div>
+          <input class="input" style="flex:1;" id="proj_east_11" data-proj-region="east" data-proj-seed="11" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">12</div>
+          <input class="input" style="flex:1;" id="proj_east_12" data-proj-region="east" data-proj-seed="12" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">13</div>
+          <input class="input" style="flex:1;" id="proj_east_13" data-proj-region="east" data-proj-seed="13" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">14</div>
+          <input class="input" style="flex:1;" id="proj_east_14" data-proj-region="east" data-proj-seed="14" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">15</div>
+          <input class="input" style="flex:1;" id="proj_east_15" data-proj-region="east" data-proj-seed="15" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">16</div>
+          <input class="input" style="flex:1;" id="proj_east_16" data-proj-region="east" data-proj-seed="16" placeholder="Team name" />
+        </div>
+        </div>
+      </div>
+    
+        
+      <div style="flex:1; min-width:240px;">
+        <h3 style="margin:6px 0;">West</h3>
+        <div id="projWestStatic">
+          
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">1</div>
+          <input class="input" style="flex:1;" id="proj_west_1" data-proj-region="west" data-proj-seed="1" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">2</div>
+          <input class="input" style="flex:1;" id="proj_west_2" data-proj-region="west" data-proj-seed="2" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">3</div>
+          <input class="input" style="flex:1;" id="proj_west_3" data-proj-region="west" data-proj-seed="3" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">4</div>
+          <input class="input" style="flex:1;" id="proj_west_4" data-proj-region="west" data-proj-seed="4" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">5</div>
+          <input class="input" style="flex:1;" id="proj_west_5" data-proj-region="west" data-proj-seed="5" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">6</div>
+          <input class="input" style="flex:1;" id="proj_west_6" data-proj-region="west" data-proj-seed="6" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">7</div>
+          <input class="input" style="flex:1;" id="proj_west_7" data-proj-region="west" data-proj-seed="7" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">8</div>
+          <input class="input" style="flex:1;" id="proj_west_8" data-proj-region="west" data-proj-seed="8" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">9</div>
+          <input class="input" style="flex:1;" id="proj_west_9" data-proj-region="west" data-proj-seed="9" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">10</div>
+          <input class="input" style="flex:1;" id="proj_west_10" data-proj-region="west" data-proj-seed="10" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">11</div>
+          <input class="input" style="flex:1;" id="proj_west_11" data-proj-region="west" data-proj-seed="11" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">12</div>
+          <input class="input" style="flex:1;" id="proj_west_12" data-proj-region="west" data-proj-seed="12" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">13</div>
+          <input class="input" style="flex:1;" id="proj_west_13" data-proj-region="west" data-proj-seed="13" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">14</div>
+          <input class="input" style="flex:1;" id="proj_west_14" data-proj-region="west" data-proj-seed="14" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">15</div>
+          <input class="input" style="flex:1;" id="proj_west_15" data-proj-region="west" data-proj-seed="15" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">16</div>
+          <input class="input" style="flex:1;" id="proj_west_16" data-proj-region="west" data-proj-seed="16" placeholder="Team name" />
+        </div>
+        </div>
+      </div>
+    
+        
+      <div style="flex:1; min-width:240px;">
+        <h3 style="margin:6px 0;">Midwest</h3>
+        <div id="projMidwestStatic">
+          
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">1</div>
+          <input class="input" style="flex:1;" id="proj_midwest_1" data-proj-region="midwest" data-proj-seed="1" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">2</div>
+          <input class="input" style="flex:1;" id="proj_midwest_2" data-proj-region="midwest" data-proj-seed="2" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">3</div>
+          <input class="input" style="flex:1;" id="proj_midwest_3" data-proj-region="midwest" data-proj-seed="3" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">4</div>
+          <input class="input" style="flex:1;" id="proj_midwest_4" data-proj-region="midwest" data-proj-seed="4" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">5</div>
+          <input class="input" style="flex:1;" id="proj_midwest_5" data-proj-region="midwest" data-proj-seed="5" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">6</div>
+          <input class="input" style="flex:1;" id="proj_midwest_6" data-proj-region="midwest" data-proj-seed="6" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">7</div>
+          <input class="input" style="flex:1;" id="proj_midwest_7" data-proj-region="midwest" data-proj-seed="7" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">8</div>
+          <input class="input" style="flex:1;" id="proj_midwest_8" data-proj-region="midwest" data-proj-seed="8" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">9</div>
+          <input class="input" style="flex:1;" id="proj_midwest_9" data-proj-region="midwest" data-proj-seed="9" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">10</div>
+          <input class="input" style="flex:1;" id="proj_midwest_10" data-proj-region="midwest" data-proj-seed="10" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">11</div>
+          <input class="input" style="flex:1;" id="proj_midwest_11" data-proj-region="midwest" data-proj-seed="11" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">12</div>
+          <input class="input" style="flex:1;" id="proj_midwest_12" data-proj-region="midwest" data-proj-seed="12" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">13</div>
+          <input class="input" style="flex:1;" id="proj_midwest_13" data-proj-region="midwest" data-proj-seed="13" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">14</div>
+          <input class="input" style="flex:1;" id="proj_midwest_14" data-proj-region="midwest" data-proj-seed="14" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">15</div>
+          <input class="input" style="flex:1;" id="proj_midwest_15" data-proj-region="midwest" data-proj-seed="15" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">16</div>
+          <input class="input" style="flex:1;" id="proj_midwest_16" data-proj-region="midwest" data-proj-seed="16" placeholder="Team name" />
+        </div>
+        </div>
+      </div>
+    
+        
+      <div style="flex:1; min-width:240px;">
+        <h3 style="margin:6px 0;">South</h3>
+        <div id="projSouthStatic">
+          
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">1</div>
+          <input class="input" style="flex:1;" id="proj_south_1" data-proj-region="south" data-proj-seed="1" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">2</div>
+          <input class="input" style="flex:1;" id="proj_south_2" data-proj-region="south" data-proj-seed="2" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">3</div>
+          <input class="input" style="flex:1;" id="proj_south_3" data-proj-region="south" data-proj-seed="3" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">4</div>
+          <input class="input" style="flex:1;" id="proj_south_4" data-proj-region="south" data-proj-seed="4" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">5</div>
+          <input class="input" style="flex:1;" id="proj_south_5" data-proj-region="south" data-proj-seed="5" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">6</div>
+          <input class="input" style="flex:1;" id="proj_south_6" data-proj-region="south" data-proj-seed="6" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">7</div>
+          <input class="input" style="flex:1;" id="proj_south_7" data-proj-region="south" data-proj-seed="7" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">8</div>
+          <input class="input" style="flex:1;" id="proj_south_8" data-proj-region="south" data-proj-seed="8" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">9</div>
+          <input class="input" style="flex:1;" id="proj_south_9" data-proj-region="south" data-proj-seed="9" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">10</div>
+          <input class="input" style="flex:1;" id="proj_south_10" data-proj-region="south" data-proj-seed="10" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">11</div>
+          <input class="input" style="flex:1;" id="proj_south_11" data-proj-region="south" data-proj-seed="11" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">12</div>
+          <input class="input" style="flex:1;" id="proj_south_12" data-proj-region="south" data-proj-seed="12" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">13</div>
+          <input class="input" style="flex:1;" id="proj_south_13" data-proj-region="south" data-proj-seed="13" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">14</div>
+          <input class="input" style="flex:1;" id="proj_south_14" data-proj-region="south" data-proj-seed="14" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">15</div>
+          <input class="input" style="flex:1;" id="proj_south_15" data-proj-region="south" data-proj-seed="15" placeholder="Team name" />
+        </div>
+        <div class="row" style="gap:10px;align-items:center;margin:6px 0;">
+          <div style="width:28px;font-weight:700;">16</div>
+          <input class="input" style="flex:1;" id="proj_south_16" data-proj-region="south" data-proj-seed="16" placeholder="Team name" />
+        </div>
+        </div>
+      </div>
+    
       </div>
 
       <div class="muted" style="margin-top:12px;">Current published version:</div>
@@ -391,6 +664,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- ADMIN: ALL BRACKETS -->
 <section class="view hidden" id="view-adminbrackets">

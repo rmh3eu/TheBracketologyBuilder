@@ -4818,42 +4818,19 @@ function getProjectionFromSite(){
 }
 
 function setProjectionEditor(snapshot){
-  const regions = [
-    {key:'east', mount:'#projEast'},
-    {key:'west', mount:'#projWest'},
-    {key:'midwest', mount:'#projMidwest'},
-    {key:'south', mount:'#projSouth'},
-  ];
+  const regions = ['east','west','midwest','south'];
   regions.forEach(r=>{
-    const mount = qs(r.mount);
-    if(!mount) return;
-    mount.innerHTML = '';
-    const arr = (snapshot && snapshot[r.key]) ? snapshot[r.key] : [];
-    // ensure seeds 1..16
+    const arr = (snapshot && snapshot[r]) ? snapshot[r] : [];
     const bySeed = {};
     arr.forEach(x=>{ bySeed[x.seed] = x.team; });
     for(let seed=1; seed<=16; seed++){
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.style = 'gap:10px; align-items:center; margin:6px 0;';
-      const lab = document.createElement('div');
-      lab.style = 'width:28px; font-weight:700;';
-      lab.textContent = seed;
-      const inp = document.createElement('input');
-      inp.className = 'input';
-      inp.style = 'flex:1;';
-      inp.placeholder = 'Team name';
-      inp.value = bySeed[seed] || '';
-      inp.setAttribute('data-proj-region', r.key);
-      inp.setAttribute('data-proj-seed', String(seed));
-      row.appendChild(lab);
-      row.appendChild(inp);
-      mount.appendChild(row);
+      const inp = qs(`#proj_${r}_${seed}`);
+      if(inp) inp.value = bySeed[seed] || '';
     }
   });
 }
 
-function readProjectionEditor(){
+function readProjectionEditor(){(){
   const inputs = qsa('input[data-proj-region][data-proj-seed]');
   const snap = { east:[], west:[], midwest:[], south:[] };
   inputs.forEach(inp=>{
