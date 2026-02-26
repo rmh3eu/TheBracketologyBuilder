@@ -1,5 +1,274 @@
 import { json, requireUser, uid } from "./_util.js";
 
+// Current projection snapshot (used ONLY to freeze base for NEW brackets at creation time).
+const CURRENT_SNAPSHOT = {
+  "EAST": [
+    [
+      1,
+      "Duke"
+    ],
+    [
+      2,
+      "Purdue"
+    ],
+    [
+      3,
+      "Nebraska"
+    ],
+    [
+      4,
+      "Michigan St"
+    ],
+    [
+      5,
+      "St Johns"
+    ],
+    [
+      6,
+      "Louisville"
+    ],
+    [
+      7,
+      "Kentucky"
+    ],
+    [
+      8,
+      "NC State"
+    ],
+    [
+      9,
+      "Texas A&M"
+    ],
+    [
+      10,
+      "Clemson"
+    ],
+    [
+      11,
+      "Santa Clara"
+    ],
+    [
+      12,
+      "High Point"
+    ],
+    [
+      13,
+      "Liberty"
+    ],
+    [
+      14,
+      "Navy"
+    ],
+    [
+      15,
+      "Merrimack"
+    ],
+    [
+      16,
+      "LIU"
+    ]
+  ],
+  "WEST": [
+    [
+      1,
+      "Arizona"
+    ],
+    [
+      2,
+      "Houston"
+    ],
+    [
+      3,
+      "Virginia"
+    ],
+    [
+      4,
+      "Kansas"
+    ],
+    [
+      5,
+      "North Carolina"
+    ],
+    [
+      6,
+      "Wisconsin"
+    ],
+    [
+      7,
+      "Villanova"
+    ],
+    [
+      8,
+      "Utah State"
+    ],
+    [
+      9,
+      "Iowa"
+    ],
+    [
+      10,
+      "UCLA"
+    ],
+    [
+      11,
+      "New Mexico"
+    ],
+    [
+      12,
+      "Belmont"
+    ],
+    [
+      13,
+      "Utah Valley"
+    ],
+    [
+      14,
+      "ETSU"
+    ],
+    [
+      15,
+      "Wright State"
+    ],
+    [
+      16,
+      "App St"
+    ]
+  ],
+  "MIDWEST": [
+    [
+      1,
+      "Michigan"
+    ],
+    [
+      2,
+      "Florida"
+    ],
+    [
+      3,
+      "Illinois"
+    ],
+    [
+      4,
+      "Alabama"
+    ],
+    [
+      5,
+      "Arkansas"
+    ],
+    [
+      6,
+      "Vanderbilt"
+    ],
+    [
+      7,
+      "Saint Louis"
+    ],
+    [
+      8,
+      "Miami FLA"
+    ],
+    [
+      9,
+      "UCF"
+    ],
+    [
+      10,
+      "Georgia"
+    ],
+    [
+      11,
+      "Texas"
+    ],
+    [
+      12,
+      "Yale"
+    ],
+    [
+      13,
+      "SF Austin"
+    ],
+    [
+      14,
+      "N Dakota St"
+    ],
+    [
+      15,
+      "Austin Peay"
+    ],
+    [
+      16,
+      "Howard"
+    ]
+  ],
+  "SOUTH": [
+    [
+      1,
+      "Iowa State"
+    ],
+    [
+      2,
+      "UConn"
+    ],
+    [
+      3,
+      "Gonzaga"
+    ],
+    [
+      4,
+      "Texas Tech"
+    ],
+    [
+      5,
+      "BYU"
+    ],
+    [
+      6,
+      "Tennessee"
+    ],
+    [
+      7,
+      "Miami Ohio"
+    ],
+    [
+      8,
+      "SMU"
+    ],
+    [
+      9,
+      "Saint Marys"
+    ],
+    [
+      10,
+      "Auburn"
+    ],
+    [
+      11,
+      "Missouri"
+    ],
+    [
+      12,
+      "USF"
+    ],
+    [
+      13,
+      "UNCW"
+    ],
+    [
+      14,
+      "UC Irvine"
+    ],
+    [
+      15,
+      "Portland State"
+    ],
+    [
+      16,
+      "UMBC"
+    ]
+  ]
+};
+
+
 // Stability contract:
 // - NEVER delete or reset bracket rows on deploy.
 // - ALWAYS list all brackets for a user (no date/phase filtering).
@@ -105,8 +374,13 @@ export async function onRequest(context){
     const now = new Date().toISOString();
 
     // Prefer storing picks in data_json. Also store legacy payload for backward compatibility.
-    const data_json = (data !== null) ? JSON.stringify(data) : ((payload !== null) ? JSON.stringify(payload) : "{}");
-    const legacy_payload = (payload !== null) ? JSON.stringify(payload) : ((data !== null) ? JSON.stringify(data) : "{}");
+// CRITICAL: freeze a base snapshot at creation time so brackets NEVER drift when projections change.
+let dataObj = (data !== null) ? data : ((payload !== null) ? payload : {});
+if(!dataObj || typeof dataObj !== 'object') dataObj = {};
+if(!dataObj.base) dataObj.base = CURRENT_SNAPSHOT;
+
+const data_json = JSON.stringify(dataObj);
+const legacy_payload = JSON.stringify(dataObj);
 
     await env.DB.prepare(
       `INSERT INTO brackets (id, user_id, title, bracket_name, data_json, payload, bracket_type, created_at, updated_at)

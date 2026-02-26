@@ -3,15 +3,15 @@
 
 const LAST_FOUR_IN = [
   "Virginia Tech",
-  "New Mexico",
-  "Texas",
+  "Missouri",
+  "Santa Clara",
   "USC"
 ];
 const FIRST_FOUR_OUT = [
   "TCU",
   "Seton Hall",
   "Indiana",
-  "Santa Clara"
+  "Texas"
 ];
 
 const EAST = [
@@ -49,7 +49,7 @@ const EAST = [
   ],
   [
     9,
-    "Texas A&M"
+    "Santa Clara A&M"
   ],
   [
     10,
@@ -57,7 +57,7 @@ const EAST = [
   ],
   [
     11,
-    "Santa Clara"
+    "Texas"
   ],
   [
     12,
@@ -125,7 +125,7 @@ const WEST = [
   ],
   [
     11,
-    "New Mexico"
+    "Missouri"
   ],
   [
     12,
@@ -165,7 +165,7 @@ const SOUTH = [
   ],
   [
     4,
-    "Texas Tech"
+    "Santa Clara Tech"
   ],
   [
     5,
@@ -193,7 +193,7 @@ const SOUTH = [
   ],
   [
     11,
-    "Missouri"
+    "New Mexico"
   ],
   [
     12,
@@ -261,7 +261,7 @@ const MIDWEST = [
   ],
   [
     11,
-    "Texas"
+    "Santa Clara"
   ],
   [
     12,

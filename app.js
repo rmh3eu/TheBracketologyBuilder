@@ -910,6 +910,52 @@ const REGIONS = [
   { key:'REGION_MIDWEST',name:'Midwest',teams:REGION_MIDWEST },
 ];
 
+// --- Snapshot Base Freeze Helpers ---
+// Keep a pristine copy of the CURRENT projection seed arrays for home/new bracket creation.
+const PROJECTION_SNAPSHOT = {
+  EAST: JSON.parse(JSON.stringify(EAST)),
+  WEST: JSON.parse(JSON.stringify(WEST)),
+  MIDWEST: JSON.parse(JSON.stringify(MIDWEST)),
+  SOUTH: JSON.parse(JSON.stringify(SOUTH)),
+};
+
+// Mutate the in-memory seed arrays in-place (they are const arrays, but mutable).
+function applySnapshotToSeedArrays(snap){
+  try{
+    if(!snap) return;
+    const setArr = (arr, vals)=>{
+      arr.length = 0;
+      (vals||[]).forEach(pair=>arr.push(pair));
+    };
+    setArr(EAST, snap.EAST);
+    setArr(WEST, snap.WEST);
+    setArr(MIDWEST, snap.MIDWEST);
+    setArr(SOUTH, snap.SOUTH);
+  }catch(e){}
+}
+function restoreProjectionSeedArrays(){
+  applySnapshotToSeedArrays(PROJECTION_SNAPSHOT);
+}
+function baseToSnapshot(base){
+  // base format stored on brackets: {EAST:[[seed,team],...], WEST:..., MIDWEST:..., SOUTH:...}
+  if(!base || typeof base!=='object') return null;
+  return {
+    EAST: base.EAST || base.East || base.east || [],
+    WEST: base.WEST || base.West || base.west || [],
+    MIDWEST: base.MIDWEST || base.Midwest || base.midwest || [],
+    SOUTH: base.SOUTH || base.South || base.south || [],
+  };
+}
+function getCurrentSnapshot(){
+  return {
+    EAST: JSON.parse(JSON.stringify(EAST)),
+    WEST: JSON.parse(JSON.stringify(WEST)),
+    MIDWEST: JSON.parse(JSON.stringify(MIDWEST)),
+    SOUTH: JSON.parse(JSON.stringify(SOUTH)),
+  };
+}
+
+
 // Determine which two region KEYS are on the LEFT and RIGHT halves of the desktop bracket,
 // based on the current DOM layout (.deskCol.left / .deskCol.right).
 // Returns { leftKeys: ['REGION_SOUTH','REGION_WEST'], rightKeys: [...] }.
@@ -1792,7 +1838,7 @@ async function ensureSavedToAccount(){
     // Create a new bracket row first (server enforces unique name per user).
     let create;
     try{
-      create = await apiPost('/api/brackets', { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') });
+      create = await apiPost('/api/brackets', { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology'), data: { base: getCurrentSnapshot() } });
     }catch(e){
       // If the API returns 409 for duplicate name, ask again.
       if(e && e.status === 409){
@@ -2919,6 +2965,14 @@ async function loadBracketFromServer(id){
   setUrlBracketId(state.bracketId, state.bracketTitle);
   state.undoStack = [];
   state.picks = d.bracket.data || {};
+  // Enforce non-negotiable rule: render saved brackets from their frozen base snapshot.
+  if(state.picks && state.picks.base){
+    const snap = baseToSnapshot(state.picks.base);
+    if(snap) applySnapshotToSeedArrays(snap);
+  }else{
+    restoreProjectionSeedArrays();
+  }
+
   saveLocal(state.picks);
   renderAll();
   updateUndoUI();
