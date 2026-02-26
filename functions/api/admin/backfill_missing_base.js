@@ -282,7 +282,7 @@ export async function onRequest(context) {
     try {
       const data = JSON.parse(r.data_json || "{}");
       if (!data.base) {
-        data.base = SNAPSHOT;
+        if(!data.base) data.base = SNAPSHOT;
         await db.prepare("UPDATE brackets SET data_json=? WHERE id=?")
           .bind(JSON.stringify(data), r.id).run();
         updated++;
