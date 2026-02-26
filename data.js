@@ -45,7 +45,7 @@ const EAST = [
   ],
   [
     8,
-    "Miami FLA"
+    "NC State"
   ],
   [
     9,
@@ -249,7 +249,7 @@ const MIDWEST = [
   ],
   [
     8,
-    "NC State"
+    "Miami FLA"
   ],
   [
     9,
