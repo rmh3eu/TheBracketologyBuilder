@@ -26,6 +26,23 @@ async function ensureFeatureRequests(env) {
     FROM brackets b
     WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
   `).run();
+  // Upgrade existing rows to approved if legacy brackets indicate featured/approved.
+  await env.DB.prepare(`
+    UPDATE feature_requests
+    SET status = 'approved',
+        approved_at = COALESCE(approved_at, (
+          SELECT COALESCE(b.approved_at, b.updated_at, b.created_at)
+          FROM brackets b
+          WHERE b.id = feature_requests.bracket_id
+        )),
+        updated_at = COALESCE(updated_at, datetime('now'))
+    WHERE bracket_id IN (
+      SELECT b.id FROM brackets b
+      WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
+    )
+    AND lower(trim(status)) != 'approved'
+  `).run();
+
 }
 
 export async function onRequestGet({ env }){
@@ -34,7 +51,7 @@ export async function onRequestGet({ env }){
     `SELECT fr.bracket_id, fr.caption, fr.approved_at, b.title
      FROM feature_requests fr
      JOIN brackets b ON b.id = fr.bracket_id
-     WHERE fr.status='approved'
+     WHERE lower(trim(fr.status))='approved'
      ORDER BY fr.approved_at DESC
      LIMIT 50`
   ).all();

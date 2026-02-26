@@ -147,7 +147,7 @@ export async function onRequest(context) {
         if (!["pending", "approved", "denied"].includes(status)) {
           return json({ ok: false, error: "Invalid status" }, 400);
         }
-        where = "WHERE fr.status = ?";
+        where = "WHERE lower(trim(fr.status)) = ?";
         binds.push(status);
       }
 
@@ -160,8 +160,8 @@ export async function onRequest(context) {
           fr.status,
           fr.created_at,
           fr.updated_at,
-          u.email,
-          b.title
+          u.email AS user_email,
+          b.title AS bracket_title
         FROM feature_requests fr
         LEFT JOIN users u ON u.id = fr.user_id
         LEFT JOIN brackets b ON b.id = fr.bracket_id
