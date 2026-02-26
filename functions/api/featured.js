@@ -26,18 +26,6 @@ async function ensureFeatureRequests(env) {
     FROM brackets b
     WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
   `).run();
-
-  // Ensure existing requests are upgraded if legacy brackets indicate approved/featured.
-  await env.DB.prepare(`
-    UPDATE feature_requests
-    SET status = 'approved',
-        approved_at = COALESCE(approved_at, (SELECT COALESCE(b.approved_at, b.updated_at, b.created_at) FROM brackets b WHERE b.id = feature_requests.bracket_id))
-    WHERE bracket_id IN (
-      SELECT b.id FROM brackets b
-      WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
-    )
-  `).run();
-
 }
 
 export async function onRequestGet({ env }){

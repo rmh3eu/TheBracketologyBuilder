@@ -3077,7 +3077,3 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
   color:#fff !important;
 }
 
-
-
-/* v43: My Brackets card wrapper to keep Submit button clickable without nested anchors */
-.bracketLinkInner{display:block; text-decoration:none; color:inherit;}
