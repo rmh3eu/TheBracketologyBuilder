@@ -49,7 +49,7 @@ const EAST = [
   ],
   [
     9,
-    "Santa Clara A&M"
+    "Texas A&M"
   ],
   [
     10,
@@ -165,7 +165,7 @@ const SOUTH = [
   ],
   [
     4,
-    "Santa Clara Tech"
+    "Texas Tech"
   ],
   [
     5,
