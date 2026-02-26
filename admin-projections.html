@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin: Projections</title>
+  <link rel="stylesheet" href="/style.css"/>
+  <style>
+    .wrap{max-width:980px;margin:24px auto;padding:0 16px;}
+    .card{background:#111827;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px;margin:12px 0;}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .row > *{flex:0 0 auto}
+    button{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+    button.secondary{background:#0b1220}
+    input{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#0b1220;color:#fff;min-width:260px}
+    pre{white-space:pre-wrap;word-break:break-word;background:#0b1220;border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.12)}
+    .muted{opacity:.8}
+    .ok{color:#22c55e}
+    .bad{color:#ef4444}
+  </style>
+  <script src="/data.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="margin:0 0 10px 0;">Admin: Projections</h1>
+    <div class="muted">Publish a new projection version for <strong>home page + new brackets only</strong>. Existing brackets should never change.</div>
+
+    <div class="card">
+      <div class="row">
+        <input id="label" placeholder="Optional label (e.g., Feb 26 projection)"/>
+        <button id="publishBtn">Publish current projection</button>
+        <button id="refreshBtn" class="secondary">Refresh</button>
+      </div>
+      <div id="status" class="muted" style="margin-top:10px;"></div>
+      <div style="margin-top:10px;">
+        <div class="muted">Preview (first 4 seeds each region):</div>
+        <pre id="preview"></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="muted">Current version:</div>
+        <div id="current" style="font-weight:700;"></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="muted">All versions (newest first):</div>
+        <pre id="versions"></pre>
+      </div>
+    </div>
+  </div>
+
+<script>
+function buildSnapshot(){
+  // data.js defines EAST/WEST/MIDWEST/SOUTH as arrays of [seed, team]
+  const toObjs = (arr)=>arr.map(([seed, team])=>({seed, team}));
+  return {
+    east: toObjs(window.EAST || EAST),
+    west: toObjs(window.WEST || WEST),
+    midwest: toObjs(window.MIDWEST || MIDWEST),
+    south: toObjs(window.SOUTH || SOUTH)
+  };
+}
+
+function previewSnapshot(s){
+  const fmt=(name, arr)=> name + ": " + arr.slice(0,4).map(x=>`${x.seed} ${x.team}`).join(" | ");
+  return [
+    fmt("East", s.east),
+    fmt("West", s.west),
+    fmt("Midwest", s.midwest),
+    fmt("South", s.south)
+  ].join("\n");
+}
+
+async function api(path, opts){
+  const res = await fetch(path, { credentials:'include', ...(opts||{}) });
+  const txt = await res.text();
+  let data = null;
+  try{ data = JSON.parse(txt); }catch(e){ data = { ok:false, error:"Non-JSON response", raw: txt }; }
+  if(!res.ok) throw Object.assign(new Error(data && data.error ? data.error : ("HTTP " + res.status)), { status: res.status, data });
+  return data;
+}
+
+async function refresh(){
+  document.getElementById('status').textContent = "Loading...";
+  try{
+    const d = await api('/api/admin/projections', { method:'GET' });
+    document.getElementById('current').textContent = d.current ? (`#${d.current.id} — ${d.current.created_at}${d.current.label ? (" — " + d.current.label) : ""}`) : "(none yet)";
+    document.getElementById('versions').textContent = (d.versions||[]).map(v=>`#${v.id}  ${v.created_at}${v.label ? ("  " + v.label) : ""}`).join("\n") || "(none)";
+    document.getElementById('status').innerHTML = '<span class="ok">Ready.</span>';
+  }catch(e){
+    document.getElementById('status').innerHTML = '<span class="bad">Error:</span> ' + (e.data && e.data.error ? e.data.error : e.message);
+  }
+}
+
+document.getElementById('preview').textContent = previewSnapshot(buildSnapshot());
+
+document.getElementById('publishBtn').addEventListener('click', async ()=>{
+  const label = document.getElementById('label').value || "";
+  const snapshot = buildSnapshot();
+  if(!confirm("Publish a new projection version? This affects HOME + NEW brackets only.")) return;
+  document.getElementById('status').textContent = "Publishing...";
+  try{
+    const d = await api('/api/admin/projections/publish', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify({ label, snapshot })
+    });
+    document.getElementById('status').innerHTML = '<span class="ok">Published.</span> New current version #' + d.id;
+    await refresh();
+  }catch(e){
+    document.getElementById('status').innerHTML = '<span class="bad">Publish failed:</span> ' + (e.data && e.data.error ? e.data.error : e.message);
+  }
+});
+
+document.getElementById('refreshBtn').addEventListener('click', refresh);
+
+refresh();
+</script>
+</body>
+</html>

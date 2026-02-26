@@ -1,323 +1,62 @@
 import { json, requireUser, uid } from "./_util.js";
 
-// Current projection snapshot (used ONLY to freeze base for NEW brackets at creation time).
-const CURRENT_SNAPSHOT = {
-  "EAST": [
-    [
-      1,
-      "Duke"
-    ],
-    [
-      2,
-      "Purdue"
-    ],
-    [
-      3,
-      "Nebraska"
-    ],
-    [
-      4,
-      "Michigan St"
-    ],
-    [
-      5,
-      "St Johns"
-    ],
-    [
-      6,
-      "Louisville"
-    ],
-    [
-      7,
-      "Kentucky"
-    ],
-    [
-      8,
-      "NC State"
-    ],
-    [
-      9,
-      "Texas A&M"
-    ],
-    [
-      10,
-      "Clemson"
-    ],
-    [
-      11,
-      "Santa Clara"
-    ],
-    [
-      12,
-      "High Point"
-    ],
-    [
-      13,
-      "Liberty"
-    ],
-    [
-      14,
-      "Navy"
-    ],
-    [
-      15,
-      "Merrimack"
-    ],
-    [
-      16,
-      "LIU"
-    ]
-  ],
-  "WEST": [
-    [
-      1,
-      "Arizona"
-    ],
-    [
-      2,
-      "Houston"
-    ],
-    [
-      3,
-      "Virginia"
-    ],
-    [
-      4,
-      "Kansas"
-    ],
-    [
-      5,
-      "North Carolina"
-    ],
-    [
-      6,
-      "Wisconsin"
-    ],
-    [
-      7,
-      "Villanova"
-    ],
-    [
-      8,
-      "Utah State"
-    ],
-    [
-      9,
-      "Iowa"
-    ],
-    [
-      10,
-      "UCLA"
-    ],
-    [
-      11,
-      "New Mexico"
-    ],
-    [
-      12,
-      "Belmont"
-    ],
-    [
-      13,
-      "Utah Valley"
-    ],
-    [
-      14,
-      "ETSU"
-    ],
-    [
-      15,
-      "Wright State"
-    ],
-    [
-      16,
-      "App St"
-    ]
-  ],
-  "MIDWEST": [
-    [
-      1,
-      "Michigan"
-    ],
-    [
-      2,
-      "Florida"
-    ],
-    [
-      3,
-      "Illinois"
-    ],
-    [
-      4,
-      "Alabama"
-    ],
-    [
-      5,
-      "Arkansas"
-    ],
-    [
-      6,
-      "Vanderbilt"
-    ],
-    [
-      7,
-      "Saint Louis"
-    ],
-    [
-      8,
-      "Miami FLA"
-    ],
-    [
-      9,
-      "UCF"
-    ],
-    [
-      10,
-      "Georgia"
-    ],
-    [
-      11,
-      "Texas"
-    ],
-    [
-      12,
-      "Yale"
-    ],
-    [
-      13,
-      "SF Austin"
-    ],
-    [
-      14,
-      "N Dakota St"
-    ],
-    [
-      15,
-      "Austin Peay"
-    ],
-    [
-      16,
-      "Howard"
-    ]
-  ],
-  "SOUTH": [
-    [
-      1,
-      "Iowa State"
-    ],
-    [
-      2,
-      "UConn"
-    ],
-    [
-      3,
-      "Gonzaga"
-    ],
-    [
-      4,
-      "Texas Tech"
-    ],
-    [
-      5,
-      "BYU"
-    ],
-    [
-      6,
-      "Tennessee"
-    ],
-    [
-      7,
-      "Miami Ohio"
-    ],
-    [
-      8,
-      "SMU"
-    ],
-    [
-      9,
-      "Saint Marys"
-    ],
-    [
-      10,
-      "Auburn"
-    ],
-    [
-      11,
-      "Missouri"
-    ],
-    [
-      12,
-      "USF"
-    ],
-    [
-      13,
-      "UNCW"
-    ],
-    [
-      14,
-      "UC Irvine"
-    ],
-    [
-      15,
-      "Portland State"
-    ],
-    [
-      16,
-      "UMBC"
-    ]
-  ]
-};
+import { json, requireUser, uid } from "./_util.js";
 
-
-// Stability contract:
-// - NEVER delete or reset bracket rows on deploy.
-// - ALWAYS list all brackets for a user (no date/phase filtering).
-// - Name uniqueness is per-user across ALL bracket types.
-
-async function ensureBracketsSchema(env){
-  const add = async (sql) => { try{ await env.DB.prepare(sql).run(); }catch(e){} };
-
-  // Ensure commonly-used columns exist. These are safe no-ops if they already exist.
-  await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
-  await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
-  // Legacy column used by older frontends / inserts.
-  await add("ALTER TABLE brackets ADD COLUMN payload TEXT");
-
-  // Backfill legacy rows to keep them visible.
-  try{
-    await env.DB.prepare(
-      "UPDATE brackets SET bracket_type='bracketology' WHERE bracket_type IS NULL OR bracket_type=''"
-    ).run();
-  }catch(e){}
-
-  // Keep title and bracket_name aligned (we treat title as canonical display name).
-  try{
-    await env.DB.prepare(
-      "UPDATE brackets SET title = COALESCE(title, bracket_name) WHERE title IS NULL OR title=''"
-    ).run();
-  }catch(e){}
-
-  // Strong uniqueness guard: one name per user across all bracket types.
-  // If older duplicates exist, index creation will fail; we still enforce in code.
-  try{
-    await env.DB.prepare(
-      "CREATE UNIQUE INDEX IF NOT EXISTS brackets_user_title_uq ON brackets(user_id, title)"
-    ).run();
-  }catch(e){}
-
-  try{
-    await env.DB.prepare(
-      "CREATE INDEX IF NOT EXISTS brackets_user_updated_idx ON brackets(user_id, updated_at)"
-    ).run();
-  }catch(e){}
+async function ensureProjectionTables(env){
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS projection_versions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      label TEXT DEFAULT '',
+      snapshot_json TEXT NOT NULL
+    )
+  `).run();
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS app_config (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )
+  `).run();
 }
 
-function normalizeType(v){
-  const t = String(v || '').trim().toLowerCase();
-  if(t === 'official') return 'official';
-  if(t === 'second_chance' || t === 'secondchance') return 'second_chance';
-  return 'bracketology';
+async function ensureBracketHasProjectionColumn(env){
+  // Add projection_version_id column if missing
+  const info = await env.DB.prepare("PRAGMA table_info(brackets)").all();
+  const cols = new Set((info.results||[]).map(r=>r.name));
+  if(!cols.has("projection_version_id")){
+    try{
+      await env.DB.prepare("ALTER TABLE brackets ADD COLUMN projection_version_id INTEGER").run();
+    }catch(e){
+      // ignore if cannot alter
+    }
+  }
+}
+
+async function getCurrentProjectionVersion(env){
+  await ensureProjectionTables(env);
+  const row = await env.DB.prepare("SELECT value FROM app_config WHERE key='current_projection_version_id'").first();
+  if(!row) return null;
+  const id = parseInt(row.value, 10);
+  if(!id) return null;
+  const v = await env.DB.prepare("SELECT id, snapshot_json FROM projection_versions WHERE id=?").bind(id).first();
+  if(!v) return null;
+  try{
+    return { id: v.id, snapshot: JSON.parse(v.snapshot_json) };
+  }catch(e){
+    return null;
+  }
+}
+
+function snapshotToBase(snapshot){
+  // Convert {east:[{seed,team}],...} to legacy base shape used in your renderer: {EAST:[[seed,team],...],...}
+  if(!snapshot) return null;
+  const toPairs = (arr)=> (arr||[]).map(x=>[x.seed, x.team]);
+  return {
+    EAST: toPairs(snapshot.east),
+    WEST: toPairs(snapshot.west),
+    MIDWEST: toPairs(snapshot.midwest),
+    SOUTH: toPairs(snapshot.south),
+  };
 }
 
 export async function onRequest(context){
