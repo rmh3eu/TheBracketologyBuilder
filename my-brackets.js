@@ -136,6 +136,9 @@ function renderBracketSection({ listId, emptyId, items }) {
   if (!hasItems) return;
 
   for (const b of items) {
+    const card = document.createElement('div');
+    card.className = 'bracketCardWrap';
+
     const a = document.createElement('a');
     a.className = 'bracketCard';
     a.href = `/?id=${encodeURIComponent(b.id)}`;
@@ -197,10 +200,11 @@ function renderBracketSection({ listId, emptyId, items }) {
           submitBtn.disabled = false;
         }
       });
-      a.appendChild(submitBtn);
+      card.appendChild(submitBtn);
     }
 
-    grid.appendChild(a);
+    card.appendChild(a);
+    grid.appendChild(card);
   }
 }
 

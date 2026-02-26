@@ -3077,3 +3077,9 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
   color:#fff !important;
 }
 
+
+
+/* v46: wrapper to keep card link + submit button separate (avoid nested button in <a>) */
+.bracketCardWrap{position:relative;}
+.bracketCardWrap > a{display:block;}
+.bracketCardWrap .submitFeaturedInlineBtn{position:absolute;left:14px;bottom:10px;}

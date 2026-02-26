@@ -1,5 +1,14 @@
 import { json, requireAdmin, requireUser } from "./_util.js";
 
+async function hasColumn(env, table, col){
+  try{
+    const info = await env.DB.prepare(`PRAGMA table_info(${table})`).all();
+    return (info?.results || []).some(r => String(r.name).toLowerCase() === String(col).toLowerCase());
+  }catch(_){ return false; }
+}
+
+async function safeRun(p){ try{ await p; }catch(_){ } }
+
 // Ensure the feature_requests table exists and backfill rows from legacy
 // bracket columns (submitted_at / approved_at / is_featured) so that
 // previously-submitted/featured brackets still appear in Admin: Featured Review.
@@ -23,42 +32,35 @@ async function ensureFeatureRequests(env) {
     ON feature_requests(bracket_id)
   `).run();
 
-  // Pending submissions (idempotent)
-  await env.DB.prepare(`
-    INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at)
-    SELECT b.id, b.user_id, 'pending', COALESCE(b.submitted_at, b.updated_at, b.created_at)
-    FROM brackets b
-    WHERE b.submitted_at IS NOT NULL
-      AND (b.approved_at IS NULL AND IFNULL(b.is_featured,0)=0)
-  `).run();
+  const hasIsFeatured = await hasColumn(env, 'brackets', 'is_featured');
+  const hasApprovedAt = await hasColumn(env, 'brackets', 'approved_at');
+  const hasSubmittedAt = await hasColumn(env, 'brackets', 'submitted_at');
 
-  // Approved/featured (idempotent)
-  await env.DB.prepare(`
-    INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at, approved_at)
-    SELECT b.id, b.user_id, 'approved', COALESCE(b.submitted_at, b.updated_at, b.created_at), COALESCE(b.approved_at, b.updated_at, b.created_at)
-    FROM brackets b
-    WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
-  `).run();
+  if (hasIsFeatured || hasApprovedAt) {
+    const createdExpr = hasSubmittedAt ? "COALESCE(b.submitted_at, b.updated_at, b.created_at)" : "COALESCE(b.updated_at, b.created_at)";
+    const approvedExpr = hasApprovedAt ? "COALESCE(b.approved_at, b.updated_at, b.created_at)" : "COALESCE(b.updated_at, b.created_at)";
 
-  // Upgrade existing rows to approved if legacy brackets indicate featured/approved.
-  // This fixes cases where a pending row was inserted earlier and later the bracket became approved via legacy fields.
-  await env.DB.prepare(`
-    UPDATE feature_requests
-    SET status = 'approved',
-        approved_at = COALESCE(approved_at, (
-          SELECT COALESCE(b.approved_at, b.updated_at, b.created_at)
-          FROM brackets b
-          WHERE b.id = feature_requests.bracket_id
-        )),
-        updated_at = COALESCE(updated_at, datetime('now'))
-    WHERE bracket_id IN (
-      SELECT b.id FROM brackets b
-      WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
-    )
-    AND status != 'approved'
-  `).run();
+    await safeRun(env.DB.prepare(`
+      INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at, approved_at)
+      SELECT b.id, b.user_id, 'approved', ${createdExpr}, ${approvedExpr}
+      FROM brackets b
+      WHERE (${ "IFNULL(b.is_featured,0)=1" if hasIsFeatured else "0=1" } OR ${ "b.approved_at IS NOT NULL" if hasApprovedAt else "0=1" })
+    `).run());
 
-
+    await safeRun(env.DB.prepare(`
+      UPDATE feature_requests
+      SET status='approved',
+          approved_at = COALESCE(approved_at, (
+            SELECT ${approvedExpr} FROM brackets b WHERE b.id = feature_requests.bracket_id
+          )),
+          updated_at = COALESCE(updated_at, datetime('now'))
+      WHERE bracket_id IN (
+        SELECT b.id FROM brackets b
+        WHERE (${ "IFNULL(b.is_featured,0)=1" if hasIsFeatured else "0=1" } OR ${ "b.approved_at IS NOT NULL" if hasApprovedAt else "0=1" })
+      )
+      AND lower(trim(status))!='approved'
+    `).run());
+  }
 }
 
 // Feature Requests API
