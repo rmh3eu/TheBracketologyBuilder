@@ -39,6 +39,32 @@ async function ensureFeatureRequests(env) {
     FROM brackets b
     WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
   `).run();
+
+  // If a request already exists but the legacy brackets table indicates it is featured/approved,
+  // upgrade the existing request to approved instead of leaving it stuck as pending.
+  await env.DB.prepare(`
+    UPDATE feature_requests
+    SET status = 'approved',
+        approved_at = COALESCE(approved_at, (SELECT COALESCE(b.approved_at, b.updated_at, b.created_at) FROM brackets b WHERE b.id = feature_requests.bracket_id)),
+        updated_at = COALESCE(updated_at, datetime('now'))
+    WHERE bracket_id IN (
+      SELECT b.id FROM brackets b
+      WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
+    )
+  `).run();
+
+  // If legacy indicates denied (rare), mark denied.
+  await env.DB.prepare(`
+    UPDATE feature_requests
+    SET status = 'denied',
+        denied_at = COALESCE(denied_at, (SELECT COALESCE(b.updated_at, b.created_at) FROM brackets b WHERE b.id = feature_requests.bracket_id)),
+        updated_at = COALESCE(updated_at, datetime('now'))
+    WHERE bracket_id IN (
+      SELECT b.id FROM brackets b
+      WHERE b.denied_at IS NOT NULL
+    )
+  `).run();
+
 }
 
 // Feature Requests API
