@@ -39,12 +39,14 @@ async function ensureFeatureRequests(env) {
   if (hasIsFeatured || hasApprovedAt) {
     const createdExpr = hasSubmittedAt ? "COALESCE(b.submitted_at, b.updated_at, b.created_at)" : "COALESCE(b.updated_at, b.created_at)";
     const approvedExpr = hasApprovedAt ? "COALESCE(b.approved_at, b.updated_at, b.created_at)" : "COALESCE(b.updated_at, b.created_at)";
+    const isFeaturedCond = hasIsFeatured ? "IFNULL(b.is_featured,0)=1" : "0=1";
+    const approvedAtCond = hasApprovedAt ? "b.approved_at IS NOT NULL" : "0=1";
 
     await safeRun(env.DB.prepare(`
       INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at, approved_at)
       SELECT b.id, b.user_id, 'approved', ${createdExpr}, ${approvedExpr}
       FROM brackets b
-      WHERE (${ "IFNULL(b.is_featured,0)=1" if hasIsFeatured else "0=1" } OR ${ "b.approved_at IS NOT NULL" if hasApprovedAt else "0=1" })
+      WHERE (${isFeaturedCond} OR ${approvedAtCond})
     `).run());
 
     await safeRun(env.DB.prepare(`
@@ -56,7 +58,7 @@ async function ensureFeatureRequests(env) {
           updated_at = COALESCE(updated_at, datetime('now'))
       WHERE bracket_id IN (
         SELECT b.id FROM brackets b
-        WHERE (${ "IFNULL(b.is_featured,0)=1" if hasIsFeatured else "0=1" } OR ${ "b.approved_at IS NOT NULL" if hasApprovedAt else "0=1" })
+        WHERE (${isFeaturedCond} OR ${approvedAtCond})
       )
       AND lower(trim(status))!='approved'
     `).run());
