@@ -83,7 +83,12 @@ export async function onRequest(context) {
         return json({ ok: false, error: "Not allowed" }, 403);
       }
 
-      // If there is already a request for this bracket (any status), treat as success (idempotent).
+      
+      const existing = await env.DB.prepare(
+        "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
+      ).bindind(bracket_id).first();
+
+// If there is already a request for this bracket (any status), treat as success (idempotent).
       // This prevents UNIQUE constraint errors if users click multiple times or if admin already approved/denied.
       if (existing) {
         return json({ ok: true, already: true, status: normalizeStatus(existing.status), request_id: existing.id });
@@ -106,7 +111,7 @@ export async function onRequest(context) {
       // If it was ignored (already exists), return the existing request id/status.
       const fr = await env.DB.prepare(
         "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
-      ).bind(bracket_id).first();
+      ).bindind(bracket_id).first();
 
       return json({ ok: true, request_id: fr?.id || insert.meta?.last_row_id || null, status: normalizeStatus(fr?.status || "pending") });
     }

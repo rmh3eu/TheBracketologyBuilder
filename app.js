@@ -2955,41 +2955,9 @@ async function loadFeatured(){
 }
 
 async function submitFeatured(){
-  if(!state.me){
-    openAuth();
-    toast('Sign in to submit a bracket.');
-    return;
-  }
-  // Choose from user's brackets
-  const d = await api('/api/brackets', { method:'GET' });
-  const items = d.brackets || [];
-  if(items.length === 0){
-    toast('No saved brackets yet. Finish a bracket first.');
-    return;
-  }
-  const menu = items.map((b,i)=>`${i+1}) ${b.title}`).join('\n');
-  const pick = prompt('Submit which bracket?\n' + menu + '\n\nEnter a number:');
-  const n = parseInt(pick||'',10);
-  if(!n || n<1 || n>items.length) return;
-  const bracketId = items[n-1].id;
-
-  // Only allow submission when the bracket is fully completed.
-  try{
-    const bd = await api(`/api/bracket?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
-    const picks = (bd && bd.bracket && bd.bracket.data && bd.bracket.data.picks) ? bd.bracket.data.picks : null;
-    if(!isBracketCompletePicks(picks)){
-      toast('');
-      return;
-    }
-  }catch(e){
-    // If we can't verify, do not submit.
-    toast('');
-    return;
-  }
-
-  const caption = prompt('Caption (optional):') || '';
-  await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: bracketId, caption })});
-  toast('Submitted! Admin will approve it.');
+  // v41: Removed global dropdown/selection submit-to-featured entry point.
+  // Users can submit from My Brackets cards or immediately after saving a new bracket.
+  toast('To submit a bracket for Featured, use the Submit button on your My Brackets cards.');
 }
 
 // -------------------- Admin: All Brackets + Featured Review --------------------

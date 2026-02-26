@@ -40,6 +40,10 @@ function setSubmitFeaturedMsg(text, ok){
 
 function initSubmitFeaturedToolbar(brackets){
   const bar = document.getElementById('submitFeaturedToolbar');
+  // v41: Removed toolbar dropdown submit-to-featured entry point (keep card-level submit + post-save submit only)
+  if (bar) { bar.style.display = 'none'; }
+  return;
+
   const sel = document.getElementById('submitFeaturedSelect');
   const btn = document.getElementById('submitFeaturedBtn');
   if(!bar || !sel || !btn) return;
