@@ -3070,7 +3070,7 @@ async function loadAdminFeaturedReview(){
   const mounts = {
     pending: qs('#adminFeaturedPending'),
     approved: qs('#adminFeaturedApproved'),
-    rejected: qs('#adminFeaturedDenied')
+    denied: qs('#adminFeaturedDenied')
   };
 
   // Clear mounts
@@ -3091,7 +3091,7 @@ async function loadAdminFeaturedReview(){
     if(!mount) return;
 
     if(!items || items.length===0){
-      mount.innerHTML = `<div class="muted" style="padding:10px 2px;">No ${st === 'rejected' ? 'denied' : st} submissions.</div>`;
+      mount.innerHTML = `<div class="muted" style="padding:10px 2px;">No ${st} submissions.</div>`;
       return;
     }
 
@@ -3123,15 +3123,15 @@ async function loadAdminFeaturedReview(){
   };
 
   try{
-    const [p,a,r] = await Promise.all([
+    const [p,a,d] = await Promise.all([
       api(`/api/feature?status=pending`, { method:'GET' }),
       api(`/api/feature?status=approved`, { method:'GET' }),
-      api(`/api/feature?status=rejected`, { method:'GET' })
+      api(`/api/feature?status=denied`, { method:'GET' })
     ]);
 
-    renderList('pending', (p && p.requests) || []);
-    renderList('approved', (a && a.requests) || []);
-    renderList('rejected', (r && r.requests) || []);
+    renderList('pending', (p && p.results) || []);
+    renderList('approved', (a && a.results) || []);
+    renderList('denied', (d && d.results) || []);
 
     if(statusNode) statusNode.textContent = '';
   }catch(e){
@@ -3159,7 +3159,7 @@ async function loadAdminFeaturedReview(){
       const id = btn.getAttribute('data-deny');
       btn.disabled = true;
       try{
-        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'rejected' }) });
+        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'denied' }) });
         toast('Denied.');
         await loadAdminFeaturedReview();
       }catch(e){
