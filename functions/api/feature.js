@@ -86,7 +86,7 @@ export async function onRequest(context) {
       
       const existing = await env.DB.prepare(
         "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
-      ).bindind(bracket_id).first();
+      ).bind(bracket_id).first();
 
 // If there is already a request for this bracket (any status), treat as success (idempotent).
       // This prevents UNIQUE constraint errors if users click multiple times or if admin already approved/denied.
@@ -111,7 +111,7 @@ export async function onRequest(context) {
       // If it was ignored (already exists), return the existing request id/status.
       const fr = await env.DB.prepare(
         "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
-      ).bindind(bracket_id).first();
+      ).bind(bracket_id).first();
 
       return json({ ok: true, request_id: fr?.id || insert.meta?.last_row_id || null, status: normalizeStatus(fr?.status || "pending") });
     }
@@ -213,6 +213,10 @@ export async function onRequest(context) {
 
     return json({ ok: false, error: "Method not allowed" }, 405);
   } catch (e) {
-    return json({ ok: false, error: e?.message || String(e) }, 500);
+    const msg = e?.message || String(e);
+    if (String(msg).includes('UNIQUE constraint failed') && String(msg).includes('feature_requests.bracket_id')) {
+      return json({ ok: true, already: true, status: 'pending' }, 200);
+    }
+    return json({ ok: false, error: msg }, 500);
   }
 }
