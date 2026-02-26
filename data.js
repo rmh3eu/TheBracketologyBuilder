@@ -33,15 +33,15 @@ const EAST = [
   ],
   [
     5,
-    "Alabama"
+    "St Johns"
   ],
   [
     6,
-    "Wisconsin"
+    "Louisville"
   ],
   [
     7,
-    "Villanova"
+    "Kentucky"
   ],
   [
     8,
@@ -57,7 +57,7 @@ const EAST = [
   ],
   [
     11,
-    "Missouri"
+    "Santa Clara"
   ],
   [
     12,
@@ -89,7 +89,7 @@ const WEST = [
   ],
   [
     2,
-    "Florida"
+    "Houston"
   ],
   [
     3,
@@ -105,11 +105,11 @@ const WEST = [
   ],
   [
     6,
-    "Vanderbilt"
+    "Wisconsin"
   ],
   [
     7,
-    "Saint Mary's"
+    "Villanova"
   ],
   [
     8,
@@ -157,7 +157,7 @@ const SOUTH = [
   ],
   [
     2,
-    "Houston"
+    "UConn"
   ],
   [
     3,
@@ -169,7 +169,7 @@ const SOUTH = [
   ],
   [
     5,
-    "Arkansas"
+    "BYU"
   ],
   [
     6,
@@ -177,7 +177,7 @@ const SOUTH = [
   ],
   [
     7,
-    "Miami (OH)"
+    "Miami Ohio"
   ],
   [
     8,
@@ -185,7 +185,7 @@ const SOUTH = [
   ],
   [
     9,
-    "Georgia"
+    "Saint Marys"
   ],
   [
     10,
@@ -193,7 +193,7 @@ const SOUTH = [
   ],
   [
     11,
-    "Ohio State"
+    "Missouri"
   ],
   [
     12,
@@ -225,7 +225,7 @@ const MIDWEST = [
   ],
   [
     2,
-    "UConn"
+    "Florida"
   ],
   [
     3,
@@ -233,15 +233,15 @@ const MIDWEST = [
   ],
   [
     4,
-    "St. John's"
+    "Alabama"
   ],
   [
     5,
-    "BYU"
+    "Arkansas"
   ],
   [
     6,
-    "Louisville"
+    "Vanderbilt"
   ],
   [
     7,
@@ -257,11 +257,11 @@ const MIDWEST = [
   ],
   [
     10,
-    "Texas"
+    "Georgia"
   ],
   [
     11,
-    "Santa Clara"
+    "Texas"
   ],
   [
     12,
