@@ -90,23 +90,8 @@ export async function onRequestPut({ request, env }){
 
   const now = new Date().toISOString();
 
-  // Preserve frozen Round of 64 snapshot (base) ALWAYS.
-  // Non‑negotiable rule: once a bracket has a base snapshot, it must NEVER change,
-  // even if the client sends a different base after projections update.
-  let existingData = {};
-  try{ existingData = JSON.parse(existing.data_json || '{}'); }catch(e){ existingData = {}; }
-
   // If data was not provided, treat this as a rename-only update.
-  let mergedData = data;
-  if(mergedData && typeof mergedData === "object"){
-    if(existingData && existingData.base){
-      // Force immutability: always keep the stored base.
-      mergedData.base = existingData.base;
-    }else if(!mergedData.base && existingData && existingData.base){
-      mergedData.base = existingData.base;
-    }
-  }
-  const nextDataJson = (mergedData === null) ? (existing.data_json || "{}") : JSON.stringify(mergedData);
+  const nextDataJson = (data === null) ? (existing.data_json || "{}") : JSON.stringify(data);
   await env.DB.prepare(
     "UPDATE brackets SET title=?, bracket_name=?, data_json=?, updated_at=? WHERE id=?"
   ).bind(title, bracket_name, nextDataJson, now, id).run();

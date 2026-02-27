@@ -10,6 +10,7 @@ function getBaseRegionsForBracket(bracket){
   return null;
 }
 
+
 // --- Featured submission requires complete bracket ---
 function __bb_isBracketComplete(picks){
   try{
@@ -32,6 +33,7 @@ function __bb_isBracketComplete(picks){
     return false;
   }
 }
+
 
 function setSeasonBar(){
   const bar = document.getElementById('seasonBar');
@@ -137,6 +139,7 @@ function openSeasonBannerModal(currentText){
     }
   };
 }
+
 
 async function adminSetSetting(key, value){
   try{
@@ -247,6 +250,8 @@ function openLockModal(){
   });
 }
 
+
+
 // Data is defined in data.js as top-level consts (EAST/WEST/SOUTH/MIDWEST, LAST_FOUR_IN, FIRST_FOUR_OUT, etc.).
 // In classic-script mode (Safari), do NOT redeclare those same names here.
 // Instead, read them (or fall back to window.BRACKET_DATA if present).
@@ -265,6 +270,7 @@ const GENERATED_AT_VALUE = (typeof GENERATED_AT !== 'undefined') ? GENERATED_AT 
  * - Logged-in users: picks auto-save to D1 (DB) via /api/bracket PUT/ /api/brackets POST
  * - Admin: /api/admin/emails export (locked to ADMIN_EMAIL)
  */
+
 
 function promptBracketTitle(defaultTitle){
   const t = prompt('Name this bracket:', defaultTitle || '');
@@ -356,6 +362,7 @@ async function maybeDispatchReminderEmails(){
 const qs = (s, el=document) => el.querySelector(s);
 const qsa = (s, el=document) => Array.from(el.querySelectorAll(s));
 const el = (tag, cls) => { const n=document.createElement(tag); if(cls) n.className=cls; return n; };
+
 
 function loadLeadPrefs(){
   try{
@@ -567,6 +574,7 @@ function bindLeadForm(prefix, source){
   setTimeout(()=>{ try{ maybeAutoSave(); }catch(_e){} }, 50);
 }
 
+
 function bindLeadFormsForPage(){
   const path = (location && location.pathname) ? String(location.pathname) : '';
   // Full bracket challenge pages (standalone)
@@ -681,6 +689,7 @@ async function apiDelete(path, body){
   return api(path, { method: 'DELETE', body: body === undefined ? undefined : JSON.stringify(body) });
 }
 
+
 // -------------------- Challenge helpers (global-safe) --------------------
 // Some Safari/strict-mode builds can scope function declarations unexpectedly.
 // These helpers are attached to window so view-switching never crashes.
@@ -777,6 +786,7 @@ function escapeHtml(s){
 }
 function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
 
+
 function isMobile(){ return window.matchMedia('(max-width: 900px)').matches; }
 
 // ===== Phase 3 (mobile): Final Four completion cue (informational only) =====
@@ -795,6 +805,7 @@ function phase3MarkInteracted(){
   __phase3.hasInteracted = true;
   phase3UpdateVisibility();
 }
+
 
 // ===== Phase 4: Submit for Featured (post-save, logged-in only) =====
 const __phase4 = { submittedByBracket: {} };
@@ -847,7 +858,7 @@ async function phase4UpdateFeatureCTA(){
                 const picksToCheck = (state.picks && Object.keys(state.picks).length) ? state.picks : (state._loadedPicks || null);
         // Only block client-side if we actually have the full picks loaded.
         if (picksToCheck && Object.keys(picksToCheck).length && !isBracketCompletePicks(picksToCheck)) {
-          toast('');
+          toast('Please complete your bracket to submit to featured');
           return;
         }
         await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: state.bracketId, caption: '' })});
@@ -910,51 +921,6 @@ const REGIONS = [
   { key:'REGION_MIDWEST',name:'Midwest',teams:REGION_MIDWEST },
 ];
 
-// --- Snapshot Base Freeze Helpers ---
-// Keep a pristine copy of the CURRENT projection seed arrays for home/new bracket creation.
-const PROJECTION_SNAPSHOT = {
-  EAST: JSON.parse(JSON.stringify(EAST)),
-  WEST: JSON.parse(JSON.stringify(WEST)),
-  MIDWEST: JSON.parse(JSON.stringify(MIDWEST)),
-  SOUTH: JSON.parse(JSON.stringify(SOUTH)),
-};
-
-// Mutate the in-memory seed arrays in-place (they are const arrays, but mutable).
-function applySnapshotToSeedArrays(snap){
-  try{
-    if(!snap) return;
-    const setArr = (arr, vals)=>{
-      arr.length = 0;
-      (vals||[]).forEach(pair=>arr.push(pair));
-    };
-    setArr(EAST, snap.EAST);
-    setArr(WEST, snap.WEST);
-    setArr(MIDWEST, snap.MIDWEST);
-    setArr(SOUTH, snap.SOUTH);
-  }catch(e){}
-}
-function restoreProjectionSeedArrays(){
-  applySnapshotToSeedArrays(PROJECTION_SNAPSHOT);
-}
-function baseToSnapshot(base){
-  // base format stored on brackets: {EAST:[[seed,team],...], WEST:..., MIDWEST:..., SOUTH:...}
-  if(!base || typeof base!=='object') return null;
-  return {
-    EAST: base.EAST || base.East || base.east || [],
-    WEST: base.WEST || base.West || base.west || [],
-    MIDWEST: base.MIDWEST || base.Midwest || base.midwest || [],
-    SOUTH: base.SOUTH || base.South || base.south || [],
-  };
-}
-function getCurrentSnapshot(){
-  return {
-    EAST: JSON.parse(JSON.stringify(EAST)),
-    WEST: JSON.parse(JSON.stringify(WEST)),
-    MIDWEST: JSON.parse(JSON.stringify(MIDWEST)),
-    SOUTH: JSON.parse(JSON.stringify(SOUTH)),
-  };
-}
-
 
 // Determine which two region KEYS are on the LEFT and RIGHT halves of the desktop bracket,
 // based on the current DOM layout (.deskCol.left / .deskCol.right).
@@ -990,6 +956,7 @@ function getRegionKeyHalvesFromDom(){
   };
 }
 
+
 function wKey(regionKey, roundIdx, gameIdx){ return `${regionKey}__R${roundIdx}__G${gameIdx}__winner`; }
 
 function isBracketCompletePicks(picks){
@@ -1018,6 +985,7 @@ function isBracketCompletePicks(picks){
     return false;
   }
 }
+
 
 // -------------------- Bracket Logic --------------------
 const PAIRINGS = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
@@ -1065,6 +1033,23 @@ function coerceTeamValue(v){
 function listToSeedArray(seedList){
   const map = new Map();
   (seedList||[]).forEach(([seed, name])=> map.set(seed, name));
+
+  // Home-page-only seed tweak: show Miami (OH) instead of UCLA on the projection/home bracket.
+  // IMPORTANT: Only applies when the user is on the home page AND not viewing an existing saved bracket.
+  try{
+    const path = (window.location && window.location.pathname) ? window.location.pathname : '';
+    const isHome = (path === '/' || path === '' || path.endsWith('/index.html'));
+    const sp = new URLSearchParams(window.location.search || '');
+    const hasBracketId = !!(sp.get('bracketId') || sp.get('id'));
+    if(isHome && !hasBracketId){
+      // Replace the seed name without mutating the source data constants.
+      for(const [seed, name] of map.entries()){
+        if(name === 'UCLA'){
+          map.set(seed, 'Miami (OH)');
+        }
+      }
+    }
+  }catch(_e){}
 
   return SEEDS.map(s => map.get(s) ? ({ seed:s, name: map.get(s) }) : null);
 }
@@ -1157,6 +1142,7 @@ function getPlaceholderSweet16Field(regionKey){
   const t4 = getTeamBySeed(regionKey, 4);
   return [t1, t4, t3, t2];
 }
+
 
 // Fill the bracket with random picks.
 
@@ -1429,6 +1415,8 @@ async function loadResults(){
   }
 }
 
+
+
 // ---------- Admin Broadcast (Email Alerts) ----------
 async function sendAdminBroadcast(panel){
   const seg = (panel && panel.dataset && panel.dataset.segment) ? panel.dataset.segment : 'live';
@@ -1587,6 +1575,7 @@ async function doSignup(email, password){
     .then(()=> doSignin(email, password));
 }
 
+
 async function doSignin(email, password){
   await api('/api/login', { method:'POST', body: JSON.stringify({ email, password })});
   await refreshMe();
@@ -1682,6 +1671,7 @@ function setBracketTitleDisplay(title) {
 
 // If a guest triggers Save / Save & Enter, we queue the action and resume it after auth.
 let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' }
+
 
 // Clear any unwanted browser autofill (some browsers inject the user's email into the bracket title input).
 function clearBracketTitleAutofill(){
@@ -1838,7 +1828,7 @@ async function ensureSavedToAccount(){
     // Create a new bracket row first (server enforces unique name per user).
     let create;
     try{
-      create = await apiPost('/api/brackets', { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology'), data: { base: getCurrentSnapshot() } });
+      create = await apiPost('/api/brackets', { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') });
     }catch(e){
       // If the API returns 409 for duplicate name, ask again.
       if(e && e.status === 409){
@@ -2174,6 +2164,7 @@ function renderLbMeta(challenge, group, selectedGroupId){
       : 'Worst Bracket Challenge (pick losers)';
   }
 
+
 // Right side: hint + admin tools
 right.innerHTML = '';
 const hint = document.createElement('div');
@@ -2212,6 +2203,7 @@ async function renderWorstLeaderboard(){
   }
 
 }
+
 
 async function renderStatsBadge(){
   const badge = qs('#statsBadge');
@@ -2472,6 +2464,7 @@ async function renderLeaderboardsForCurrentGroups(){
     }
   }catch{}
 }
+
 
 function stage2Unlocked(){
   const regions = ['REGION_SOUTH','REGION_EAST','REGION_WEST','REGION_MIDWEST'];
@@ -2894,6 +2887,7 @@ async function enterWorstStage1FromCurrent(){
   await renderWorstLeaderboard();
 }
 
+
 async function openBracketsOverlay(){
   const ov = qs('#bracketsOverlay');
   ov.classList.remove('hidden');
@@ -2965,14 +2959,6 @@ async function loadBracketFromServer(id){
   setUrlBracketId(state.bracketId, state.bracketTitle);
   state.undoStack = [];
   state.picks = d.bracket.data || {};
-  // Enforce non-negotiable rule: render saved brackets from their frozen base snapshot.
-  if(state.picks && state.picks.base){
-    const snap = baseToSnapshot(state.picks.base);
-    if(snap) applySnapshotToSeedArrays(snap);
-  }else{
-    restoreProjectionSeedArrays();
-  }
-
   saveLocal(state.picks);
   renderAll();
   updateUndoUI();
@@ -3009,9 +2995,41 @@ async function loadFeatured(){
 }
 
 async function submitFeatured(){
-  // v41: Removed global dropdown/selection submit-to-featured entry point.
-  // Users can submit from My Brackets cards or immediately after saving a new bracket.
-  toast('To submit a bracket for Featured, use the Submit button on your My Brackets cards.');
+  if(!state.me){
+    openAuth();
+    toast('Sign in to submit a bracket.');
+    return;
+  }
+  // Choose from user's brackets
+  const d = await api('/api/brackets', { method:'GET' });
+  const items = d.brackets || [];
+  if(items.length === 0){
+    toast('No saved brackets yet. Finish a bracket first.');
+    return;
+  }
+  const menu = items.map((b,i)=>`${i+1}) ${b.title}`).join('\n');
+  const pick = prompt('Submit which bracket?\n' + menu + '\n\nEnter a number:');
+  const n = parseInt(pick||'',10);
+  if(!n || n<1 || n>items.length) return;
+  const bracketId = items[n-1].id;
+
+  // Only allow submission when the bracket is fully completed.
+  try{
+    const bd = await api(`/api/bracket?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
+    const picks = (bd && bd.bracket && bd.bracket.data && bd.bracket.data.picks) ? bd.bracket.data.picks : null;
+    if(!isBracketCompletePicks(picks)){
+      toast('Please complete your bracket to submit to featured');
+      return;
+    }
+  }catch(e){
+    // If we can't verify, do not submit.
+    toast('Please complete your bracket to submit to featured');
+    return;
+  }
+
+  const caption = prompt('Caption (optional):') || '';
+  await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: bracketId, caption })});
+  toast('Submitted! Admin will approve it.');
 }
 
 // -------------------- Admin: All Brackets + Featured Review --------------------
@@ -3087,12 +3105,10 @@ async function loadAdminFeaturedReview(){
   if(!(state && state.me && state.me.isAdmin)) return;
 
   const statusNode = qs('#adminFeaturedStatus');
-  const repairBtn = qs('#adminRepairBasesBtn');
-  if(repairBtn){ repairBtn.onclick = async ()=>{ repairBtn.disabled=true; try{ const r=await api('/api/admin/repair_bases_nearest', {method:'GET'}); toast(`Repaired ${r.would_update||0} brackets.`); }catch(e){ toast('Repair failed.'); } repairBtn.disabled=false; await loadAdminFeaturedReview(); }; }
   const mounts = {
     pending: qs('#adminFeaturedPending'),
     approved: qs('#adminFeaturedApproved'),
-    denied: qs('#adminFeaturedDenied')
+    rejected: qs('#adminFeaturedDenied')
   };
 
   // Clear mounts
@@ -3113,7 +3129,7 @@ async function loadAdminFeaturedReview(){
     if(!mount) return;
 
     if(!items || items.length===0){
-      mount.innerHTML = `<div class="muted" style="padding:10px 2px;">No ${st} submissions.</div>`;
+      mount.innerHTML = `<div class="muted" style="padding:10px 2px;">No ${st === 'rejected' ? 'denied' : st} submissions.</div>`;
       return;
     }
 
@@ -3135,9 +3151,7 @@ async function loadAdminFeaturedReview(){
           ${st === 'pending' ? `
             <button class="btnOutline approveBtn smallBtn" data-approve="${req.id}">Approve</button>
             <button class="btnOutline denyBtn smallBtn" data-deny="${req.id}">Deny</button>
-          ` : `
-            <button class="btnOutline pendingBtn smallBtn" data-pending="${req.id}">Send to Pending</button>
-          `}
+          ` : ``}
         </div>
       `;
       mount.appendChild(card);
@@ -3145,15 +3159,15 @@ async function loadAdminFeaturedReview(){
   };
 
   try{
-    const [p,a,d] = await Promise.all([
+    const [p,a,r] = await Promise.all([
       api(`/api/feature?status=pending`, { method:'GET' }),
       api(`/api/feature?status=approved`, { method:'GET' }),
-      api(`/api/feature?status=denied`, { method:'GET' })
+      api(`/api/feature?status=rejected`, { method:'GET' })
     ]);
 
-    renderList('pending', (p && p.results) || []);
-    renderList('approved', (a && a.results) || []);
-    renderList('denied', (d && d.results) || []);
+    renderList('pending', (p && p.requests) || []);
+    renderList('approved', (a && a.requests) || []);
+    renderList('rejected', (r && r.requests) || []);
 
     if(statusNode) statusNode.textContent = '';
   }catch(e){
@@ -3181,7 +3195,7 @@ async function loadAdminFeaturedReview(){
       const id = btn.getAttribute('data-deny');
       btn.disabled = true;
       try{
-        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'denied' }) });
+        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'rejected' }) });
         toast('Denied.');
         await loadAdminFeaturedReview();
       }catch(e){
@@ -3190,22 +3204,8 @@ async function loadAdminFeaturedReview(){
       }
     });
   });
-  qsa('[data-pending]').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const id = btn.getAttribute('data-pending');
-      btn.disabled = true;
-      try{
-        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'pending' }) });
-        toast('Moved to pending.');
-        await loadAdminFeaturedReview();
-      }catch(e){
-        toast('Could not move to pending.');
-        btn.disabled = false;
-      }
-    });
-  });
-
 }
+
 
 // -------------------- Rendering --------------------
 function renderBubble(){
@@ -3274,6 +3274,7 @@ function renderRegion(r, picks, opts={}){
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
   const ALL_ROUND_LABELS = ['Round of 64','Round of 32','Sweet 16','Elite 8'];
   const roundLabels = ALL_ROUND_LABELS.slice(startRound, startRound + roundsToRender);
+
 
   // Region header + per-round labels (requested: show round names aligned above
   // each column, and keep the region name visible on mobile when the bracket
@@ -3735,6 +3736,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   mount.appendChild(scroller);
 }
 
+
 function renderChallengeCallout(){
   const mount = qs('#challengeCallout');
   if(!mount) return;
@@ -3749,6 +3751,7 @@ function renderChallengeCallout(){
   qs('#goBest')?.addEventListener('click', ()=>showView('best'));
   qs('#goWorst')?.addEventListener('click', ()=>showView('worst'));
 }
+
 
 function sweet16Set(){
   if(sweet16ModeEnabled()) return true;
@@ -3910,6 +3913,7 @@ function renderAll(){
         }, 0);
       }catch(_e){}
     }
+
 
   }else{
     // Clear full bracket mounts
@@ -4099,12 +4103,12 @@ function showView(name){
   }
 
   // Admin views require admin session.
-  if((name === 'adminbrackets' || name === 'adminfeatured' || name === 'adminprojections') && !(state && state.me && state.me.isAdmin)){
+  if((name === 'adminbrackets' || name === 'adminfeatured') && !(state && state.me && state.me.isAdmin)){
     try{ toast('Not authorized.'); }catch(e){}
     name = 'build';
   }
 
-  const views = ['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured','adminprojections'];
+  const views = ['build','best','worst','best2','worst2','featured','upcoming','adminbrackets','adminfeatured'];
   views.forEach(v=>{
     const node = qs('#view-'+v);
     if(!node) return;
@@ -4120,7 +4124,6 @@ function showView(name){
   if(name==='best' || name==='worst') renderChallenges();
   if(name==='adminbrackets') loadAdminBracketsView().catch(()=>{});
   if(name==='adminfeatured') loadAdminFeaturedReview().catch(()=>{});
-  if(name==='adminprojections') { try{ initAdminProjections(); }catch(e){} }
 
   // UX: when a view contains the "Get Challenge Reminders" input, focus it automatically
   // so the blinking cursor is already in the box.
@@ -4187,6 +4190,7 @@ function updateChallengeAvailability(){
   const ids = ['homeChallengeMsg','bestChallengeMsg','worstChallengeMsg'];
   ids.forEach(id=>{ const el = qs('#'+id); if(el) el.classList.toggle('hidden', OFFICIAL_BRACKET_LIVE); });
 }
+
 
 // -------------------- Helpers --------------------
 function escapeHtml(str){
@@ -4372,6 +4376,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     }
   } catch (_e) {}
 
+
   // Mobile-only UI tweak:
   // - Put Random Picks + Undo on the same row
   // - Move the bracket title box below that row (so it isn't directly above Undo)
@@ -4411,6 +4416,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
   qs('#adminFeaturedFilter')?.addEventListener('change', ()=>loadAdminFeaturedReview());
+
 
   // Header buttons
   qs('#accountBtn')?.addEventListener('click', async ()=>{
@@ -4755,9 +4761,11 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
   });
 });
 
+
 // Ensure global access (classic script navigation)
 try { window.renderChallenges = renderChallenges; } catch(e) {}
 try { window.renderChallengeCallout = renderChallengeCallout; } catch(e) {}
+
 
 /* PATCH 19: Age confirmation modal for sportsbook links */
 document.addEventListener("click", function(e) {
@@ -4790,191 +4798,11 @@ document.addEventListener("click", function(e) {
   });
 })();
 
+
 function triggerSaveAndGoMyBrackets(){
   try{
     saveBracket().then(()=>{
       window.location.href = '/my-brackets.html';
     });
   }catch(e){}
-
-// ------------------------------
-// Admin Projections UI (v57)
-// ------------------------------
-function _projPairsToObjs(pairs){ return (pairs||[]).map(([seed, team])=>({seed, team})); }
-function _projObjsToPairs(objs){ return (objs||[]).map(x=>[x.seed, x.team]); }
-
-function getProjectionFromSite(){
-  // data.js defines EAST/WEST/MIDWEST/SOUTH arrays of [seed, team]
-  try{
-    return {
-      east: _projPairsToObjs(window.EAST || EAST),
-      west: _projPairsToObjs(window.WEST || WEST),
-      midwest: _projPairsToObjs(window.MIDWEST || MIDWEST),
-      south: _projPairsToObjs(window.SOUTH || SOUTH),
-    };
-  }catch(e){
-    return null;
-  }
-}
-
-function setProjectionEditor(snapshot){
-  const regions = [
-    {key:'east', mount:'#projEast'},
-    {key:'west', mount:'#projWest'},
-    {key:'midwest', mount:'#projMidwest'},
-    {key:'south', mount:'#projSouth'},
-  ];
-  regions.forEach(r=>{
-    const mount = qs(r.mount);
-    if(!mount) return;
-    mount.innerHTML = '';
-    const arr = (snapshot && snapshot[r.key]) ? snapshot[r.key] : [];
-    // ensure seeds 1..16
-    const bySeed = {};
-    arr.forEach(x=>{ bySeed[x.seed] = x.team; });
-    for(let seed=1; seed<=16; seed++){
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.style = 'gap:10px; align-items:center; margin:6px 0;';
-      const lab = document.createElement('div');
-      lab.style = 'width:28px; font-weight:700;';
-      lab.textContent = seed;
-      const inp = document.createElement('input');
-      inp.className = 'input';
-      inp.style = 'flex:1;';
-      inp.placeholder = 'Team name';
-      inp.value = bySeed[seed] || '';
-      inp.setAttribute('data-proj-region', r.key);
-      inp.setAttribute('data-proj-seed', String(seed));
-      row.appendChild(lab);
-      row.appendChild(inp);
-      mount.appendChild(row);
-    }
-  });
-}
-
-function readProjectionEditor(){
-  const inputs = qsa('input[data-proj-region][data-proj-seed]');
-  const snap = { east:[], west:[], midwest:[], south:[] };
-  inputs.forEach(inp=>{
-    const r = inp.getAttribute('data-proj-region');
-    const s = parseInt(inp.getAttribute('data-proj-seed'), 10);
-    const team = (inp.value || '').trim();
-    if(!r || !s) return;
-    snap[r].push({ seed:s, team });
-  });
-  // sort seeds
-  ['east','west','midwest','south'].forEach(r=>{
-    snap[r].sort((a,b)=>a.seed-b.seed);
-  });
-  return snap;
-}
-
-async function adminFetchProjections(){
-  const res = await fetch('/api/admin/projections', { credentials:'include' });
-  const txt = await res.text();
-  let data = null;
-  try{ data = JSON.parse(txt); }catch(e){ data = { ok:false, error:'Non-JSON response', raw: txt }; }
-  if(!res.ok) throw Object.assign(new Error(data.error || ('HTTP '+res.status)), { status: res.status, data });
-  return data;
-}
-
-async function adminPublishProjection(label, snapshot){
-  const res = await fetch('/api/admin/projections/publish', {
-    method:'POST',
-    credentials:'include',
-    headers:{ 'content-type':'application/json' },
-    body: JSON.stringify({ label: label||'', snapshot })
-  });
-  const txt = await res.text();
-  let data = null;
-  try{ data = JSON.parse(txt); }catch(e){ data = { ok:false, error:'Non-JSON response', raw: txt }; }
-  if(!res.ok) throw Object.assign(new Error(data.error || ('HTTP '+res.status)), { status: res.status, data });
-  return data;
-}
-
-async function refreshProjectionsAdminUI(){
-  const status = qs('#projStatus');
-  const cur = qs('#projCurrent');
-  if(status) status.textContent = 'Loading...';
-  try{
-    const d = await adminFetchProjections();
-    const c = d.current;
-    if(cur){
-      cur.textContent = c ? (`#${c.id} — ${c.created_at}${c.label ? (' — '+c.label) : ''}`) : '(none yet)';
-    }
-    if(status) status.textContent = '';
-  }catch(e){
-    if(status) status.textContent = (e.data && e.data.error) ? e.data.error : e.message;
-  }
-}
-
-function initAdminProjections(){
-  const loadBtn = qs('#projLoadBtn');
-  const loadPubBtn = qs('#projLoadPublishedBtn');
-  const pubBtn = qs('#projPublishBtn');
-  if(loadBtn){
-    loadBtn.addEventListener('click', ()=>{
-      const snap = getProjectionFromSite();
-      if(!snap){ try{ toast('Could not load projection from site'); }catch(e){} return; }
-      setProjectionEditor(snap);
-      try{ toast('Loaded current projection from site'); }catch(e){}
-    });
-  }
-  if(loadPubBtn){
-    loadPubBtn.addEventListener('click', async ()=>{
-      const status = qs('#projStatus');
-      if(status) status.textContent = 'Loading published...';
-      try{
-        const pc = await fetch('/api/projection-current', { credentials:'include' });
-        const txt = await pc.text();
-        const d = JSON.parse(txt);
-        if(d && d.current && d.current.snapshot){
-          setProjectionEditor(d.current.snapshot);
-          if(status) status.textContent = '';
-          try{ toast('Loaded published projection'); }catch(e){}
-        }else{
-          if(status) status.textContent = 'No published projection yet.';
-        }
-      }catch(e){
-        if(status) status.textContent = 'Failed to load published projection.';
-      }
-    });
-  }
-  if(pubBtn){
-    pubBtn.addEventListener('click', async ()=>{
-      const label = (qs('#projLabel') && qs('#projLabel').value) ? qs('#projLabel').value : '';
-      const snapshot = readProjectionEditor();
-
-      // validate: all seeds filled
-      for(const r of ['east','west','midwest','south']){
-        for(const x of snapshot[r]){
-          if(!x.team){
-            try{ toast('Missing team for ' + r + ' seed ' + x.seed); }catch(e){}
-            return;
-          }
-        }
-      }
-
-      if(!confirm('Publish a new projection version? This affects HOME + NEW brackets only.')) return;
-
-      const status = qs('#projStatus');
-      if(status) status.textContent = 'Publishing...';
-      try{
-        const d = await adminPublishProjection(label, snapshot);
-        if(status) status.textContent = 'Published version #' + d.id;
-        await refreshProjectionsAdminUI();
-      }catch(e){
-        if(status) status.textContent = (e.data && e.data.error) ? e.data.error : e.message;
-      }
-    });
-  }
-
-  // initial load: editor from site arrays
-  const snap = getProjectionFromSite();
-  if(snap) setProjectionEditor(snap);
-
-  refreshProjectionsAdminUI();
-}
-
 }
