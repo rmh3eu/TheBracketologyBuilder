@@ -1,18 +1,16 @@
 import { json, requireUser, uid } from "./_util.js";
 
 
-
-
 async function ensureBracketsSchema(env){
-  // Defensive schema/migration so /api/brackets works across older DB shapes.
+  const add = async (sql) => { try{ await env.DB.prepare(sql).run(); }catch(_e){} };
+
+  // Create base table (widest shape)
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS brackets (
       id TEXT PRIMARY KEY,
       user_id TEXT,
-      userId TEXT,
       title TEXT,
       bracket_name TEXT,
-      bracketName TEXT,
       data_json TEXT,
       payload TEXT,
       bracket_type TEXT,
@@ -22,51 +20,35 @@ async function ensureBracketsSchema(env){
     )
   `).run();
 
-  // Helpful index (best-effort)
-  try{ await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_brackets_user ON brackets(user_id)`).run(); }catch(e){}
+  // Add legacy/optional columns if missing (best-effort)
+  await add("ALTER TABLE brackets ADD COLUMN user_id TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN userId TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN title TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN bracketName TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN payload TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN created_at TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN updated_at TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN projection_version_id INTEGER");
 
-  const info = await env.DB.prepare("PRAGMA table_info(brackets)").all();
-  const cols = new Set((info.results||[]).map(r=>r.name));
+  // Backfill common fields for compatibility
+  await add("UPDATE brackets SET user_id = COALESCE(COALESCE(user_id, userId) AS user_id, userId) WHERE user_id IS NULL OR user_id=''");
+  await add("UPDATE brackets SET title = COALESCE(title, bracket_name, bracketName) WHERE title IS NULL OR title=''");
+  await add("UPDATE brackets SET bracket_name = COALESCE(bracket_name, bracketName, title) WHERE bracket_name IS NULL OR bracket_name=''");
+  await add("UPDATE brackets SET data_json = COALESCE(data_json, payload) WHERE data_json IS NULL OR data_json=''");
+  await add("UPDATE brackets SET payload = COALESCE(payload, data_json) WHERE payload IS NULL OR payload=''");
+  await add("UPDATE brackets SET created_at = COALESCE(created_at, datetime('now')) WHERE created_at IS NULL OR created_at=''");
+  await add("UPDATE brackets SET updated_at = COALESCE(updated_at, created_at) WHERE updated_at IS NULL OR updated_at=''");
 
-  const addCol = async (name, typeSql)=>{
-    if(cols.has(name)) return;
-    try{ await env.DB.prepare(`ALTER TABLE brackets ADD COLUMN ${name} ${typeSql}`).run(); }catch(e){}
-  };
-
-  // Common columns across builds
-  await addCol('user_id','TEXT');
-  await addCol('userId','TEXT');
-  await addCol('title','TEXT');
-  await addCol('bracket_name','TEXT');
-  await addCol('bracketName','TEXT');
-  await addCol('data_json','TEXT');
-  await addCol('payload','TEXT');
-  await addCol('bracket_type','TEXT');
-  await addCol('created_at','TEXT');
-  await addCol('updated_at','TEXT');
-  await addCol('projection_version_id','INTEGER');
-
-  // Backfill user_id/title/data_json from legacy columns when possible
-  try{ await env.DB.prepare("UPDATE brackets SET user_id = COALESCE(user_id, userId) WHERE user_id IS NULL OR user_id=''").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET title = COALESCE(title, bracket_name, bracketName) WHERE title IS NULL OR title=''").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET bracket_name = COALESCE(bracket_name, bracketName, title) WHERE bracket_name IS NULL OR bracket_name=''").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET data_json = COALESCE(data_json, payload) WHERE data_json IS NULL OR data_json=''").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET created_at = COALESCE(created_at, datetime('now')) WHERE created_at IS NULL OR created_at=''").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET updated_at = COALESCE(updated_at, created_at) WHERE updated_at IS NULL OR updated_at=''").run(); }catch(e){}
-
-  // Featured requests table used by My Brackets badges / admin review.
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS feature_requests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      bracket_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT
-    )
-  `).run();
-  try{ await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_feature_requests_bracket ON feature_requests(bracket_id)`).run(); }catch(e){}
+  // Prevent duplicate names per user (across types)
+  try{
+    await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS brackets_user_title_uq ON brackets(COALESCE(user_id, userId) AS user_id, title)").run();
+  }catch(_e){}
 }
+
+
 
 async function ensureProjectionTables(env){
   await env.DB.prepare(`
@@ -131,6 +113,7 @@ export async function onRequest(context){
   if(!user) return json({ ok:false, error:'Unauthorized' }, 401);
 
   await ensureBracketsSchema(env);
+  await ensureBracketHasProjectionColumn(env);
 
   if(request.method === 'GET'){
     // Return ALL brackets for this user (no phase filtering, no date filtering).
@@ -146,12 +129,12 @@ export async function onRequest(context){
                 SELECT fr.status
                   FROM feature_requests fr
                  WHERE fr.bracket_id = brackets.id
-                   AND fr.user_id = COALESCE(brackets.user_id, brackets.userId)
+                   AND fr.user_id = brackets.user_id
                  ORDER BY fr.created_at DESC
                  LIMIT 1
               ) AS feature_status
          FROM brackets
-        WHERE COALESCE(user_id, userId)=?
+        WHERE user_id=?
         ORDER BY COALESCE(updated_at, created_at) DESC`
     ).bind(user.id).all();
 
@@ -160,10 +143,6 @@ export async function onRequest(context){
 
   if(request.method === 'POST'){
     const body = await request.json().catch(()=>null) || {};
-
-    // Ensure optional projection_version_id column exists (older DBs)
-    await ensureBracketHasProjectionColumn(env);
-    const cur = await getCurrentProjectionVersion(env);
 
     const desiredTitle = String(body.title || body.bracket_name || '').trim().slice(0, 80);
     const title = desiredTitle || 'My Bracket';
@@ -175,7 +154,7 @@ export async function onRequest(context){
 
     // Prevent duplicate bracket names for the SAME user (across all types).
     const dupe = await env.DB.prepare(
-      `SELECT id FROM brackets WHERE COALESCE(user_id, userId)=? AND title=? LIMIT 1`
+      `SELECT id FROM brackets WHERE COALESCE(COALESCE(user_id, userId) AS user_id, userId)=? AND title=? LIMIT 1`
     ).bind(user.id, title).first();
     if(dupe) return json({ ok:false, error:'NAME_TAKEN', message:'You already have a bracket with that name.' }, 409);
 
@@ -186,14 +165,20 @@ export async function onRequest(context){
 // CRITICAL: freeze a base snapshot at creation time so brackets NEVER drift when projections change.
 let dataObj = (data !== null) ? data : ((payload !== null) ? payload : {});
 if(!dataObj || typeof dataObj !== 'object') dataObj = {};
+
+// If the client didn't send a base snapshot, freeze it from the currently published projection version.
+let projectionVersionId = null;
 if(!dataObj.base){
-  if(cur && cur.snapshot){
-    const base = snapshotToBase(cur.snapshot);
+  const pv = await getCurrentProjectionVersion(env);
+  if(pv && pv.snapshot){
+    projectionVersionId = pv.id;
+    const base = snapshotToBase(pv.snapshot);
     if(base) dataObj.base = base;
-    dataObj.projection_version_id = cur.id;
-  } else {
-    dataObj.base = CURRENT_SNAPSHOT;
   }
+} else {
+  // If client sent base, we still try to record the current projection version id (optional).
+  const pv = await getCurrentProjectionVersion(env);
+  if(pv) projectionVersionId = pv.id;
 }
 
 const data_json = JSON.stringify(dataObj);
@@ -212,8 +197,15 @@ const legacy_payload = JSON.stringify(dataObj);
       bracket_type,
       now,
       now,
-      (dataObj && dataObj.projection_version_id) ? dataObj.projection_version_id : null
+      projectionVersionId
     ).run();
+
+    // Best-effort record projection version id if available
+    try{
+      if(projectionVersionId !== null){
+        await env.DB.prepare('UPDATE brackets SET projection_version_id=? WHERE id=?').bind(projectionVersionId, id).run();
+      }
+    }catch(_e){}
 
     return json({ ok:true, id });
   }

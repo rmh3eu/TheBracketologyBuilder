@@ -655,7 +655,10 @@ async function maybeAskSubmitFeatured(bracketId){
   try{
     if(!state || !state.me) return;
     if(!bracketId) return;
-    // Allow Featured submission even if the bracket is incomplete (admin will decide).
+
+    // Only prompt for Featured submission when the bracket is fully completed.
+    if(!isBracketCompletePicks(state.picks)) return;
+
     const msg = "Do you want to Submit Your Bracket for a Chance to be on our Featured Brackets Page and/or Appear on our TikTok?";
     const yes = await confirmModal(msg, 'Yes', 'No');
     if(!yes) return;
@@ -2039,7 +2042,7 @@ async function enterBestWithCurrent(){
   if(!ensureTiebreakerIfChampion(picks)) return;
   const title = 'Best Challenge Entry';
   const bracket_type = state.bracket_type || 'bracketology';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: Object.assign({ base: getCurrentSnapshot() }, picks), bracket_type})});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
   const id = d.id;
   await enterChallenge('best','pre', id);
   toast('Entered Best Bracket Challenge!');
@@ -2804,7 +2807,7 @@ async function openWorstStage(stage){
       if(!ensureTiebreakerIfChampion(data)) return;
     }
     const bracket_type = state.bracket_type || 'bracketology';
-    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: Object.assign({ base: getCurrentSnapshot() }, data), bracket_type})});
+    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data, bracket_type})});
     await enterChallenge('worst', stage, d.id);
     toast('Entered Worst Challenge!');
     await renderWorstLeaderboard();
@@ -2885,7 +2888,7 @@ async function enterWorstStage1FromCurrent(){
   });
   const title = 'Worst Challenge Stage 1';
   const bracket_type = state.bracket_type || 'bracketology';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: Object.assign({ base: getCurrentSnapshot() }, picks), bracket_type})});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
   await enterChallenge('worst','pre', d.id);
   toast('Entered Worst Challenge Stage 1!');
   await renderWorstLeaderboard();

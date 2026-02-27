@@ -2,48 +2,22 @@ import { json, requireUser, isLocked } from "./_util.js";
 
 // Keep schema + indexes safe and consistent across builds.
 async function ensureBracketsHardening(env){
-  // Ensure brackets table exists, then add missing columns best-effort.
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS brackets (
-      id TEXT PRIMARY KEY,
-      user_id TEXT,
-      userId TEXT,
-      title TEXT,
-      bracket_name TEXT,
-      bracketName TEXT,
-      data_json TEXT,
-      payload TEXT,
-      bracket_type TEXT,
-      created_at TEXT,
-      updated_at TEXT,
-      is_public INTEGER DEFAULT 0
-    )
-  `).run();
-
   const add = async (sql) => { try{ await env.DB.prepare(sql).run(); }catch(e){} };
-  await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
   await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN bracketName TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN title TEXT");
   await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN payload TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN user_id TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN userId TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN created_at TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN updated_at TEXT");
-  await add("ALTER TABLE brackets ADD COLUMN is_public INTEGER DEFAULT 0");
 
   // Backfill to keep legacy rows visible.
-  try{ await env.DB.prepare("UPDATE brackets SET user_id = COALESCE(user_id, userId) WHERE user_id IS NULL OR user_id=''").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET title = COALESCE(title, bracket_name, bracketName) WHERE title IS NULL OR title='' ").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET bracket_name = COALESCE(bracket_name, bracketName, title) WHERE bracket_name IS NULL OR bracket_name='' ").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET data_json = COALESCE(data_json, payload) WHERE data_json IS NULL OR data_json='' ").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET created_at = COALESCE(created_at, datetime('now')) WHERE created_at IS NULL OR created_at='' ").run(); }catch(e){}
-  try{ await env.DB.prepare("UPDATE brackets SET updated_at = COALESCE(updated_at, created_at) WHERE updated_at IS NULL OR updated_at='' ").run(); }catch(e){}
+  try{
+    await env.DB.prepare("UPDATE brackets SET bracket_type='bracketology' WHERE bracket_type IS NULL OR bracket_type=''").run();
+  }catch(e){}
+  try{
+    await env.DB.prepare("UPDATE brackets SET title = COALESCE(title, bracket_name) WHERE title IS NULL OR title='' ").run();
+  }catch(e){}
 
   // Strong uniqueness per user across all bracket types.
   try{
-    await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS brackets_user_title_uq ON brackets(COALESCE(user_id,userId), title)").run();
+    await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS brackets_user_title_uq ON brackets(user_id, title)").run();
   }catch(e){}
 }
 
@@ -102,7 +76,7 @@ export async function onRequestPut({ request, env }){
   if(!id) return json({ ok:false, error:"Missing id." }, 400);
 
   const existing = await env.DB.prepare(
-    "SELECT id, COALESCE(user_id,userId) AS user_id, bracket_type, data_json, payload FROM brackets WHERE id=?"
+    "SELECT id,user_id,bracket_type,data_json FROM brackets WHERE id=?"
   ).bind(id).first();
 
   if(!existing) return json({ ok:false, error:"Not found." }, 404);
@@ -120,7 +94,7 @@ export async function onRequestPut({ request, env }){
   // Non‑negotiable rule: once a bracket has a base snapshot, it must NEVER change,
   // even if the client sends a different base after projections update.
   let existingData = {};
-  try{ existingData = JSON.parse(existing.data_json || existing.payload || '{}'); }catch(e){ existingData = {}; }
+  try{ existingData = JSON.parse(existing.data_json || '{}'); }catch(e){ existingData = {}; }
 
   // If data was not provided, treat this as a rename-only update.
   let mergedData = data;
@@ -134,8 +108,8 @@ export async function onRequestPut({ request, env }){
   }
   const nextDataJson = (mergedData === null) ? (existing.data_json || "{}") : JSON.stringify(mergedData);
   await env.DB.prepare(
-    "UPDATE brackets SET title=?, bracket_name=?, data_json=?, payload=?, updated_at=? WHERE id=?"
-  ).bind(title, bracket_name, nextDataJson, nextDataJson, now, id).run();
+    "UPDATE brackets SET title=?, bracket_name=?, data_json=?, updated_at=? WHERE id=?"
+  ).bind(title, bracket_name, nextDataJson, now, id).run();
 
   return json({ ok:true });
 }
