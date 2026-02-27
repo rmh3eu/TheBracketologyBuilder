@@ -67,7 +67,6 @@ async function ensureBracketsSchema(env){
   `).run();
   try{ await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_feature_requests_bracket ON feature_requests(bracket_id)`).run(); }catch(e){}
 }
-}
 
 async function ensureProjectionTables(env){
   await env.DB.prepare(`
