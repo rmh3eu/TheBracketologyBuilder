@@ -2039,7 +2039,7 @@ async function enterBestWithCurrent(){
   if(!ensureTiebreakerIfChampion(picks)) return;
   const title = 'Best Challenge Entry';
   const bracket_type = state.bracket_type || 'bracketology';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: Object.assign({ base: getCurrentSnapshot() }, picks), bracket_type})});
   const id = d.id;
   await enterChallenge('best','pre', id);
   toast('Entered Best Bracket Challenge!');
@@ -2804,7 +2804,7 @@ async function openWorstStage(stage){
       if(!ensureTiebreakerIfChampion(data)) return;
     }
     const bracket_type = state.bracket_type || 'bracketology';
-    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data, bracket_type})});
+    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: Object.assign({ base: getCurrentSnapshot() }, data), bracket_type})});
     await enterChallenge('worst', stage, d.id);
     toast('Entered Worst Challenge!');
     await renderWorstLeaderboard();
@@ -2885,7 +2885,7 @@ async function enterWorstStage1FromCurrent(){
   });
   const title = 'Worst Challenge Stage 1';
   const bracket_type = state.bracket_type || 'bracketology';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: Object.assign({ base: getCurrentSnapshot() }, picks), bracket_type})});
   await enterChallenge('worst','pre', d.id);
   toast('Entered Worst Challenge Stage 1!');
   await renderWorstLeaderboard();
