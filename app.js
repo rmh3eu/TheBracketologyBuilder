@@ -655,10 +655,7 @@ async function maybeAskSubmitFeatured(bracketId){
   try{
     if(!state || !state.me) return;
     if(!bracketId) return;
-
-    // Only prompt for Featured submission when the bracket is fully completed.
-    if(!isBracketCompletePicks(state.picks)) return;
-
+    // Allow Featured submission even if the bracket is incomplete (admin will decide).
     const msg = "Do you want to Submit Your Bracket for a Chance to be on our Featured Brackets Page and/or Appear on our TikTok?";
     const yes = await confirmModal(msg, 'Yes', 'No');
     if(!yes) return;
