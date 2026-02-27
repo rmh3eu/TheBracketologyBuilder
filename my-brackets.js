@@ -40,6 +40,10 @@ function setSubmitFeaturedMsg(text, ok){
 
 function initSubmitFeaturedToolbar(brackets){
   const bar = document.getElementById('submitFeaturedToolbar');
+  // v41: Removed toolbar dropdown submit-to-featured entry point (keep card-level submit + post-save submit only)
+  if (bar) { bar.style.display = 'none'; }
+  return;
+
   const sel = document.getElementById('submitFeaturedSelect');
   const btn = document.getElementById('submitFeaturedBtn');
   if(!bar || !sel || !btn) return;
@@ -82,7 +86,7 @@ function initSubmitFeaturedToolbar(brackets){
       }
     }catch(e){
       // Server should enforce completion and return the desired message
-      const msg = (e && e.message) ? e.message : 'Please complete your bracket to submit to featured';
+      const msg = (e && e.message) ? e.message : '';
       setSubmitFeaturedMsg(msg, false);
     }finally{
       btn.disabled = false;
@@ -188,7 +192,7 @@ function renderBracketSection({ listId, emptyId, items }) {
           // refresh page list
           location.reload();
         }catch(e){
-          alert((e && e.message) ? e.message : 'Please complete your bracket to submit to featured');
+          alert((e && e.message) ? e.message : '');
         }finally{
           submitBtn.disabled = false;
         }

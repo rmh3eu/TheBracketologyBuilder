@@ -1,4 +1,12 @@
-import { json, requireAdmin } from "../../_util.js";
+import { json, requireUser, isAdmin } from "../../_util.js";
+
+async function requireAdmin(arg1, arg2){
+  const user = await requireUser(arg1, arg2);
+  if(!user) return null;
+  const env = (arg1 && typeof arg1 === 'object' && ('env' in arg1)) ? arg1.env : arg2;
+  return isAdmin(user, env) ? user : null;
+}
+
 
 async function ensureTables(env){
   // projection_versions stores snapshots, app_config stores current pointer
