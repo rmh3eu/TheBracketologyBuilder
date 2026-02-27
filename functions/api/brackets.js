@@ -8,6 +8,42 @@ import { json, requireUser, uid } from "./_util.js";
 async function ensureBracketsSchema(env){
   const add = async (sql) => { try{ await env.DB.prepare(sql).run(); }catch(e){} };
 
+  // Ensure core tables exist (safe no-ops if already present)
+  try{
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS brackets (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT,
+        bracket_name TEXT,
+        bracket_type TEXT NOT NULL DEFAULT 'bracketology',
+        data_json TEXT,
+        payload TEXT,
+        created_at TEXT,
+        updated_at TEXT
+      )
+    `).run();
+  }catch(e){}
+
+  // Featured requests table is referenced by My Brackets list; ensure it exists so listing never 500s.
+  try{
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS feature_requests (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        bracket_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT
+      )
+    `).run();
+  }catch(e){}
+
+  // Optional uniqueness: one request per bracket (idempotent submissions)
+  try{
+    await env.DB.prepare(`CREATE UNIQUE INDEX IF NOT EXISTS feature_requests_bracket_uq ON feature_requests(bracket_id)`).run();
+  }catch(e){}
+
   // Ensure commonly-used columns exist. These are safe no-ops if they already exist.
   await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
   await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
@@ -42,7 +78,12 @@ async function ensureBracketsSchema(env){
       "CREATE INDEX IF NOT EXISTS brackets_user_updated_idx ON brackets(user_id, updated_at)"
     ).run();
   }catch(e){}
+
+  try{
+    await env.DB.prepare("CREATE INDEX IF NOT EXISTS feature_requests_status_idx ON feature_requests(status)").run();
+  }catch(e){}
 }
+
 
 function normalizeType(v){
   const t = String(v || '').trim().toLowerCase();
