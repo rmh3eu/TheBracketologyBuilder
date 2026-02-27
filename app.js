@@ -1,13 +1,43 @@
 
 // ---- R64 snapshot rendering protection ----
 function getBaseRegionsForBracket(bracket){
+  // Existing saved brackets MUST render from their own frozen base snapshot.
   if(bracket && bracket.data && bracket.data.base){
     return bracket.data.base;
   }
+  // For any existing bracket missing base, do NOT fall back to current projections here.
+  // (Legacy brackets may be backfilled once on load, then frozen.)
+  if(bracket) return null;
+
+  // Home page / new bracket creation uses current projection snapshot.
   if(typeof R64_SNAPSHOT !== 'undefined'){
     return R64_SNAPSHOT;
   }
   return null;
+
+
+function ensureBaseOnNewBracketData(dataObj){
+  // Ensure new brackets always store a frozen Round of 64 snapshot in data.base at creation time.
+  if(!dataObj || typeof dataObj !== 'object'){
+    dataObj = {};
+  }
+  if(!dataObj.base){
+    if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = R64_SNAPSHOT;
+  }
+  return dataObj;
+}
+
+function wrapPicksIfNeeded(dataOrPicks){
+  // Many flows pass picks as a flat object; persisted brackets expect { base, picks }.
+  if(!dataOrPicks || typeof dataOrPicks !== 'object') return ensureBaseOnNewBracketData({ picks: {} });
+
+  // If it already has picks, just ensure base.
+  if(Object.prototype.hasOwnProperty.call(dataOrPicks, 'picks')){
+    return ensureBaseOnNewBracketData(dataOrPicks);
+  }
+  // Otherwise treat it as the picks object.
+  return ensureBaseOnNewBracketData({ picks: dataOrPicks });
+}
 }
 
 
@@ -2032,7 +2062,7 @@ async function enterBestWithCurrent(){
   if(!ensureTiebreakerIfChampion(picks)) return;
   const title = 'Best Challenge Entry';
   const bracket_type = state.bracket_type || 'bracketology';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: wrapPicksIfNeeded(picks), bracket_type})});
   const id = d.id;
   await enterChallenge('best','pre', id);
   toast('Entered Best Bracket Challenge!');
@@ -2800,7 +2830,7 @@ async function openWorstStage(stage){
       if(!ensureTiebreakerIfChampion(data)) return;
     }
     const bracket_type = state.bracket_type || 'bracketology';
-    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data, bracket_type})});
+    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: wrapPicksIfNeeded(data), bracket_type})});
     await enterChallenge('worst', stage, d.id);
     toast('Entered Worst Challenge!');
     await renderWorstLeaderboard();
@@ -2881,7 +2911,7 @@ async function enterWorstStage1FromCurrent(){
   });
   const title = 'Worst Challenge Stage 1';
   const bracket_type = state.bracket_type || 'bracketology';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data:picks, bracket_type})});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: wrapPicksIfNeeded(picks), bracket_type})});
   await enterChallenge('worst','pre', d.id);
   toast('Entered Worst Challenge Stage 1!');
   await renderWorstLeaderboard();
@@ -2947,6 +2977,28 @@ function closeBracketsOverlay(){
 
 async function loadBracketFromServer(id){
   const d = await api(`/api/bracket?id=${encodeURIComponent(id)}`, { method:'GET' });
+  // One-time legacy backfill: if this bracket is missing a frozen base snapshot,
+  // attach the CURRENT projection snapshot ONCE and persist it, so it cannot drift further.
+  try{
+    const br = (d && d.bracket) ? d.bracket : null;
+    const hasBase = !!(br && br.data && br.data.base);
+    if(br && !hasBase && typeof R64_SNAPSHOT !== 'undefined'){
+      // Only backfill if the viewer is the owner (server will reject otherwise).
+      const merged = Object.assign({}, br.data || {});
+      if(!merged.base) merged.base = R64_SNAPSHOT;
+      // Ensure picks wrapper exists
+      if(!Object.prototype.hasOwnProperty.call(merged, 'picks')){
+        // If data is flat picks object, keep it under picks.
+        merged.picks = (br.data && typeof br.data === 'object') ? br.data : {};
+      }
+      await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
+        method:'PUT',
+        body: JSON.stringify({ id: br.id, bracket_name: br.title || br.bracket_name || 'My Bracket', data: merged })
+      });
+      // Reflect locally
+      d.bracket.data = merged;
+    }
+  }catch(e){}
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
   state.bracketTitle = d.bracket.title || '';

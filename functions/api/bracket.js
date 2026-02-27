@@ -90,8 +90,34 @@ export async function onRequestPut({ request, env }){
 
   const now = new Date().toISOString();
 
+
+  // --- Base snapshot lock (non-negotiable) ---
+  // Never overwrite an existing bracket's frozen Round of 64 snapshot.
+  // If the incoming payload is missing base (or attempts to change it), preserve the stored base.
+  let incomingData = data;
+  if(data !== null){
+    let existingData = {};
+    try{ existingData = JSON.parse(existing.data_json || "{}"); }catch(e){ existingData = {}; }
+
+    const existingBase = (existingData && existingData.base) ? existingData.base : null;
+    const incomingBase = (incomingData && incomingData.base) ? incomingData.base : null;
+
+    if(existingBase){
+      // Force preservation of stored base
+      if(!incomingData || typeof incomingData !== 'object') incomingData = {};
+      incomingData.base = existingBase;
+    } else if(!incomingBase){
+      // If no base exists yet, allow incoming base if provided; otherwise leave missing.
+      // (Legacy brackets may be backfilled client-side once, then frozen.)
+    }
+
+    // Ensure we write back the possibly-corrected incomingData
+    // NOTE: If this update is rename-only, data is null and we won't touch data_json.
+    // eslint-disable-next-line no-unused-vars
+    incomingData = incomingData;
+  }
   // If data was not provided, treat this as a rename-only update.
-  const nextDataJson = (data === null) ? (existing.data_json || "{}") : JSON.stringify(data);
+  const nextDataJson = (data === null) ? (existing.data_json || "{}") : JSON.stringify(incomingData);
   await env.DB.prepare(
     "UPDATE brackets SET title=?, bracket_name=?, data_json=?, updated_at=? WHERE id=?"
   ).bind(title, bracket_name, nextDataJson, now, id).run();
