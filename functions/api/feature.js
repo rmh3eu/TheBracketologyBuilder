@@ -1,242 +1,135 @@
-import { json, requireAdmin, requireUser } from "./_util.js";
-
-// Ensure the feature_requests table exists and backfill rows from legacy
-// bracket columns (submitted_at / approved_at / is_featured) so that
-// previously-submitted/featured brackets still appear in Admin: Featured Review.
-async function ensureFeatureRequests(env) {
-  await env.DB.prepare(`
-    CREATE TABLE IF NOT EXISTS feature_requests (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      bracket_id TEXT NOT NULL,
-      user_id TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending',
-      caption TEXT,
-      created_at TEXT NOT NULL,
-      updated_at TEXT,
-      approved_at TEXT,
-      denied_at TEXT
-    )
-  `).run();
-
-  await env.DB.prepare(`
-    CREATE UNIQUE INDEX IF NOT EXISTS idx_feature_requests_bracket_id
-    ON feature_requests(bracket_id)
-  `).run();
-
-  // Pending submissions (idempotent)
-  await env.DB.prepare(`
-    INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at)
-    SELECT b.id, b.user_id, 'pending', COALESCE(b.submitted_at, b.updated_at, b.created_at)
-    FROM brackets b
-    WHERE b.submitted_at IS NOT NULL
-      AND (b.approved_at IS NULL AND IFNULL(b.is_featured,0)=0)
-  `).run();
-
-  // Approved/featured (idempotent)
-  await env.DB.prepare(`
-    INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at, approved_at)
-    SELECT b.id, b.user_id, 'approved', COALESCE(b.submitted_at, b.updated_at, b.created_at), COALESCE(b.approved_at, b.updated_at, b.created_at)
-    FROM brackets b
-    WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
-  `).run();
-
-  // Upgrade existing rows to approved if legacy brackets indicate featured/approved.
-  // This fixes cases where a pending row was inserted earlier and later the bracket became approved via legacy fields.
-  await env.DB.prepare(`
-    UPDATE feature_requests
-    SET status = 'approved',
-        approved_at = COALESCE(approved_at, (
-          SELECT COALESCE(b.approved_at, b.updated_at, b.created_at)
-          FROM brackets b
-          WHERE b.id = feature_requests.bracket_id
-        )),
-        updated_at = COALESCE(updated_at, datetime('now'))
-    WHERE bracket_id IN (
-      SELECT b.id FROM brackets b
-      WHERE (IFNULL(b.is_featured,0)=1 OR b.approved_at IS NOT NULL)
-    )
-    AND status != 'approved'
-  `).run();
+import { json, requireUser, isAdmin, sendEmail, getSiteDomain } from "./_util.js";
 
 
-}
-
-// Feature Requests API
-//
-// POST   /api/feature          (user)   { bracket_id }
-// GET    /api/feature?status=  (admin)  status in: pending|approved|denied|rejected|all
-// PUT    /api/feature          (admin)  { id, status } status in: pending|approved|denied|rejected
-//
-// Notes:
-// - We normalize "rejected" -> "denied" (legacy naming).
-// - We allow incomplete brackets to be submitted (per latest decision).
-
-function normalizeStatus(raw) {
-  const s = (raw || "").toLowerCase().trim();
-  if (!s) return "all";
-  if (s === "rejected") return "denied";
-  if (s === "deny") return "denied";
-  return s;
-}
-
-export async function onRequest(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
-  const method = request.method.toUpperCase();
-
-  try {
-    if (method === "POST") {
-      await ensureFeatureRequests(env);
-      const user = await requireUser(context);
-      const body = await request.json().catch(() => ({}));
-      const bracket_id = String(body.bracket_id || "").trim();
-      if (!bracket_id) return json({ ok: false, error: "Missing bracket_id" }, 400);
-
-      const b = await env.DB.prepare(
-        "SELECT id, user_id, title, created_at FROM brackets WHERE id = ?"
-      )
-        .bind(bracket_id)
-        .first();
-
-      if (!b) return json({ ok: false, error: "Bracket not found" }, 404);
-      if (!user.is_admin && b.user_id !== user.id) {
-        return json({ ok: false, error: "Not allowed" }, 403);
-      }
-
-      
-      const existing = await env.DB.prepare(
-        "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
-      ).bind(bracket_id).first();
-
-// If there is already a request for this bracket (any status), treat as success (idempotent).
-      // This prevents UNIQUE constraint errors if users click multiple times or if admin already approved/denied.
-      if (existing) {
-        return json({ ok: true, already: true, status: normalizeStatus(existing.status), request_id: existing.id });
-      }
-
-      const now = new Date().toISOString();
-
-      // Persist on brackets table too (legacy + reporting)
-      await env.DB.prepare(
-        "UPDATE brackets SET submitted_at = COALESCE(submitted_at, ?) WHERE id = ?"
-      )
-        .bind(now, bracket_id)
-        .run();
-      const insert = await env.DB.prepare(
-        "INSERT OR IGNORE INTO feature_requests (bracket_id, user_id, status, created_at) VALUES (?, ?, ?, ?)"
-      )
-        .bind(bracket_id, b.user_id, "pending", now)
-        .run();
-
-      // If it was ignored (already exists), return the existing request id/status.
-      const fr = await env.DB.prepare(
-        "SELECT id, status FROM feature_requests WHERE bracket_id = ? ORDER BY created_at DESC LIMIT 1"
-      ).bind(bracket_id).first();
-
-      return json({ ok: true, request_id: fr?.id || insert.meta?.last_row_id || null, status: normalizeStatus(fr?.status || "pending") });
+function isCompleteBracketData(data){
+  try{
+    const picks = data && data.picks ? data.picks : null;
+    if(!picks) return false;
+    const regionKeys = ['REGION_SOUTH','REGION_WEST','REGION_EAST','REGION_MIDWEST'];
+    for(const rKey of regionKeys){
+      for(let g=0; g<8; g++){ if(!picks[`${rKey}__R0__G${g}__winner`]) return false; }
+      for(let g=0; g<4; g++){ if(!picks[`${rKey}__R1__G${g}__winner`]) return false; }
+      for(let g=0; g<2; g++){ if(!picks[`${rKey}__R2__G${g}__winner`]) return false; }
+      if(!picks[`${rKey}__R3__G0__winner`]) return false;
     }
-
-    if (method === "GET") {
-      await ensureFeatureRequests(env);
-      await requireAdmin(context);
-      const status = normalizeStatus(url.searchParams.get("status") || "all");
-
-      let where = "";
-      const binds = [];
-      if (status !== "all") {
-        if (!["pending", "approved", "denied"].includes(status)) {
-          return json({ ok: false, error: "Invalid status" }, 400);
-        }
-        where = "WHERE fr.status = ?";
-        binds.push(status);
-      }
-
-      const stmt = env.DB.prepare(
-        `
-        SELECT
-          fr.id,
-          fr.bracket_id,
-          fr.user_id,
-          fr.status,
-          fr.created_at,
-          fr.updated_at,
-          u.email,
-          b.title
-        FROM feature_requests fr
-        LEFT JOIN users u ON u.id = fr.user_id
-        LEFT JOIN brackets b ON b.id = fr.bracket_id
-        ${where}
-        ORDER BY fr.created_at DESC
-        `
-      );
-
-      const res = binds.length ? await stmt.bind(...binds).all() : await stmt.all();
-      const rows = (res?.results || []).map((r) => ({
-        ...r,
-        status: normalizeStatus(r.status),
-      }));
-
-      return json({ ok: true, results: rows });
-    }
-
-    if (method === "PUT") {
-      await ensureFeatureRequests(env);
-      await requireAdmin(context);
-      const body = await request.json().catch(() => ({}));
-      const id = String(body.id || "").trim();
-      const status = normalizeStatus(body.status);
-      if (!id) return json({ ok: false, error: "Missing id" }, 400);
-      if (!["pending", "approved", "denied"].includes(status)) {
-        return json({ ok: false, error: "Invalid status" }, 400);
-      }
-
-      const now = new Date().toISOString();
-
-      // Fetch the bracket_id so we can keep brackets table in sync
-      const fr = await env.DB.prepare(
-        "SELECT bracket_id FROM feature_requests WHERE id = ?"
-      )
-        .bind(id)
-        .first();
-
-      const out = await env.DB.prepare(
-        "UPDATE feature_requests SET status = ?, updated_at = ? WHERE id = ?"
-      )
-        .bind(status, now, id)
-        .run();
-
-      // Mirror status onto brackets table
-      if (fr?.bracket_id) {
-        if (status === "approved") {
-          await env.DB.prepare(
-            "UPDATE brackets SET is_featured = 1, approved_at = COALESCE(approved_at, ?) WHERE id = ?"
-          )
-            .bind(now, fr.bracket_id)
-            .run();
-        } else if (status === "pending") {
-          await env.DB.prepare(
-            "UPDATE brackets SET is_featured = 0, approved_at = NULL WHERE id = ?"
-          )
-            .bind(fr.bracket_id)
-            .run();
-        } else if (status === "denied") {
-          await env.DB.prepare(
-            "UPDATE brackets SET is_featured = 0 WHERE id = ?"
-          )
-            .bind(fr.bracket_id)
-            .run();
-        }
-      }
-
-      return json({ ok: true, changed: out.meta?.changes || 0 });
-    }
-
-    return json({ ok: false, error: "Method not allowed" }, 405);
-  } catch (e) {
-    const msg = e?.message || String(e);
-    if (String(msg).includes('UNIQUE constraint failed') && String(msg).includes('feature_requests.bracket_id')) {
-      return json({ ok: true, already: true, status: 'pending' }, 200);
-    }
-    return json({ ok: false, error: msg }, 500);
+    if(!picks['FF__G0__winner']) return false;
+    if(!picks['FF__G1__winner']) return false;
+    const champ = picks['FINAL__winner'] || picks['CHAMPION'];
+    if(!champ) return false;
+    return true;
+  }catch(e){
+    return false;
   }
+}
+
+export async function onRequestPost({ request, env }){
+  // submit a feature request
+  const user = await requireUser({request, env});
+  if(!user) return json({ok:false, error:"Not logged in."}, 401);
+
+  const body = await request.json();
+  const bracketId = String(body.bracket_id||"");
+  const caption = String(body.caption||"").slice(0,200);
+  if(!bracketId) return json({ok:false, error:"Missing bracket id."}, 400);
+
+  const row = await env.DB.prepare("SELECT id,user_id,data_json FROM brackets WHERE id=?").bind(bracketId).first();
+  if(!row) return json({ok:false, error:"Bracket not found."}, 404);
+  if(row.user_id !== user.id) return json({ok:false, error:"Not authorized."}, 403);
+
+  // Only allow featured submission for fully completed brackets.
+  try{
+    const data = JSON.parse(row.data_json || '{}');
+    if(!isCompleteBracketData(data)){
+      return json({ok:false, error:"Please complete your bracket to submit to featured"}, 400);
+    }
+  }catch(e){
+    return json({ok:false, error:"Please complete your bracket to submit to featured"}, 400);
+  }
+
+  const existing = await env.DB.prepare(
+    "SELECT id, status FROM feature_requests WHERE bracket_id=? AND user_id=? ORDER BY created_at DESC LIMIT 1"
+  ).bind(bracketId, user.id).first();
+  if(existing){
+    return json({ok:true, already:true, status: existing.status});
+  }
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    "INSERT INTO feature_requests (bracket_id,user_id,caption,status,created_at) VALUES (?,?,?,?,?)" /* ALREADY_SUBMITTED */
+  ).bind(bracketId, user.id, caption, "pending", now).run();
+
+  return json({ok:true});
+}
+
+export async function onRequestGet({ request, env }){
+  // admin list pending/approved
+  const user = await requireUser({request, env});
+  if(!isAdmin(user, env)) return json({ok:false, error:"Not authorized."}, 403);
+
+  const url = new URL(request.url);
+  const status = url.searchParams.get("status") || "pending";
+
+  const rs = await env.DB.prepare(
+    `SELECT fr.id, fr.bracket_id, fr.caption, fr.status, fr.created_at, u.email as user_email, b.title
+     FROM feature_requests fr
+     JOIN users u ON u.id = fr.user_id
+     JOIN brackets b ON b.id = fr.bracket_id
+     WHERE fr.status = ?
+     ORDER BY fr.created_at DESC
+     LIMIT 100`
+  ).bind(status).all();
+
+  return json({ok:true, requests: rs.results || []});
+}
+
+export async function onRequestPut({ request, env }){
+  // admin approve/reject
+  const user = await requireUser({request, env});
+  if(!isAdmin(user, env)) return json({ok:false, error:"Not authorized."}, 403);
+
+  const body = await request.json();
+  const id = body.id;
+  const status = body.status;
+  if(!id || !["approved","rejected"].includes(status)) return json({ok:false, error:"Bad request."}, 400);
+
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    "UPDATE feature_requests SET status=?, approved_at=? WHERE id=?"
+  ).bind(status, now, id).run();
+
+  // Send an email when a bracket is approved (strong moment).
+  if(status === 'approved'){
+    try{
+      const info = await env.DB.prepare(
+        `SELECT u.email AS email, b.title AS title
+           FROM feature_requests fr
+           JOIN users u ON u.id = fr.user_id
+           JOIN brackets b ON b.id = fr.bracket_id
+          WHERE fr.id = ?
+          LIMIT 1`
+      ).bind(id).first();
+
+      if(info && info.email){
+        const domain = getSiteDomain(env);
+        const siteUrl = `https://${domain}`;
+        const featuredUrl = `${siteUrl}/featured.html`;
+        const subject = "Your bracket was approved for Featured 🎉";
+        const safeTitle = (info.title || 'Your bracket').toString();
+        const text = `Congratulations — your bracket ("${safeTitle}") was approved and is now eligible to appear on our Featured Brackets page.\n\nView Featured Brackets: ${featuredUrl}\n\nThanks for choosing BracketologyBuilder.com!`;
+        const html = `
+          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.4">
+            <h2 style="margin:0 0 12px 0">Your bracket was approved 🎉</h2>
+            <p style="margin:0 0 12px 0">Congratulations — your bracket <b>${safeTitle.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</b> was approved and is now eligible to appear on our Featured Brackets page.</p>
+            <p style="margin:0 0 16px 0"><a href="${featuredUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px">View Featured Brackets</a></p>
+            <p style="margin:0">Thank you for choosing BracketologyBuilder.com!</p>
+          </div>
+        `;
+        await sendEmail(env, info.email, subject, html, text);
+      }
+    }catch(e){
+      // Best-effort only; approval should still succeed.
+    }
+  }
+
+  return json({ok:true});
 }

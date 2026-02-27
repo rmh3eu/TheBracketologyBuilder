@@ -1529,12 +1529,8 @@ body.mobile .ruleItem{background: rgba(0,0,0,0.02);}
 #view-adminfeatured .card *{
   color:#fff !important;
 }
-#view-featured .muted{
-  color: rgba(255,255,255,0.86) !important;
-}
-
-/* In Admin Featured Review we use both dark page text and white boards; keep only the status line muted-white */
-#view-adminfeatured #adminFeaturedStatus.muted{
+#view-featured .muted,
+#view-adminfeatured .muted{
   color: rgba(255,255,255,0.86) !important;
 }
 #view-featured .btn.ghost,
@@ -2986,9 +2982,7 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* Admin Featured Review - section boards */
 .sectionHeading{font-size:18px;font-weight:800;color:#fff;margin:10px 0 6px;}
-.whiteBoard{background:#fff;border-radius:14px;padding:14px;border:1px solid rgba(0,0,0,0.08);
-  color: #111;
-}
+.whiteBoard{background:#fff;border-radius:14px;padding:14px;border:1px solid rgba(0,0,0,0.08);}
 .whiteBoard .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
 .whiteBoard .bracketCard{background:#2563eb !important;border:1px solid rgba(0,0,0,0.12) !important;}
 .whiteBoard .bracketCard .bracketTitle,
@@ -3054,26 +3048,3 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .submitFeaturedMsg.err{color:#b91c1c;font-weight:700;}
 .submitFeaturedInlineBtn{margin-top:10px;padding:8px 12px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}
 .submitFeaturedInlineBtn:disabled{opacity:0.6;cursor:not-allowed;}
-
-
-/* Ensure text is visible inside white sections (Admin Featured Review boards) */
-.whiteBoard, .whiteBoard * { color: #111; }
-.whiteBoard a { color: #111; }
-.whiteBoard .approveBtn, .whiteBoard .denyBtn, .whiteBoard .pendingBtn, .whiteBoard .sendPendingBtn {
-  color: #fff !important;
-}
-.whiteBoard .approveBtn { background: #1f9d55; border-color: #1f9d55; }
-.whiteBoard .denyBtn, .whiteBoard .sendPendingBtn { background: #e3342f; border-color: #e3342f; }
-.whiteBoard .pendingBtn { background: #4b5563; border-color: #4b5563; }
-
-/* Featured-review cards should be readable on white boards */
-.whiteBoard .card.featured-card{
-  background:#2563eb !important;
-  border:1px solid rgba(0,0,0,0.12) !important;
-  border-radius:14px !important;
-}
-.whiteBoard .card.featured-card,
-.whiteBoard .card.featured-card *{
-  color:#fff !important;
-}
-

@@ -106,15 +106,6 @@ async function requireUser(arg1, arg2){
   return row || null;
 }
 
-// Admin-only auth helper used by admin API routes.
-// Accepts both call styles as requireUser.
-async function requireAdmin(arg1, arg2){
-  const user = await requireUser(arg1, arg2);
-  if(!user) return null;
-  const env = (arg1 && typeof arg1 === 'object' && ('env' in arg1)) ? arg1.env : arg2;
-  return isAdmin(user, env) ? user : null;
-}
-
 function isAdmin(user, env){
   const adminEmail = env.ADMIN_EMAIL || "";
   return !!(user && adminEmail && user.email && user.email.toLowerCase() === adminEmail.toLowerCase());
@@ -297,4 +288,4 @@ async function sendEmail(env, to, subject, html, text){
   return await sendResendEmail(env, to, subject, html, text);
 }
 
-export {json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, requireAdmin, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, ensurePasswordResetSchema, sha256Hex, sendEmail, sendResendEmail, getSiteDomain, getIp, rateLimit, uid};
+export {json, getCookie, setCookie, pbkdf2Hash, randomB64, requireUser, isAdmin, isLocked, ensureUserSchema, ensureGamesSchema, ensureMilestones, ensurePasswordResetSchema, sha256Hex, sendEmail, sendResendEmail, getSiteDomain, getIp, rateLimit, uid};

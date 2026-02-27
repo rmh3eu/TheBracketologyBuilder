@@ -3,15 +3,15 @@
 
 const LAST_FOUR_IN = [
   "Virginia Tech",
-  "Missouri",
-  "Santa Clara",
+  "New Mexico",
+  "Texas",
   "USC"
 ];
 const FIRST_FOUR_OUT = [
   "TCU",
   "Seton Hall",
   "Indiana",
-  "Texas"
+  "Santa Clara"
 ];
 
 const EAST = [
@@ -33,19 +33,19 @@ const EAST = [
   ],
   [
     5,
-    "St Johns"
+    "Alabama"
   ],
   [
     6,
-    "Louisville"
+    "Wisconsin"
   ],
   [
     7,
-    "Kentucky"
+    "Villanova"
   ],
   [
     8,
-    "NC State"
+    "Miami FLA"
   ],
   [
     9,
@@ -57,7 +57,7 @@ const EAST = [
   ],
   [
     11,
-    "Texas"
+    "Missouri"
   ],
   [
     12,
@@ -89,7 +89,7 @@ const WEST = [
   ],
   [
     2,
-    "Houston"
+    "Florida"
   ],
   [
     3,
@@ -105,11 +105,11 @@ const WEST = [
   ],
   [
     6,
-    "Wisconsin"
+    "Vanderbilt"
   ],
   [
     7,
-    "Villanova"
+    "Saint Mary's"
   ],
   [
     8,
@@ -125,7 +125,7 @@ const WEST = [
   ],
   [
     11,
-    "Missouri"
+    "New Mexico"
   ],
   [
     12,
@@ -157,7 +157,7 @@ const SOUTH = [
   ],
   [
     2,
-    "UConn"
+    "Houston"
   ],
   [
     3,
@@ -169,7 +169,7 @@ const SOUTH = [
   ],
   [
     5,
-    "BYU"
+    "Arkansas"
   ],
   [
     6,
@@ -177,7 +177,7 @@ const SOUTH = [
   ],
   [
     7,
-    "Miami Ohio"
+    "Miami (OH)"
   ],
   [
     8,
@@ -185,7 +185,7 @@ const SOUTH = [
   ],
   [
     9,
-    "Saint Marys"
+    "Georgia"
   ],
   [
     10,
@@ -193,7 +193,7 @@ const SOUTH = [
   ],
   [
     11,
-    "New Mexico"
+    "Ohio State"
   ],
   [
     12,
@@ -225,7 +225,7 @@ const MIDWEST = [
   ],
   [
     2,
-    "Florida"
+    "UConn"
   ],
   [
     3,
@@ -233,15 +233,15 @@ const MIDWEST = [
   ],
   [
     4,
-    "Alabama"
+    "St. John's"
   ],
   [
     5,
-    "Arkansas"
+    "BYU"
   ],
   [
     6,
-    "Vanderbilt"
+    "Louisville"
   ],
   [
     7,
@@ -249,7 +249,7 @@ const MIDWEST = [
   ],
   [
     8,
-    "Miami FLA"
+    "NC State"
   ],
   [
     9,
@@ -257,7 +257,7 @@ const MIDWEST = [
   ],
   [
     10,
-    "Georgia"
+    "Texas"
   ],
   [
     11,
