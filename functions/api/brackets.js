@@ -1,6 +1,60 @@
 import { json, requireUser, uid } from "./_util.js";
 
 
+
+
+async function ensureBracketsSchema(env){
+  // Brackets table is the source of truth for saved brackets.
+  // This is defensive: create table if missing, and add columns if an older schema is missing fields.
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS brackets (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      title TEXT,
+      bracket_name TEXT,
+      data_json TEXT,
+      payload TEXT,
+      bracket_type TEXT,
+      created_at TEXT,
+      updated_at TEXT,
+      projection_version_id INTEGER
+    )
+  `).run();
+
+  // Helpful index
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_brackets_user ON brackets(user_id)`).run();
+
+  // Ensure commonly-used columns exist for older tables.
+  const info = await env.DB.prepare("PRAGMA table_info(brackets)").all();
+  const cols = new Set((info.results||[]).map(r=>r.name));
+  const addCol = async (name, typeSql)=>{
+    if(cols.has(name)) return;
+    try{ await env.DB.prepare(`ALTER TABLE brackets ADD COLUMN ${name} ${typeSql}`).run(); }
+    catch(e){}
+  };
+  await addCol('title','TEXT');
+  await addCol('bracket_name','TEXT');
+  await addCol('data_json','TEXT');
+  await addCol('payload','TEXT');
+  await addCol('bracket_type','TEXT');
+  await addCol('created_at','TEXT');
+  await addCol('updated_at','TEXT');
+  await addCol('projection_version_id','INTEGER');
+
+  // Featured requests table used by My Brackets badges / admin review.
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS feature_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      bracket_id TEXT NOT NULL,
+      user_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT
+    )
+  `).run();
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_feature_requests_bracket ON feature_requests(bracket_id)`).run();
+}
+
 async function ensureProjectionTables(env){
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS projection_versions (
@@ -94,6 +148,10 @@ export async function onRequest(context){
   if(request.method === 'POST'){
     const body = await request.json().catch(()=>null) || {};
 
+    // Ensure optional projection_version_id column exists (older DBs)
+    await ensureBracketHasProjectionColumn(env);
+    const cur = await getCurrentProjectionVersion(env);
+
     const desiredTitle = String(body.title || body.bracket_name || '').trim().slice(0, 80);
     const title = desiredTitle || 'My Bracket';
     const bracket_type = normalizeType(body.bracket_type);
@@ -115,14 +173,22 @@ export async function onRequest(context){
 // CRITICAL: freeze a base snapshot at creation time so brackets NEVER drift when projections change.
 let dataObj = (data !== null) ? data : ((payload !== null) ? payload : {});
 if(!dataObj || typeof dataObj !== 'object') dataObj = {};
-if(!dataObj.base) dataObj.base = CURRENT_SNAPSHOT;
+if(!dataObj.base){
+  if(cur && cur.snapshot){
+    const base = snapshotToBase(cur.snapshot);
+    if(base) dataObj.base = base;
+    dataObj.projection_version_id = cur.id;
+  } else {
+    dataObj.base = CURRENT_SNAPSHOT;
+  }
+}
 
 const data_json = JSON.stringify(dataObj);
 const legacy_payload = JSON.stringify(dataObj);
 
     await env.DB.prepare(
-      `INSERT INTO brackets (id, user_id, title, bracket_name, data_json, payload, bracket_type, created_at, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO brackets (id, user_id, title, bracket_name, data_json, payload, bracket_type, created_at, updated_at, projection_version_id)
+       VALUES (?,?,?,?,?,?,?,?,?,?)`
     ).bind(
       id,
       user.id,
@@ -132,7 +198,8 @@ const legacy_payload = JSON.stringify(dataObj);
       legacy_payload,
       bracket_type,
       now,
-      now
+      now,
+      (dataObj && dataObj.projection_version_id) ? dataObj.projection_version_id : null
     ).run();
 
     return json({ ok:true, id });
