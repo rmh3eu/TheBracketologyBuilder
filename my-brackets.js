@@ -174,7 +174,7 @@ function renderBracketSection({ listId, emptyId, items }) {
     if (!(['approved','featured','pending','denied'].includes(fs))) {
       const hint = document.createElement('div');
       hint.className = 'submitFeaturedInlineHint';
-      hint.textContent = '🏀 Submit via dropdown above';
+      hint.textContent = '';
       a.appendChild(hint);
     }
 
