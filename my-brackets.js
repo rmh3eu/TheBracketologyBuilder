@@ -153,10 +153,10 @@ function renderBracketSection({ listId, emptyId, items }) {
 
     // Featured badge (user-visible): show when submitted/approved.
     const fs = String(b.feature_status || '').toLowerCase();
-    if (fs === 'approved' || fs === 'pending') {
+    if (fs === 'approved' || fs === 'featured' || fs === 'pending') {
       const badge = document.createElement('span');
-      badge.className = (fs === 'approved') ? 'featuredBadge featuredBadgeApproved' : 'featuredBadge featuredBadgePending';
-      badge.textContent = (fs === 'approved') ? 'Featured' : 'Submitted';
+      badge.className = (fs === 'approved' || fs === 'featured') ? 'featuredBadge featuredBadgeApproved' : 'featuredBadge featuredBadgePending';
+      badge.textContent = (fs === 'approved' || fs === 'featured') ? 'Featured' : 'Submitted';
       titleRow.appendChild(badge);
     }
 
@@ -170,7 +170,7 @@ function renderBracketSection({ listId, emptyId, items }) {
     a.appendChild(meta);
 
     // Inline submit button (only if not already submitted/featured)
-    if (!(fs === 'approved' || fs === 'pending')) {
+    if (!(['approved','featured','pending'].includes(fs))) {
       const submitBtn = document.createElement('button');
       submitBtn.type = 'button';
       submitBtn.className = 'submitFeaturedInlineBtn';
