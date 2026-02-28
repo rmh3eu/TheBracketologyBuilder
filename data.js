@@ -15,274 +15,82 @@ const FIRST_FOUR_OUT = [
 ];
 
 const EAST = [
-  [
-    1,
-    "Duke"
-  ],
-  [
-    2,
-    "Purdue"
-  ],
-  [
-    3,
-    "Nebraska"
-  ],
-  [
-    4,
-    "Michigan St"
-  ],
-  [
-    5,
-    "Alabama"
-  ],
-  [
-    6,
-    "Wisconsin"
-  ],
-  [
-    7,
-    "Villanova"
-  ],
-  [
-    8,
-    "Miami FLA"
-  ],
-  [
-    9,
-    "Texas A&M"
-  ],
-  [
-    10,
-    "Clemson"
-  ],
-  [
-    11,
-    "Missouri"
-  ],
-  [
-    12,
-    "High Point"
-  ],
-  [
-    13,
-    "Liberty"
-  ],
-  [
-    14,
-    "Navy"
-  ],
-  [
-    15,
-    "Merrimack"
-  ],
-  [
-    16,
-    "LIU"
-  ]
+  [1, "Duke"],
+  [2, "Gonzaga"],
+  [3, "Nebraska"],
+  [4, "Michigan St"],
+  [5, "St Johns"],
+  [6, "Louisville"],
+  [7, "Kentucky"],
+  [8, "NC State"],
+  [9, "Texas A&M"],
+  [10, "Clemson"],
+  [11, "Texas"],
+  [12, "High Point"],
+  [13, "Liberty"],
+  [14, "Navy"],
+  [15, "Merrimack"],
+  [16, "LIU"],
 ];
 
 
 const WEST = [
-  [
-    1,
-    "Arizona"
-  ],
-  [
-    2,
-    "Florida"
-  ],
-  [
-    3,
-    "Virginia"
-  ],
-  [
-    4,
-    "Kansas"
-  ],
-  [
-    5,
-    "North Carolina"
-  ],
-  [
-    6,
-    "Vanderbilt"
-  ],
-  [
-    7,
-    "Saint Mary's"
-  ],
-  [
-    8,
-    "Utah State"
-  ],
-  [
-    9,
-    "Iowa"
-  ],
-  [
-    10,
-    "UCLA"
-  ],
-  [
-    11,
-    "New Mexico"
-  ],
-  [
-    12,
-    "Belmont"
-  ],
-  [
-    13,
-    "Utah Valley"
-  ],
-  [
-    14,
-    "ETSU"
-  ],
-  [
-    15,
-    "Wright State"
-  ],
-  [
-    16,
-    "App St"
-  ]
+  [1, "Arizona"],
+  [2, "Houston"],
+  [3, "Virginia"],
+  [4, "Kansas"],
+  [5, "North Carolina"],
+  [6, "Wisconsin"],
+  [7, "Villanova"],
+  [8, "Utah State"],
+  [9, "Iowa"],
+  [10, "UCLA"],
+  [11, "Missouri"],
+  [12, "Belmont"],
+  [13, "Utah Valley"],
+  [14, "ETSU"],
+  [15, "Wright State"],
+  [16, "App St"],
 ];
 
 
 const SOUTH = [
-  [
-    1,
-    "Iowa State"
-  ],
-  [
-    2,
-    "Houston"
-  ],
-  [
-    3,
-    "Gonzaga"
-  ],
-  [
-    4,
-    "Texas Tech"
-  ],
-  [
-    5,
-    "Arkansas"
-  ],
-  [
-    6,
-    "Tennessee"
-  ],
-  [
-    7,
-    "Miami (OH)"
-  ],
-  [
-    8,
-    "SMU"
-  ],
-  [
-    9,
-    "Georgia"
-  ],
-  [
-    10,
-    "Auburn"
-  ],
-  [
-    11,
-    "Ohio State"
-  ],
-  [
-    12,
-    "USF"
-  ],
-  [
-    13,
-    "UNCW"
-  ],
-  [
-    14,
-    "UC Irvine"
-  ],
-  [
-    15,
-    "Portland State"
-  ],
-  [
-    16,
-    "UMBC"
-  ]
+  [1, "Iowa State"],
+  [2, "UConn"],
+  [3, "Purdue"],
+  [4, "Texas Tech"],
+  [5, "BYU"],
+  [6, "Tennessee"],
+  [7, "Miami Ohio"],
+  [8, "SMU"],
+  [9, "Saint Marys"],
+  [10, "Auburn"],
+  [11, "New Mexico"],
+  [12, "USF"],
+  [13, "UNCW"],
+  [14, "UC Irvine"],
+  [15, "Portland State"],
+  [16, "UMBC"],
 ];
 
 
 const MIDWEST = [
-  [
-    1,
-    "Michigan"
-  ],
-  [
-    2,
-    "UConn"
-  ],
-  [
-    3,
-    "Illinois"
-  ],
-  [
-    4,
-    "St. John's"
-  ],
-  [
-    5,
-    "BYU"
-  ],
-  [
-    6,
-    "Louisville"
-  ],
-  [
-    7,
-    "Saint Louis"
-  ],
-  [
-    8,
-    "NC State"
-  ],
-  [
-    9,
-    "UCF"
-  ],
-  [
-    10,
-    "Texas"
-  ],
-  [
-    11,
-    "Santa Clara"
-  ],
-  [
-    12,
-    "Yale"
-  ],
-  [
-    13,
-    "SF Austin"
-  ],
-  [
-    14,
-    "N Dakota St"
-  ],
-  [
-    15,
-    "Austin Peay"
-  ],
-  [
-    16,
-    "Howard"
-  ]
+  [1, "Michigan"],
+  [2, "Florida"],
+  [3, "Illinois"],
+  [4, "Alabama"],
+  [5, "Arkansas"],
+  [6, "Vanderbilt"],
+  [7, "Saint Louis"],
+  [8, "Miami"],
+  [9, "UCF"],
+  [10, "Georgia"],
+  [11, "Santa Clara"],
+  [12, "Yale"],
+  [13, "SF Austin"],
+  [14, "N Dakota St"],
+  [15, "Austin Peay"],
+  [16, "Howard"],
 ];
 
 
