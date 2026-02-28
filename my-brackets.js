@@ -45,14 +45,13 @@ function initSubmitFeaturedToolbar(brackets){
   if(!bar || !sel || !btn) return;
 
   const eligible = (brackets || []).filter(b=>{
-    // Exclude anything already submitted (any feature_status), or already featured
-    const fsRaw = b.feature_status;
-    const fs = String(fsRaw || '').trim().toLowerCase();
-    if (b.is_featured) return false;
-    if (fs) return false; // pending/approved/rejected/denied/etc
+    const fs = String(b.feature_status || '').toLowerCase().trim();
+    // Exclude ANY bracket that has ever been submitted to featured (pending/approved/rejected/etc.)
+    // feature_status comes from the feature_requests table. If it's non-empty, it's already in the pipeline.
+    if (fs) return false;
+    // Extra safety: if older rows set a boolean instead of feature_status
+    if (b.is_featured || b.featured) return false;
     return true;
-  });
-    return !(fs === 'pending' || fs === 'approved');
   });
 
   if(!eligible.length){
