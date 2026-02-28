@@ -3048,7 +3048,3 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .submitFeaturedMsg.err{color:#b91c1c;font-weight:700;}
 .submitFeaturedInlineBtn{margin-top:10px;padding:8px 12px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}
 .submitFeaturedInlineBtn:disabled{opacity:0.6;cursor:not-allowed;}
-
-
-/* v84: Strong override for featured dropdown header */
-.featured-submit-header, .submit-featured-title, .submit-featured-label { color: #000 !important; }
