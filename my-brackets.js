@@ -169,30 +169,13 @@ function renderBracketSection({ listId, emptyId, items }) {
     a.appendChild(titleRow);
     a.appendChild(meta);
 
-    // Inline submit button (only if not already submitted/featured)
-    if (!(['approved','featured','pending'].includes(fs))) {
-      const submitBtn = document.createElement('button');
-      submitBtn.type = 'button';
-      submitBtn.className = 'submitFeaturedInlineBtn';
-      submitBtn.textContent = '🏀 Submit for Featured';
-      submitBtn.addEventListener('click', async (ev)=>{
-        ev.preventDefault();
-        ev.stopPropagation();
-        submitBtn.disabled = true;
-        try{
-          const r = await api('/api/feature', { method:'POST', body: { bracket_id: b.id, caption: '' } });
-          // if server returns error structure, it will throw in api()
-          // Mark as pending locally and re-render
-          b.feature_status = 'pending';
-          // refresh page list
-          location.reload();
-        }catch(e){
-          alert((e && e.message) ? e.message : 'Could not submit to featured');
-        }finally{
-          submitBtn.disabled = false;
-        }
-      });
-      a.appendChild(submitBtn);
+    // Submission is handled via the dropdown toolbar at top.
+    // Keep cards clean and avoid duplicate UI paths.
+    if (!(['approved','featured','pending','denied'].includes(fs))) {
+      const hint = document.createElement('div');
+      hint.className = 'submitFeaturedInlineHint';
+      hint.textContent = '🏀 Submit via dropdown above';
+      a.appendChild(hint);
     }
 
     grid.appendChild(a);
@@ -304,6 +287,19 @@ async function loadPage() {
   try {
     const data = await api('/api/brackets');
     const brackets = Array.isArray(data?.brackets) ? data.brackets : [];
+
+    // Safety: ensure featured brackets show as "Featured" here even if an older
+    // bracket row doesn't surface feature_status on /api/brackets.
+    // /api/featured is the public source of truth for what is actually featured.
+    try {
+      const feat = await api('/api/featured');
+      if (feat?.ok && Array.isArray(feat.featured)) {
+        const featuredSet = new Set(feat.featured.map(x => x.bracket_id));
+        for (const b of brackets) {
+          if (featuredSet.has(b.id)) b.feature_status = 'approved';
+        }
+      }
+    } catch {}
 
     // Top submit-to-featured toolbar
     initSubmitFeaturedToolbar(brackets);
