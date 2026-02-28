@@ -3038,7 +3038,7 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 
 /* My Brackets submit-to-featured toolbar */
 .submitFeaturedToolbarInner{background:#fff;border-radius:14px;padding:14px 14px 10px 14px;max-width:920px;margin:0 auto;border:1px solid rgba(0,0,0,0.08);}
-.submitFeaturedToolbarTitle{font-weight:800;margin-bottom:10px;}
+.submitFeaturedToolbarTitle{color:#000 !important;}
 .submitFeaturedToolbarControls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .submitFeaturedSelect{min-width:220px;max-width:100%;padding:10px 12px;border-radius:999px;border:1px solid rgba(0,0,0,0.18);}
 .submitFeaturedBtn{padding:10px 14px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}

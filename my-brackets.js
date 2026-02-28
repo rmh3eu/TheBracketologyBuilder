@@ -45,11 +45,14 @@ function initSubmitFeaturedToolbar(brackets){
   if(!bar || !sel || !btn) return;
 
   const eligible = (brackets || []).filter(b=>{
-    // If already submitted (pending) or already featured (approved), do NOT show in dropdown.
-    if (b.has_feature_request) return false;
-    const fs = String(b.feature_status || '').toLowerCase();
-    // Only show brackets with no known feature status
-    return (fs === '' || fs === 'none' || fs === 'null');
+    // Exclude anything already submitted (any feature_status), or already featured
+    const fsRaw = b.feature_status;
+    const fs = String(fsRaw || '').trim().toLowerCase();
+    if (b.is_featured) return false;
+    if (fs) return false; // pending/approved/rejected/denied/etc
+    return true;
+  });
+    return !(fs === 'pending' || fs === 'approved');
   });
 
   if(!eligible.length){
