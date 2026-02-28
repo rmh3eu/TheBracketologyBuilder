@@ -3183,6 +3183,9 @@ async function loadAdminFeaturedReview(){
             <button class="btnOutline approveBtn smallBtn" data-approve="${req.id}">Approve</button>
             <button class="btnOutline denyBtn smallBtn" data-deny="${req.id}">Deny</button>
           ` : ``}
+          ${st === 'approved' || st === 'rejected' ? `
+            <button class="btnOutline smallBtn" data-move-pending="${req.id}">Remove</button>
+          ` : ``}
         </div>
       `;
       mount.appendChild(card);
@@ -3231,6 +3234,22 @@ async function loadAdminFeaturedReview(){
         await loadAdminFeaturedReview();
       }catch(e){
         toast('Could not deny.');
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Remove from Approved/Denied: move back to Pending
+  qsa('[data-move-pending]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-move-pending');
+      btn.disabled = true;
+      try{
+        await api('/api/feature', { method:'PUT', body: JSON.stringify({ id, status:'pending' }) });
+        toast('Moved to pending.');
+        await loadAdminFeaturedReview();
+      }catch(e){
+        toast('Could not move.');
         btn.disabled = false;
       }
     });
