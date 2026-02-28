@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       window.location.href = 'bracket.html?new=1';
     });
+  }
   
   if (createNewRandomBtn) {
     createNewRandomBtn.addEventListener('click', async (ev) => {
