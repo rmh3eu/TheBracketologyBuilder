@@ -45,7 +45,10 @@ function initSubmitFeaturedToolbar(brackets){
   if(!bar || !sel || !btn) return;
 
   const eligible = (brackets || []).filter(b=>{
+    // If already submitted (pending) or already featured (approved), do NOT show in dropdown.
+    if (b.has_feature_request) return false;
     const fs = String(b.feature_status || '').toLowerCase();
+    // Only show brackets with no known feature status
     return (fs === '' || fs === 'none' || fs === 'null');
   });
 

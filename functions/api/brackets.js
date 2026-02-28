@@ -77,7 +77,15 @@ export async function onRequest(context){
                      AND (fr.user_id = brackets.user_id OR fr.user_id IS NULL)
                    ORDER BY COALESCE(fr.created_at, fr.submitted_at, fr.updated_at) DESC
                    LIMIT 1
-                ) AS feature_status
+                ) AS feature_status,
+                (
+                  SELECT 1
+                    FROM feature_requests fr2
+                   WHERE fr2.bracket_id = brackets.id
+                     AND (fr2.user_id = brackets.user_id OR fr2.user_id IS NULL)
+                     AND fr2.status IN ('pending','approved')
+                   LIMIT 1
+                ) AS has_feature_request
            FROM brackets
           WHERE user_id=?
           ORDER BY COALESCE(updated_at, created_at) DESC`
@@ -85,7 +93,8 @@ export async function onRequest(context){
     } catch (e) {
       // Backward-compatible fallback if feature_requests schema differs or table is missing.
       rs = await env.DB.prepare(
-        `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at
+        `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at,
+                0 AS has_feature_request
            FROM brackets
           WHERE user_id=?
           ORDER BY COALESCE(updated_at, created_at) DESC`
