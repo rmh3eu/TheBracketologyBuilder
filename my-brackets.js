@@ -46,7 +46,7 @@ function initSubmitFeaturedToolbar(brackets){
 
   const eligible = (brackets || []).filter(b=>{
     const fs = String(b.feature_status || '').toLowerCase();
-    return !(fs === 'pending' || fs === 'approved');
+    return (fs === '' || fs === 'none' || fs === 'null');
   });
 
   if(!eligible.length){
