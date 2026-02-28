@@ -83,7 +83,9 @@ export async function onRequest(context){
                     FROM feature_requests fr2
                    WHERE fr2.bracket_id = brackets.id
                      AND (fr2.user_id = brackets.user_id OR fr2.user_id IS NULL)
-                     AND fr2.status IN ('pending','approved')
+                     -- IMPORTANT: once a bracket has EVER been submitted for Featured,
+                     -- it must stay off the "Submit for Featured" dropdown forever
+                     -- (no matter the current status).
                    LIMIT 1
                 ) AS has_feature_request
            FROM brackets
