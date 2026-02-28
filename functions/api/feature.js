@@ -53,19 +53,21 @@ export async function onRequestGet({ request, env }){
 }
 
 export async function onRequestPut({ request, env }){
-  // admin approve/reject
+  // admin approve/reject/remove
   const user = await requireUser({request, env});
   if(!isAdmin(user, env)) return json({ok:false, error:"Not authorized."}, 403);
 
   const body = await request.json();
   const id = body.id;
   const status = body.status;
-  if(!id || !["approved","rejected"].includes(status)) return json({ok:false, error:"Bad request."}, 400);
+  if(!id || !["approved","rejected","pending"].includes(status)) return json({ok:false, error:"Bad request."}, 400);
 
+  // When moving back to pending, clear approved_at so it behaves like a normal pending submission.
   const now = new Date().toISOString();
+  const approvedAt = (status === 'pending') ? null : now;
   await env.DB.prepare(
     "UPDATE feature_requests SET status=?, approved_at=? WHERE id=?"
-  ).bind(status, now, id).run();
+  ).bind(status, approvedAt, id).run();
 
   // Send an email when a bracket is approved (strong moment).
   if(status === 'approved'){
