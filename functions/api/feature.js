@@ -82,7 +82,7 @@ export async function onRequestPut({ request, env }){
       if(info && info.email){
         const domain = getSiteDomain(env);
         const siteUrl = `https://${domain}`;
-        const featuredUrl = `${siteUrl}/featured.html`;
+        const featuredUrl = `${siteUrl}/#featured`;
         const subject = "Your bracket was approved for Featured 🎉";
         const safeTitle = (info.title || 'Your bracket').toString();
         const text = `Congratulations — your bracket ("${safeTitle}") was approved and is now eligible to appear on our Featured Brackets page.\n\nView Featured Brackets: ${featuredUrl}\n\nThanks for choosing BracketologyBuilder.com!`;
