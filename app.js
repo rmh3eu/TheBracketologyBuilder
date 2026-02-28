@@ -1064,23 +1064,6 @@ function listToSeedArray(seedList){
   const map = new Map();
   (seedList||[]).forEach(([seed, name])=> map.set(seed, name));
 
-  // Home-page-only seed tweak: show Miami (OH) instead of UCLA on the projection/home bracket.
-  // IMPORTANT: Only applies when the user is on the home page AND not viewing an existing saved bracket.
-  try{
-    const path = (window.location && window.location.pathname) ? window.location.pathname : '';
-    const isHome = (path === '/' || path === '' || path.endsWith('/index.html'));
-    const sp = new URLSearchParams(window.location.search || '');
-    const hasBracketId = !!(sp.get('bracketId') || sp.get('id'));
-    if(isHome && !hasBracketId){
-      // Replace the seed name without mutating the source data constants.
-      for(const [seed, name] of map.entries()){
-        if(name === 'UCLA'){
-          map.set(seed, 'Miami (OH)');
-        }
-      }
-    }
-  }catch(_e){}
-
   return SEEDS.map(s => map.get(s) ? ({ seed:s, name: map.get(s) }) : null);
 }
 
