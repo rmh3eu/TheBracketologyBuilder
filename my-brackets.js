@@ -416,7 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-}
 
 
   if (createSecondChanceBtn) {
