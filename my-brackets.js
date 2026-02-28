@@ -187,7 +187,7 @@ function renderBracketSection({ listId, emptyId, items }) {
           // refresh page list
           location.reload();
         }catch(e){
-          alert((e && e.message) ? e.message : 'Could not submit to featured'mit to featured');
+          alert((e && e.message) ? e.message : 'Could not submit to featured');
         }finally{
           submitBtn.disabled = false;
         }
