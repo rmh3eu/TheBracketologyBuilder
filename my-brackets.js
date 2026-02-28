@@ -308,8 +308,8 @@ async function loadPage() {
     // Split brackets by type
     const lower = (v) => String(v || '').toLowerCase();
 
-    const secondChance = brackets.filter(b => lower(b.bracket_type) === 'second_chance');
-    const official = brackets.filter(b => lower(b.bracket_type) === 'official');
+    const secondChance = brackets.filter(b => !b.feature_status || b.feature_status === 'none') === 'second_chance');
+    const official = brackets.filter(b => !b.feature_status || b.feature_status === 'none') === 'official');
     const bracketology = brackets.filter(b => {
       const t = lower(b.bracket_type);
       // Treat missing/unknown as bracketology for backward compatibility.
