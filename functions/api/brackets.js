@@ -71,7 +71,10 @@ export async function onRequest(context){
                 created_at,
                 updated_at,
                 (
-                  SELECT fr.status
+                  SELECT CASE
+                           WHEN fr.status IS NULL OR TRIM(fr.status) = '' THEN 'pending'
+                           ELSE fr.status
+                         END
                     FROM feature_requests fr
                    WHERE fr.bracket_id = brackets.id
                      AND (fr.user_id = brackets.user_id OR fr.user_id IS NULL)
