@@ -1,27 +1,6 @@
 import { json, requireUser, isAdmin, sendEmail, getSiteDomain } from "./_util.js";
 
 
-function isCompleteBracketData(data){
-  try{
-    const picks = data && data.picks ? data.picks : null;
-    if(!picks) return false;
-    const regionKeys = ['REGION_SOUTH','REGION_WEST','REGION_EAST','REGION_MIDWEST'];
-    for(const rKey of regionKeys){
-      for(let g=0; g<8; g++){ if(!picks[`${rKey}__R0__G${g}__winner`]) return false; }
-      for(let g=0; g<4; g++){ if(!picks[`${rKey}__R1__G${g}__winner`]) return false; }
-      for(let g=0; g<2; g++){ if(!picks[`${rKey}__R2__G${g}__winner`]) return false; }
-      if(!picks[`${rKey}__R3__G0__winner`]) return false;
-    }
-    if(!picks['FF__G0__winner']) return false;
-    if(!picks['FF__G1__winner']) return false;
-    const champ = picks['FINAL__winner'] || picks['CHAMPION'];
-    if(!champ) return false;
-    return true;
-  }catch(e){
-    return false;
-  }
-}
-
 export async function onRequestPost({ request, env }){
   // submit a feature request
   const user = await requireUser({request, env});
@@ -35,16 +14,7 @@ export async function onRequestPost({ request, env }){
   const row = await env.DB.prepare("SELECT id,user_id,data_json FROM brackets WHERE id=?").bind(bracketId).first();
   if(!row) return json({ok:false, error:"Bracket not found."}, 404);
   if(row.user_id !== user.id) return json({ok:false, error:"Not authorized."}, 403);
-
-  // Only allow featured submission for fully completed brackets.
-  try{
-    const data = JSON.parse(row.data_json || '{}');
-    if(!isCompleteBracketData(data)){
-      return json({ok:false, error:"Please complete your bracket to submit to featured"}, 400);
-    }
-  }catch(e){
-    return json({ok:false, error:"Please complete your bracket to submit to featured"}, 400);
-  }
+  // Allow featured submission for any bracket (complete or not)
 
   const existing = await env.DB.prepare(
     "SELECT id, status FROM feature_requests WHERE bracket_id=? AND user_id=? ORDER BY created_at DESC LIMIT 1"

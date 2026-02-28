@@ -81,8 +81,7 @@ function initSubmitFeaturedToolbar(brackets){
         bar.style.display='none';
       }
     }catch(e){
-      // Server should enforce completion and return the desired message
-      const msg = (e && e.message) ? e.message : 'Please complete your bracket to submit to featured';
+      const msg = (e && e.message) ? e.message : 'Could not submit to featured.';
       setSubmitFeaturedMsg(msg, false);
     }finally{
       btn.disabled = false;
@@ -188,7 +187,7 @@ function renderBracketSection({ listId, emptyId, items }) {
           // refresh page list
           location.reload();
         }catch(e){
-          alert((e && e.message) ? e.message : 'Please complete your bracket to submit to featured');
+          alert((e && e.message) ? e.message : 'Could not submit to featured'mit to featured');
         }finally{
           submitBtn.disabled = false;
         }

@@ -887,10 +887,6 @@ async function phase4UpdateFeatureCTA(){
         btn.disabled = true;
                 const picksToCheck = (state.picks && Object.keys(state.picks).length) ? state.picks : (state._loadedPicks || null);
         // Only block client-side if we actually have the full picks loaded.
-        if (picksToCheck && Object.keys(picksToCheck).length && !isBracketCompletePicks(picksToCheck)) {
-          toast('Please complete your bracket to submit to featured');
-          return;
-        }
         await api('/api/feature', { method:'POST', body: JSON.stringify({ bracket_id: state.bracketId, caption: '' })});
         __phase4.submittedByBracket[state.bracketId] = true;
         row.style.display = 'none';
@@ -3053,12 +3049,12 @@ async function submitFeatured(){
     const bd = await api(`/api/bracket?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
     const picks = (bd && bd.bracket && bd.bracket.data && bd.bracket.data.picks) ? bd.bracket.data.picks : null;
     if(!isBracketCompletePicks(picks)){
-      toast('Please complete your bracket to submit to featured');
+      
       return;
     }
   }catch(e){
     // If we can't verify, do not submit.
-    toast('Please complete your bracket to submit to featured');
+    
     return;
   }
 
