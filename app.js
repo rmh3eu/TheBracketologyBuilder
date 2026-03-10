@@ -3004,7 +3004,6 @@ async function openBracketsOverlay(){
 
 function closeBracketsOverlay(){
   qs('#bracketsOverlay').classList.add('hidden');
-  try{ state._loadedBracketBase = null; }catch(_e){}
   try{ restoreCurrentProjectionRegions(); }catch(_e){}
   try{ showView('build'); }catch(e){}
   try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
@@ -3035,15 +3034,19 @@ async function loadBracketFromServer(id){
     }
   }catch(e){}
 
-  // STRICTER RULE:
-  // Saved brackets must render from a separate local base object built entirely
-  // from bracket.data.base. Do NOT mutate the shared REGION_* arrays here.
+  // CRITICAL: Existing saved brackets must render from their own frozen base, never current live data.
+  if(merged && merged.base){
+    applyBaseRegionsToCurrentProjection(merged.base);
+  } else {
+    restoreCurrentProjectionRegions();
+  }
+
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = merged.base ? cloneBaseRegions(merged.base) : null; // local-only frozen R64 source
+  state._loadedBracketBase = merged.base || null;
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
@@ -3979,27 +3982,7 @@ function renderAll(){
       mount.innerHTML='';
       const isRightSide = !!(mount && mount.closest && mount.closest('.deskCol.right'));
       const baseOpts = sweet16ModeEnabled()?{startRound:2,maxRounds:2}:undefined;
-
-      // CRITICAL:
-      // When viewing a saved bracket, Round of 64 team labels must come directly
-      // from that bracket's frozen base snapshot — not from the current live region arrays.
-      let regionBaseTeams = null;
-      try{
-        const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
-        const activeSavedBracket = !!(isBracketPage && state.bracketId && state._loadedBracketBase);
-        const loadedBase = activeSavedBracket ? state._loadedBracketBase : null;
-        if(loadedBase){
-          if(r.name === 'East') regionBaseTeams = loadedBase.EAST || null;
-          else if(r.name === 'West') regionBaseTeams = loadedBase.WEST || null;
-          else if(r.name === 'Midwest') regionBaseTeams = loadedBase.MIDWEST || null;
-          else if(r.name === 'South') regionBaseTeams = loadedBase.SOUTH || null;
-        }
-      }catch(_e){}
-
-      const opts = baseOpts
-        ? {...baseOpts, isMirror:isRightSide, baseTeams: regionBaseTeams}
-        : {isMirror:isRightSide, baseTeams: regionBaseTeams};
-
+      const opts = baseOpts ? {...baseOpts, isMirror:isRightSide} : {isMirror:isRightSide};
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       scrollers.push(scroller);
