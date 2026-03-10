@@ -1,0 +1,7 @@
+v104:
+- Starts from the uploaded build where old saved brackets already render correctly.
+- Updates homepage/new-bracket data.js arrays to the new Base 2 team list.
+- Does NOT touch the saved-bracket R64 lock logic.
+- Intended result:
+  * Homepage uses new Base 2 teams
+  * Old saved brackets still render from their own frozen base snapshot
