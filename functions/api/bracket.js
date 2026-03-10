@@ -92,28 +92,29 @@ export async function onRequestPut({ request, env }){
 
 
   // --- Base snapshot lock (non-negotiable) ---
-  // Never overwrite an existing bracket's frozen Round of 64 snapshot.
-  // If the incoming payload is missing base (or attempts to change it), preserve the stored base.
+  // Never overwrite an existing bracket's frozen Round of 64 snapshot or base_version.
   let incomingData = data;
   if(data !== null){
     let existingData = {};
     try{ existingData = JSON.parse(existing.data_json || "{}"); }catch(e){ existingData = {}; }
 
     const existingBase = (existingData && existingData.base) ? existingData.base : null;
+    const existingBaseVersion = (existingData && existingData.base_version) ? existingData.base_version : null;
     const incomingBase = (incomingData && incomingData.base) ? incomingData.base : null;
 
+    if(!incomingData || typeof incomingData !== 'object') incomingData = {};
+
     if(existingBase){
-      // Force preservation of stored base
-      if(!incomingData || typeof incomingData !== 'object') incomingData = {};
       incomingData.base = existingBase;
     } else if(!incomingBase){
       // If no base exists yet, allow incoming base if provided; otherwise leave missing.
-      // (Legacy brackets may be backfilled client-side once, then frozen.)
     }
 
-    // Ensure we write back the possibly-corrected incomingData
-    // NOTE: If this update is rename-only, data is null and we won't touch data_json.
-    // eslint-disable-next-line no-unused-vars
+    if(existingBaseVersion && !Object.prototype.hasOwnProperty.call(incomingData, 'base_version')){
+      incomingData.base_version = existingBaseVersion;
+    }
+
+    // Ensure we write back the corrected incomingData
     incomingData = incomingData;
   }
   // If data was not provided, treat this as a rename-only update.

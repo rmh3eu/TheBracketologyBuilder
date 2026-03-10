@@ -1,0 +1,6 @@
+v106:
+- Adds Base 2 as the live homepage/new-bracket dataset.
+- Preserves Base 1 for all old saved brackets.
+- New brackets save { base, base_version, picks } with base_version = 2.
+- Old brackets missing base backfill from base_version (default 1), never from the current homepage dataset.
+- Existing bracket updates preserve both base and base_version.
