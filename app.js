@@ -1163,7 +1163,8 @@ function sweet16ModeEnabled(){
 function getTeamBySeed(regionKey, seed){
   const r = REGIONS.find(x=>x.key===regionKey);
   if(!r) return null;
-  const base = listToSeedArray(r.teams);
+  const explicitBaseTeams = (opts && Array.isArray(opts.baseTeams)) ? opts.baseTeams : null;
+  const base = explicitBaseTeams ? listToSeedArray(explicitBaseTeams) : listToSeedArray(r.teams);
   return base[seed-1] || null;
 }
 
@@ -3046,7 +3047,7 @@ async function loadBracketFromServer(id){
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = merged.base || null;
+  state._loadedBracketBase = merged.base || null; // frozen R64 source for saved bracket rendering
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
@@ -3982,7 +3983,25 @@ function renderAll(){
       mount.innerHTML='';
       const isRightSide = !!(mount && mount.closest && mount.closest('.deskCol.right'));
       const baseOpts = sweet16ModeEnabled()?{startRound:2,maxRounds:2}:undefined;
-      const opts = baseOpts ? {...baseOpts, isMirror:isRightSide} : {isMirror:isRightSide};
+
+      // CRITICAL:
+      // When viewing a saved bracket, Round of 64 team labels must come directly
+      // from that bracket's frozen base snapshot — not from the current live region arrays.
+      let regionBaseTeams = null;
+      try{
+        const loadedBase = state._loadedBracketBase || null;
+        if(loadedBase){
+          if(r.name === 'East') regionBaseTeams = loadedBase.EAST || null;
+          else if(r.name === 'West') regionBaseTeams = loadedBase.WEST || null;
+          else if(r.name === 'Midwest') regionBaseTeams = loadedBase.MIDWEST || null;
+          else if(r.name === 'South') regionBaseTeams = loadedBase.SOUTH || null;
+        }
+      }catch(_e){}
+
+      const opts = baseOpts
+        ? {...baseOpts, isMirror:isRightSide, baseTeams: regionBaseTeams}
+        : {isMirror:isRightSide, baseTeams: regionBaseTeams};
+
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       scrollers.push(scroller);

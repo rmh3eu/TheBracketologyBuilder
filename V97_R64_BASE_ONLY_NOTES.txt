@@ -1,0 +1,4 @@
+v97:
+- Saved bracket Round of 64 display now reads directly from state._loadedBracketBase.
+- This bypasses current live region arrays for old saved brackets.
+- Home page and new bracket views still use the live current projection.
