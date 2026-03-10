@@ -1,0 +1,6 @@
+v102:
+- Starts from v101 local saved-bracket render split.
+- Home page/current live projection now uses Base 2.
+- Saved brackets continue rendering from separate local base objects built from bracket.data.base.
+- New brackets save { base, base_version, picks } with CURRENT_BASE_VERSION=2.
+- Existing saves preserve both base and base_version.
