@@ -1,0 +1,5 @@
+v103:
+- Fixes homepage regression caused by accidental getTeamBySeed corruption.
+- Keeps the saved-bracket R64 lock from the previous build.
+- Home page should render normally again.
+- Old saved brackets should still render from their own frozen base snapshot.

@@ -1163,8 +1163,7 @@ function sweet16ModeEnabled(){
 function getTeamBySeed(regionKey, seed){
   const r = REGIONS.find(x=>x.key===regionKey);
   if(!r) return null;
-  const explicitBaseTeams = (opts && Array.isArray(opts.baseTeams)) ? opts.baseTeams : null;
-  const base = explicitBaseTeams ? listToSeedArray(explicitBaseTeams) : listToSeedArray(r.teams);
+  const base = listToSeedArray(r.teams);
   return base[seed-1] || null;
 }
 
@@ -3435,7 +3434,8 @@ function renderRegion(r, picks, opts={}){
   }
   card.appendChild(scroller);
 
-  const base = listToSeedArray(r.teams);
+  const explicitBaseTeams = (opts && Array.isArray(opts.baseTeams)) ? opts.baseTeams : null;
+  const base = explicitBaseTeams ? listToSeedArray(explicitBaseTeams) : listToSeedArray(r.teams);
 
   // Slightly more compact on desktop so the full bracket fits better
   const matchH = 72, gap = 10;
