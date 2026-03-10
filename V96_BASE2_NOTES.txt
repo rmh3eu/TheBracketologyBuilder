@@ -1,0 +1,6 @@
+v96:
+- Added Base 2 as the current homepage/new-bracket dataset.
+- Kept Base 1 available for older brackets.
+- New brackets save { base, base_version, picks } using CURRENT_BASE_VERSION=2.
+- Saved brackets render from their own base; if missing base, they backfill from base_version (default 1).
+- Existing bracket saves preserve both base and base_version.
