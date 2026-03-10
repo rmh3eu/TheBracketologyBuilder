@@ -12,3 +12,8 @@ Rule for future updates:
 5. Existing saved brackets must remain tied to the base they were created with.
 
 This file is informational only.
+
+
+Base 2 added:
+- Homepage + new brackets now use Base 2.
+- Existing saved brackets remain tied to Base 1.
