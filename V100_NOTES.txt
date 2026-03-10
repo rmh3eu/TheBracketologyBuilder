@@ -1,0 +1,6 @@
+v100:
+- Adds Base 2 as live homepage/new-bracket dataset.
+- Uses BASE2_ACTIVATED_AT = 2026-03-10T09:12:05Z
+- Brackets created before BASE2_ACTIVATED_AT are forced to Base 1.
+- Brackets created after BASE2_ACTIVATED_AT use their own saved base/base_version (defaulting to Base 2).
+- Existing bracket saves preserve both base and base_version.

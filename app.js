@@ -65,9 +65,7 @@ function ensureBaseOnNewBracketData(dataObj){
     if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = cloneBaseRegions(R64_SNAPSHOT);
   }
   if(!Object.prototype.hasOwnProperty.call(dataObj, 'base_version')){
-    try{
-      if(typeof CURRENT_BASE_VERSION !== 'undefined') dataObj.base_version = CURRENT_BASE_VERSION;
-    }catch(_e){}
+    try{ if(typeof CURRENT_BASE_VERSION !== 'undefined') dataObj.base_version = CURRENT_BASE_VERSION; }catch(_e){}
   }
   return dataObj;
 }
@@ -1928,7 +1926,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, {
         id: newId,
         title: desiredTitle,
-        data: wrapPicksIfNeeded(state.picks || {})
+        data: state.picks || {}
       });
 
       return newId;
@@ -3025,36 +3023,33 @@ async function loadBracketFromServer(id){
 
   const br = (d && d.bracket) ? d.bracket : null;
   let rawData = (br && br.data && typeof br.data === 'object') ? br.data : {};
-  const baseVersion = Number(rawData.base_version || 0) || 1;
   let hasWrapper = Object.prototype.hasOwnProperty.call(rawData, 'picks');
-  let merged = hasWrapper ? rawData : { base_version: baseVersion, picks: extractPicksFromBracketData(rawData) };
+  let merged = hasWrapper ? rawData : { picks: extractPicksFromBracketData(rawData) };
 
-  // Determine the effective frozen base for this bracket.
-  // IMPORTANT:
-  // - Older brackets (no base_version / base_version=1) must stay on Base 1 forever.
-  // - Newer brackets (base_version=2+) should use their own saved base, or fall back to that base version.
+  const createdAt = (br && br.created_at) ? String(br.created_at) : '';
+  const activatedAt = (typeof BASE2_ACTIVATED_AT !== 'undefined') ? String(BASE2_ACTIVATED_AT) : '';
+  const isPreBase2Bracket = !!(createdAt && activatedAt && createdAt < activatedAt);
+
+  let effectiveBaseVersion = 1;
+  if(!isPreBase2Bracket){
+    effectiveBaseVersion = Number(rawData.base_version || merged.base_version || 0) || (typeof CURRENT_BASE_VERSION !== 'undefined' ? CURRENT_BASE_VERSION : 1);
+  }
+
   let effectiveBase = null;
   try{
-    if(baseVersion <= 1 && typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[1]){
-      // Force old brackets to Base 1 even if a later test accidentally polluted stored base.
+    if(isPreBase2Bracket && typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[1]){
       effectiveBase = cloneBaseRegions(PROJECTION_BASES[1]);
     } else if(merged && merged.base){
       effectiveBase = cloneBaseRegions(merged.base);
-    } else if(typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[baseVersion]){
-      effectiveBase = cloneBaseRegions(PROJECTION_BASES[baseVersion]);
+    } else if(typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[effectiveBaseVersion]){
+      effectiveBase = cloneBaseRegions(PROJECTION_BASES[effectiveBaseVersion]);
     }
   }catch(_e){}
 
-  // Persist a corrected / missing base once so future loads remain stable.
   try{
-    const needsPersist = br && effectiveBase && (
-      !merged.base ||
-      Number(merged.base_version || 0) !== baseVersion ||
-      baseVersion <= 1
-    );
-    if(needsPersist){
+    if(br && effectiveBase){
       merged.base = effectiveBase;
-      merged.base_version = baseVersion;
+      merged.base_version = effectiveBaseVersion;
       await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
         method:'PUT',
         body: JSON.stringify({
@@ -3078,7 +3073,7 @@ async function loadBracketFromServer(id){
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
   state._loadedBracketBase = effectiveBase || null;
-  state._loadedBracketBaseVersion = baseVersion || 1;
+  state._loadedBracketBaseVersion = effectiveBaseVersion || 1;
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);

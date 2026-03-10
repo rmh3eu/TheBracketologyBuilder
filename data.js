@@ -15,8 +15,6 @@ const FIRST_FOUR_OUT = [
 ];
 
 // BASE VERSION SYSTEM
-// Base 1 = previous frozen dataset for old brackets
-// Base 2 = current live homepage + new bracket dataset
 const PROJECTION_BASES = {
   1: {
     EAST: [
@@ -167,11 +165,9 @@ const PROJECTION_BASES = {
   ]
   }
 };
-
 const CURRENT_BASE_VERSION = 2;
+const BASE2_ACTIVATED_AT = "2026-03-10T09:12:05Z";
 const CURRENT_BASE = PROJECTION_BASES[CURRENT_BASE_VERSION];
-
-// Current homepage / new bracket arrays
 const EAST = CURRENT_BASE.EAST;
 const WEST = CURRENT_BASE.WEST;
 const MIDWEST = CURRENT_BASE.MIDWEST;
@@ -216,3 +212,4 @@ const R64_SNAPSHOT = {
 
 window.PROJECTION_BASES = PROJECTION_BASES;
 window.CURRENT_BASE_VERSION = CURRENT_BASE_VERSION;
+window.BASE2_ACTIVATED_AT = BASE2_ACTIVATED_AT;
