@@ -1,0 +1,4 @@
+v95 fix:
+- Keeps saved bracket rendering locked to data.base.
+- Adds a frozen LIVE_HOME_R64 snapshot so homepage can always restore Base 1 exactly.
+- renderAll() restores homepage layout whenever not actively viewing a saved bracket.

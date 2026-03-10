@@ -10,6 +10,11 @@ function cloneBaseRegions(base){
   return out;
 }
 
+// Freeze the live homepage/base-1 dataset as an independent snapshot.
+// Saved-bracket rendering may temporarily mutate REGION_* arrays, but this snapshot
+// lets us restore the true homepage layout exactly.
+const LIVE_HOME_R64 = (typeof R64_SNAPSHOT !== 'undefined') ? cloneBaseRegions(R64_SNAPSHOT) : null;
+
 function getBaseRegionsForBracket(bracket){
   // Existing saved brackets MUST render from their own frozen base snapshot.
   if(bracket && bracket.data && bracket.data.base){
@@ -45,8 +50,8 @@ function applyBaseRegionsToCurrentProjection(base){
 
 function restoreCurrentProjectionRegions(){
   try{
-    if(typeof R64_SNAPSHOT !== 'undefined'){
-      applyBaseRegionsToCurrentProjection(R64_SNAPSHOT);
+    if(LIVE_HOME_R64){
+      applyBaseRegionsToCurrentProjection(LIVE_HOME_R64);
     }
   }catch(_e){}
 }
@@ -2999,6 +3004,7 @@ async function openBracketsOverlay(){
 
 function closeBracketsOverlay(){
   qs('#bracketsOverlay').classList.add('hidden');
+  try{ restoreCurrentProjectionRegions(); }catch(_e){}
   try{ showView('build'); }catch(e){}
   try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
 }
@@ -3915,6 +3921,18 @@ function setSectionVisible(id, show){
 
 function renderAll(){
   setSeasonBar();
+
+  // If we're not actively viewing a saved bracket on bracket.html?id=...,
+  // force the homepage/current projection layout back into the region arrays.
+  try{
+    const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
+    const hasSavedBracketId = !!(new URL(window.location.href).searchParams.get('id') || state.bracketId);
+    if(!isBracketPage || !hasSavedBracketId){
+      restoreCurrentProjectionRegions();
+    }
+  }catch(_e){}
+
+  
   renderBubble();
   renderChallengeCallout();
 
