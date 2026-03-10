@@ -1,0 +1,5 @@
+v96:
+- Starts from v95.
+- For saved brackets only, Round of 64 labels now come directly from state._loadedBracketBase.
+- This bypasses live homepage projection arrays when viewing an old saved bracket.
+- Homepage/new bracket flow is left untouched.

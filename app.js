@@ -3004,6 +3004,7 @@ async function openBracketsOverlay(){
 
 function closeBracketsOverlay(){
   qs('#bracketsOverlay').classList.add('hidden');
+  try{ state._loadedBracketBase = null; }catch(_e){}
   try{ restoreCurrentProjectionRegions(); }catch(_e){}
   try{ showView('build'); }catch(e){}
   try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
@@ -3046,7 +3047,7 @@ async function loadBracketFromServer(id){
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = merged.base || null;
+  state._loadedBracketBase = merged.base || null; // frozen R64 source for saved bracket rendering
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
@@ -3437,7 +3438,8 @@ function renderRegion(r, picks, opts={}){
   }
   card.appendChild(scroller);
 
-  const base = listToSeedArray(r.teams);
+  const explicitBaseTeams = (opts && Array.isArray(opts.baseTeams)) ? opts.baseTeams : null;
+  const base = explicitBaseTeams ? listToSeedArray(explicitBaseTeams) : listToSeedArray(r.teams);
 
   // Slightly more compact on desktop so the full bracket fits better
   const matchH = 72, gap = 10;
@@ -3982,7 +3984,26 @@ function renderAll(){
       mount.innerHTML='';
       const isRightSide = !!(mount && mount.closest && mount.closest('.deskCol.right'));
       const baseOpts = sweet16ModeEnabled()?{startRound:2,maxRounds:2}:undefined;
-      const opts = baseOpts ? {...baseOpts, isMirror:isRightSide} : {isMirror:isRightSide};
+
+      // If a saved bracket is open, source the Round of 64 labels directly
+      // from that bracket's frozen base snapshot, not from the live projection arrays.
+      let regionBaseTeams = null;
+      try{
+        const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
+        const activeSavedBracket = !!(isBracketPage && state.bracketId && state._loadedBracketBase);
+        const loadedBase = activeSavedBracket ? state._loadedBracketBase : null;
+        if(loadedBase){
+          if(r.name === 'East') regionBaseTeams = loadedBase.EAST || null;
+          else if(r.name === 'West') regionBaseTeams = loadedBase.WEST || null;
+          else if(r.name === 'Midwest') regionBaseTeams = loadedBase.MIDWEST || null;
+          else if(r.name === 'South') regionBaseTeams = loadedBase.SOUTH || null;
+        }
+      }catch(_e){}
+
+      const opts = baseOpts
+        ? {...baseOpts, isMirror:isRightSide, baseTeams: regionBaseTeams}
+        : {isMirror:isRightSide, baseTeams: regionBaseTeams};
+
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       scrollers.push(scroller);
