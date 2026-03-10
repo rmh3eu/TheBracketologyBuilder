@@ -64,9 +64,6 @@ function ensureBaseOnNewBracketData(dataObj){
   if(!dataObj.base){
     if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = cloneBaseRegions(R64_SNAPSHOT);
   }
-  if(!Object.prototype.hasOwnProperty.call(dataObj, 'base_version')){
-    try{ if(typeof CURRENT_BASE_VERSION !== 'undefined') dataObj.base_version = CURRENT_BASE_VERSION; }catch(_e){}
-  }
   return dataObj;
 }
 
@@ -1867,12 +1864,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
         title: desiredTitle || '',
-        data: (function(){
-          const wrapped = wrapPicksIfNeeded(state.picks || {});
-          if(state._loadedBracketBase) wrapped.base = cloneBaseRegions(state._loadedBracketBase);
-          if(state._loadedBracketBaseVersion) wrapped.base_version = state._loadedBracketBaseVersion;
-          return wrapped;
-        })()
+        data: wrapPicksIfNeeded(state.picks || {})
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
       const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
@@ -3027,46 +3019,32 @@ async function loadBracketFromServer(id){
   let hasWrapper = Object.prototype.hasOwnProperty.call(rawData, 'picks');
   let merged = hasWrapper ? rawData : { picks: extractPicksFromBracketData(rawData) };
 
-  const savedBaseVersion = Number(rawData.base_version || merged.base_version || 0) || 1;
-
-  // If a legacy saved bracket is missing base, backfill from its own base_version.
+  // One-time legacy backfill: while the site is still on Base 1, if a bracket is missing
+  // a frozen base snapshot, attach the CURRENT Base 1 snapshot ONCE and persist it.
   try{
     const hasBase = !!(merged && merged.base);
-    if(br && !hasBase){
-      let sourceBase = null;
-      try{
-        if(typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[savedBaseVersion]){
-          sourceBase = PROJECTION_BASES[savedBaseVersion];
-        }
-      }catch(_e){}
-      if(!sourceBase && typeof R64_SNAPSHOT !== 'undefined'){
-        sourceBase = R64_SNAPSHOT;
-      }
-      if(sourceBase){
-        merged.base = cloneBaseRegions(sourceBase);
-        merged.base_version = savedBaseVersion;
-        await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
-          method:'PUT',
-          body: JSON.stringify({
-            id: br.id,
-            bracket_name: br.title || br.bracket_name || 'My Bracket',
-            data: merged
-          })
-        });
-      }
+    if(br && !hasBase && typeof R64_SNAPSHOT !== 'undefined'){
+      merged.base = cloneBaseRegions(R64_SNAPSHOT);
+      await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
+        method:'PUT',
+        body: JSON.stringify({
+          id: br.id,
+          bracket_name: br.title || br.bracket_name || 'My Bracket',
+          data: merged
+        })
+      });
     }
   }catch(e){}
 
   // STRICTER RULE:
-  // Saved brackets render from a separate local base object built entirely
-  // from bracket.data.base. Do NOT mutate shared REGION_* arrays here.
+  // Saved brackets must render from a separate local base object built entirely
+  // from bracket.data.base. Do NOT mutate the shared REGION_* arrays here.
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = merged.base ? cloneBaseRegions(merged.base) : null;
-  state._loadedBracketBaseVersion = merged.base_version || savedBaseVersion || 1;
+  state._loadedBracketBase = merged.base ? cloneBaseRegions(merged.base) : null; // local-only frozen R64 source
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
