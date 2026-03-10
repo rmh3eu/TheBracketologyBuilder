@@ -1,0 +1,7 @@
+v98:
+- Adds Base 2 as the live homepage/new-bracket dataset.
+- Keeps Base 1 frozen for older brackets.
+- New brackets save { base, base_version, picks } with CURRENT_BASE_VERSION=2.
+- Old brackets render Round of 64 directly from state._loadedBracketBase.
+- If an older bracket lacks base, it backfills from PROJECTION_BASES[base_version] (default 1).
+- Existing bracket saves preserve both base and base_version.
