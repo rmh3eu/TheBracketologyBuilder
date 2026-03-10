@@ -1,0 +1,5 @@
+v94 render lock:
+- Saved brackets render from their own data.base snapshot.
+- If a legacy bracket is missing data.base while site is still on Base 1, loading it once backfills Base 1 and saves it.
+- New bracket creation now saves wrapped { base, picks } data on first save.
+- Existing bracket saves preserve stored base.

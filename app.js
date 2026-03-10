@@ -1,20 +1,55 @@
 
 // ---- R64 snapshot rendering protection ----
+function cloneBaseRegions(base){
+  if(!base || typeof base !== 'object') return null;
+  const out = {};
+  ['EAST','WEST','MIDWEST','SOUTH'].forEach(k=>{
+    const arr = Array.isArray(base[k]) ? base[k] : [];
+    out[k] = arr.map(pair => Array.isArray(pair) ? [pair[0], pair[1]] : pair);
+  });
+  return out;
+}
+
 function getBaseRegionsForBracket(bracket){
   // Existing saved brackets MUST render from their own frozen base snapshot.
   if(bracket && bracket.data && bracket.data.base){
-    return bracket.data.base;
+    return cloneBaseRegions(bracket.data.base);
   }
   // For any existing bracket missing base, do NOT fall back to current projections here.
-  // (Legacy brackets may be backfilled once on load, then frozen.)
   if(bracket) return null;
 
   // Home page / new bracket creation uses current projection snapshot.
   if(typeof R64_SNAPSHOT !== 'undefined'){
-    return R64_SNAPSHOT;
+    return cloneBaseRegions(R64_SNAPSHOT);
   }
   return null;
+}
 
+function replaceRegionArray(target, source){
+  if(!Array.isArray(target)) return;
+  target.length = 0;
+  (source || []).forEach(pair=>{
+    if(Array.isArray(pair)) target.push([pair[0], pair[1]]);
+  });
+}
+
+function applyBaseRegionsToCurrentProjection(base){
+  if(!base) return;
+  try{
+    if(typeof REGION_EAST !== 'undefined') replaceRegionArray(REGION_EAST, base.EAST || []);
+    if(typeof REGION_WEST !== 'undefined') replaceRegionArray(REGION_WEST, base.WEST || []);
+    if(typeof REGION_MIDWEST !== 'undefined') replaceRegionArray(REGION_MIDWEST, base.MIDWEST || []);
+    if(typeof REGION_SOUTH !== 'undefined') replaceRegionArray(REGION_SOUTH, base.SOUTH || []);
+  }catch(_e){}
+}
+
+function restoreCurrentProjectionRegions(){
+  try{
+    if(typeof R64_SNAPSHOT !== 'undefined'){
+      applyBaseRegionsToCurrentProjection(R64_SNAPSHOT);
+    }
+  }catch(_e){}
+}
 
 function ensureBaseOnNewBracketData(dataObj){
   // Ensure new brackets always store a frozen Round of 64 snapshot in data.base at creation time.
@@ -22,7 +57,7 @@ function ensureBaseOnNewBracketData(dataObj){
     dataObj = {};
   }
   if(!dataObj.base){
-    if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = R64_SNAPSHOT;
+    if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = cloneBaseRegions(R64_SNAPSHOT);
   }
   return dataObj;
 }
@@ -38,8 +73,18 @@ function wrapPicksIfNeeded(dataOrPicks){
   // Otherwise treat it as the picks object.
   return ensureBaseOnNewBracketData({ picks: dataOrPicks });
 }
-}
 
+function extractPicksFromBracketData(dataObj){
+  if(!dataObj || typeof dataObj !== 'object') return {};
+  if(Object.prototype.hasOwnProperty.call(dataObj, 'picks') && dataObj.picks && typeof dataObj.picks === 'object'){
+    return dataObj.picks;
+  }
+  // legacy flat picks object
+  const out = {...dataObj};
+  delete out.base;
+  delete out.base_version;
+  return out;
+}
 
 // --- Featured submission requires complete bracket ---
 function __bb_isBracketComplete(picks){
@@ -293,6 +338,10 @@ const REGION_MIDWEST = (typeof MIDWEST !== 'undefined') ? MIDWEST : (BRACKET_DAT
 const LAST_FOUR_IN_LIST = (typeof LAST_FOUR_IN !== 'undefined') ? LAST_FOUR_IN : (BRACKET_DATA.LAST_FOUR_IN||[]);
 const FIRST_FOUR_OUT_LIST = (typeof FIRST_FOUR_OUT !== 'undefined') ? FIRST_FOUR_OUT : (BRACKET_DATA.FIRST_FOUR_OUT||[]);
 const GENERATED_AT_VALUE = (typeof GENERATED_AT !== 'undefined') ? GENERATED_AT : (BRACKET_DATA.GENERATED_AT||null);
+
+// Default to the current homepage projection on boot.
+restoreCurrentProjectionRegions();
+
 /**
  * BracketologyBuilder v30
  * - Guest users can fill a bracket (saved locally)
@@ -1809,7 +1858,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
         title: desiredTitle || '',
-        data: state.picks || {}
+        data: wrapPicksIfNeeded(state.picks || {})
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
       const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
@@ -2956,40 +3005,48 @@ function closeBracketsOverlay(){
 
 async function loadBracketFromServer(id){
   const d = await api(`/api/bracket?id=${encodeURIComponent(id)}`, { method:'GET' });
-  // One-time legacy backfill: if this bracket is missing a frozen base snapshot,
-  // attach the CURRENT projection snapshot ONCE and persist it, so it cannot drift further.
+
+  const br = (d && d.bracket) ? d.bracket : null;
+  let rawData = (br && br.data && typeof br.data === 'object') ? br.data : {};
+  let hasWrapper = Object.prototype.hasOwnProperty.call(rawData, 'picks');
+  let merged = hasWrapper ? rawData : { picks: extractPicksFromBracketData(rawData) };
+
+  // One-time legacy backfill: while the site is still on Base 1, if a bracket is missing
+  // a frozen base snapshot, attach the CURRENT Base 1 snapshot ONCE and persist it.
   try{
-    const br = (d && d.bracket) ? d.bracket : null;
-    const hasBase = !!(br && br.data && br.data.base);
+    const hasBase = !!(merged && merged.base);
     if(br && !hasBase && typeof R64_SNAPSHOT !== 'undefined'){
-      // Only backfill if the viewer is the owner (server will reject otherwise).
-      const merged = Object.assign({}, br.data || {});
-      if(!merged.base) merged.base = R64_SNAPSHOT;
-      // Ensure picks wrapper exists
-      if(!Object.prototype.hasOwnProperty.call(merged, 'picks')){
-        // If data is flat picks object, keep it under picks.
-        merged.picks = (br.data && typeof br.data === 'object') ? br.data : {};
-      }
+      merged.base = cloneBaseRegions(R64_SNAPSHOT);
       await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
         method:'PUT',
-        body: JSON.stringify({ id: br.id, bracket_name: br.title || br.bracket_name || 'My Bracket', data: merged })
+        body: JSON.stringify({
+          id: br.id,
+          bracket_name: br.title || br.bracket_name || 'My Bracket',
+          data: merged
+        })
       });
-      // Reflect locally
-      d.bracket.data = merged;
     }
   }catch(e){}
+
+  // CRITICAL: Existing saved brackets must render from their own frozen base, never current live data.
+  if(merged && merged.base){
+    applyBaseRegionsToCurrentProjection(merged.base);
+  } else {
+    restoreCurrentProjectionRegions();
+  }
+
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
+  state._loadedBracketBase = merged.base || null;
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
-  // Ensure the visible title matches the latest value from D1, not stale local meta.
   setBracketTitleDisplay(state.bracketTitle);
   setUrlBracketId(state.bracketId, state.bracketTitle);
   state.undoStack = [];
-  state.picks = d.bracket.data || {};
+  state.picks = normalize(extractPicksFromBracketData(merged));
   saveLocal(state.picks);
   renderAll();
   updateUndoUI();
