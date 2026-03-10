@@ -1,0 +1,5 @@
+v101:
+- Saved-bracket rendering no longer mutates shared REGION_* arrays.
+- Old brackets render from a separate local base object built entirely from bracket.data.base.
+- Home page and non-saved-bracket views continue using the live/current projection arrays.
+- This is a cleaner architectural split than prior patch attempts.

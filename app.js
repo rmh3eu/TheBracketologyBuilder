@@ -3005,6 +3005,7 @@ async function openBracketsOverlay(){
 
 function closeBracketsOverlay(){
   qs('#bracketsOverlay').classList.add('hidden');
+  try{ state._loadedBracketBase = null; }catch(_e){}
   try{ restoreCurrentProjectionRegions(); }catch(_e){}
   try{ showView('build'); }catch(e){}
   try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
@@ -3035,19 +3036,15 @@ async function loadBracketFromServer(id){
     }
   }catch(e){}
 
-  // CRITICAL: Existing saved brackets must render from their own frozen base, never current live data.
-  if(merged && merged.base){
-    applyBaseRegionsToCurrentProjection(merged.base);
-  } else {
-    restoreCurrentProjectionRegions();
-  }
-
+  // STRICTER RULE:
+  // Saved brackets must render from a separate local base object built entirely
+  // from bracket.data.base. Do NOT mutate the shared REGION_* arrays here.
   state.bracketId = d.bracket.id;
   state.sharedOwnerId = d.bracket.user_id;
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = merged.base || null; // frozen R64 source for saved bracket rendering
+  state._loadedBracketBase = merged.base ? cloneBaseRegions(merged.base) : null; // local-only frozen R64 source
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
@@ -3989,7 +3986,9 @@ function renderAll(){
       // from that bracket's frozen base snapshot — not from the current live region arrays.
       let regionBaseTeams = null;
       try{
-        const loadedBase = state._loadedBracketBase || null;
+        const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
+        const activeSavedBracket = !!(isBracketPage && state.bracketId && state._loadedBracketBase);
+        const loadedBase = activeSavedBracket ? state._loadedBracketBase : null;
         if(loadedBase){
           if(r.name === 'East') regionBaseTeams = loadedBase.EAST || null;
           else if(r.name === 'West') regionBaseTeams = loadedBase.WEST || null;
