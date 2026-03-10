@@ -14,176 +14,84 @@ const FIRST_FOUR_OUT = [
   "Santa Clara"
 ];
 
-// BASE VERSION SYSTEM
-// Base 1 = previous projection dataset (frozen for old brackets)
-// Base 2 = current homepage + new bracket dataset
-const PROJECTION_BASES = {
-  1: {
-    EAST: [
-    [1, "Duke"],
-    [2, "Gonzaga"],
-    [3, "Nebraska"],
-    [4, "Michigan St"],
-    [5, "St Johns"],
-    [6, "Louisville"],
-    [7, "Kentucky"],
-    [8, "NC State"],
-    [9, "Texas A&M"],
-    [10, "Clemson"],
-    [11, "Texas"],
-    [12, "High Point"],
-    [13, "Liberty"],
-    [14, "Navy"],
-    [15, "Merrimack"],
-    [16, "LIU"]
-  ],
-    WEST: [
-    [1, "Arizona"],
-    [2, "Houston"],
-    [3, "Virginia"],
-    [4, "Kansas"],
-    [5, "North Carolina"],
-    [6, "Wisconsin"],
-    [7, "Villanova"],
-    [8, "Utah State"],
-    [9, "Iowa"],
-    [10, "UCLA"],
-    [11, "Missouri"],
-    [12, "Belmont"],
-    [13, "Utah Valley"],
-    [14, "ETSU"],
-    [15, "Wright State"],
-    [16, "App St"]
-  ],
-    MIDWEST: [
-    [1, "Michigan"],
-    [2, "Florida"],
-    [3, "Illinois"],
-    [4, "Alabama"],
-    [5, "Arkansas"],
-    [6, "Vanderbilt"],
-    [7, "Saint Louis"],
-    [8, "Miami"],
-    [9, "UCF"],
-    [10, "Georgia"],
-    [11, "Santa Clara"],
-    [12, "Yale"],
-    [13, "SF Austin"],
-    [14, "N Dakota St"],
-    [15, "Austin Peay"],
-    [16, "Howard"]
-  ],
-    SOUTH: [
-    [1, "Iowa State"],
-    [2, "UConn"],
-    [3, "Purdue"],
-    [4, "Texas Tech"],
-    [5, "BYU"],
-    [6, "Tennessee"],
-    [7, "Miami Ohio"],
-    [8, "SMU"],
-    [9, "Saint Marys"],
-    [10, "Auburn"],
-    [11, "New Mexico"],
-    [12, "USF"],
-    [13, "UNCW"],
-    [14, "UC Irvine"],
-    [15, "Portland State"],
-    [16, "UMBC"]
-  ]
-  },
-  2: {
-    EAST: [
-    [1, "Duke"],
-    [2, "Michigan St"],
-    [3, "Virginia"],
-    [4, "St Johns"],
-    [5, "Arkansas"],
-    [6, "Wisconsin"],
-    [7, "Saint Mary’s"],
-    [8, "Saint Louis"],
-    [9, "Kentucky"],
-    [10, "UCF"],
-    [11, "Santa Clara"],
-    [12, "High Point"],
-    [13, "Liberty"],
-    [14, "Tennessee St"],
-    [15, "Merrimack"],
-    [16, "LIU"]
-  ],
-    WEST: [
-    [1, "Arizona"],
-    [2, "Iowa State"],
-    [3, "Gonzaga"],
-    [4, "Kansas"],
-    [5, "Purdue"],
-    [6, "Tennessee"],
-    [7, "Miami FLA"],
-    [8, "Villanova"],
-    [9, "Ohio State"],
-    [10, "Texas"],
-    [11, "USF"],
-    [12, "Utah Valley"],
-    [13, "N Dakota St"],
-    [14, "Portland St"],
-    [15, "Wright St"],
-    [16, "Queens"]
-  ],
-    MIDWEST: [
-    [1, "Michigan"],
-    [2, "UConn"],
-    [3, "Nebraska"],
-    [4, "Alabama"],
-    [5, "North Carolina"],
-    [6, "Miami Ohio"],
-    [7, "TCU"],
-    [8, "Georgia"],
-    [9, "Clemson"],
-    [10, "Iowa"],
-    [11, "Missouri"],
-    [12, "Yale"],
-    [13, "SF Austin"],
-    [14, "Troy"],
-    [15, "Furman"],
-    [16, "Howard"]
-  ],
-    SOUTH: [
-    [1, "Florida"],
-    [2, "Houston"],
-    [3, "Illinois"],
-    [4, "Texas Tech"],
-    [5, "Vanderbilt"],
-    [6, "Louisville"],
-    [7, "BYU"],
-    [8, "UCLA"],
-    [9, "Utah State"],
-    [10, "NC State"],
-    [11, "Texas A&M"],
-    [12, "N. Iowa"],
-    [13, "Hofstra"],
-    [14, "UC Irvine"],
-    [15, "Boston U"],
-    [16, "UMBC"]
-  ]
-  }
-};
-
-const CURRENT_BASE_VERSION = 2;
-const CURRENT_BASE = PROJECTION_BASES[CURRENT_BASE_VERSION];
-
-// Current homepage / new bracket arrays
-const EAST = CURRENT_BASE.EAST;
-const WEST = CURRENT_BASE.WEST;
-const MIDWEST = CURRENT_BASE.MIDWEST;
-const SOUTH = CURRENT_BASE.SOUTH;
+const EAST = [
+  [1, "Duke"],
+  [2, "Gonzaga"],
+  [3, "Nebraska"],
+  [4, "Michigan St"],
+  [5, "St Johns"],
+  [6, "Louisville"],
+  [7, "Kentucky"],
+  [8, "NC State"],
+  [9, "Texas A&M"],
+  [10, "Clemson"],
+  [11, "Texas"],
+  [12, "High Point"],
+  [13, "Liberty"],
+  [14, "Navy"],
+  [15, "Merrimack"],
+  [16, "LIU"],
+];
 
 
+const WEST = [
+  [1, "Arizona"],
+  [2, "Houston"],
+  [3, "Virginia"],
+  [4, "Kansas"],
+  [5, "North Carolina"],
+  [6, "Wisconsin"],
+  [7, "Villanova"],
+  [8, "Utah State"],
+  [9, "Iowa"],
+  [10, "UCLA"],
+  [11, "Missouri"],
+  [12, "Belmont"],
+  [13, "Utah Valley"],
+  [14, "ETSU"],
+  [15, "Wright State"],
+  [16, "App St"],
+];
 
 
+const SOUTH = [
+  [1, "Iowa State"],
+  [2, "UConn"],
+  [3, "Purdue"],
+  [4, "Texas Tech"],
+  [5, "BYU"],
+  [6, "Tennessee"],
+  [7, "Miami Ohio"],
+  [8, "SMU"],
+  [9, "Saint Marys"],
+  [10, "Auburn"],
+  [11, "New Mexico"],
+  [12, "USF"],
+  [13, "UNCW"],
+  [14, "UC Irvine"],
+  [15, "Portland State"],
+  [16, "UMBC"],
+];
 
 
-
-
+const MIDWEST = [
+  [1, "Michigan"],
+  [2, "Florida"],
+  [3, "Illinois"],
+  [4, "Alabama"],
+  [5, "Arkansas"],
+  [6, "Vanderbilt"],
+  [7, "Saint Louis"],
+  [8, "Miami"],
+  [9, "UCF"],
+  [10, "Georgia"],
+  [11, "Santa Clara"],
+  [12, "Yale"],
+  [13, "SF Austin"],
+  [14, "N Dakota St"],
+  [15, "Austin Peay"],
+  [16, "Howard"],
+];
 
 
 
@@ -212,7 +120,3 @@ const R64_SNAPSHOT = {
   MIDWEST: MIDWEST,
   SOUTH: SOUTH
 };
-
-
-window.PROJECTION_BASES = PROJECTION_BASES;
-window.CURRENT_BASE_VERSION = CURRENT_BASE_VERSION;
