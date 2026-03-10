@@ -1,0 +1,14 @@
+BracketologyBuilder Base Version System
+
+Current state:
+- Base 1 contains the current home/new-bracket projection dataset.
+- CURRENT_BASE_VERSION = 1
+
+Rule for future updates:
+1. Do NOT overwrite Base 1.
+2. Add a new dataset under PROJECTION_BASES[2], PROJECTION_BASES[3], etc.
+3. Set CURRENT_BASE_VERSION to the newest base number.
+4. Homepage + new brackets use CURRENT_BASE_VERSION.
+5. Existing saved brackets must remain tied to the base they were created with.
+
+This file is informational only.

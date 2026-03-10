@@ -14,84 +14,108 @@ const FIRST_FOUR_OUT = [
   "Santa Clara"
 ];
 
-const EAST = [
-  [1, "Duke"],
-  [2, "Gonzaga"],
-  [3, "Nebraska"],
-  [4, "Michigan St"],
-  [5, "St Johns"],
-  [6, "Louisville"],
-  [7, "Kentucky"],
-  [8, "NC State"],
-  [9, "Texas A&M"],
-  [10, "Clemson"],
-  [11, "Texas"],
-  [12, "High Point"],
-  [13, "Liberty"],
-  [14, "Navy"],
-  [15, "Merrimack"],
-  [16, "LIU"],
-];
+// BASE VERSION SYSTEM
+// ------------------------------------------------------------------
+// Rule:
+// - Base 1 is the current frozen dataset.
+// - Future projection updates must ADD Base 2, Base 3, etc.
+// - Never overwrite Base 1 when new team data arrives.
+// - Homepage / new brackets should always use the HIGHEST base version.
+// - Existing saved brackets must remain tied to the base they were created with.
+// ------------------------------------------------------------------
+
+const PROJECTION_BASES = {
+  1: {
+    EAST: [
+      [1, "Duke"],
+      [2, "Gonzaga"],
+      [3, "Nebraska"],
+      [4, "Michigan St"],
+      [5, "St Johns"],
+      [6, "Louisville"],
+      [7, "Kentucky"],
+      [8, "NC State"],
+      [9, "Texas A&M"],
+      [10, "Clemson"],
+      [11, "Texas"],
+      [12, "High Point"],
+      [13, "Liberty"],
+      [14, "Navy"],
+      [15, "Merrimack"],
+      [16, "LIU"]
+    ],
+    WEST: [
+      [1, "Arizona"],
+      [2, "Houston"],
+      [3, "Virginia"],
+      [4, "Kansas"],
+      [5, "North Carolina"],
+      [6, "Wisconsin"],
+      [7, "Villanova"],
+      [8, "Utah State"],
+      [9, "Iowa"],
+      [10, "UCLA"],
+      [11, "Missouri"],
+      [12, "Belmont"],
+      [13, "Utah Valley"],
+      [14, "ETSU"],
+      [15, "Wright State"],
+      [16, "App St"]
+    ],
+    MIDWEST: [
+      [1, "Michigan"],
+      [2, "Florida"],
+      [3, "Illinois"],
+      [4, "Alabama"],
+      [5, "Arkansas"],
+      [6, "Vanderbilt"],
+      [7, "Saint Louis"],
+      [8, "Miami"],
+      [9, "UCF"],
+      [10, "Georgia"],
+      [11, "Santa Clara"],
+      [12, "Yale"],
+      [13, "SF Austin"],
+      [14, "N Dakota St"],
+      [15, "Austin Peay"],
+      [16, "Howard"]
+    ],
+    SOUTH: [
+      [1, "Iowa State"],
+      [2, "UConn"],
+      [3, "Purdue"],
+      [4, "Texas Tech"],
+      [5, "BYU"],
+      [6, "Tennessee"],
+      [7, "Miami Ohio"],
+      [8, "SMU"],
+      [9, "Saint Marys"],
+      [10, "Auburn"],
+      [11, "New Mexico"],
+      [12, "USF"],
+      [13, "UNCW"],
+      [14, "UC Irvine"],
+      [15, "Portland State"],
+      [16, "UMBC"]
+    ],
+  }
+};
+
+const CURRENT_BASE_VERSION = 1;
+
+function getCurrentProjectionBase() {
+  return PROJECTION_BASES[CURRENT_BASE_VERSION];
+}
+
+const CURRENT_BASE = getCurrentProjectionBase();
 
 
-const WEST = [
-  [1, "Arizona"],
-  [2, "Houston"],
-  [3, "Virginia"],
-  [4, "Kansas"],
-  [5, "North Carolina"],
-  [6, "Wisconsin"],
-  [7, "Villanova"],
-  [8, "Utah State"],
-  [9, "Iowa"],
-  [10, "UCLA"],
-  [11, "Missouri"],
-  [12, "Belmont"],
-  [13, "Utah Valley"],
-  [14, "ETSU"],
-  [15, "Wright State"],
-  [16, "App St"],
-];
-
-
-const SOUTH = [
-  [1, "Iowa State"],
-  [2, "UConn"],
-  [3, "Purdue"],
-  [4, "Texas Tech"],
-  [5, "BYU"],
-  [6, "Tennessee"],
-  [7, "Miami Ohio"],
-  [8, "SMU"],
-  [9, "Saint Marys"],
-  [10, "Auburn"],
-  [11, "New Mexico"],
-  [12, "USF"],
-  [13, "UNCW"],
-  [14, "UC Irvine"],
-  [15, "Portland State"],
-  [16, "UMBC"],
-];
-
-
-const MIDWEST = [
-  [1, "Michigan"],
-  [2, "Florida"],
-  [3, "Illinois"],
-  [4, "Alabama"],
-  [5, "Arkansas"],
-  [6, "Vanderbilt"],
-  [7, "Saint Louis"],
-  [8, "Miami"],
-  [9, "UCF"],
-  [10, "Georgia"],
-  [11, "Santa Clara"],
-  [12, "Yale"],
-  [13, "SF Austin"],
-  [14, "N Dakota St"],
-  [15, "Austin Peay"],
-  [16, "Howard"],
-];
+// Derived current projection arrays used by the rest of the app.
+// These stay backward-compatible with the existing codebase.
+const EAST = CURRENT_BASE.EAST;
+const WEST = CURRENT_BASE.WEST;
+const MIDWEST = CURRENT_BASE.MIDWEST;
+const SOUTH = CURRENT_BASE.SOUTH;
 
 
 
@@ -120,3 +144,10 @@ const R64_SNAPSHOT = {
   MIDWEST: MIDWEST,
   SOUTH: SOUTH
 };
+
+
+// Expose projection version info for future tools / debugging.
+try {
+  window.PROJECTION_BASES = PROJECTION_BASES;
+  window.CURRENT_BASE_VERSION = CURRENT_BASE_VERSION;
+} catch (_e) {}
