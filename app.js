@@ -64,9 +64,6 @@ function ensureBaseOnNewBracketData(dataObj){
   if(!dataObj.base){
     if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = cloneBaseRegions(R64_SNAPSHOT);
   }
-  if(!Object.prototype.hasOwnProperty.call(dataObj, 'base_version')){
-    try{ if(typeof CURRENT_BASE_VERSION !== 'undefined') dataObj.base_version = CURRENT_BASE_VERSION; }catch(_e){}
-  }
   return dataObj;
 }
 
@@ -1867,12 +1864,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
         title: desiredTitle || '',
-        data: (function(){
-          const wrapped = wrapPicksIfNeeded(state.picks || {});
-          if(state._loadedBracketBase) wrapped.base = cloneBaseRegions(state._loadedBracketBase);
-          if(state._loadedBracketBaseVersion) wrapped.base_version = state._loadedBracketBaseVersion;
-          return wrapped;
-        })()
+        data: wrapPicksIfNeeded(state.picks || {})
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
       const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
@@ -3026,30 +3018,12 @@ async function loadBracketFromServer(id){
   let hasWrapper = Object.prototype.hasOwnProperty.call(rawData, 'picks');
   let merged = hasWrapper ? rawData : { picks: extractPicksFromBracketData(rawData) };
 
-  const createdAt = (br && br.created_at) ? String(br.created_at) : '';
-  const activatedAt = (typeof BASE2_ACTIVATED_AT !== 'undefined') ? String(BASE2_ACTIVATED_AT) : '';
-  const isPreBase2Bracket = !!(createdAt && activatedAt && createdAt < activatedAt);
-
-  let effectiveBaseVersion = 1;
-  if(!isPreBase2Bracket){
-    effectiveBaseVersion = Number(rawData.base_version || merged.base_version || 0) || (typeof CURRENT_BASE_VERSION !== 'undefined' ? CURRENT_BASE_VERSION : 1);
-  }
-
-  let effectiveBase = null;
+  // One-time legacy backfill: while the site is still on Base 1, if a bracket is missing
+  // a frozen base snapshot, attach the CURRENT Base 1 snapshot ONCE and persist it.
   try{
-    if(isPreBase2Bracket && typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[1]){
-      effectiveBase = cloneBaseRegions(PROJECTION_BASES[1]);
-    } else if(merged && merged.base){
-      effectiveBase = cloneBaseRegions(merged.base);
-    } else if(typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[effectiveBaseVersion]){
-      effectiveBase = cloneBaseRegions(PROJECTION_BASES[effectiveBaseVersion]);
-    }
-  }catch(_e){}
-
-  try{
-    if(br && effectiveBase){
-      merged.base = effectiveBase;
-      merged.base_version = effectiveBaseVersion;
+    const hasBase = !!(merged && merged.base);
+    if(br && !hasBase && typeof R64_SNAPSHOT !== 'undefined'){
+      merged.base = cloneBaseRegions(R64_SNAPSHOT);
       await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
         method:'PUT',
         body: JSON.stringify({
@@ -3061,8 +3035,9 @@ async function loadBracketFromServer(id){
     }
   }catch(e){}
 
-  if(effectiveBase){
-    applyBaseRegionsToCurrentProjection(effectiveBase);
+  // CRITICAL: Existing saved brackets must render from their own frozen base, never current live data.
+  if(merged && merged.base){
+    applyBaseRegionsToCurrentProjection(merged.base);
   } else {
     restoreCurrentProjectionRegions();
   }
@@ -3072,8 +3047,7 @@ async function loadBracketFromServer(id){
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = effectiveBase || null;
-  state._loadedBracketBaseVersion = effectiveBaseVersion || 1;
+  state._loadedBracketBase = merged.base || null; // frozen R64 source for saved bracket rendering
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
