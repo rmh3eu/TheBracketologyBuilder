@@ -1163,8 +1163,7 @@ function sweet16ModeEnabled(){
 function getTeamBySeed(regionKey, seed){
   const r = REGIONS.find(x=>x.key===regionKey);
   if(!r) return null;
-  const explicitBaseTeams = (opts && Array.isArray(opts.baseTeams)) ? opts.baseTeams : null;
-  const base = explicitBaseTeams ? listToSeedArray(explicitBaseTeams) : listToSeedArray(r.teams);
+  const base = listToSeedArray(r.teams);
   return base[seed-1] || null;
 }
 

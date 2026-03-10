@@ -1,0 +1,8 @@
+v105:
+- Starts from the uploaded build where old saved brackets already render correctly.
+- Fixes getTeamBySeed corruption.
+- Updates homepage/new-bracket data.js arrays to the Stage 2 dataset.
+- Leaves the saved-bracket R64 lock logic untouched.
+Intended result:
+* Home page shows Stage 2
+* Old saved brackets stay locked to their own frozen base
