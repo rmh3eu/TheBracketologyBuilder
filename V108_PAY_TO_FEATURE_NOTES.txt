@@ -1,0 +1,6 @@
+v108:
+- Added pay-to-feature modal after feature submission intent.
+- Options: $5 website feature, $10 up to 5 brackets, $20 TikTok spotlight, Venmo, free submission, cancel.
+- Venmo flow is manual: users are shown @BracketologyBuilder instructions and asked to include bracket name + email.
+- Public status still remains just "Featured".
+- No bracket saving / rendering logic changed.

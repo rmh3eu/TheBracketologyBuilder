@@ -3048,3 +3048,19 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .submitFeaturedMsg.err{color:#b91c1c;font-weight:700;}
 .submitFeaturedInlineBtn{margin-top:10px;padding:8px 12px;border-radius:999px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;}
 .submitFeaturedInlineBtn:disabled{opacity:0.6;cursor:not-allowed;}
+
+
+/* v108 Pay-to-feature modal */
+.featureBoostBox{max-width:560px !important}
+.featureBoostTitle{font-weight:800;font-size:22px;margin-bottom:8px;color:#111827}
+.featureBoostMessage{margin-bottom:14px;color:#374151;line-height:1.45}
+.featureBoostSub{margin-bottom:8px}
+.featureBoostHint{font-size:13px;color:#6b7280;margin-top:6px}
+.featureBoostAmount{margin-bottom:8px;font-size:15px}
+.featureBoostNote{margin-top:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;color:#111827}
+.featureBoostOptions{display:flex;flex-direction:column;gap:10px}
+.featureBoostOption{width:100%;text-align:left;border:1px solid #d1d5db;background:#fff;border-radius:12px;padding:14px 16px;cursor:pointer}
+.featureBoostOption:hover{background:#f9fafb}
+.featureBoostOption .fbMain{font-weight:800;color:#111827}
+.featureBoostOption .fbSub{font-size:13px;color:#6b7280;margin-top:4px}
+.featureBoostCancelRow{display:flex;justify-content:flex-end;margin-top:12px}

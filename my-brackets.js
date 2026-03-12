@@ -78,8 +78,33 @@ function initSubmitFeaturedToolbar(brackets){
     btn.disabled = true;
     setSubmitFeaturedMsg('', true);
     try{
+      const selectedText = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : 'Your bracket';
+      const choice = (window.featureBoostModal)
+        ? await window.featureBoostModal(selectedText)
+        : 'free';
+      if(choice === 'cancel'){
+        btn.disabled = false;
+        return;
+      }
+
       await api('/api/feature', { method:'POST', body: { bracket_id: bracketId, caption: '' } });
-      setSubmitFeaturedMsg('Submitted! If approved, your bracket may appear on the site or TikTok.', true);
+
+      if(choice === 'venmo'){
+        if(window.venmoFeatureInfoModal) await window.venmoFeatureInfoModal(selectedText, '');
+        setSubmitFeaturedMsg('Submitted. Venmo instructions shown for manual approval.', true);
+      }else if(choice === 'paid5'){
+        if(window.venmoFeatureInfoModal) await window.venmoFeatureInfoModal(selectedText, '$5');
+        setSubmitFeaturedMsg('Submitted. Venmo instructions shown for manual approval.', true);
+      }else if(choice === 'paid10'){
+        if(window.venmoFeatureInfoModal) await window.venmoFeatureInfoModal(selectedText, '$10');
+        setSubmitFeaturedMsg('Submitted. Venmo instructions shown for manual approval.', true);
+      }else if(choice === 'paid20'){
+        if(window.venmoFeatureInfoModal) await window.venmoFeatureInfoModal(selectedText, '$20');
+        setSubmitFeaturedMsg('Submitted. Venmo instructions shown for manual approval.', true);
+      }else{
+        setSubmitFeaturedMsg('Submitted! If approved, your bracket may appear on the site or TikTok.', true);
+      }
+
       // Remove option and hide if none left
       sel.querySelector('option[value="'+bracketId+'"]')?.remove();
       if(!sel.options.length){

@@ -64,11 +64,6 @@ function ensureBaseOnNewBracketData(dataObj){
   if(!dataObj.base){
     if(typeof R64_SNAPSHOT !== 'undefined') dataObj.base = cloneBaseRegions(R64_SNAPSHOT);
   }
-  if(!Object.prototype.hasOwnProperty.call(dataObj, 'base_version')){
-    try{
-      if(typeof CURRENT_BASE_VERSION !== 'undefined') dataObj.base_version = CURRENT_BASE_VERSION;
-    }catch(_e){}
-  }
   return dataObj;
 }
 
@@ -721,6 +716,97 @@ function confirmModal(message, okText='OK', cancelText='Cancel'){
   });
 }
 
+
+async function featureBoostModal(bracketName='Your bracket'){
+  return new Promise((resolve)=>{
+    const overlay = el('div','bb-confirm-overlay');
+    const box = el('div','bb-confirm-box featureBoostBox');
+
+    const title = el('div','featureBoostTitle');
+    title.textContent = 'Boost Your Bracket Visibility';
+
+    const msg = el('div','featureBoostMessage');
+    msg.innerHTML = `
+      <div class="featureBoostSub">Choose an option for <b>${escapeHtml(bracketName || 'Your bracket')}</b>.</div>
+      <div class="featureBoostHint">Your bracket will still just show as <b>Featured</b> publicly.</div>
+    `;
+
+    const options = el('div','featureBoostOptions');
+
+    const mkBtn = (cls, text, sub, value) => {
+      const b = el('button', 'featureBoostOption ' + cls);
+      b.type = 'button';
+      b.innerHTML = `<div class="fbMain">${text}</div><div class="fbSub">${sub}</div>`;
+      b.addEventListener('click', ()=>{ overlay.remove(); resolve(value); });
+      return b;
+    };
+
+    options.append(
+      mkBtn('paid5', '⭐ $5 — Website Feature', 'Guaranteed featured placement (manual approval after payment).', 'paid5'),
+      mkBtn('paid10', '🔥 $10 — Feature up to 5 brackets', 'Best value. Manual approval after payment.', 'paid10'),
+      mkBtn('paid20', '🎥 $20 — TikTok Spotlight', 'Manual approval after payment.', 'paid20'),
+      mkBtn('venmo', '💸 Pay with Venmo', 'Venmo BracketologyBuilder and include bracket name + email in the note.', 'venmo'),
+      mkBtn('free', '🏀 Continue Free Submission', 'Submit for normal admin review.', 'free')
+    );
+
+    const cancelRow = el('div','featureBoostCancelRow');
+    const cancel = el('button','bb-confirm-btn cancel');
+    cancel.type = 'button';
+    cancel.textContent = 'Cancel';
+    cancel.addEventListener('click', ()=>{ overlay.remove(); resolve('cancel'); });
+    cancelRow.appendChild(cancel);
+
+    box.append(title, msg, options, cancelRow);
+    overlay.append(box);
+    document.body.append(overlay);
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('cancel'); } });
+  });
+}
+
+async function venmoFeatureInfoModal(bracketName='', amountLabel=''){
+  return new Promise((resolve)=>{
+    const overlay = el('div','bb-confirm-overlay');
+    const box = el('div','bb-confirm-box featureBoostBox');
+
+    const title = el('div','featureBoostTitle');
+    title.textContent = 'Pay with Venmo';
+
+    const msg = el('div','featureBoostMessage');
+    const displayName = bracketName || 'Your bracket';
+    const amtText = amountLabel ? `<div class="featureBoostAmount">Suggested payment: <b>${escapeHtml(amountLabel)}</b></div>` : '';
+    msg.innerHTML = `
+      ${amtText}
+      <div class="featureBoostSub"><b>Venmo: @BracketologyBuilder</b></div>
+      <div class="featureBoostHint">Please include in the Venmo note:</div>
+      <div class="featureBoostNote">• Bracket name: ${escapeHtml(displayName)}<br>• Your email</div>
+      <div class="featureBoostHint">After you send payment, your bracket can be manually approved from Admin: Featured Review.</div>
+    `;
+
+    const actions = el('div','bb-confirm-actions');
+    const copy = el('button','bb-confirm-btn ok');
+    copy.type = 'button';
+    copy.textContent = 'Copy Venmo Instructions';
+    copy.addEventListener('click', async ()=>{
+      const text = `Venmo @BracketologyBuilder\nBracket: ${displayName}\nEmail: `;
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch(_e){}
+      overlay.remove();
+      resolve('copied');
+    });
+
+    const close = el('button','bb-confirm-btn cancel');
+    close.type = 'button';
+    close.textContent = 'Close';
+    close.addEventListener('click', ()=>{ overlay.remove(); resolve('close'); });
+
+    actions.append(copy, close);
+    box.append(title, msg, actions);
+    overlay.append(box);
+    document.body.append(overlay);
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('close'); } });
+  });
+}
 async function api(path, opts={}){
   const res = await fetch(path, {
     headers: { "content-type":"application/json", ...(opts.headers||{}) },
@@ -1868,12 +1954,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(existingId)}`, {
         id: existingId,
         title: desiredTitle || '',
-        data: (function(){
-          const wrapped = wrapPicksIfNeeded(state.picks || {});
-          if(state._loadedBracketBase) wrapped.base = cloneBaseRegions(state._loadedBracketBase);
-          if(state._loadedBracketBaseVersion) wrapped.base_version = state._loadedBracketBaseVersion;
-          return wrapped;
-        })()
+        data: wrapPicksIfNeeded(state.picks || {})
       });
       // Keep local state + meta consistent so the title doesn't "revert" on reload.
       const savedTitle = (desiredTitle || state.bracketTitle || '').trim();
@@ -1927,7 +2008,7 @@ async function ensureSavedToAccount(){
       await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, {
         id: newId,
         title: desiredTitle,
-        data: wrapPicksIfNeeded(state.picks || {})
+        data: state.picks || {}
       });
 
       return newId;
@@ -3025,42 +3106,27 @@ async function loadBracketFromServer(id){
 
   const br = (d && d.bracket) ? d.bracket : null;
   let rawData = (br && br.data && typeof br.data === 'object') ? br.data : {};
-  const existingBaseVersion = Number(rawData.base_version || 0) || 1;
-  let merged = Object.prototype.hasOwnProperty.call(rawData, 'picks')
-    ? rawData
-    : { base_version: existingBaseVersion, picks: extractPicksFromBracketData(rawData) };
+  let hasWrapper = Object.prototype.hasOwnProperty.call(rawData, 'picks');
+  let merged = hasWrapper ? rawData : { picks: extractPicksFromBracketData(rawData) };
 
-  // One-time legacy backfill:
-  // If an old bracket is missing data.base, restore it from its own base_version.
-  // Default all old brackets to Base 1 — never the current homepage dataset.
+  // One-time legacy backfill: while the site is still on Base 1, if a bracket is missing
+  // a frozen base snapshot, attach the CURRENT Base 1 snapshot ONCE and persist it.
   try{
     const hasBase = !!(merged && merged.base);
-    if(br && !hasBase){
-      let sourceBase = null;
-      try{
-        if(typeof PROJECTION_BASES !== 'undefined' && PROJECTION_BASES[existingBaseVersion]){
-          sourceBase = PROJECTION_BASES[existingBaseVersion];
-        }
-      }catch(_e){}
-      if(!sourceBase && typeof LIVE_HOME_R64 !== 'undefined' && LIVE_HOME_R64){
-        sourceBase = LIVE_HOME_R64;
-      }
-      if(sourceBase){
-        merged.base = cloneBaseRegions(sourceBase);
-        merged.base_version = existingBaseVersion;
-        await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
-          method:'PUT',
-          body: JSON.stringify({
-            id: br.id,
-            bracket_name: br.title || br.bracket_name || 'My Bracket',
-            data: merged
-          })
-        });
-      }
+    if(br && !hasBase && typeof R64_SNAPSHOT !== 'undefined'){
+      merged.base = cloneBaseRegions(R64_SNAPSHOT);
+      await api(`/api/bracket?id=${encodeURIComponent(br.id)}`, {
+        method:'PUT',
+        body: JSON.stringify({
+          id: br.id,
+          bracket_name: br.title || br.bracket_name || 'My Bracket',
+          data: merged
+        })
+      });
     }
   }catch(e){}
 
-  // Existing saved brackets must render from their own frozen base.
+  // CRITICAL: Existing saved brackets must render from their own frozen base, never current live data.
   if(merged && merged.base){
     applyBaseRegionsToCurrentProjection(merged.base);
   } else {
@@ -3072,8 +3138,7 @@ async function loadBracketFromServer(id){
   state.bracketTitle = d.bracket.title || '';
   state.bracket_type = d.bracket.bracket_type || 'bracketology';
   state.bracketType = state.bracket_type;
-  state._loadedBracketBase = merged.base || null;
-  state._loadedBracketBaseVersion = merged.base_version || existingBaseVersion || 1;
+  state._loadedBracketBase = merged.base || null; // frozen R64 source for saved bracket rendering
 
   saveMeta({ bracketId: state.bracketId, bracketTitle: state.bracketTitle });
   setBracketTitleDisplay(state.bracketTitle);
@@ -4978,3 +5043,6 @@ function triggerSaveAndGoMyBrackets(){
     });
   }catch(e){}
 }
+
+try { window.featureBoostModal = featureBoostModal; } catch(e) {}
+try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
