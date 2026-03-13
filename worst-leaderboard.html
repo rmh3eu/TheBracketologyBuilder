@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Worst Bracket Challenge Leaderboard</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<h1>😈 Worst Bracket Challenge Leaderboard</h1>
+<div id="leaderboard"></div>
+
+<script>
+fetch('/api/leaderboard?type=worst')
+.then(r=>r.json())
+.then(data=>{
+ const el=document.getElementById('leaderboard');
+ if(!data || !data.length){
+   el.innerHTML='<p>No entries yet.</p>';
+   return;
+ }
+ let html='<ol>';
+ data.forEach(row=>{
+   html+=`<li><b>${row.username||'User'}</b> — ${row.score}</li>`;
+ });
+ html+='</ol>';
+ el.innerHTML=html;
+});
+</script>
+
+<p><a href="/">← Back to BracketologyBuilder</a></p>
+</body>
+</html>
