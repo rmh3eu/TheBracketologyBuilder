@@ -3087,3 +3087,20 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
   min-width:260px;
   max-width:420px;
 }
+
+
+/* v113 leaderboard dropdown entry flow */
+.leaderboardEntryControls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-top:12px;
+}
+.leaderboardEntryControls .select{
+  min-width:260px;
+  max-width:420px;
+}
+.leaderboardEntryPanel .submitFeaturedMsg{
+  margin-top:10px;
+}

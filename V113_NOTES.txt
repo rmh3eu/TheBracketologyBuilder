@@ -1,0 +1,6 @@
+v113:
+- Dedicated leaderboard pages now use a cleaner dropdown entry flow.
+- User clicks "Enter a bracket" first.
+- Then a dropdown of saved brackets appears.
+- Selected bracket can be submitted directly to the matching challenge leaderboard.
+- Leaderboard refreshes after successful entry.

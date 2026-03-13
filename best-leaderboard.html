@@ -14,11 +14,17 @@
         <a class="btn ghost" href="/#best">← Back to Best Bracket Challenge</a>
       </div>
 
-      <div class="panel" style="margin-bottom:16px">
+      <div class="panel leaderboardEntryPanel" style="margin-bottom:16px">
         <div class="panelHead"><h3 style="margin:0">Enter a bracket</h3></div>
         <div style="padding:12px 16px">
-          <div id="bestActions"></div>
-          <div id="bestEntryMount"></div>
+          <button id="bestOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
+          <div id="bestEntryControls" class="leaderboardEntryControls" style="display:none">
+            <select id="bestEntrySelect" class="select">
+              <option value="">Choose one of your saved brackets…</option>
+            </select>
+            <button id="bestEntrySubmitBtn" class="btn primary" type="button">Submit to Best Leaderboard</button>
+          </div>
+          <div id="bestEntryMsg" class="submitFeaturedMsg"></div>
         </div>
       </div>
 
@@ -30,10 +36,75 @@
 
   <script src="/app.js"></script>
   <script>
+    async function initBestLeaderboardEntryFlow(){
+      const openBtn = document.getElementById('bestOpenEntryBtn');
+      const controls = document.getElementById('bestEntryControls');
+      const select = document.getElementById('bestEntrySelect');
+      const submitBtn = document.getElementById('bestEntrySubmitBtn');
+      const msg = document.getElementById('bestEntryMsg');
+
+      const setMsg = (text, ok=true) => {
+        msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
+        msg.textContent = text || '';
+      };
+
+      if (typeof loadMe === 'function') {
+        try { await loadMe(); } catch(_e){}
+      }
+
+      openBtn.addEventListener('click', async () => {
+        controls.style.display = 'flex';
+        openBtn.style.display = 'none';
+        setMsg('', true);
+
+        try{
+          const d = await api('/api/brackets', { method:'GET' });
+          const brackets = d.brackets || [];
+          select.innerHTML = '<option value="">Choose one of your saved brackets…</option>';
+          brackets.forEach(bk => {
+            const opt = document.createElement('option');
+            opt.value = bk.id;
+            opt.textContent = bk.title || bk.id;
+            select.appendChild(opt);
+          });
+          if (!brackets.length) {
+            setMsg('No saved brackets yet.', false);
+          }
+        }catch(_e){
+          setMsg('Could not load your saved brackets.', false);
+        }
+      }, { once:true });
+
+      submitBtn.addEventListener('click', async () => {
+        const id = select.value;
+        if (!id) {
+          setMsg('Choose one of your saved brackets first.', false);
+          return;
+        }
+        submitBtn.disabled = true;
+        setMsg('', true);
+        try{
+          await api('/api/challenge/enter', {
+            method:'POST',
+            body: JSON.stringify({ challenge:'best', stage:'pre', bracket_id:id })
+          });
+          setMsg('Bracket entered successfully.', true);
+          if (typeof renderBestLeaderboard === 'function') {
+            await renderBestLeaderboard();
+          }
+        }catch(e){
+          setMsg((e && e.message) ? e.message : 'Could not enter bracket.', false);
+        }finally{
+          submitBtn.disabled = false;
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
-      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
-      try{ if (typeof renderBestActions === 'function') await renderBestActions(); }catch(_e){}
-      try{ if (typeof renderBestLeaderboard === 'function') await renderBestLeaderboard(); }catch(_e){
+      await initBestLeaderboardEntryFlow();
+      try{
+        if (typeof renderBestLeaderboard === 'function') { await renderBestLeaderboard(); }
+      }catch(_e){
         const mount = document.getElementById('bestLeaderboard');
         if (mount) mount.innerHTML = '<div class="muted">Could not load leaderboard.</div>';
       }

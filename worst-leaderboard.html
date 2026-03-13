@@ -14,11 +14,17 @@
         <a class="btn ghost" href="/#worst">← Back to Worst Bracket Challenge</a>
       </div>
 
-      <div class="panel" style="margin-bottom:16px">
+      <div class="panel leaderboardEntryPanel" style="margin-bottom:16px">
         <div class="panelHead"><h3 style="margin:0">Enter a bracket</h3></div>
         <div style="padding:12px 16px">
-          <div id="worstActions"></div>
-          <div id="worstEntryMount"></div>
+          <button id="worstOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
+          <div id="worstEntryControls" class="leaderboardEntryControls" style="display:none">
+            <select id="worstEntrySelect" class="select">
+              <option value="">Choose one of your saved brackets…</option>
+            </select>
+            <button id="worstEntrySubmitBtn" class="btn primary" type="button">Submit to Worst Leaderboard</button>
+          </div>
+          <div id="worstEntryMsg" class="submitFeaturedMsg"></div>
         </div>
       </div>
 
@@ -30,10 +36,75 @@
 
   <script src="/app.js"></script>
   <script>
+    async function initWorstLeaderboardEntryFlow(){
+      const openBtn = document.getElementById('worstOpenEntryBtn');
+      const controls = document.getElementById('worstEntryControls');
+      const select = document.getElementById('worstEntrySelect');
+      const submitBtn = document.getElementById('worstEntrySubmitBtn');
+      const msg = document.getElementById('worstEntryMsg');
+
+      const setMsg = (text, ok=true) => {
+        msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
+        msg.textContent = text || '';
+      };
+
+      if (typeof loadMe === 'function') {
+        try { await loadMe(); } catch(_e){}
+      }
+
+      openBtn.addEventListener('click', async () => {
+        controls.style.display = 'flex';
+        openBtn.style.display = 'none';
+        setMsg('', true);
+
+        try{
+          const d = await api('/api/brackets', { method:'GET' });
+          const brackets = d.brackets || [];
+          select.innerHTML = '<option value="">Choose one of your saved brackets…</option>';
+          brackets.forEach(bk => {
+            const opt = document.createElement('option');
+            opt.value = bk.id;
+            opt.textContent = bk.title || bk.id;
+            select.appendChild(opt);
+          });
+          if (!brackets.length) {
+            setMsg('No saved brackets yet.', false);
+          }
+        }catch(_e){
+          setMsg('Could not load your saved brackets.', false);
+        }
+      }, { once:true });
+
+      submitBtn.addEventListener('click', async () => {
+        const id = select.value;
+        if (!id) {
+          setMsg('Choose one of your saved brackets first.', false);
+          return;
+        }
+        submitBtn.disabled = true;
+        setMsg('', true);
+        try{
+          await api('/api/challenge/enter', {
+            method:'POST',
+            body: JSON.stringify({ challenge:'worst', stage:'pre', bracket_id:id })
+          });
+          setMsg('Bracket entered successfully.', true);
+          if (typeof renderWorstLeaderboard === 'function') {
+            await renderWorstLeaderboard();
+          }
+        }catch(e){
+          setMsg((e && e.message) ? e.message : 'Could not enter bracket.', false);
+        }finally{
+          submitBtn.disabled = false;
+        }
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
-      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
-      try{ if (typeof renderWorstActions === 'function') await renderWorstActions(); }catch(_e){}
-      try{ if (typeof renderWorstLeaderboard === 'function') await renderWorstLeaderboard(); }catch(_e){
+      await initWorstLeaderboardEntryFlow();
+      try{
+        if (typeof renderWorstLeaderboard === 'function') { await renderWorstLeaderboard(); }
+      }catch(_e){
         const mount = document.getElementById('worstLeaderboard');
         if (mount) mount.innerHTML = '<div class="muted">Could not load leaderboard.</div>';
       }
