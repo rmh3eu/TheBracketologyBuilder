@@ -3104,3 +3104,30 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .leaderboardEntryPanel .submitFeaturedMsg{
   margin-top:10px;
 }
+
+
+/* v114 challenge page dropdown entry flow */
+.page-challenge-standalone .challengeTopGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+@media (max-width: 900px){
+  .page-challenge-standalone .challengeTopGrid{
+    grid-template-columns:1fr;
+  }
+}
+.page-challenge-standalone .leaderboardEntryControls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-top:12px;
+}
+.page-challenge-standalone .leaderboardEntryControls .select{
+  min-width:260px;
+  max-width:420px;
+}
+.page-challenge-standalone .submitFeaturedMsg{
+  margin-top:10px;
+}

@@ -1,0 +1,5 @@
+v114:
+- Added dropdown bracket entry flow directly to best-challenge.html and worst-challenge.html.
+- "Enter a bracket" now reveals a saved-brackets dropdown on the challenge pages too.
+- Updated rule copy to allow submissions now instead of saying official brackets must be out first.
+- Dedicated leaderboard pages remain unchanged.

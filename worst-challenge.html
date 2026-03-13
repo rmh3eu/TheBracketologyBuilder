@@ -1,276 +1,137 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Best Bracket Challenge — Bracketology Builder</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worst Bracket Challenge</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
-<body>
+<body class="page-challenge-standalone">
   <div class="pageWrap">
-
-
-<header class="topbar">
-<div class="brandWrap">
-  <div class="brandRow">
-    <div class="brand">Bracketology Builder</div>
-    <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
-  </div>
-  <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
-</div>
-<div class="actions">
-  <div class="actionRow">
-<button class="btn ghost" id="bracketsBtn">My Brackets</button>
-  </div>
-</div>
-</header>
-
-<div class="stickyNav">
-  <nav aria-label="Primary" class="siteNav">
-    <a class="navLink" href="index.html#home">Home</a>
-    <a class="navLink" href="my-brackets.html">My Brackets</a>
-
-    <a class="navLink" href="index.html#featured">Featured Brackets</a>
-    
-
-    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
-    <a class="navLink active" href="worst-challenge.html">Worst Bracket Challenge</a><a class="navLink" href="index.html#upcoming">Upcoming Events</a>
-  </nav>
-</div>
-
-<div class="challengeTop">
-  <div style="margin: 10px 14px 0;">
-    <a class="btn" href="index.html#worst2">Second Chance Bracket</a>
-  </div>
-  
-
-  <div class="challengeTopGrid">
     <div class="panel">
       <div class="panelHead">
-        <h3 style="margin:0">Worst Bracket Challenge — Rules</h3>
-        <div class="challengePill"><span aria-hidden="true">😈</span> score when your pick <b>LOSES</b></div>
+        <h1 style="margin:0">Worst Bracket Challenge</h1>
+        <div class="subhead">Pick the losers. Every game is worth 10 points when your pick is WRONG.</div>
       </div>
 
-      <div class="challengeCards2">
+      <div class="challengeTopGrid">
         <div class="miniCard">
           <div class="miniTitle">Scoring</div>
-<div class="miniBody">
-<ul>
-  <li>10 points per incorrect pick</li>
-  <li>Tiebreakers are scored normally</li>
-</ul>
-</div>
+          <div class="miniBody">
+            <ul>
+              <li>10 points per incorrect pick</li>
+              <li>Tiebreakers are scored normally</li>
+            </ul>
+          </div>
         </div>
 
         <div class="miniCard">
           <div class="miniTitle">Format</div>
-<div class="miniBody">
-<ul>
-  <li>Full tournament</li>
-  <li>Round of 64 through the Championship</li>
-  <li>The more wrong you are the better</li>
-</ul>
-</div>
-        </div>
-      </div>
-
-      <div class="challengeActions">
-        <a class="btn primary" href="my-brackets.html">Enter a bracket</a>
-        
-        <a class="btn" href="worst-leaderboard.html">Leaderboard</a>
-      </div>
-
-      <p class="signinHint blackNote" style="margin:12px 0 0">
-        Leaderboards are visible now.
-      </p>
-    
-</div>
-
-    <a class="panel leaderboardStandaloneCardLink" id="challengeLeaderboardPanel" href="worst-leaderboard.html">
-      <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
-      <div style="padding:12px 14px">
-        <div class="leaderMeta">
-          <div>
-            <div class="leaderTitle">Overall standings</div>
-            <div class="leaderSub">Worst Bracket Challenge (pick losers)</div>
+          <div class="miniBody">
+            <ul>
+              <li>Full tournament</li>
+              <li>Round of 64 through the Championship</li>
+              <li>The more wrong you are the better</li>
+            </ul>
           </div>
-          <div class="leaderHint">Sign in to highlight your row.</div>
         </div>
-        <div class="leaderBar" aria-hidden="true"></div>
       </div>
-</a>
+
+      <div class="leaderboardEntryPanel" style="margin-top:14px">
+        <div class="challengeActions">
+          <button id="worstChallengeOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
+          <a class="btn" href="worst-leaderboard.html">Leaderboard</a>
+        </div>
+
+        <div id="worstChallengeEntryControls" class="leaderboardEntryControls" style="display:none">
+          <select id="worstChallengeEntrySelect" class="select">
+            <option value="">Choose one of your saved brackets…</option>
+          </select>
+          <button id="worstChallengeEntrySubmitBtn" class="btn primary" type="button">Submit to Worst Leaderboard</button>
+        </div>
+
+        <div id="worstChallengeEntryMsg" class="submitFeaturedMsg"></div>
+
+        <p class="signinHint blackNote" style="margin:12px 0 0">
+          Brackets can now be submitted to this challenge.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel" id="challengeLeaderboardPanel" style="margin-top:16px">
+      <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
+      <div id="worstLeaderboard" style="padding:12px 14px">
+        <div class="muted">Loading leaderboard…</div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="panel emailAlerts" style="margin:14px 0">
-          <div class="panelHead"><h3 style="margin:0">Get Challenge Reminders</h3></div>
-          <div style="padding:12px 16px">
-            <div class="row">
-              <input id="remindEmail" class="input" type="email" placeholder="Enter your email" style="max-width:360px" autofocus>
-              <button class="btn primary" id="remindBtn" type="button">Sign me up</button>
-            </div>
-            <div class="checks" style="margin-top:10px">
-              <label class="checkRow"><input id="leadLive" type="checkbox" checked> <span>Get alerts when official brackets go live</span></label>
-              <label class="checkRow"><input id="leadUpcoming" type="checkbox" checked> <span>Get notified of upcoming challenges</span></label>
-              <label class="checkRow"><input id="leadOffers" type="checkbox"> <span>Get alerted of sports betting partner offers</span></label>
-            </div>
-            <div id="remindMsg" class="signinHint" style="margin-top:8px"></div>
-          </div>
-        </div>
+  <script src="/app.js"></script>
   <script>
-  (function(){
-    // Leaderboard gating (mobile) until Official Bracket is live
-    try{
-      fetch('/api/public-config').then(r=>r.json()).then(cfg=>{
-        var live = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
-        document.body.classList.toggle('officialLive', live);
-      }).catch(function(){});
-    }catch(e){}
+    async function initWorstChallengeEntryFlow(){
+      const openBtn = document.getElementById('worstChallengeOpenEntryBtn');
+      const controls = document.getElementById('worstChallengeEntryControls');
+      const select = document.getElementById('worstChallengeEntrySelect');
+      const submitBtn = document.getElementById('worstChallengeEntrySubmitBtn');
+      const msg = document.getElementById('worstChallengeEntryMsg');
 
-    // Make My Brackets work
-    var b=document.getElementById('bracketsBtn');
-    if(b){
-      b.addEventListener('click', function(ev){
-        ev.preventDefault();
-        window.location.href='my-brackets.html';
-      });
-    }
-  })();
-</script>
-<footer class="bbFooter">
-  <div class="bbFooterInner">
-    <p>
-      BracketologyBuilder is a free entertainment platform and is not a sportsbook or gambling operator.
-      We do not accept wagers or conduct betting.
-    </p>
-    <p>
-      Some links on this site may be affiliate links. We may receive compensation if users sign up through these links.
-    </p>
-    <p>21+ where applicable. Please gamble responsibly.</p>
-    <p>
-      <a href="affiliate-disclosure.html">Affiliate Disclosure</a> |
-      <a href="terms.html">Terms of Service</a>
-    </p>
-  </div>
-</footer>
+      const setMsg = (text, ok=true) => {
+        msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
+        msg.textContent = text || '';
+      };
 
+      if (typeof loadMe === 'function') {
+        try { await loadMe(); } catch(_e){}
+      }
 
-<script>
-// PATCH 24: Show blinking caret in reminder email box on load (Best/Worst pages)
-(function(){
-  const el = document.getElementById('remindEmail');
-  if(!el) return;
-  // Don't steal focus if user already interacted (scroll/touch)
-  let touched = false;
-  window.addEventListener('touchstart', ()=>{touched=true;}, {once:true, passive:true});
-  window.addEventListener('wheel', ()=>{touched=true;}, {once:true, passive:true});
-  window.addEventListener('keydown', ()=>{touched=true;}, {once:true});
-  requestAnimationFrame(()=>{
-    if(touched) return;
-    try{
-      el.focus({preventScroll:true});
-      el.setSelectionRange(0,0);
-    }catch(e){
-      try{ el.focus(); }catch(_){}
-    }
-  });
-})();
-</script>
+      openBtn.addEventListener('click', async () => {
+        controls.style.display = 'flex';
+        openBtn.style.display = 'none';
+        setMsg('', true);
 
+        try{
+          const d = await api('/api/brackets', { method:'GET' });
+          const brackets = d.brackets || [];
+          select.innerHTML = '<option value="">Choose one of your saved brackets…</option>';
+          brackets.forEach(bk => {
+            const opt = document.createElement('option');
+            opt.value = bk.id;
+            opt.textContent = bk.title || bk.id;
+            select.appendChild(opt);
+          });
+          if (!brackets.length) setMsg('No saved brackets yet.', false);
+        }catch(_e){
+          setMsg('Could not load your saved brackets.', false);
+        }
+      }, { once:true });
 
-
-<script>
-  (function(){
-    function hasSess(){
-      try{ return document.cookie.indexOf('bb_sess=') !== -1; }catch(e){ return false; }
-    }
-
-    // Leaderboard gating (mobile) until Official Bracket is live
-    try{
-      fetch('/api/public-config').then(r=>r.json()).then(cfg=>{
-        var live = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
-        document.body.classList.toggle('officialLive', live);
-      }).catch(function(){});
-    }catch(e){}
-
-    var accountBtn = document.getElementById('accountBtn');
-    var signupBtn = document.getElementById('signupQuickBtn');
-    var bracketsBtn = document.getElementById('bracketsBtn');
-
-    // Make My Brackets work
-    if(bracketsBtn){
-      bracketsBtn.addEventListener('click', function(ev){
-        ev.preventDefault();
-        window.location.href='my-brackets.html';
+      submitBtn.addEventListener('click', async () => {
+        const id = select.value;
+        if (!id) {
+          setMsg('Choose one of your saved brackets first.', false);
+          return;
+        }
+        submitBtn.disabled = true;
+        setMsg('', true);
+        try{
+          await api('/api/challenge/enter', {
+            method:'POST',
+            body: JSON.stringify({ challenge:'worst', stage:'pre', bracket_id:id })
+          });
+          setMsg('Bracket entered successfully.', true);
+          if (typeof renderWorstLeaderboard === 'function') await renderWorstLeaderboard();
+        }catch(e){
+          setMsg((e && e.message) ? e.message : 'Could not enter bracket.', false);
+        }finally{
+          submitBtn.disabled = false;
+        }
       });
     }
 
-    if(hasSess()){
-      // Logged in: show Log out, hide Sign up
-      if(accountBtn){
-        accountBtn.textContent = 'Log out';
-        accountBtn.addEventListener('click', async function(ev){
-          ev.preventDefault();
-          try{
-            await fetch('/api/logout', { method:'POST' });
-          }catch(e){}
-          // Reload to update UI state
-          window.location.reload();
-        });
-      }
-      if(signupBtn) signupBtn.style.display='none';
-    }else{
-      // Logged out: Sign in / Sign up redirect to Home and open auth modal
-      if(accountBtn){
-        accountBtn.textContent = 'Sign in';
-        accountBtn.addEventListener('click', function(ev){
-          ev.preventDefault();
-          window.location.href = 'index.html#signin';
-        });
-      }
-      if(signupBtn){
-        signupBtn.style.display='';
-        signupBtn.addEventListener('click', function(ev){
-          ev.preventDefault();
-          window.location.href = 'index.html#signup';
-        });
-      }
-    }
-  })();
-</script>
-
-
-<script>
-  (function bbOfficialLiveGate(){
-    // On mobile, hide challenge leaderboard until Official Bracket is live.
-    function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
-    if(!isMobile()) return;
-
-    fetch('/api/public-config', { credentials: 'include' })
-      .then(r => r.ok ? r.json() : null)
-      .then(cfg => {
-        var live = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
-        document.body.classList.toggle('officialLive', live);
-      })
-      .catch(function(){});
-  })();
-</script>
-
-
-<script>
-  (function(){
-    var btn = document.getElementById('enterBracketBtn');
-    if(btn){
-      btn.addEventListener('click', function(ev){
-        ev.preventDefault();
-        ev.stopPropagation();
-        return false; // Temporarily disabled until Official Bracket is live
-      });
-    }
-  })();
-</script>
-
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initWorstChallengeEntryFlow();
+      try{ if (typeof renderWorstLeaderboard === 'function') await renderWorstLeaderboard(); }catch(_e){}
+    });
+  </script>
 </body>
 </html>
