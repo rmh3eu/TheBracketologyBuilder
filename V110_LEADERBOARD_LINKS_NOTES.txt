@@ -1,0 +1,6 @@
+v110:
+- Added best-leaderboard.html and worst-leaderboard.html.
+- Best challenge Leaderboard button now navigates to /best-leaderboard.html.
+- Worst challenge Leaderboard button now navigates to /worst-leaderboard.html.
+- Embedded leaderboard boards are also clickable and go to the dedicated leaderboard pages.
+- No bracket saving/base logic changed.

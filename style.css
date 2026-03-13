@@ -3064,3 +3064,18 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .featureBoostOption .fbMain{font-weight:800;color:#111827}
 .featureBoostOption .fbSub{font-size:13px;color:#6b7280;margin-top:4px}
 .featureBoostCancelRow{display:flex;justify-content:flex-end;margin-top:12px}
+
+
+/* v110 dedicated leaderboard pages */
+.page-challenge-leaderboard .pageWrap{max-width:1000px;margin:0 auto;padding:24px}
+.leaderboardPagePanel{margin-top:24px}
+.leaderboardPageHeader{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.leaderboardPageHeader h1{margin:0}
+.leaderboardPageMount{min-height:120px}
+.leaderboardCardTitle{font-size:28px;font-weight:800;line-height:1.1}
+.leaderboardCardSubtitle{font-size:16px;color:#6b7280;margin-top:4px;margin-bottom:14px}
+.leaderboardStandaloneList{display:flex;flex-direction:column;gap:8px}
+.leaderboardStandaloneRow{display:grid;grid-template-columns:60px 1fr 100px;align-items:center;gap:12px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
+.lsRank{font-weight:800}
+.lsName{font-weight:700}
+.lsScore{text-align:right;font-weight:800}
