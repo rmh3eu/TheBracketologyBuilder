@@ -1,0 +1,5 @@
+v112:
+- Dedicated leaderboard pages now include entry controls.
+- Best leaderboard page uses existing renderBestActions() + renderBestLeaderboard().
+- Worst leaderboard page uses existing renderWorstActions() + renderWorstLeaderboard().
+- Users can select/enter brackets from the dedicated leaderboard pages.

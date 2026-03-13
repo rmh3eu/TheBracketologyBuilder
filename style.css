@@ -3070,3 +3070,20 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .leaderboardLinkCard{display:block;text-decoration:none;color:inherit;cursor:pointer}
 .leaderboardStandaloneCardLink{display:block;text-decoration:none;color:inherit;cursor:pointer}
 .leaderboardLinkCard:hover,.leaderboardStandaloneCardLink:hover{filter:brightness(0.99)}
+
+
+/* v112 leaderboard entry controls */
+.page-challenge-leaderboard #bestActions,
+.page-challenge-leaderboard #worstActions{
+  display:block;
+}
+.page-challenge-leaderboard .challengeActions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.page-challenge-leaderboard .challengeActions select{
+  min-width:260px;
+  max-width:420px;
+}

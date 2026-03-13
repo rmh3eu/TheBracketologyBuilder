@@ -1,1 +1,43 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Worst Bracket Challenge Leaderboard</title><link rel="stylesheet" href="/style.css"></head><body><div class="pageWrap"><div class="panel"><h1>😈 Worst Bracket Challenge Leaderboard</h1><div id="worstLeaderboard"></div></div></div><script src="/app.js"></script><script>document.addEventListener('DOMContentLoaded',()=>{ if(window.renderWorstLeaderboard) window.renderWorstLeaderboard(); });</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worst Bracket Challenge Leaderboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-challenge-leaderboard">
+  <div class="pageWrap">
+    <div class="panel leaderboardPagePanel">
+      <div class="leaderboardPageHeader">
+        <h1>😈 Worst Bracket Challenge Leaderboard</h1>
+        <a class="btn ghost" href="/#worst">← Back to Worst Bracket Challenge</a>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panelHead"><h3 style="margin:0">Enter a bracket</h3></div>
+        <div style="padding:12px 16px">
+          <div id="worstActions"></div>
+          <div id="worstEntryMount"></div>
+        </div>
+      </div>
+
+      <div id="worstLeaderboard" class="leaderboardPageMount">
+        <div class="muted">Loading leaderboard…</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
+      try{ if (typeof renderWorstActions === 'function') await renderWorstActions(); }catch(_e){}
+      try{ if (typeof renderWorstLeaderboard === 'function') await renderWorstLeaderboard(); }catch(_e){
+        const mount = document.getElementById('worstLeaderboard');
+        if (mount) mount.innerHTML = '<div class="muted">Could not load leaderboard.</div>';
+      }
+    });
+  </script>
+</body>
+</html>
