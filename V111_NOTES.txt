@@ -1,0 +1,6 @@
+v111:
+- Fixed challenge Leaderboard links to point to dedicated leaderboard pages.
+- Best challenge uses /best-leaderboard.html.
+- Worst challenge uses /worst-leaderboard.html.
+- Embedded leaderboard cards are clickable.
+- Leaderboards are visible now (copy updated).
