@@ -2201,10 +2201,31 @@ async function enterChallenge(challenge, stage, bracket_id){
   }
 }
 
+
+function leaderboardGamesPlayedCount(){
+  try{
+    const map = state && state.resultsMap ? state.resultsMap : {};
+    const keys = Object.keys(map || {});
+    return keys.filter(k =>
+      /^REGION_(SOUTH|EAST|WEST|MIDWEST)__R[0-3]__G\d+$/.test(k) ||
+      /^FF__G[01]$/.test(k) ||
+      /^FINAL$/.test(k)
+    ).length;
+  }catch(_e){
+    return 0;
+  }
+}
+
+function leaderboardPctText(x, y){
+  const xn = Number(x || 0);
+  const yn = Number(y || 0);
+  if(!yn) return '—';
+  return ((xn / yn) * 100).toFixed(1) + '%';
+}
+
 function lbTableBest(rows){
   const wrap = el('div','lbTableWrap');
   const t = el('table','lbTable');
-  // Rank tie marker counts
   const rankCounts = new Map();
   (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
   const thead = document.createElement('thead');
@@ -2216,30 +2237,34 @@ function lbTableBest(rows){
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
-    <th>Entry</th>
   </tr>`;
   t.appendChild(thead);
   const tb = document.createElement('tbody');
 
   const meId = state.me ? state.me.id : null;
+  const gamesPlayed = leaderboardGamesPlayedCount();
+
   (rows||[]).forEach(r=>{
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
-    const pct = (r.pct*100).toFixed(1) + '%';
+
     const champ = r.champion ? r.champion.name : '—';
     const displayName = r.title || r.display_name || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
     const link = `${location.origin}${location.pathname}?id=${encodeURIComponent(r.bracket_id)}&challenge=best`;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
+    const xVal = Number(r.x || 0);
+    const yVal = gamesPlayed;
+    const pct = leaderboardPctText(xVal, yVal);
+
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser">${escapeHtml(displayName)}</td>
+      <td class="lbUser"><a class="lbUserLink" href="${link}">${escapeHtml(displayName)}</a></td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
-      <td class="lbPct"><span class="lbX">${r.x}</span><span class="lbSlash">/${r.y}</span></td>
+      <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
       <td><span>${escapeHtml(champ)}</span></td>
-      <td><a href="${link}">View</a></td>
     `;
     tb.appendChild(tr);
   });
@@ -2270,10 +2295,17 @@ function lbTableWorst(rows){
   const tb = document.createElement('tbody');
 
   const meId = state.me ? state.me.id : null;
+  const gamesPlayed = leaderboardGamesPlayedCount();
+
   (rows||[]).forEach(r=>{
-    const pct = (r.pct*100).toFixed(1) + '%';
+    const xVal = Number(r.x || 0);
+    const yVal = gamesPlayed;
+    const pct = leaderboardPctText(xVal, yVal);
     const displayName = r.display_name || r.title || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
+    const primaryBracketId = (r.brackets && (r.brackets.pre || r.brackets.r16 || r.brackets.f4)) ? (r.brackets.pre || r.brackets.r16 || r.brackets.f4) : null;
+    const primaryStage = (r.brackets && r.brackets.pre) ? 'pre' : ((r.brackets && r.brackets.r16) ? 'r16' : ((r.brackets && r.brackets.f4) ? 'f4' : 'pre'));
+    const userLink = primaryBracketId ? `${location.origin}${location.pathname}?id=${encodeURIComponent(primaryBracketId)}&challenge=worst&stage=${primaryStage}` : '';
     const links = [];
     if(r.brackets?.pre) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.pre)}&challenge=worst&stage=pre">S1</a>`);
     if(r.brackets?.r16) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.r16)}&challenge=worst&stage=r16">S2</a>`);
@@ -2283,15 +2315,15 @@ function lbTableWorst(rows){
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser">${escapeHtml(displayName)}</td>
+      <td class="lbUser">${userLink ? `<a class="lbUserLink" href="${userLink}">${escapeHtml(displayName)}</a>` : escapeHtml(displayName)}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
-      <td>${r.stage1}</td>
-      <td>${r.stage2}</td>
-      <td>${r.stage3}</td>
-      <td class="lbPct"><span class="lbX">${r.x}</span><span class="lbSlash">/${r.y}</span></td>
+      <td class="lbScore">${r.stage1 ?? '—'}</td>
+      <td class="lbScore">${r.stage2 ?? '—'}</td>
+      <td class="lbScore">${r.stage3 ?? '—'}</td>
+      <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
-      <td>${links.join(' ') || '—'}</td>
+      <td class="lbEntries">${links.length ? links.join(' · ') : '—'}</td>
     `;
     tb.appendChild(tr);
   });

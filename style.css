@@ -3131,3 +3131,26 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .page-challenge-standalone .submitFeaturedMsg{
   margin-top:10px;
 }
+
+
+/* v115 scoreboard row visibility + links */
+.lbTable tbody tr{
+  background:#1d4ed8 !important;
+}
+.lbTable tbody tr:nth-child(odd){
+  background:#2563eb !important;
+}
+.lbTable tbody tr:hover{
+  background:#1e40af !important;
+}
+.lbTable td, .lbTable th{
+  color:#ffffff !important;
+}
+.lbTable a, .lbUserLink{
+  color:#ffffff !important;
+  text-decoration:underline;
+  font-weight:700;
+}
+.lbEntries a{
+  color:#ffffff !important;
+}

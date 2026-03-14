@@ -1,0 +1,6 @@
+v115:
+- Leaderboard rows now use the site's blue background so white text is readable.
+- User name on scoreboard is clickable to the bracket.
+- Removed the separate View column from Best leaderboard by making the user clickable.
+- x/y now uses x over games played so far, not x/63.
+- % now corresponds to that x/y math.
