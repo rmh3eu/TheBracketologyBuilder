@@ -3336,11 +3336,11 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 }
 
 
-/* v125 BetOnline promo in open East-region space */
+/* v126 BetOnline promo in East-region open space */
 .betOnlineRegionPromo{
   position:absolute;
   right:18px;
-  top:132px;
+  top:38px;
   width:248px;
   z-index:4;
   display:flex;
@@ -3348,6 +3348,15 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
   align-items:center;
   gap:10px;
   text-align:center;
+  opacity:0;
+  transform:translateY(14px);
+  transition:opacity .35s ease, transform .35s ease;
+  pointer-events:none;
+}
+.betOnlineRegionPromo.isVisible{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
 }
 .betOnlineRegionPromoText{
   display:block;
@@ -3379,7 +3388,7 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 @media (max-width: 820px){
   .betOnlineRegionPromo{
     right:12px;
-    top:500px;
+    top:70px;
     width:230px;
     gap:8px;
   }

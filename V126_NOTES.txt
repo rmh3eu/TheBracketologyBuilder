@@ -1,0 +1,5 @@
+v126:
+- Added BetOnline promo into the East-region open space.
+- Moved promo to top of region under round headings on desktop and mobile.
+- Promo now fades in after the user starts making picks.
+- Text and logo both link to the BetOnline affiliate URL.

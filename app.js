@@ -3701,6 +3701,17 @@ function mountBetOnlineRegionPromo(regionName, mount){
   }catch(_e){}
 }
 
+function maybeRevealBetOnlineRegionPromo(){
+  try{
+    const promo = document.querySelector('.betOnlineRegionPromo');
+    if(!promo) return;
+    const hasAnyPicks = !!(state && state.picks && Object.keys(state.picks).some(k => /__winner$/.test(k) || k === 'FINAL__winner' || k === 'CHAMPION'));
+    if(hasAnyPicks){
+      promo.classList.add('isVisible');
+    }
+  }catch(_e){}
+}
+
 
 function regionalChamp(regionKey, picks){ return picks[wKey(regionKey,3,0)] || null; }
 
@@ -4106,6 +4117,7 @@ function renderAll(){
   
   renderBubble();
   renderChallengeCallout();
+  try{ maybeRevealBetOnlineRegionPromo(); }catch(_e){};
 
   const isBracketPage = document.body.classList.contains('page-bracket') || location.pathname.endsWith('bracket.html');
   let phase = currentNCAAPhase();
