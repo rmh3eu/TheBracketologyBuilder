@@ -1,0 +1,5 @@
+v117:
+- Removed custom top-right buttons from standalone challenge pages.
+- Tabs now match the rest of the site:
+  Home, My Brackets, Featured Brackets, Best Bracket Challenge, Worst Bracket Challenge, Upcoming Events.
+- Kept mobile leaderboard visibility and dropdown entry flow.

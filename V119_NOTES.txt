@@ -1,0 +1,3 @@
+v119:
+- Removed the top-right Home and My Brackets buttons from the standalone challenge pages.
+- Kept the main site-style sticky tabs/nav intact.

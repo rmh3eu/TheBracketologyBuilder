@@ -1,0 +1,4 @@
+v118:
+- Replaced the custom standalone challenge-page tabs/header with the same topbar + sticky nav + season bar structure used on the main site.
+- Removed the custom alternate tab/button layout.
+- Kept challenge-page leaderboard visibility and dropdown entry flow.

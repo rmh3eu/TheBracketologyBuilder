@@ -1,0 +1,4 @@
+v120:
+- Removed all extra top-right action buttons from best-challenge.html and worst-challenge.html.
+- Renamed the challenge-page nav label from "Build" to "Home".
+- Left the standard site-style tabs in place.
