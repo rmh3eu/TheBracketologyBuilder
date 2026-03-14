@@ -3154,3 +3154,39 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .lbEntries a{
   color:#ffffff !important;
 }
+
+
+/* v116 standalone challenge pages: keep tabs + leaderboard visible */
+.page-challenge-standalone .topbar,
+.page-challenge-standalone .standaloneTabs{
+  display:flex !important;
+}
+.page-challenge-standalone .standaloneTabs{
+  flex-wrap:wrap;
+  gap:8px;
+  padding:10px 12px;
+  justify-content:center;
+}
+.page-challenge-standalone .challengeLeaderboardPanelMobileVisible{
+  display:block !important;
+}
+.page-challenge-standalone #bestLeaderboard,
+.page-challenge-standalone #worstLeaderboard{
+  display:block !important;
+}
+@media (max-width: 900px){
+  .page-challenge-standalone .topbar{
+    display:flex !important;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .page-challenge-standalone .topbar .actions{
+    display:flex !important;
+    flex-wrap:wrap;
+    width:100%;
+  }
+  .page-challenge-standalone .standaloneTabs .navLink{
+    min-height:56px;
+    padding:12px 14px;
+  }
+}

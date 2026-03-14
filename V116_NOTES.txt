@@ -1,0 +1,4 @@
+v116:
+- Restored visible topbar and site tabs on standalone best/worst challenge pages.
+- Restored leaderboard panel visibility on mobile for those challenge pages.
+- Kept the dropdown bracket-entry flow on the challenge pages.
