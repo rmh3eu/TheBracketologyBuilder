@@ -3686,7 +3686,7 @@ function mountBetOnlineRegionPromo(regionName, mount){
     const promo = document.createElement('div');
     promo.className = 'betOnlineRegionPromo';
     promo.innerHTML = `
-      <a class="<div class="betOnlinePrizeBadge">$200K Prize</div>\1
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
         Enter the $200,000 Bracket Madness Contest
       </a>
       <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter BetOnline's $200,000 Bracket Madness Contest">
