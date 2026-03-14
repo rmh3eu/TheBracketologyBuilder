@@ -1,0 +1,4 @@
+v128:
+- Repositioned BetOnline promo into empty white space so it does not overlap bracket boxes.
+- Made the promo smaller on mobile so the full text and logo are visible when the page first loads.
+- Kept both the text and logo linked to the BetOnline affiliate URL.

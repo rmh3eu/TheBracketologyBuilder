@@ -1,0 +1,5 @@
+
+v129:
+- Moved BetOnline promo further right on desktop so it sits in empty white space.
+- Prevents overlap with matchup selection boxes.
+- Mobile positioning remains smaller and readable.
