@@ -768,8 +768,25 @@ body{
 /* Center column layout: Champion panel placement */
 .centerStack{ display:flex; flex-direction:column; gap:12px; }
 @media (max-width: 820px){
-  /* On mobile, Champion sits to the RIGHT of Final 4 */
-  .centerStack{ flex-direction:row; align-items:flex-start; }
+  .betOnlineRegionPromo{
+    right:auto;
+    left:18px;
+    top:170px;
+    width:150px;
+    gap:6px;
+  }
+  .betOnlineRegionPromoText{
+    font-size:10px;
+    line-height:1.15;
+    padding:6px 7px;
+  }
+  .betOnlineRegionPromoLogoLink{
+    padding:6px 7px;
+  }
+  .betOnlineRegionPromoLogo{
+    width:120px;
+  }
+}
   .deskCol.center .panel{ margin-top:0 !important; }
 }
 
@@ -3339,7 +3356,7 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 /* v128 BetOnline promo in East-region open space */
 .betOnlineRegionPromo{
   position:absolute;
-  right:-40px;
+  right:-80px;
   top:60px;
   width:200px;
   z-index:4;
