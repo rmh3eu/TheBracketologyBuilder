@@ -3687,7 +3687,7 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.className = 'betOnlineRegionPromo';
     promo.innerHTML = `
       <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
-        Click here to enter BetOnline’s $200,000 Bracket Madness Contest
+        Enter the $200,000 Bracket Madness Contest
       </a>
       <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter BetOnline's $200,000 Bracket Madness Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
