@@ -7,24 +7,6 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body class="page-challenge-standalone">
-  <header class="topbar">
-    <div class="brand" onclick="window.location.href='/'">BracketologyBuilder</div>
-    <div class="actions">
-      <button class="btn" type="button" onclick="window.location.href='/'">Home</button>
-      <button class="btn" type="button" onclick="window.location.href='/my-brackets.html'">My Brackets</button>
-      <button class="btn" type="button" onclick="window.location.href='/best-leaderboard.html'">Best Leaderboard</button>
-      <button class="btn" type="button" onclick="window.location.href='/worst-leaderboard.html'">Worst Leaderboard</button>
-    </div>
-  </header>
-
-  <nav class="tabs standaloneTabs">
-    <a class="navLink" href="/#build"><span class="navEmoji">🏀</span><span>Build</span></a>
-    <a class="navLink" href="/#mybrackets"><span class="navEmoji">📋</span><span>My Brackets</span></a>
-    <a class="navLink active" href="/best-challenge.html"><span class="navEmoji">😇</span><span>Best Bracket Challenge</span></a>
-    <a class="navLink" href="/best-leaderboard.html"><span class="navEmoji">🏆</span><span>Best Leaderboard</span></a>
-    <a class="navLink" href="/worst-leaderboard.html"><span class="navEmoji">😈</span><span>Worst Leaderboard</span></a>
-  </nav>
-
   <div class="pageWrap">
     <div class="panel">
       <div class="panelHead">
@@ -35,11 +17,23 @@
       <div class="challengeTopGrid">
         <div class="miniCard">
           <div class="miniTitle">Scoring</div>
-          <div class="miniBody"><ul><li>10 points per correct pick</li><li>No round multipliers</li></ul></div>
+          <div class="miniBody">
+            <ul>
+              <li>10 points per correct pick</li>
+              <li>No round multipliers</li>
+            </ul>
+          </div>
         </div>
+
         <div class="miniCard">
           <div class="miniTitle">Format</div>
-          <div class="miniBody"><ul><li>Full tournament</li><li>Round of 64 through the Championship</li><li>The first weekend matters more than in other formats</li></ul></div>
+          <div class="miniBody">
+            <ul>
+              <li>Full tournament</li>
+              <li>Round of 64 through the Championship</li>
+              <li>The first weekend matters more than in other formats</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -57,11 +51,14 @@
         </div>
 
         <div id="bestChallengeEntryMsg" class="submitFeaturedMsg"></div>
-        <p class="signinHint blackNote" style="margin:12px 0 0">Brackets can now be submitted to this challenge.</p>
+
+        <p class="signinHint blackNote" style="margin:12px 0 0">
+          Brackets can now be submitted to this challenge.
+        </p>
       </div>
     </div>
 
-    <div class="panel challengeLeaderboardPanelMobileVisible" id="challengeLeaderboardPanel" style="margin-top:16px">
+    <div class="panel" id="challengeLeaderboardPanel" style="margin-top:16px">
       <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
       <div id="bestLeaderboard" style="padding:12px 14px">
         <div class="muted">Loading leaderboard…</div>
@@ -71,12 +68,13 @@
 
   <script src="/app.js"></script>
   <script>
-    async function initChallengeEntryFlow_best(){
+    async function initBestChallengeEntryFlow(){
       const openBtn = document.getElementById('bestChallengeOpenEntryBtn');
       const controls = document.getElementById('bestChallengeEntryControls');
       const select = document.getElementById('bestChallengeEntrySelect');
       const submitBtn = document.getElementById('bestChallengeEntrySubmitBtn');
       const msg = document.getElementById('bestChallengeEntryMsg');
+
       const setMsg = (text, ok=true) => {
         msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
         msg.textContent = text || '';
@@ -90,6 +88,7 @@
         controls.style.display = 'flex';
         openBtn.style.display = 'none';
         setMsg('', true);
+
         try{
           const d = await api('/api/brackets', { method:'GET' });
           const brackets = d.brackets || [];
@@ -130,7 +129,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      await initChallengeEntryFlow_best();
+      await initBestChallengeEntryFlow();
       try{ if (typeof renderBestLeaderboard === 'function') await renderBestLeaderboard(); }catch(_e){}
     });
   </script>
