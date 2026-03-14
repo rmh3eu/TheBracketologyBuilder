@@ -1,0 +1,1 @@
+v121: challenge pages now use strict site header/tabs only, with all extra top-right buttons hidden and no Build/Best Leaderboard/Worst Leaderboard nav labels.

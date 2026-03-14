@@ -3219,3 +3219,64 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .page-challenge-standalone #worstLeaderboard{
   display:block !important;
 }
+
+
+/* v121 strict challenge header/nav cleanup */
+.page-challenge-clean-header .topbar .actions,
+.page-challenge-clean-header .anonMobileBar,
+.page-challenge-clean-header .actionRow,
+.page-challenge-clean-header #accountBtn,
+.page-challenge-clean-header #signupQuickBtn,
+.page-challenge-clean-header #undoBtnHeader,
+.page-challenge-clean-header #saveBtnHeader,
+.page-challenge-clean-header #randomPicksBtnHeader,
+.page-challenge-clean-header #saveBtn,
+.page-challenge-clean-header #bracketsBtn,
+.page-challenge-clean-header #mobileLogoutBtn,
+.page-challenge-clean-header .signinHint{
+  display:none !important;
+}
+.page-challenge-clean-header .topbar{
+  min-height:auto;
+}
+.page-challenge-clean-header .siteNav .navLink{
+  display:inline-flex !important;
+}
+
+
+/* v122 challenge pages: force sticky nav to match site row layout */
+.page-challenge-clean-header .stickyNav{
+  display:block !important;
+}
+.page-challenge-clean-header .siteNav{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  white-space:nowrap !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  gap:12px !important;
+  padding:12px 18px !important;
+  -webkit-overflow-scrolling:touch;
+}
+.page-challenge-clean-header .siteNav .navLink{
+  display:inline-flex !important;
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+  width:auto !important;
+  min-width:0 !important;
+}
+.page-challenge-clean-header .siteNav::-webkit-scrollbar{
+  height:8px;
+}
+.page-challenge-clean-header .siteNav::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,0.18);
+  border-radius:999px;
+}
+
+/* remove any accidental stacked button layout on challenge pages */
+.page-challenge-clean-header .topbar .actions,
+.page-challenge-clean-header .topbar .actions *{
+  display:none !important;
+}

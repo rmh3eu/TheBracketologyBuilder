@@ -6,17 +6,18 @@
   <title>Best Bracket Challenge</title>
   <link rel="stylesheet" href="/style.css">
 </head>
-<body class="page-challenge-standalone">
+<body class="page-challenge-standalone page-challenge-clean-header">
   <header class="topbar">
-<div class="brandWrap">
-<div class="brandRow">
-<div class="brand">Bracketology Builder</div>
-<img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
-</div>
-<div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
-</div>
-<div class="actions"></div>
-</header>
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+
   <div class="stickyNav">
     <nav aria-label="Primary" class="siteNav">
       <a class="navLink" data-view="build" href="/">Home</a>
@@ -27,6 +28,7 @@
       <a class="navLink" data-view="upcoming" href="/#upcoming">Upcoming Events</a>
     </nav>
   </div>
+
   <div aria-live="polite" class="seasonBar" id="seasonBar">
     <div class="seasonText" id="seasonText"></div>
     <div class="seasonControls">
@@ -39,7 +41,7 @@
   <main class="wrap">
     <div class="panel">
       <div class="panelHead">
-        <h1 style="margin:0">Best Bracket Challenge</h1>
+        <h2>Best Bracket Challenge</h2>
         <div class="subhead">Most correct picks wins. Every game is worth 10 points.</div>
       </div>
 
@@ -72,7 +74,7 @@
       </div>
     </div>
 
-    <div class="panel challengeLeaderboardPanelMobileVisible" id="challengeLeaderboardPanel" style="margin-top:16px">
+    <div class="panel challengeLeaderboardPanelMobileVisible" style="margin-top:16px">
       <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
       <div id="bestLeaderboard" style="padding:12px 14px">
         <div class="muted">Loading leaderboard…</div>
@@ -82,7 +84,7 @@
 
   <script src="/app.js"></script>
   <script>
-    async function initChallengeEntryFlow_best(){
+    async function initChallengeEntryFlow(){
       const openBtn = document.getElementById('bestChallengeOpenEntryBtn');
       const controls = document.getElementById('bestChallengeEntryControls');
       const select = document.getElementById('bestChallengeEntrySelect');
@@ -92,16 +94,13 @@
         msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
         msg.textContent = text || '';
       };
-
-      if (typeof loadMe === 'function') {
-        try { await loadMe(); } catch(_e){}
-      }
+      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
 
       openBtn.addEventListener('click', async () => {
         controls.style.display = 'flex';
         openBtn.style.display = 'none';
         setMsg('', true);
-        try{
+        try {
           const d = await api('/api/brackets', { method:'GET' });
           const brackets = d.brackets || [];
           select.innerHTML = '<option value="">Choose one of your saved brackets…</option>';
@@ -112,7 +111,7 @@
             select.appendChild(opt);
           });
           if (!brackets.length) setMsg('No saved brackets yet.', false);
-        }catch(_e){
+        } catch(_e) {
           setMsg('Could not load your saved brackets.', false);
         }
       }, { once:true });
@@ -125,23 +124,23 @@
         }
         submitBtn.disabled = true;
         setMsg('', true);
-        try{
+        try {
           await api('/api/challenge/enter', {
             method:'POST',
             body: JSON.stringify({ challenge:'best', stage:'pre', bracket_id:id })
           });
           setMsg('Bracket entered successfully.', true);
-          if (typeof renderBestLeaderboard === 'function') await renderBestLeaderboard();
-        }catch(e){
+          try{ if (typeof renderBestLeaderboard === 'function') await renderBestLeaderboard(); }catch(_e){}
+        } catch(e) {
           setMsg((e && e.message) ? e.message : 'Could not enter bracket.', false);
-        }finally{
+        } finally {
           submitBtn.disabled = false;
         }
       });
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      await initChallengeEntryFlow_best();
+      await initChallengeEntryFlow();
       try{ if (typeof renderBestLeaderboard === 'function') await renderBestLeaderboard(); }catch(_e){}
     });
   </script>

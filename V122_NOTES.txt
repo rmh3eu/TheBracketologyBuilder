@@ -1,0 +1,4 @@
+v122:
+- Fixed challenge-page tabs to stay in one horizontal row like the rest of the site.
+- Prevented wrapping/stacking into multiple rows.
+- Kept extra challenge-page button stacks hidden.
