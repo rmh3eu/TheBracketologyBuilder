@@ -3673,6 +3673,35 @@ function renderRegion(r, picks, opts={}){
   return { card, scroller };
 }
 
+
+function mountBetOnlineRegionPromo(regionName, mount){
+  try{
+    if(!mount) return;
+    if(regionName !== 'East') return;
+    if(mount.querySelector('.betOnlineRegionPromo')) return;
+
+    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    if(!isHomePath) return;
+
+    const promo = document.createElement('div');
+    promo.className = 'betOnlineRegionPromo';
+    promo.innerHTML = `
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+        Click here to enter BetOnline’s $200,000 Bracket Madness Contest
+      </a>
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter BetOnline's $200,000 Bracket Madness Contest">
+        <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
+      </a>
+    `;
+
+    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
+    if(!geo) return;
+    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
+    geo.appendChild(promo);
+  }catch(_e){}
+}
+
+
 function regionalChamp(regionKey, picks){ return picks[wKey(regionKey,3,0)] || null; }
 
 function renderFinalRounds(picks){
@@ -4146,6 +4175,7 @@ function renderAll(){
 
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
+      try{ mountBetOnlineRegionPromo(r.name, mount); }catch(_e){}
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);
