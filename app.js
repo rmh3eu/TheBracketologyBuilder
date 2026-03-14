@@ -812,28 +812,55 @@ async function betOnlinePromoModal(){
   return new Promise((resolve)=>{
     const overlay = el('div','bb-confirm-overlay');
     const box = el('div','betOnlinePromoBox');
+    box.setAttribute('role','dialog');
+
+    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
 
     const close = el('button','betOnlinePromoClose');
     close.type = 'button';
     close.setAttribute('aria-label','Close');
     close.textContent = '×';
-    close.addEventListener('click', ()=>{ overlay.remove(); resolve('closed'); });
+    close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
-    const title = el('div','betOnlinePromoTitle');
-    title.textContent = "Enter the $200,000 Bracket Madness Contest";
+    const titleLink = document.createElement('a');
+    titleLink.className = 'betOnlinePromoTitleLink';
+    titleLink.href = promoUrl;
+    titleLink.target = '_blank';
+    titleLink.rel = 'noopener noreferrer';
+    titleLink.setAttribute('data-sportsbook','1');
+    titleLink.innerHTML = '<div class="betOnlinePromoTitle">Enter the $200,000 Bracket Madness Contest</div>';
+
+    const logoWrap = document.createElement('a');
+    logoWrap.className = 'betOnlinePromoLogoWrap';
+    logoWrap.href = promoUrl;
+    logoWrap.target = '_blank';
+    logoWrap.rel = 'noopener noreferrer';
+    logoWrap.setAttribute('data-sportsbook','1');
+    logoWrap.innerHTML = '<div class="betOnlinePromoLogoText"><span class="betRed">BET</span><span class="betBlack">ONLINE</span></div>';
 
     const actions = el('div','betOnlinePromoActions');
     const cta = document.createElement('a');
     cta.className = 'btn primary betOnlinePromoBtn';
-    cta.href = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+    cta.href = promoUrl;
     cta.target = '_blank';
     cta.rel = 'noopener noreferrer';
     cta.setAttribute('data-sportsbook','1');
     cta.textContent = "Enter the $200,000 Bracket Madness Contest";
     cta.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
 
+    titleLink.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
+    logoWrap.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
+
+    box.addEventListener('click', (e)=>{
+      if(e.target.closest('.betOnlinePromoClose')) return;
+      if(e.target.closest('a')) return;
+      window.open(promoUrl, '_blank', 'noopener,noreferrer');
+      try{ overlay.remove(); }catch(_e){}
+      resolve('clicked');
+    });
+
     actions.appendChild(cta);
-    box.append(close, title, actions);
+    box.append(close, titleLink, logoWrap, actions);
     overlay.append(box);
     document.body.append(overlay);
     overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('closed'); } });
