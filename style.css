@@ -3294,3 +3294,43 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
     justify-content:flex-start !important;
   }
 }
+
+
+/* v124 BetOnline promo modal */
+.betOnlinePromoBox{
+  position:relative;
+  width:min(92vw, 560px);
+  background:#fff;
+  color:#111827;
+  border-radius:18px;
+  padding:24px 22px 22px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.35);
+}
+.betOnlinePromoClose{
+  position:absolute;
+  top:10px;
+  right:12px;
+  border:none;
+  background:transparent;
+  color:#6b7280;
+  font-size:28px;
+  line-height:1;
+  cursor:pointer;
+}
+.betOnlinePromoTitle{
+  font-size:28px;
+  font-weight:800;
+  line-height:1.18;
+  text-align:center;
+  margin:10px 10px 18px;
+}
+.betOnlinePromoActions{
+  display:flex;
+  justify-content:center;
+}
+.betOnlinePromoBtn{
+  text-align:center;
+}
+.betOnlineInlinePromo{
+  margin-top:12px;
+}

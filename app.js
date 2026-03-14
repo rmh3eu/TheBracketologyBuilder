@@ -807,6 +807,39 @@ async function venmoFeatureInfoModal(bracketName='', amountLabel=''){
     overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('close'); } });
   });
 }
+
+async function betOnlinePromoModal(){
+  return new Promise((resolve)=>{
+    const overlay = el('div','bb-confirm-overlay');
+    const box = el('div','betOnlinePromoBox');
+
+    const close = el('button','betOnlinePromoClose');
+    close.type = 'button';
+    close.setAttribute('aria-label','Close');
+    close.textContent = '×';
+    close.addEventListener('click', ()=>{ overlay.remove(); resolve('closed'); });
+
+    const title = el('div','betOnlinePromoTitle');
+    title.textContent = "Enter BetOnline's $200,000 Bracket Madness Contest.";
+
+    const actions = el('div','betOnlinePromoActions');
+    const cta = document.createElement('a');
+    cta.className = 'btn primary betOnlinePromoBtn';
+    cta.href = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+    cta.target = '_blank';
+    cta.rel = 'noopener noreferrer';
+    cta.setAttribute('data-sportsbook','1');
+    cta.textContent = "Enter BetOnline's $200,000 Bracket Madness";
+    cta.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
+
+    actions.appendChild(cta);
+    box.append(close, title, actions);
+    overlay.append(box);
+    document.body.append(overlay);
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('closed'); } });
+  });
+}
+
 async function api(path, opts={}){
   const res = await fetch(path, {
     headers: { "content-type":"application/json", ...(opts.headers||{}) },
@@ -836,24 +869,8 @@ async function apiPost(path, body){
 
 async function maybeAskSubmitFeatured(bracketId){
   try{
-    if(!state || !state.me) return;
     if(!bracketId) return;
-
-    // Only prompt for Featured submission when the bracket is fully completed.
-    if(!isBracketCompletePicks(state.picks)) return;
-
-    const msg = "Do you want to Submit Your Bracket for a Chance to be on our Featured Brackets Page and/or Appear on our TikTok?";
-    const yes = await confirmModal(msg, 'Yes', 'No');
-    if(!yes) return;
-
-    // Create a pending feature request for admin review.
-    // Safe: API de-dupes if already submitted.
-    try{
-      await apiPost('/api/feature', { bracket_id: bracketId, caption: '' });
-    }catch(e){
-      // Do not block redirect on email/API issues
-      console.warn('feature submit failed', e);
-    }
+    await betOnlinePromoModal();
   }catch(_){}
 }
 
@@ -4879,7 +4896,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
       // Phase 3 cue: hide after a successful save
       phase3MarkSaved();
       await maybeAskSubmitFeatured(id);
-      window.location.href = `my-brackets.html?newId=${encodeURIComponent(id)}`;
+      toast('Saved to My Brackets.');
     }catch(e){
       if(e && e.message==='CANCELLED') return;
       if(e && e.message==='NAME_TAKEN'){
@@ -4955,9 +4972,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
           toast('Saved to your account.');
           await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
-            showTab('mybrackets');
-            await renderMyBrackets();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            toast('Saved to My Brackets.');
           }
         }catch(e){
           console.error(e);
