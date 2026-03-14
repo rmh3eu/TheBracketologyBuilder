@@ -1,0 +1,4 @@
+v127:
+- BetOnline text + logo now mount on all user brackets, not just the home/new bracket view.
+- Promo is now visible immediately instead of waiting for picks.
+- Text and logo remain linked to the affiliate URL.

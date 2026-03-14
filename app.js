@@ -3680,8 +3680,8 @@ function mountBetOnlineRegionPromo(regionName, mount){
     if(regionName !== 'East') return;
     if(mount.querySelector('.betOnlineRegionPromo')) return;
 
-    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
-    if(!isHomePath) return;
+    const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-Eastern') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
+    if(!isBracketLikePage) return;
 
     const promo = document.createElement('div');
     promo.className = 'betOnlineRegionPromo';
@@ -3705,10 +3705,7 @@ function maybeRevealBetOnlineRegionPromo(){
   try{
     const promo = document.querySelector('.betOnlineRegionPromo');
     if(!promo) return;
-    const hasAnyPicks = !!(state && state.picks && Object.keys(state.picks).some(k => /__winner$/.test(k) || k === 'FINAL__winner' || k === 'CHAMPION'));
-    if(hasAnyPicks){
-      promo.classList.add('isVisible');
-    }
+    promo.classList.add('isVisible');
   }catch(_e){}
 }
 
@@ -4188,6 +4185,7 @@ function renderAll(){
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       try{ mountBetOnlineRegionPromo(r.name, mount); }catch(_e){}
+      try{ maybeRevealBetOnlineRegionPromo(); }catch(_e){}
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);

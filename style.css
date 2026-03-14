@@ -3400,3 +3400,20 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
     width:190px;
   }
 }
+
+
+/* v127 make BetOnline promo always visible on all user brackets */
+.betOnlineRegionPromo{
+  opacity:1 !important;
+  transform:none !important;
+  pointer-events:auto !important;
+}
+.betOnlineRegionPromo.isVisible{
+  opacity:1 !important;
+  transform:none !important;
+  pointer-events:auto !important;
+}
+.betOnlineRegionPromoText,
+.betOnlineRegionPromoLogoLink{
+  cursor:pointer;
+}
