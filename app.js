@@ -820,7 +820,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', ()=>{ overlay.remove(); resolve('closed'); });
 
     const title = el('div','betOnlinePromoTitle');
-    title.textContent = "Enter BetOnline's $200,000 Bracket Madness Contest.";
+    title.textContent = "Enter the $200,000 Bracket Madness Contest";
 
     const actions = el('div','betOnlinePromoActions');
     const cta = document.createElement('a');
@@ -829,7 +829,7 @@ async function betOnlinePromoModal(){
     cta.target = '_blank';
     cta.rel = 'noopener noreferrer';
     cta.setAttribute('data-sportsbook','1');
-    cta.textContent = "Enter BetOnline's $200,000 Bracket Madness";
+    cta.textContent = "Enter the $200,000 Bracket Madness Contest";
     cta.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
 
     actions.appendChild(cta);
@@ -3689,7 +3689,7 @@ function mountBetOnlineRegionPromo(regionName, mount){
       <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
         Enter the $200,000 Bracket Madness Contest
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter BetOnline's $200,000 Bracket Madness Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
     `;
@@ -3709,6 +3709,45 @@ function maybeRevealBetOnlineRegionPromo(){
   }catch(_e){}
 }
 
+
+
+function mountBetOnlineBracketPromo(regionName, mount){
+  try{
+    if(!mount || regionName !== 'East') return;
+    if(mount.querySelector('.betOnlineBracketPromo')) return;
+
+    const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    if(!isHome) return;
+
+    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo');
+    if(!geo) return;
+    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
+
+    const promo = document.createElement('div');
+    promo.className = 'betOnlineBracketPromo';
+    promo.innerHTML = `
+      <a class="betOnlineBracketPromoText"
+         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+         target="_blank"
+         rel="noopener noreferrer"
+         data-sportsbook="1">
+         Enter the $200,000 Bracket Madness Contest
+      </a>
+
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+         target="_blank"
+         rel="noopener noreferrer"
+         data-sportsbook="1"
+         class="betOnlineBracketPromoLogoWrap">
+         <div class="betOnlineBracketPromoLogoText">
+            <span class="betRed">BET</span><span class="betBlack">ONLINE</span>
+         </div>
+      </a>
+    `;
+
+    geo.appendChild(promo);
+  }catch(_e){}
+}
 
 function regionalChamp(regionKey, picks){ return picks[wKey(regionKey,3,0)] || null; }
 
