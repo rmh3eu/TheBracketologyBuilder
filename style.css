@@ -3280,3 +3280,17 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 .page-challenge-clean-header .topbar .actions *{
   display:none !important;
 }
+
+
+/* v123 center desktop challenge tabs + reorder featured after worst */
+@media (min-width: 901px){
+  .page-challenge-clean-header .siteNav{
+    justify-content:center !important;
+    overflow-x:visible !important;
+  }
+}
+@media (max-width: 900px){
+  .page-challenge-clean-header .siteNav{
+    justify-content:flex-start !important;
+  }
+}

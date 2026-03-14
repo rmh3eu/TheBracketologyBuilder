@@ -1,0 +1,4 @@
+v123:
+- Centered challenge-page tabs on desktop while keeping one-row layout.
+- Kept mobile horizontal behavior.
+- Moved Featured Brackets to the right of Worst Bracket Challenge where tabs are shown.
