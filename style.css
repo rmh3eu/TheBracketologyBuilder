@@ -770,11 +770,23 @@ body{
 @media (max-width: 820px){
   .betOnlineRegionPromo{
     right:auto;
-    left:18px;
-    top:170px;
+    left:40px;
+    top:140px;
     width:150px;
     gap:6px;
   }
+  .betOnlineRegionPromoText{
+    font-size:10px;
+    line-height:1.15;
+    padding:6px 7px;
+  }
+  .betOnlineRegionPromoLogoLink{
+    padding:6px 7px;
+  }
+  .betOnlineRegionPromoLogo{
+    width:120px;
+  }
+}
   .betOnlineRegionPromoText{
     font-size:10px;
     line-height:1.15;
