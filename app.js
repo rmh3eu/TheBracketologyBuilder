@@ -828,7 +828,7 @@ async function betOnlinePromoModal(){
     titleLink.target = '_blank';
     titleLink.rel = 'noopener noreferrer';
     titleLink.setAttribute('data-sportsbook','1');
-    titleLink.innerHTML = '<div class="betOnlinePromoTitle">Enter the $200,000 Bracket Madness Contest</div>';
+    titleLink.innerHTML = '<div class="betOnlinePromoTitle">Enter BetOnline\'s<br>$200,000 Bracket Madness Contest</div>';
 
     const logoWrap = document.createElement('a');
     logoWrap.className = 'betOnlinePromoLogoWrap';
@@ -838,6 +838,10 @@ async function betOnlinePromoModal(){
     logoWrap.setAttribute('data-sportsbook','1');
     logoWrap.innerHTML = '<div class="betOnlinePromoLogoText"><span class="betRed">BET</span><span class="betBlack">ONLINE</span></div>';
 
+    const sub = document.createElement('div');
+    sub.className = 'betOnlinePromoSub';
+    sub.textContent = 'Free entry • $200,000 prize pool';
+
     const actions = el('div','betOnlinePromoActions');
     const cta = document.createElement('a');
     cta.className = 'btn primary betOnlinePromoBtn';
@@ -845,7 +849,7 @@ async function betOnlinePromoModal(){
     cta.target = '_blank';
     cta.rel = 'noopener noreferrer';
     cta.setAttribute('data-sportsbook','1');
-    cta.textContent = "Enter the $200,000 Bracket Madness Contest";
+    cta.textContent = "Enter BetOnline's $200,000 Bracket Madness Contest";
     cta.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
 
     titleLink.addEventListener('click', ()=>{ setTimeout(()=>{ try{ overlay.remove(); }catch(_e){} resolve('clicked'); }, 0); });
@@ -860,7 +864,7 @@ async function betOnlinePromoModal(){
     });
 
     actions.appendChild(cta);
-    box.append(close, titleLink, logoWrap, actions);
+    box.append(close, titleLink, logoWrap, sub, actions);
     overlay.append(box);
     document.body.append(overlay);
     overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('closed'); } });
