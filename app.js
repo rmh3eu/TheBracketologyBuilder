@@ -707,12 +707,35 @@ function confirmModal(message, okText='OK', cancelText='Cancel'){
     overlay.append(box);
     document.body.append(overlay);
 
-    const cleanup = () => overlay.remove();
-    cancel.addEventListener('click', ()=>{ cleanup(); resolve(false); });
-    ok.addEventListener('click', ()=>{ cleanup(); resolve(true); });
+    let settled = false;
+    const onKey = (e)=>{
+      if(e.key === 'Escape'){
+        e.preventDefault();
+        finish(null);
+      }
+    };
+
+    function finish(value){
+      if(settled) return;
+      settled = true;
+      try{ document.removeEventListener('keydown', onKey, true); }catch(_e){}
+      try{ overlay.remove(); }catch(_e){}
+      resolve(value);
+    }
+
+    cancel.addEventListener('click', ()=>finish(false));
+    ok.addEventListener('click', ()=>finish(true));
+    box.addEventListener('click', (e)=>{ e.stopPropagation(); });
     overlay.addEventListener('click', (e)=>{
-      if(e.target === overlay){ cleanup(); resolve(false); }
+      if(e.target === overlay){
+        // Clicking outside should NOT continue to any destination.
+        // Dismiss the popup and keep the user on the bracket page.
+        e.preventDefault();
+        e.stopPropagation();
+        finish(null);
+      }
     });
+    document.addEventListener('keydown', onKey, true);
   });
 }
 
@@ -1893,6 +1916,9 @@ async function promptSaveBeforePromoRedirect(opts={}){
 async function saveBracketThenNavigate(href, opts={}){
   if(!href) return;
   const wantsSaveFirst = await promptSaveBeforePromoRedirect(opts);
+  if(wantsSaveFirst === null || wantsSaveFirst === undefined){
+    return;
+  }
   if(!wantsSaveFirst){
     await openPromoDestination(href, opts);
     return;
