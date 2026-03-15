@@ -3930,3 +3930,27 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
     transform:translateX(-50%);
   }
 }
+
+/* CTA fun color */
+a[href*="Bracket"]{
+  color:#ff7a00;
+  font-weight:800;
+}
+
+/* prize pool button fun color */
+.see-prize-pool-btn{
+  background:#22c55e;
+  color:#fff !important;
+  padding:8px 14px;
+  border-radius:10px;
+  font-weight:700;
+}
+
+/* move promo stack lower on mobile */
+@media (max-width:768px){
+  .affiliate-promo,
+  .affiliate-stack,
+  .betonline-promo{
+    margin-top:40px;
+  }
+}
