@@ -3708,6 +3708,7 @@ function mountBetOnlineRegionPromo(regionName, mount){
       <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
+      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
 
     const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
@@ -3759,6 +3760,7 @@ function mountBetOnlineBracketPromo(regionName, mount){
             <span class="betRed">BET</span><span class="betBlack">ONLINE</span>
          </div>
       </a>
+      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
 
     geo.appendChild(promo);
