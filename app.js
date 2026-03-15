@@ -3817,7 +3817,7 @@ function renderRegion(r, picks, opts={}){
 function mountBetOnlineRegionPromo(regionName, mount){
   try{
     if(!mount) return;
-    if(regionName !== 'East' && regionName !== 'West' && regionName !== 'Midwest') return;
+    if(regionName !== 'East' && regionName !== 'South') return;
     if(mount.querySelector('.betOnlineRegionPromo')) return;
 
     const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-Eastern') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
@@ -3855,7 +3855,7 @@ function maybeRevealBetOnlineRegionPromo(){
 
 function mountBetOnlineBracketPromo(regionName, mount){
   try{
-    if(!mount || (regionName !== 'East' && regionName !== 'West' && regionName !== 'Midwest')) return;
+    if(!mount || (regionName !== 'East' && regionName !== 'South')) return;
     if(mount.querySelector('.betOnlineBracketPromo')) return;
 
     const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
