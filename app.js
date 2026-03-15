@@ -707,35 +707,12 @@ function confirmModal(message, okText='OK', cancelText='Cancel'){
     overlay.append(box);
     document.body.append(overlay);
 
-    let settled = false;
-    const onKey = (e)=>{
-      if(e.key === 'Escape'){
-        e.preventDefault();
-        finish(null);
-      }
-    };
-
-    function finish(value){
-      if(settled) return;
-      settled = true;
-      try{ document.removeEventListener('keydown', onKey, true); }catch(_e){}
-      try{ overlay.remove(); }catch(_e){}
-      resolve(value);
-    }
-
-    cancel.addEventListener('click', ()=>finish(false));
-    ok.addEventListener('click', ()=>finish(true));
-    box.addEventListener('click', (e)=>{ e.stopPropagation(); });
+    const cleanup = () => overlay.remove();
+    cancel.addEventListener('click', ()=>{ cleanup(); resolve(false); });
+    ok.addEventListener('click', ()=>{ cleanup(); resolve(true); });
     overlay.addEventListener('click', (e)=>{
-      if(e.target === overlay){
-        // Clicking outside should NOT continue to any destination.
-        // Dismiss the popup and keep the user on the bracket page.
-        e.preventDefault();
-        e.stopPropagation();
-        finish(null);
-      }
+      if(e.target === overlay){ cleanup(); resolve(false); }
     });
-    document.addEventListener('keydown', onKey, true);
   });
 }
 
@@ -845,6 +822,9 @@ async function betOnlinePromoModal(){
     close.textContent = '×';
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
+    const savedText = el('div','betOnlinePromoSavedText');
+    savedText.textContent = 'Your Bracket Has Been Saved to My Brackets!';
+
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
     titleLink.href = promoUrl;
@@ -872,7 +852,7 @@ async function betOnlinePromoModal(){
       resolve('clicked');
     });
 
-    box.append(close, titleLink, logoWrap);
+    box.append(savedText, titleLink, logoWrap, close);
     overlay.append(box);
     document.body.append(overlay);
     overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('closed'); } });
@@ -1898,8 +1878,10 @@ function validateSaveRequirementsBeforeRedirect(){
   return true;
 }
 
-async function openPromoDestination(href, opts={}){
+async function completeSavedRedirect(href, opts={}){
   if(!href) return;
+  const ok = await confirmModal('Your Current Bracket Has Been Saved to My Brackets', 'OK', 'Cancel');
+  if(!ok) return;
   try{
     if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
     else window.location.href = href;
@@ -1908,22 +1890,7 @@ async function openPromoDestination(href, opts={}){
   }
 }
 
-async function promptSaveBeforePromoRedirect(opts={}){
-  const secondary = (opts && opts.withoutSaveText) ? String(opts.withoutSaveText) : 'Continue Without Saving';
-  return confirmModal('Do you want to save your bracket first?', 'Yes', secondary);
-}
-
 async function saveBracketThenNavigate(href, opts={}){
-  if(!href) return;
-  const wantsSaveFirst = await promptSaveBeforePromoRedirect(opts);
-  if(wantsSaveFirst === null || wantsSaveFirst === undefined){
-    return;
-  }
-  if(!wantsSaveFirst){
-    await openPromoDestination(href, opts);
-    return;
-  }
-
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
 
@@ -1963,7 +1930,7 @@ async function saveBracketThenNavigate(href, opts={}){
     const id = await ensureSavedToAccount();
     phase3MarkSaved();
     await maybeAskSubmitFeatured(id);
-    await openPromoDestination(href, { newTab: !!(opts && opts.newTab) });
+    await completeSavedRedirect(href, { newTab:false });
   }catch(e){
     if(e && e.message==='CANCELLED') return;
     if(e && e.message==='NAME_TAKEN'){
@@ -5131,11 +5098,8 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     const href = trigger.getAttribute('href');
     if(!href) return;
     e.preventDefault();
-    const isPrizePool = /\/prizes\.html(?:$|[?#])/i.test(href);
-    saveBracketThenNavigate(href, {
-      newTab: true,
-      withoutSaveText: isPrizePool ? 'View Prize Pool Without Saving' : 'Continue to Contest Without Saving'
-    });
+    const isExternal = /^https?:\/\//i.test(href);
+    saveBracketThenNavigate(href, { newTab: isExternal });
   });
 
   // Undo buttons (bracket header + mobile topbar)
@@ -5204,7 +5168,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
             toast('Saved to My Brackets.');
           }else if(pending.action === 'saveAndRedirect' && pending.href){
             toast('Saved to My Brackets.');
-            await openPromoDestination(pending.href, { newTab: !!pending.newTab });
+            await completeSavedRedirect(pending.href, { newTab: !!pending.newTab });
           }
         }catch(e){
           console.error(e);
