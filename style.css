@@ -4025,3 +4025,18 @@ a[href*="Bracket"]{
     bottom:8px !important;
   }
 }
+
+
+/* v157 mobile promo buttons moved lower; affiliate stack lower than prize button */
+@media (max-width:820px){
+  .betOnlineRegionPromo{
+    top:220px !important;
+  }
+  .betOnlineBracketPromo{
+    top:38px !important;
+  }
+  .betOnlineRegionPromo .betOnlinePrizePoolBtn,
+  .betOnlineBracketPromo .betOnlinePrizePoolBtn{
+    top:-58px !important;
+  }
+}
