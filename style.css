@@ -3711,22 +3711,22 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
 /* v138 tighten mobile East promo position: move up/right into Sweet 16 whitespace */
 @media (max-width:820px){
   .betOnlineRegionPromo{
-    right:-28px !important;
-    top:110px !important;
-    width:165px !important;
-    gap:6px !important;
+    right:-44px !important;
+    top:82px !important;
+    width:156px !important;
+    gap:5px !important;
     z-index:12 !important;
     align-items:center !important;
   }
   .betOnlineRegionPromoText{
-    font-size:10px !important;
-    line-height:1.08 !important;
-    padding:6px 7px !important;
+    font-size:9px !important;
+    line-height:1.06 !important;
+    padding:5px 6px !important;
   }
   .betOnlineRegionPromoLogoLink{
-    padding:5px 7px !important;
+    padding:4px 6px !important;
   }
   .betOnlineRegionPromoLogo{
-    width:118px !important;
+    width:112px !important;
   }
 }
