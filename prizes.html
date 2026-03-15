@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prize Pool</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-challenge-standalone page-challenge-clean-header page-prizes">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" data-view="build" href="/">Home</a>
+      <a class="navLink" data-view="mybrackets" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" data-view="best" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" data-view="worst" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" data-view="featured" href="featured.html">Featured Brackets</a>
+      <a class="navLink" data-view="upcoming" href="/#upcoming">Upcoming Events</a>
+    </nav>
+  </div>
+
+  <div aria-live="polite" class="seasonBar" id="seasonBar">
+    <div class="seasonText" id="seasonText"></div>
+    <div class="seasonControls">
+      <div class="lockStatus" id="lockStatus" style="display:none;"></div>
+      <button class="btnMini lockEditBtn" id="lockEditBtn" style="display:none;" type="button">Lock</button>
+      <button class="btnMini seasonEditBtn" id="seasonEditBtn" style="display:none;" type="button">Edit</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="panel prizesHeroPanel">
+      <div class="panelHead">
+        <h2>Prize Pool</h2>
+        <div class="subhead">A preview of the items that can be awarded across BracketologyBuilder challenges.</div>
+      </div>
+    </div>
+
+    <section class="panel prizeSectionPanel">
+      <div class="panelHead"><h3 style="margin:0">Jerseys</h3></div>
+      <div class="prizePoolGrid">
+        <article class="prizePoolCard">
+          <div class="prizePoolImageWrap"><img src="/prizes/jersey-flagg.jpg" alt="Blue basketball jersey prize"></div>
+          <div class="prizePoolContent">
+            <div class="prizePoolTitle">Custom Basketball Jersey</div>
+            <div class="prizePoolMeta">Jerseys</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel prizeSectionPanel">
+      <div class="panelHead"><h3 style="margin:0">Custom Gear</h3></div>
+      <div class="prizePoolGrid">
+        <article class="prizePoolCard">
+          <div class="prizePoolImageWrap"><img src="/prizes/custom-gear-shirt.jpg" alt="Bracket Champion shirt prize"></div>
+          <div class="prizePoolContent">
+            <div class="prizePoolTitle">Bracket Champion Shirt</div>
+            <div class="prizePoolMeta">Custom Gear</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel prizeSectionPanel">
+      <div class="panelHead"><h3 style="margin:0">More Prizes</h3></div>
+      <div class="prizePoolGrid">
+        <article class="prizePoolCard">
+          <div class="prizePoolImageWrap"><img src="/prizes/more-prizes-sword.jpg" alt="Glow in the dark sword prize"></div>
+          <div class="prizePoolContent">
+            <div class="prizePoolTitle">Glow-in-the-Dark Sword</div>
+            <div class="prizePoolMeta">More Prizes</div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

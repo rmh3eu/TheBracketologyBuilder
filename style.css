@@ -3738,3 +3738,142 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
     width:108px !important;
   }
 }
+
+/* v142 challenge prizes */
+.miniCardLink{
+  color:inherit;
+  text-decoration:none;
+  display:block;
+}
+.prizePreviewCard{
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.prizePreviewCard:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(15,23,42,.08);
+  border-color:#c7d2fe;
+}
+.prizePreviewGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:8px;
+}
+.prizePreviewItem{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.prizePreviewThumb{
+  border:1px solid #d9dbe3;
+  border-radius:14px;
+  background:#fff;
+  overflow:hidden;
+  aspect-ratio:1/1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.prizePreviewThumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.prizePreviewLabel{
+  font-size:14px;
+  font-weight:800;
+  line-height:1.15;
+  color:#0f172a;
+}
+.page-prizes .prizesHeroPanel{
+  margin-bottom:16px;
+}
+.prizeSectionPanel{
+  margin-top:16px;
+}
+.prizePoolGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+.prizePoolCard{
+  border:1px solid #d9dbe3;
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+.prizePoolImageWrap{
+  background:#f8fafc;
+  aspect-ratio:1/1;
+  overflow:hidden;
+}
+.prizePoolImageWrap img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.prizePoolContent{
+  padding:14px 16px 16px;
+}
+.prizePoolTitle{
+  font-size:18px;
+  font-weight:800;
+  color:#0f172a;
+  line-height:1.2;
+}
+.prizePoolMeta{
+  margin-top:6px;
+  color:#475569;
+  font-size:14px;
+  font-weight:700;
+}
+@media (max-width: 900px){
+  .prizePreviewGrid{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .prizePreviewItem{
+    display:grid;
+    grid-template-columns:84px 1fr;
+    align-items:center;
+    gap:12px;
+  }
+  .prizePreviewThumb{
+    aspect-ratio:1/1;
+  }
+  .prizePreviewLabel{
+    font-size:16px;
+  }
+  .prizePoolGrid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* v142 challenge prizes */
+.miniCardLink{color:inherit;text-decoration:none;display:block}
+.prizePreviewCard{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
+.prizePreviewCard:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(15,23,42,.08);border-color:#c7d2fe}
+.prizePreviewGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+.prizePreviewItem{display:flex;flex-direction:column;gap:8px}
+.prizePreviewThumb{border:1px solid #d9dbe3;border-radius:14px;background:#fff;overflow:hidden;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}
+.prizePreviewThumb img{width:100%;height:100%;object-fit:cover;display:block}
+.prizePreviewLabel{font-size:14px;font-weight:800;line-height:1.15;color:#0f172a}
+.page-prizes .prizesHeroPanel{margin-bottom:16px}
+.prizeSectionPanel{margin-top:16px}
+.prizePoolGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.prizePoolCard{border:1px solid #d9dbe3;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 10px 24px rgba(15,23,42,.06)}
+.prizePoolImageWrap{background:#f8fafc;aspect-ratio:1/1;overflow:hidden}
+.prizePoolImageWrap img{width:100%;height:100%;object-fit:cover;display:block}
+.prizePoolContent{padding:14px 16px 16px}
+.prizePoolTitle{font-size:18px;font-weight:800;color:#0f172a;line-height:1.2}
+.prizePoolMeta{margin-top:6px;color:#475569;font-size:14px;font-weight:700}
+@media (max-width: 900px){
+  .prizePreviewGrid{grid-template-columns:1fr;gap:10px}
+  .prizePreviewItem{display:grid;grid-template-columns:84px 1fr;align-items:center;gap:12px}
+  .prizePreviewThumb{aspect-ratio:1/1}
+  .prizePreviewLabel{font-size:16px}
+  .prizePoolGrid{grid-template-columns:1fr}
+}
