@@ -5287,3 +5287,7 @@ function triggerSaveAndGoMyBrackets(){
 
 try { window.featureBoostModal = featureBoostModal; } catch(e) {}
 try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
+
+// Promo redirect helper added
+window.openPrizePool=function(){window.open('/prizes.html','_blank','noopener');};
+window.openAffiliate=function(){window.open('https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/','_blank','noopener');};
