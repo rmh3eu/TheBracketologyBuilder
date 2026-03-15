@@ -1857,7 +1857,7 @@ function setBracketTitleDisplay(title) {
 }
 
 // If a guest triggers Save / Save & Enter, we queue the action and resume it after auth.
-let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' }
+let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' | 'saveAndRedirect', href?: string, newTab?: boolean }
 
 
 // Clear any unwanted browser autofill (some browsers inject the user's email into the bracket title input).
@@ -5006,6 +5006,17 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
   });
   wireSaveEnter('#saveEnterBtn');
   wireSaveEnter('#saveEnterBtnTop');
+
+  document.addEventListener('click', (e)=>{
+    const trigger = e.target.closest('.betOnlineRegionPromoText, .betOnlineRegionPromoLogoLink, .betOnlineBracketPromoText, .betOnlineBracketPromoLogoWrap, .betOnlinePrizePoolBtn');
+    if(!trigger) return;
+    const href = trigger.getAttribute('href');
+    if(!href) return;
+    e.preventDefault();
+    const isExternal = /^https?:\/\//i.test(href);
+    saveBracketThenNavigate(href, { newTab: isExternal });
+  });
+
   // Undo buttons (bracket header + mobile topbar)
   qs('#undoBtnTop')?.addEventListener('click', ()=>undoLastAction());
   qs('#undoBtnHeader')?.addEventListener('click', ()=>undoLastAction());
@@ -5065,11 +5076,15 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
         __pendingPostAuth = null;
         closeAuth();
         try{
-          const __savedId = await ensureSavedToAccount(false);
+          const __savedId = await ensureSavedToAccount();
           toast('Saved to your account.');
           await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
             toast('Saved to My Brackets.');
+          }else if(pending.action === 'saveAndRedirect' && pending.href){
+            toast('Saved to My Brackets.');
+            if(pending.newTab) window.open(pending.href, '_blank', 'noopener,noreferrer');
+            else window.location.href = pending.href;
           }
         }catch(e){
           console.error(e);
