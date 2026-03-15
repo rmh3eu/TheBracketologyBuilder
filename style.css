@@ -3954,3 +3954,35 @@ a[href*="Bracket"]{
     margin-top:40px;
   }
 }
+
+
+/* v150 region targeting + stronger prize pool separation */
+@media (min-width:821px){
+  .betOnlineRegionPromo[data-region-name="West"],
+  .betOnlineBracketPromo[data-region-name="West"]{
+    display:none !important;
+  }
+  .betOnlineRegionPromo[data-region-name="Midwest"],
+  .betOnlineBracketPromo[data-region-name="Midwest"]{
+    display:flex !important;
+  }
+}
+@media (max-width:820px){
+  .betOnlineRegionPromo[data-region-name="Midwest"],
+  .betOnlineBracketPromo[data-region-name="Midwest"]{
+    display:none !important;
+  }
+  .betOnlineRegionPromo[data-region-name="West"],
+  .betOnlineBracketPromo[data-region-name="West"]{
+    display:flex !important;
+  }
+  .betOnlineRegionPromo .betOnlinePrizePoolBtn,
+  .betOnlineBracketPromo .betOnlinePrizePoolBtn{
+    top:-48px !important;
+    min-height:36px !important;
+  }
+}
+.betOnlineRegionPromo .betOnlinePrizePoolBtn,
+.betOnlineBracketPromo .betOnlinePrizePoolBtn{
+  margin-top:22px !important;
+}

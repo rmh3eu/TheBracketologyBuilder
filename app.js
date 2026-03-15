@@ -1879,8 +1879,12 @@ async function completeSavedRedirect(href, opts={}){
   if(!href) return;
   const ok = await confirmModal('Your Current Bracket Has Been Saved to My Brackets', 'OK', 'Cancel');
   if(!ok) return;
-  if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
-  else window.location.href = href;
+  try{
+    if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
+    else window.location.href = href;
+  }catch(_e){
+    window.location.href = href;
+  }
 }
 
 async function saveBracketThenNavigate(href, opts={}){
@@ -1888,7 +1892,7 @@ async function saveBracketThenNavigate(href, opts={}){
   if(!validateSaveRequirementsBeforeRedirect()) return;
 
   if(!state.me){
-    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: false };
+    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: !!(opts && opts.newTab) };
     try{
       openAuth('signup', 'Save your bracket');
     }catch(_){
@@ -3769,7 +3773,7 @@ function renderRegion(r, picks, opts={}){
 function mountBetOnlineRegionPromo(regionName, mount){
   try{
     if(!mount) return;
-    if(regionName !== 'East' && regionName !== 'West') return;
+    if(regionName !== 'East' && regionName !== 'West' && regionName !== 'Midwest') return;
     if(mount.querySelector('.betOnlineRegionPromo')) return;
 
     const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-Eastern') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
@@ -3777,6 +3781,7 @@ function mountBetOnlineRegionPromo(regionName, mount){
 
     const promo = document.createElement('div');
     promo.className = 'betOnlineRegionPromo';
+    promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
         Enter the $200,000 Bracket Madness Contest
@@ -3806,7 +3811,7 @@ function maybeRevealBetOnlineRegionPromo(){
 
 function mountBetOnlineBracketPromo(regionName, mount){
   try{
-    if(!mount || (regionName !== 'East' && regionName !== 'West')) return;
+    if(!mount || (regionName !== 'East' && regionName !== 'West' && regionName !== 'Midwest')) return;
     if(mount.querySelector('.betOnlineBracketPromo')) return;
 
     const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
@@ -3818,6 +3823,7 @@ function mountBetOnlineBracketPromo(regionName, mount){
 
     const promo = document.createElement('div');
     promo.className = 'betOnlineBracketPromo';
+    promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineBracketPromoText"
          href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
@@ -5159,7 +5165,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
             toast('Saved to My Brackets.');
           }else if(pending.action === 'saveAndRedirect' && pending.href){
             toast('Saved to My Brackets.');
-            await completeSavedRedirect(pending.href, { newTab:false });
+            await completeSavedRedirect(pending.href, { newTab: !!pending.newTab });
           }
         }catch(e){
           console.error(e);
