@@ -1,0 +1,64 @@
+import { sendEmail } from './_util.js';
+
+export async function onRequest({ env }) {
+  const to = 'rmh3eu@virginia.edu';
+  const subject = '🏀 The Official Bracket Is Out!';
+
+  const html = `
+  <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; line-height:1.6; color:#222;">
+    <h2 style="text-align:center;">The Official Bracket Is Out! 🏀</h2>
+
+    <p>The official bracket is out!</p>
+
+    <p>Head over to <strong>BracketologyBuilder</strong> to build your bracket and enter our challenges.</p>
+
+    <ul>
+      <li>🏆 <strong>Best Bracket Challenge</strong></li>
+      <li>😈 <strong>Worst Bracket Challenge</strong></li>
+    </ul>
+
+    <div style="text-align:center; margin:30px 0;">
+      <a href="https://bracketologybuilder.com"
+         style="display:inline-block; background:#1e73be; color:#ffffff; padding:14px 24px; text-decoration:none; border-radius:6px; font-weight:bold;">
+        Create Your Bracket
+      </a>
+    </div>
+
+    <p style="text-align:center; font-weight:bold;">Also check out the $200,000 Bracket Challenge:</p>
+
+    <div style="text-align:center; margin:25px 0;">
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+         style="display:inline-block; background:#d62828; color:#ffffff; padding:14px 24px; text-decoration:none; border-radius:6px; font-weight:bold;">
+        Enter the $200K Contest
+      </a>
+    </div>
+  </div>`;
+
+  const text = `The Official Bracket Is Out! 🏀
+
+The official bracket is out!
+
+Head over to BracketologyBuilder to build your bracket and enter our challenges.
+
+🏆 Best Bracket Challenge
+😈 Worst Bracket Challenge
+
+Create Your Bracket:
+https://bracketologybuilder.com
+
+Also check out the $200,000 Bracket Challenge:
+https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/`;
+
+  try {
+    await sendEmail(env, to, subject, html, text);
+    return new Response('Test email sent to rmh3eu@virginia.edu', {
+      status: 200,
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }
+    });
+  } catch (e) {
+    return new Response(`Failed to send test email: ${String(e?.message || e || 'Unknown error')}`, {
+      status: 500,
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }
+    });
+  }
+}
