@@ -3662,7 +3662,7 @@ function renderRegion(r, picks, opts={}){
   // start on the far RIGHT with Round of 64 and funnel LEFT to Final 4.
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
   const forcedMirror = (opts && typeof opts.isMirror === 'boolean') ? opts.isMirror : null;
-  const isMirror = (!isMobile) && (forcedMirror!==null ? forcedMirror : (r.name === 'East' || r.name === 'Midwest'));
+  const isMirror = (!isMobile) && (forcedMirror!==null ? forcedMirror : (r.name === 'West' || r.name === 'Midwest'));
 
   const startRound = (opts && Number.isFinite(opts.startRound)) ? opts.startRound : 0;
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
@@ -4052,7 +4052,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   }
   mount.innerHTML = '';
 
-  const regionOrder = ['East','Midwest','West','South'];
+  const regionOrder = ['East','South','West','Midwest'];
   const regionsByName = {};
   (state.regions||[]).forEach(r=> regionsByName[r.name]=r);
 
