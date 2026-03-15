@@ -8,7 +8,7 @@ export async function onRequest({ env }) {
   <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; line-height:1.6; color:#222;">
     <h2 style="text-align:center;">The Official Bracket Is Out! 🏀</h2>
 
-    <p>Fill out your brackets now!</p>
+    <p>The official bracket is out!</p>
 
     <p>Head over to <strong>BracketologyBuilder</strong> to build your bracket and enter our challenges.</p>
 
@@ -36,7 +36,7 @@ export async function onRequest({ env }) {
 
   const text = `The Official Bracket Is Out! 🏀
 
-Fill out your brackets now!
+The official bracket is out!
 
 Head over to BracketologyBuilder to build your bracket and enter our challenges.
 
