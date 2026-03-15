@@ -2,7 +2,7 @@ import { sendEmail } from './_util.js';
 
 export async function onRequest({ env }) {
   const to = 'rmh3eu@virginia.edu';
-  const subject = '🏀 The Official Bracket Is Out!';
+  const subject = '🏀 The Official Bracket Is Out!!';
 
   const html = `
   <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; line-height:1.6; color:#222;">
