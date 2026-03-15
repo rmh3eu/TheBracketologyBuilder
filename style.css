@@ -3907,16 +3907,16 @@ body.readOnly .btn.disabled{ opacity:0.6; cursor:not-allowed; }
   overflow:visible !important;
 }
 .betOnlineRegionPromo .betOnlinePrizePoolBtn{
-  margin-top:2px;
+  margin-top:14px;
 }
 .betOnlineBracketPromo .betOnlinePrizePoolBtn{
-  margin-top:2px;
+  margin-top:14px;
 }
 @media (max-width:820px){
   .betOnlineRegionPromo .betOnlinePrizePoolBtn,
   .betOnlineBracketPromo .betOnlinePrizePoolBtn{
     position:absolute;
-    top:-44px;
+    top:-34px;
     left:50%;
     transform:translateX(-50%);
     margin-top:0;

@@ -1860,6 +1860,82 @@ function setBracketTitleDisplay(title) {
 let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' | 'saveAndRedirect', href?: string, newTab?: boolean }
 
 
+function validateSaveRequirementsBeforeRedirect(){
+  if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
+    const tb = state.picks.TIEBREAKER_TOTAL;
+    if(tb===null || tb===undefined || tb==='' || !Number.isFinite(Number(tb))){
+      toast('Please enter Tiebreaker: Total Points in Final.');
+      try{
+        const el = qs('#tiebreakerTotal');
+        if(el){ el.focus(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+      }catch(_e){}
+      return false;
+    }
+  }
+  return true;
+}
+
+async function completeSavedRedirect(href, opts={}){
+  if(!href) return;
+  const ok = await confirmModal('Your Current Bracket Has Been Saved to My Brackets', 'OK', 'Cancel');
+  if(!ok) return;
+  if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
+  else window.location.href = href;
+}
+
+async function saveBracketThenNavigate(href, opts={}){
+  saveLocal(state.picks);
+  if(!validateSaveRequirementsBeforeRedirect()) return;
+
+  if(!state.me){
+    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: false };
+    try{
+      openAuth('signup', 'Save your bracket');
+    }catch(_){
+      openAuth('signup');
+    }
+    return;
+  }
+
+  try{
+    const liveTitle = getBracketTitleFromDom();
+    if(liveTitle) state.bracketTitle = liveTitle;
+
+    const sp = new URLSearchParams(location.search);
+    const isNewParam = (sp.get('new') === '1');
+    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    const urlMeta = getBracketMetaFromUrl();
+    const hasExisting = !!(urlMeta.bracketId || state.bracketId);
+    const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
+
+    if(isNewFlow){
+      const isHome = IS_HOME;
+      if(isHome){
+        if(sweet16ModeEnabled()) state.bracket_type = 'second_chance';
+        else if(OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
+        else state.bracket_type = 'bracketology';
+      }
+      state.bracketId = null;
+      state.bracketTitle = null;
+      saveMeta({ bracketId:null, bracketTitle:null });
+    }
+
+    const id = await ensureSavedToAccount();
+    phase3MarkSaved();
+    await maybeAskSubmitFeatured(id);
+    await completeSavedRedirect(href, { newTab:false });
+  }catch(e){
+    if(e && e.message==='CANCELLED') return;
+    if(e && e.message==='NAME_TAKEN'){
+      alert('You already have a bracket with that name. Please choose a different name.');
+      return;
+    }
+    console.warn('saveBracketThenNavigate failed', e);
+    toast('Could not save. Please try again.');
+  }
+}
+
+
 // Clear any unwanted browser autofill (some browsers inject the user's email into the bracket title input).
 function clearBracketTitleAutofill(){
   const el = document.getElementById('bracketPageTitle');
@@ -5083,8 +5159,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
             toast('Saved to My Brackets.');
           }else if(pending.action === 'saveAndRedirect' && pending.href){
             toast('Saved to My Brackets.');
-            if(pending.newTab) window.open(pending.href, '_blank', 'noopener,noreferrer');
-            else window.location.href = pending.href;
+            await completeSavedRedirect(pending.href, { newTab:false });
           }
         }catch(e){
           console.error(e);
@@ -5167,6 +5242,7 @@ try { window.renderChallengeCallout = renderChallengeCallout; } catch(e) {}
 document.addEventListener("click", function(e) {
   const link = e.target.closest("a[data-sportsbook]");
   if (!link) return;
+  if (link.closest('.betOnlineRegionPromo, .betOnlineBracketPromo, .betOnlinePromoWrap')) return;
 
   e.preventDefault();
 
