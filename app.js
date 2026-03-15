@@ -1880,7 +1880,12 @@ function validateSaveRequirementsBeforeRedirect(){
 
 async function completeSavedRedirect(href, opts={}){
   if(!href) return;
-  const ok = await confirmModal('Your Current Bracket Has Been Saved to My Brackets', 'OK', 'Cancel');
+  const isAffiliate = !!(opts && opts.isAffiliate);
+  if(isAffiliate){
+    await betOnlinePromoModal();
+    return;
+  }
+  const ok = await confirmModal('Your Bracket Has Been Saved to My Brackets!', 'View Prize Pool', 'Stay on Bracket');
   if(!ok) return;
   try{
     if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
@@ -1890,12 +1895,48 @@ async function completeSavedRedirect(href, opts={}){
   }
 }
 
+function saveFirstPromptModal(isAffiliate){
+  return new Promise((resolve)=>{
+    const overlay = el('div','bb-confirm-overlay');
+    const box = el('div','bb-confirm-box');
+    const msg = el('div','bb-confirm-message');
+    msg.textContent = 'Do you want to save your bracket first?';
+    const btnRow = el('div','bb-confirm-actions');
+    const yes = el('button','bb-confirm-btn ok');
+    yes.type = 'button';
+    yes.textContent = 'Yes';
+    const no = el('button','bb-confirm-btn cancel');
+    no.type = 'button';
+    no.textContent = isAffiliate ? 'Continue to Contest Without Saving' : 'View Prize Pool Without Saving';
+    btnRow.append(yes, no);
+    box.append(msg, btnRow);
+    overlay.append(box);
+    document.body.append(overlay);
+    const cleanup = ()=>{ try{ overlay.remove(); }catch(_e){} };
+    yes.addEventListener('click', ()=>{ cleanup(); resolve('save'); });
+    no.addEventListener('click', ()=>{ cleanup(); resolve('skip'); });
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ cleanup(); resolve('stay'); } });
+  });
+}
+
 async function saveBracketThenNavigate(href, opts={}){
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
+  const isAffiliate = !!(opts && opts.isAffiliate);
+  const choice = await saveFirstPromptModal(isAffiliate);
+  if(choice === 'stay') return;
+  if(choice === 'skip'){
+    try{
+      if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
+      else window.location.href = href;
+    }catch(_e){
+      window.location.href = href;
+    }
+    return;
+  }
 
   if(!state.me){
-    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: !!(opts && opts.newTab) };
+    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: !!(opts && opts.newTab), isAffiliate };
     try{
       openAuth('signup', 'Save your bracket');
     }catch(_){
@@ -1930,7 +1971,7 @@ async function saveBracketThenNavigate(href, opts={}){
     const id = await ensureSavedToAccount();
     phase3MarkSaved();
     await maybeAskSubmitFeatured(id);
-    await completeSavedRedirect(href, { newTab:false });
+    await completeSavedRedirect(href, { newTab: !!(opts && opts.newTab), isAffiliate });
   }catch(e){
     if(e && e.message==='CANCELLED') return;
     if(e && e.message==='NAME_TAKEN'){
@@ -5098,9 +5139,11 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     const href = trigger.getAttribute('href');
     if(!href) return;
     e.preventDefault();
+    e.stopPropagation();
     const isExternal = /^https?:\/\//i.test(href);
-    saveBracketThenNavigate(href, { newTab: isExternal });
-  });
+    const isAffiliate = trigger.matches('.betOnlineRegionPromoText, .betOnlineRegionPromoLogoLink, .betOnlineBracketPromoText, .betOnlineBracketPromoLogoWrap') || trigger.hasAttribute('data-sportsbook');
+    saveBracketThenNavigate(href, { newTab: true, isAffiliate });
+  }, true);
 
   // Undo buttons (bracket header + mobile topbar)
   qs('#undoBtnTop')?.addEventListener('click', ()=>undoLastAction());
@@ -5168,7 +5211,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
             toast('Saved to My Brackets.');
           }else if(pending.action === 'saveAndRedirect' && pending.href){
             toast('Saved to My Brackets.');
-            await completeSavedRedirect(pending.href, { newTab: !!pending.newTab });
+            await completeSavedRedirect(pending.href, { newTab: !!pending.newTab, isAffiliate: !!pending.isAffiliate });
           }
         }catch(e){
           console.error(e);
