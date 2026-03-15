@@ -1877,7 +1877,12 @@ function validateSaveRequirementsBeforeRedirect(){
 
 async function completeSavedRedirect(href, opts={}){
   if(!href) return;
-  const ok = await confirmModal('Your Current Bracket Has Been Saved to My Brackets', 'OK', 'Cancel');
+  const isPrizePool = /\/prizes\.html(?:$|[?#])/i.test(href) || /\/prizes(?:$|[?#])/i.test(href);
+  const message = opts && opts.savedToAccount
+    ? 'Your Current Bracket Has Been Saved to My Brackets'
+    : 'Your Current Bracket Has Been Saved On This Device';
+  const okText = isPrizePool ? 'View Prize Pool' : 'Continue to Contest';
+  const ok = await confirmModal(message, okText, 'Cancel');
   if(!ok) return;
   try{
     if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
@@ -1892,12 +1897,7 @@ async function saveBracketThenNavigate(href, opts={}){
   if(!validateSaveRequirementsBeforeRedirect()) return;
 
   if(!state.me){
-    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: !!(opts && opts.newTab) };
-    try{
-      openAuth('signup', 'Save your bracket');
-    }catch(_){
-      openAuth('signup');
-    }
+    await completeSavedRedirect(href, { newTab: !!(opts && opts.newTab), savedToAccount: false });
     return;
   }
 
@@ -1927,7 +1927,7 @@ async function saveBracketThenNavigate(href, opts={}){
     const id = await ensureSavedToAccount();
     phase3MarkSaved();
     await maybeAskSubmitFeatured(id);
-    await completeSavedRedirect(href, { newTab:false });
+    await completeSavedRedirect(href, { newTab: !!(opts && opts.newTab), savedToAccount: true });
   }catch(e){
     if(e && e.message==='CANCELLED') return;
     if(e && e.message==='NAME_TAKEN'){
@@ -5287,7 +5287,3 @@ function triggerSaveAndGoMyBrackets(){
 
 try { window.featureBoostModal = featureBoostModal; } catch(e) {}
 try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
-
-// Promo redirect helper added
-window.openPrizePool=function(){window.open('/prizes.html','_blank','noopener');};
-window.openAffiliate=function(){window.open('https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/','_blank','noopener');};
