@@ -1875,15 +1875,8 @@ function validateSaveRequirementsBeforeRedirect(){
   return true;
 }
 
-async function completeSavedRedirect(href, opts={}){
+async function openPromoDestination(href, opts={}){
   if(!href) return;
-  const isPrizePool = /\/prizes\.html(?:$|[?#])/i.test(href) || /\/prizes(?:$|[?#])/i.test(href);
-  const message = opts && opts.savedToAccount
-    ? 'Your Current Bracket Has Been Saved to My Brackets'
-    : 'Your Current Bracket Has Been Saved On This Device';
-  const okText = isPrizePool ? 'View Prize Pool' : 'Continue to Contest';
-  const ok = await confirmModal(message, okText, 'Cancel');
-  if(!ok) return;
   try{
     if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
     else window.location.href = href;
@@ -1892,12 +1885,29 @@ async function completeSavedRedirect(href, opts={}){
   }
 }
 
+async function promptSaveBeforePromoRedirect(opts={}){
+  const secondary = (opts && opts.withoutSaveText) ? String(opts.withoutSaveText) : 'Continue Without Saving';
+  return confirmModal('Do you want to save your bracket first?', 'Yes', secondary);
+}
+
 async function saveBracketThenNavigate(href, opts={}){
+  if(!href) return;
+  const wantsSaveFirst = await promptSaveBeforePromoRedirect(opts);
+  if(!wantsSaveFirst){
+    await openPromoDestination(href, opts);
+    return;
+  }
+
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
 
   if(!state.me){
-    await completeSavedRedirect(href, { newTab: !!(opts && opts.newTab), savedToAccount: false });
+    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: !!(opts && opts.newTab) };
+    try{
+      openAuth('signup', 'Save your bracket');
+    }catch(_){
+      openAuth('signup');
+    }
     return;
   }
 
@@ -1927,7 +1937,7 @@ async function saveBracketThenNavigate(href, opts={}){
     const id = await ensureSavedToAccount();
     phase3MarkSaved();
     await maybeAskSubmitFeatured(id);
-    await completeSavedRedirect(href, { newTab: !!(opts && opts.newTab), savedToAccount: true });
+    await openPromoDestination(href, { newTab: !!(opts && opts.newTab) });
   }catch(e){
     if(e && e.message==='CANCELLED') return;
     if(e && e.message==='NAME_TAKEN'){
@@ -5095,8 +5105,11 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
     const href = trigger.getAttribute('href');
     if(!href) return;
     e.preventDefault();
-    const isExternal = /^https?:\/\//i.test(href);
-    saveBracketThenNavigate(href, { newTab: isExternal });
+    const isPrizePool = /\/prizes\.html(?:$|[?#])/i.test(href);
+    saveBracketThenNavigate(href, {
+      newTab: true,
+      withoutSaveText: isPrizePool ? 'View Prize Pool Without Saving' : 'Continue to Contest Without Saving'
+    });
   });
 
   // Undo buttons (bracket header + mobile topbar)
@@ -5165,7 +5178,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
             toast('Saved to My Brackets.');
           }else if(pending.action === 'saveAndRedirect' && pending.href){
             toast('Saved to My Brackets.');
-            await completeSavedRedirect(pending.href, { newTab: !!pending.newTab });
+            await openPromoDestination(pending.href, { newTab: !!pending.newTab });
           }
         }catch(e){
           console.error(e);
