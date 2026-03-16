@@ -123,7 +123,12 @@ export async function onRequest({ request }) {
       </div>
     </div>
   </div>
+
+<div style="position:absolute;bottom:10px;width:100%;text-align:center;font-size:12px;color:#9fb3d9;">
+21+. Gambling problem? Call 1-800-GAMBLER. Not available in all states. Terms apply.
+</div>
 </body>
+
 </html>`;
 
   return new Response(html, {
