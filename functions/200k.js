@@ -71,9 +71,15 @@ export async function onRequest({ request }) {
     <div class="eyebrow">BRACKETOLOGYBUILDER.COM</div>
     <h1>🏀 Enter the <span class="gold">$200,000</span><br>March Madness Bracket Contest</h1>
     <p>Tap below to enter. You’ll be redirected automatically in a moment.</p>
-    <div class="actions">
-      <a class="btn" href="${affiliateUrl}" rel="noopener noreferrer">Enter the Contest</a>
-      <div class="sub">Fun link for DMs, texts, and social shares.</div>
+    
+<div class="actions">
+  <a class="btn" href="${affiliateUrl}" rel="noopener noreferrer">Enter the Contest</a>
+
+  <button class="btn copy" onclick="copyLink()">Copy Share Link</button>
+
+  <div class="sub">Copy and paste this link to share with friends for more chances to win!</div>
+</div>
+
     </div>
     <div class="tiny">If you are not redirected automatically, use the button above.</div>
   </div>
