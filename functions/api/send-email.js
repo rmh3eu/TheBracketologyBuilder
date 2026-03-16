@@ -1,9 +1,11 @@
 import { sendEmail } from './_util.js';
 
-const SUBJECT = '🏀 The Official Bracket Is Out!';
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-function buildEmailHtml(){
-  return `
+export async function onRequest({ env }) {
+  const subject = '🏀 The Official Bracket Is Out!';
+
+  const html = `
   <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; line-height:1.6; color:#222;">
     <h2 style="text-align:center;">The Official Bracket Is Out! 🏀</h2>
 
@@ -32,10 +34,8 @@ function buildEmailHtml(){
       </a>
     </div>
   </div>`;
-}
 
-function buildEmailText(){
-  return `The Official Bracket Is Out! 🏀
+  const text = `The Official Bracket Is Out! 🏀
 
 Fill out your brackets now!
 
@@ -49,65 +49,44 @@ https://bracketologybuilder.com
 
 Also check out the $200,000 Bracket Challenge:
 https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/`;
-}
 
-function validEmail(s){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim());
-}
+  const rs = await env.DB.prepare(
+    "SELECT DISTINCT TRIM(email) AS email FROM users WHERE email IS NOT NULL AND TRIM(email) != '' ORDER BY created_at DESC"
+  ).all();
 
-async function getAllRecipients(env){
-  const rows = await env.DB.prepare(`
-    SELECT DISTINCT TRIM(email) AS email
-    FROM users
-    WHERE email IS NOT NULL AND TRIM(email) <> ''
-  `).all();
-  return (rows.results || [])
+  const recipients = (rs.results || [])
     .map(r => String(r.email || '').trim())
-    .filter(validEmail);
-}
+    .filter(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
 
-async function sendWithConcurrency(items, worker, concurrency=5){
-  let i = 0;
-  const stats = { sent: 0, failed: 0, errors: [] };
-  const runners = Array.from({ length: Math.max(1, concurrency) }, async () => {
-    while(true){
-      const idx = i++;
-      if(idx >= items.length) break;
-      const item = items[idx];
-      try{
-        await worker(item, idx);
-        stats.sent += 1;
-      }catch(e){
-        stats.failed += 1;
-        stats.errors.push(`${item}: ${String(e?.message || e || 'Failed')}`);
+  let sent = 0;
+  let failed = 0;
+  const errors = [];
+
+  for (const to of recipients) {
+    try {
+      await sendEmail(env, to, subject, html, text);
+      sent++;
+    } catch (e) {
+      failed++;
+      errors.push(`${to}: ${String(e?.message || e || 'Unknown error')}`);
+    }
+    await sleep(650);
+  }
+
+  return new Response(
+    [
+      `Recipients found: ${recipients.length}`,
+      `Sent: ${sent}`,
+      `Failed: ${failed}`,
+      '',
+      ...(errors.length ? ['Errors:', ...errors] : ['No errors.'])
+    ].join('\n'),
+    {
+      status: 200,
+      headers: {
+        'content-type': 'text/plain; charset=utf-8',
+        'cache-control': 'no-store'
       }
     }
-  });
-  await Promise.all(runners);
-  return stats;
-}
-
-export async function onRequest({ env }){
-  try{
-    const recipients = await getAllRecipients(env);
-    const html = buildEmailHtml();
-    const text = buildEmailText();
-
-    const stats = await sendWithConcurrency(recipients, async (to) => {
-      await sendEmail(env, to, SUBJECT, html, text);
-    }, 5);
-
-    return new Response(
-      `Recipients found: ${recipients.length}\nSent: ${stats.sent}\nFailed: ${stats.failed}` + (stats.errors.length ? `\n\nErrors:\n${stats.errors.slice(0,20).join('\n')}` : ''),
-      {
-        status: 200,
-        headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }
-      }
-    );
-  } catch (e) {
-    return new Response(`Failed to send bulk email: ${String(e?.message || e || 'Unknown error')}`, {
-      status: 500,
-      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }
-    });
-  }
+  );
 }
