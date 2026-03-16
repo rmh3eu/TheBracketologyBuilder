@@ -2405,18 +2405,20 @@ function lbTableBest(rows){
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
 
-    const champ = r.champion ? r.champion.name : '—';
+    const champ = '—';
     const displayName = r.title || r.display_name || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const link = `${location.origin}${location.pathname}?id=${encodeURIComponent(r.bracket_id)}&challenge=best`;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = gamesPlayed;
     const pct = leaderboardPctText(xVal, yVal);
+    const userCell = meId && r.user_id === meId
+      ? `${escapeHtml(displayName)} <span class="lbYouBadge">Your bracket</span>`
+      : escapeHtml(displayName);
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser"><a class="lbUserLink" href="${link}">${escapeHtml(displayName)}</a></td>
+      <td class="lbUser">${userCell}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
@@ -2460,19 +2462,19 @@ function lbTableWorst(rows){
     const pct = leaderboardPctText(xVal, yVal);
     const displayName = r.display_name || r.title || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const primaryBracketId = (r.brackets && (r.brackets.pre || r.brackets.r16 || r.brackets.f4)) ? (r.brackets.pre || r.brackets.r16 || r.brackets.f4) : null;
-    const primaryStage = (r.brackets && r.brackets.pre) ? 'pre' : ((r.brackets && r.brackets.r16) ? 'r16' : ((r.brackets && r.brackets.f4) ? 'f4' : 'pre'));
-    const userLink = primaryBracketId ? `${location.origin}${location.pathname}?id=${encodeURIComponent(primaryBracketId)}&challenge=worst&stage=${primaryStage}` : '';
-    const links = [];
-    if(r.brackets?.pre) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.pre)}&challenge=worst&stage=pre">S1</a>`);
-    if(r.brackets?.r16) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.r16)}&challenge=worst&stage=r16">S2</a>`);
-    if(r.brackets?.f4) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.f4)}&challenge=worst&stage=f4">S3</a>`);
+    const entryLabels = [];
+    if(r.brackets?.pre) entryLabels.push(`S1`);
+    if(r.brackets?.r16) entryLabels.push(`S2`);
+    if(r.brackets?.f4) entryLabels.push(`S3`);
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
+    const userCell = meId && r.user_id === meId
+      ? `${escapeHtml(displayName)} <span class="lbYouBadge">Your bracket</span>`
+      : escapeHtml(displayName);
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser">${userLink ? `<a class="lbUserLink" href="${userLink}">${escapeHtml(displayName)}</a>` : escapeHtml(displayName)}</td>
+      <td class="lbUser">${userCell}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbScore">${r.stage1 ?? '—'}</td>
@@ -2480,7 +2482,7 @@ function lbTableWorst(rows){
       <td class="lbScore">${r.stage3 ?? '—'}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
-      <td class="lbEntries">${links.length ? links.join(' · ') : '—'}</td>
+      <td class="lbEntries">${entryLabels.length ? entryLabels.join(' · ') : '—'}</td>
     `;
     tb.appendChild(tr);
   });
