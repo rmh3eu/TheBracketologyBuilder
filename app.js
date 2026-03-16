@@ -2412,9 +2412,7 @@ function lbTableBest(rows){
     const xVal = Number(r.x || 0);
     const yVal = gamesPlayed;
     const pct = leaderboardPctText(xVal, yVal);
-    const userCell = meId && r.user_id === meId
-      ? `${escapeHtml(displayName)} <span class="lbYouBadge">Your bracket</span>`
-      : escapeHtml(displayName);
+    const userCell = escapeHtml(displayName);
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
@@ -2469,9 +2467,7 @@ function lbTableWorst(rows){
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
-    const userCell = meId && r.user_id === meId
-      ? `${escapeHtml(displayName)} <span class="lbYouBadge">Your bracket</span>`
-      : escapeHtml(displayName);
+    const userCell = escapeHtml(displayName);
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
