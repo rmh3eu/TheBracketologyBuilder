@@ -67,11 +67,6 @@ export async function onRequestPost({ request, env }){
   }
 
   const now = new Date().toISOString();
-  const existing = await env.DB.prepare("SELECT id FROM challenge_entries WHERE user_id=? AND challenge=? AND stage=?").bind(user.id, challenge, stage).first();
-  if(existing){
-    await env.DB.prepare("UPDATE challenge_entries SET bracket_id=?, updated_at=? WHERE id=?").bind(bracket_id, now, existing.id).run();
-    return json({ok:true, updated:true});
-  }
 
   await env.DB.prepare("INSERT INTO challenge_entries (user_id, challenge, stage, bracket_id, created_at, updated_at) VALUES (?,?,?,?,?,?)")
     .bind(user.id, challenge, stage, bracket_id, now, now).run();
