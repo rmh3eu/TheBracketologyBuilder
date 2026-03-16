@@ -4047,3 +4047,36 @@ a[href*="Bracket"]{
   object-fit:contain;
   transform:scale(1.22);
 }
+
+
+/* v176 challenge entry placement */
+.page-challenge-standalone .challengeTopGrid > .leaderboardEntryPanel{
+  grid-column: 1 / -1;
+  margin-top: 0 !important;
+}
+@media (max-width: 900px){
+  .page-challenge-standalone .challengeTopGrid > .leaderboardEntryPanel{
+    order: 2;
+    grid-column: auto;
+  }
+  .page-challenge-standalone .challengeTopGrid > .prizePreviewCard{
+    order: 3;
+  }
+  .page-challenge-standalone .challengeTopGrid > .miniCard:first-child{
+    order: 1;
+  }
+  .page-challenge-standalone .challengeActions{
+    margin-top: -2px;
+    margin-bottom: 10px;
+  }
+}
+
+/* v176 mobile phase 3 cue copy polish */
+@media (max-width: 900px){
+  .phase3Headline{
+    font-size: 15px;
+  }
+  .phase3Subtext{
+    font-size: 13px;
+  }
+}
