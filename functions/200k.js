@@ -48,8 +48,9 @@ export async function onRequest({ request }) {
     .actions{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
     .btn{
       display:inline-block; padding:16px 22px; border-radius:14px; font-weight:800; text-decoration:none;
-      color:#fff; background:var(--red); box-shadow:0 10px 28px rgba(214,40,40,.35);
+      color:#fff; background:var(--red); box-shadow:0 10px 28px rgba(214,40,40,.35); border:none; cursor:pointer;
     }
+    .btn.secondary{background:#2048a5; box-shadow:0 10px 28px rgba(32,72,165,.35)}
     .sub{font-size:14px; color:#cfe4ff}
     .ball{
       position:absolute; right:-10px; top:-10px; width:150px; height:150px; border-radius:50%;
@@ -71,15 +72,9 @@ export async function onRequest({ request }) {
     <div class="eyebrow">BRACKETOLOGYBUILDER.COM</div>
     <h1>🏀 Enter the <span class="gold">$200,000</span><br>March Madness Bracket Contest</h1>
     <p>Tap below to enter. You’ll be redirected automatically in a moment.</p>
-    
-<div class="actions">
-  <a class="btn" href="${affiliateUrl}" rel="noopener noreferrer">Enter the Contest</a>
-
-  <button class="btn copy" onclick="copyLink()">Copy Share Link</button>
-
-  <div class="sub">Copy and paste this link to share with friends for more chances to win!</div>
-</div>
-
+    <div class="actions">
+      <a class="btn" href="${affiliateUrl}" rel="noopener noreferrer">Enter the Contest</a>
+      <div class="sub">Fun link for DMs, texts, and social shares.</div>
     </div>
     <div class="tiny">If you are not redirected automatically, use the button above.</div>
   </div>
