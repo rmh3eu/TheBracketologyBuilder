@@ -37,16 +37,15 @@ async function ensureTables(env){
   }
 
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_chal_user ON challenge_entries(user_id, challenge, stage)").run();
-  await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_chal_unique_entry ON challenge_entries(user_id, challenge, stage, bracket_id)").run();
 
-  // Remove legacy unique index that only allowed one bracket per challenge/stage.
+  // Remove legacy unique indexes that can block inserts on older schemas.
   try{
     const rs = await env.DB.prepare("SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name='challenge_entries'").all();
     for(const row of (rs.results || [])){
       const name = String(row.name || '');
       const sql = String(row.sql || '').toLowerCase();
       if(!sql) continue;
-      if(sql.includes('unique') && sql.includes('(user_id, challenge, stage)') && !sql.includes('bracket_id')){
+      if(sql.includes('unique') && sql.includes('challenge_entries')){
         try{ await env.DB.prepare(`DROP INDEX IF EXISTS ${name}`).run(); }catch(_e){}
       }
     }
@@ -95,24 +94,6 @@ export async function onRequestPost({ request, env }){
 
   const now = new Date().toISOString();
 
-  try{
-    const dupeRows = await env.DB.prepare(
-      "SELECT id FROM challenge_entries WHERE user_id=? AND challenge=? AND stage=? AND bracket_id=? ORDER BY created_at ASC, id ASC"
-    ).bind(user.id, challenge, stage, bracket_id).all();
-    const ids = (dupeRows.results||[]).map(r=> Number(r.id)).filter(Number.isFinite);
-    if(ids.length > 1){
-      for(const extraId of ids.slice(1)){
-        await env.DB.prepare("DELETE FROM challenge_entries WHERE id=?").bind(extraId).run();
-      }
-    }
-  }catch(_e){}
-
-  const duplicate = await env.DB.prepare(
-    "SELECT id FROM challenge_entries WHERE user_id=? AND challenge=? AND stage=? AND bracket_id=?"
-  ).bind(user.id, challenge, stage, bracket_id).first();
-  if(duplicate){
-    return json({ok:false, error:"This bracket is already entered in this challenge."}, 409);
-  }
 
   await env.DB.prepare(
     "INSERT INTO challenge_entries (user_id, challenge, stage, bracket_id, score, created_at, updated_at) VALUES (?,?,?,?,?,?,?)"
