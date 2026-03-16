@@ -28,6 +28,7 @@ async function ensureTables(env){
     updated_at TEXT NOT NULL
   )`).run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_chal_user ON challenge_entries(user_id, challenge, stage)").run();
+  await env.DB.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_chal_unique_entry ON challenge_entries(user_id, challenge, stage, bracket_id)").run();
 }
 
 export async function onRequestPost({ request, env }){
@@ -67,6 +68,19 @@ export async function onRequestPost({ request, env }){
   }
 
   const now = new Date().toISOString();
+  try{
+    const dupeRows = await env.DB.prepare("SELECT id FROM challenge_entries WHERE user_id=? AND challenge=? AND stage=? AND bracket_id=? ORDER BY created_at ASC, id ASC").bind(user.id, challenge, stage, bracket_id).all();
+    const ids = (dupeRows.results||[]).map(r=> Number(r.id)).filter(Number.isFinite);
+    if(ids.length > 1){
+      for(const extraId of ids.slice(1)){
+        await env.DB.prepare("DELETE FROM challenge_entries WHERE id=?").bind(extraId).run();
+      }
+    }
+  }catch(_e){}
+  const duplicate = await env.DB.prepare("SELECT id FROM challenge_entries WHERE user_id=? AND challenge=? AND stage=? AND bracket_id=?").bind(user.id, challenge, stage, bracket_id).first();
+  if(duplicate){
+    return json({ok:false, error:"This bracket is already entered in this challenge."}, 409);
+  }
 
   await env.DB.prepare("INSERT INTO challenge_entries (user_id, challenge, stage, bracket_id, created_at, updated_at) VALUES (?,?,?,?,?,?)")
     .bind(user.id, challenge, stage, bracket_id, now, now).run();

@@ -122,7 +122,7 @@ export async function onRequestGet({ request, env }){
   }catch{ me_user_id = null; }
 
   if(challenge === "best"){
-    let q = "SELECT e.user_id, e.bracket_id, b.title AS bracket_title, u.email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+    let q = "SELECT e.user_id, e.bracket_id, MAX(b.title) AS bracket_title, MAX(u.email) AS email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
     const binds = [];
     if(groupId){
       q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -132,8 +132,10 @@ export async function onRequestGet({ request, env }){
       q += " AND gm.group_id=?";
       binds.push(groupId);
     }
+    q += " GROUP BY e.user_id, e.bracket_id";
     const ent = await env.DB.prepare(q).bind(...binds).all();
-    const entries = ent.results||[];
+    let entries = ent.results||[];
+    entries = entries.filter((row, idx, arr)=> arr.findIndex(x => String(x.user_id)===String(row.user_id) && String(x.bracket_id)===String(row.bracket_id))===idx);
     if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
     const ids = entries.map(e=>e.bracket_id);
@@ -214,7 +216,8 @@ export async function onRequestGet({ request, env }){
     binds.push(groupId);
   }
   const ent = await env.DB.prepare(q).bind(...binds).all();
-  const entries = ent.results||[];
+  let entries = ent.results||[];
+    entries = entries.filter((row, idx, arr)=> arr.findIndex(x => String(x.user_id)===String(row.user_id) && String(x.bracket_id)===String(row.bracket_id))===idx);
   if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
   // group by user
