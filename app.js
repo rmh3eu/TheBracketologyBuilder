@@ -5009,10 +5009,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   const __homeGoWorst = qs('#homeGoWorst');
   if(__homeGoWorst){
     __homeGoWorst.setAttribute('type','button');
-    __homeGoWorst.addEventListener('click', async (e)=>{
-      e.preventDefault();
+    __homeGoWorst.onclick = async (e)=>{
+      if(e) e.preventDefault();
       await saveBracketThenEnterChallenge('worst');
-    });
+      return false;
+    };
   }
 
   // Admin view controls
