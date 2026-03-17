@@ -213,7 +213,7 @@ export async function onRequestGet({ request, env }){
   }
 
   // WORST: one visible/counting row per unique bracket_id (duplicates hidden from standings).
-  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email, e.created_at FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email, e.created_at, e.updated_at FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
   const binds = [];
   if(groupId){
     q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -225,10 +225,10 @@ export async function onRequestGet({ request, env }){
   }
   q += " ORDER BY COALESCE(e.created_at, e.updated_at, '') ASC, e.id ASC";
   const ent = await env.DB.prepare(q).bind(...binds).all();
-  let entries = ent.results||[];
+  let entries = ent.results || [];
   const seenWorstBracketIds = new Set();
   entries = entries.filter(row=>{
-    const key = String(row.bracket_id||'');
+    const key = String(row.bracket_id || '');
     if(!key) return false;
     if(seenWorstBracketIds.has(key)) return false;
     seenWorstBracketIds.add(key);
@@ -241,6 +241,7 @@ export async function onRequestGet({ request, env }){
   const bq = allIds.length ? await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...allIds).all() : {results:[]};
   const bmap = new Map((bq.results||[]).map(b=>[b.id, { data: JSON.parse(b.data_json||"{}"), title: b.title }]));
 
+  const totals = { pre:480, r16:120, f4:30 };
   const overallTotal = (TOTAL_GAMES * 10);
   const rows = [];
   for(const e of entries){
@@ -284,9 +285,12 @@ export async function onRequestGet({ request, env }){
     });
   }
 
+  if(!rows.length){
+    return json({ok:true, leaderboard: [], totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
+  }
+
   rows.sort((a,b)=>{
     if(b.score!==a.score) return b.score-a.score;
-    // If final is known + total provided, use closest tiebreaker
     if(actualFinalTotal!==null){
       const ad = (a.tiebreaker_diff===null)? 10**9 : a.tiebreaker_diff;
       const bd = (b.tiebreaker_diff===null)? 10**9 : b.tiebreaker_diff;
@@ -295,7 +299,6 @@ export async function onRequestGet({ request, env }){
     return (a.display_name||'').localeCompare(b.display_name||'');
   });
 
-  // assign ranks with ties (score first; at the end of the tournament, apply tiebreaker closeness if available)
   let rank=0, prevScore=null, prevDiff=null, count=0;
   const out = rows.map(row=>{
     count+=1;

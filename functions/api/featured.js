@@ -20,7 +20,8 @@ export async function onRequestGet({ env }){
   let rs;
   try{
     rs = await env.DB.prepare(
-      `SELECT fr.bracket_id, fr.caption, fr.approved_at, b.title,
+      `SELECT fr.bracket_id, fr.caption, fr.approved_at,
+              b.title, b.created_at, b.updated_at,
               EXISTS(
                 SELECT 1 FROM challenge_entries ce
                  WHERE ce.bracket_id = fr.bracket_id
@@ -41,7 +42,7 @@ export async function onRequestGet({ env }){
     ).all();
   }catch(_e){
     rs = await env.DB.prepare(
-      `SELECT fr.bracket_id, fr.caption, fr.approved_at, b.title
+      `SELECT fr.bracket_id, fr.caption, fr.approved_at, b.title, b.created_at, b.updated_at
          FROM feature_requests fr
          JOIN brackets b ON b.id = fr.bracket_id
         WHERE fr.status='approved'
