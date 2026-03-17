@@ -77,61 +77,54 @@ export async function onRequest(context){
 
   if(request.method === 'GET'){
     // Return ALL brackets for this user (no phase filtering, no date filtering).
-    const rs = await env.DB.prepare(
-      `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at
-         FROM brackets
-        WHERE user_id=?
-        ORDER BY COALESCE(updated_at, created_at) DESC`
-    ).bind(user.id).all();
-
-    const brackets = rs.results || [];
-
-    // Merge featured status separately so one missing table/query never strips challenge flags.
-    try{
-      const fr = await env.DB.prepare(
-        `SELECT bracket_id,
-                CASE
-                  WHEN status IS NULL OR TRIM(status) = '' THEN 'pending'
-                  ELSE status
-                END AS feature_status
-           FROM feature_requests
-          WHERE user_id=? OR user_id IS NULL
-          ORDER BY COALESCE(created_at, submitted_at, updated_at, approved_at) DESC`
+    let rs;
+    try {
+      rs = await env.DB.prepare(
+        `SELECT id,
+                user_id,
+                title,
+                bracket_name,
+                bracket_type,
+                created_at,
+                updated_at,
+                (
+                  SELECT CASE
+                           WHEN fr.status IS NULL OR TRIM(fr.status) = '' THEN 'pending'
+                           ELSE fr.status
+                         END
+                    FROM feature_requests fr
+                   WHERE fr.bracket_id = brackets.id
+                     AND (fr.user_id = brackets.user_id OR fr.user_id IS NULL)
+                   ORDER BY COALESCE(fr.created_at, fr.submitted_at, fr.updated_at, fr.approved_at) DESC
+                   LIMIT 1
+                ) AS feature_status,
+                EXISTS(
+                  SELECT 1 FROM challenge_entries ce
+                   WHERE ce.bracket_id = brackets.id
+                     AND LOWER(ce.challenge)='best'
+                   LIMIT 1
+                ) AS entered_best,
+                EXISTS(
+                  SELECT 1 FROM challenge_entries ce
+                   WHERE ce.bracket_id = brackets.id
+                     AND LOWER(ce.challenge)='worst'
+                   LIMIT 1
+                ) AS entered_worst
+           FROM brackets
+          WHERE user_id=?
+          ORDER BY COALESCE(updated_at, created_at) DESC`
       ).bind(user.id).all();
-      const featureMap = new Map();
-      for(const row of (fr.results || [])){
-        const bid = String(row.bracket_id || '');
-        if(!bid || featureMap.has(bid)) continue;
-        featureMap.set(bid, String(row.feature_status || ''));
-      }
-      for(const b of brackets){
-        b.feature_status = featureMap.get(String(b.id)) || '';
-      }
-    }catch(_e){}
-
-    // Merge challenge-entry flags separately so emojis work for all old + new brackets.
-    try{
-      const ce = await env.DB.prepare(
-        `SELECT bracket_id,
-                MAX(CASE WHEN LOWER(challenge)='best' THEN 1 ELSE 0 END) AS entered_best,
-                MAX(CASE WHEN LOWER(challenge)='worst' THEN 1 ELSE 0 END) AS entered_worst
-           FROM challenge_entries
-          GROUP BY bracket_id`
-      ).all();
-      const entryMap = new Map((ce.results || []).map(row => [String(row.bracket_id || ''), row]));
-      for(const b of brackets){
-        const row = entryMap.get(String(b.id)) || {};
-        b.entered_best = Number(row.entered_best || 0);
-        b.entered_worst = Number(row.entered_worst || 0);
-      }
-    }catch(_e){
-      for(const b of brackets){
-        b.entered_best = Number(b.entered_best || 0);
-        b.entered_worst = Number(b.entered_worst || 0);
-      }
+    } catch (e) {
+      // Backward-compatible fallback if feature_requests or challenge_entries schema differs.
+      rs = await env.DB.prepare(
+        `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at
+           FROM brackets
+          WHERE user_id=?
+          ORDER BY COALESCE(updated_at, created_at) DESC`
+      ).bind(user.id).all();
     }
 
-    return json({ ok:true, brackets });
+    return json({ ok:true, brackets: rs.results || [] });
   }
 
   if(request.method === 'POST'){
