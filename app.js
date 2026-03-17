@@ -2439,14 +2439,11 @@ function lbTableWorst(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    <th>Total</th>
+    <th>Score</th>
     <th>Total Possible</th>
-    <th>S1</th>
-    <th>S2</th>
-    <th>S3</th>
     <th>x/y</th>
     <th>%</th>
-    <th>Entries</th>
+    <th>Champion</th>
   </tr>`;
   t.appendChild(thead);
   const tb = document.createElement('tbody');
@@ -2455,30 +2452,28 @@ function lbTableWorst(rows){
   const gamesPlayed = leaderboardGamesPlayedCount();
 
   (rows||[]).forEach(r=>{
+    const tr = document.createElement('tr');
+    if(meId && r.user_id === meId) tr.classList.add('isMe');
+
+    const champ = '—';
+    const displayName = r.title || r.display_name || 'Bracket';
+    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
+    const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = gamesPlayed;
     const pct = leaderboardPctText(xVal, yVal);
-    const displayName = r.display_name || r.title || 'Bracket';
-    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const entryLabels = [];
-    if(r.brackets?.pre) entryLabels.push(`S1`);
-    if(r.brackets?.r16) entryLabels.push(`S2`);
-    if(r.brackets?.f4) entryLabels.push(`S3`);
-    const tr = document.createElement('tr');
-    if(meId && r.user_id === meId) tr.classList.add('isMe');
-    const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
-    const userCell = escapeHtml(displayName) + ' 😈';
+    const userCell = meId && r.user_id === meId
+      ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
+      : `${escapeHtml(displayName)} 😈`;
+
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
-      <td class="lbScore">${r.stage1 ?? '—'}</td>
-      <td class="lbScore">${r.stage2 ?? '—'}</td>
-      <td class="lbScore">${r.stage3 ?? '—'}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
-      <td class="lbEntries">${entryLabels.length ? entryLabels.join(' · ') : '—'}</td>
+      <td><span>${escapeHtml(champ)}</span></td>
     `;
     tb.appendChild(tr);
   });
