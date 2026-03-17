@@ -1928,7 +1928,7 @@ async function saveBracketThenEnterChallenge(challenge){
   const href = challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
 
   if(!state.me){
-    __pendingPostAuth = { action: 'saveAndEnterChallenge', challenge };
+    __pendingPostAuth = { action: 'saveAndGoToChallenge', challenge };
     try{
       openAuth('signup', 'Save your bracket');
     }catch(_){
@@ -1960,9 +1960,8 @@ async function saveBracketThenEnterChallenge(challenge){
       saveMeta({ bracketId:null, bracketTitle:null });
     }
 
-    const id = await ensureSavedToAccount();
+    await ensureSavedToAccount();
     phase3MarkSaved();
-    await enterChallenge(challenge, 'pre', id);
     window.location.href = href;
   }catch(e){
     if(e && e.message==='CANCELLED') return;
@@ -1971,7 +1970,7 @@ async function saveBracketThenEnterChallenge(challenge){
       return;
     }
     console.warn('saveBracketThenEnterChallenge failed', e);
-    toast('Could not save and enter. Please try again.');
+    toast('Could not save. Please try again.');
   }
 }
 
@@ -5002,20 +5001,18 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   const __homeGoBest = qs('#homeGoBest');
   if(__homeGoBest){
     __homeGoBest.setAttribute('type','button');
-    __homeGoBest.onclick = async (e)=>{
-      if(e){ e.preventDefault(); e.stopPropagation(); }
+    __homeGoBest.addEventListener('click', async (e)=>{
+      e.preventDefault();
       await saveBracketThenEnterChallenge('best');
-      return false;
-    };
+    });
   }
   const __homeGoWorst = qs('#homeGoWorst');
   if(__homeGoWorst){
     __homeGoWorst.setAttribute('type','button');
-    __homeGoWorst.onclick = async (e)=>{
-      if(e){ e.preventDefault(); e.stopPropagation(); }
+    __homeGoWorst.addEventListener('click', async (e)=>{
+      e.preventDefault();
       await saveBracketThenEnterChallenge('worst');
-      return false;
-    };
+    });
   }
 
   // Admin view controls
@@ -5229,37 +5226,6 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
   wireSaveEnter('#saveEnterBtn');
   wireSaveEnter('#saveEnterBtnTop');
 
-
-  // Fallback delegation for challenge buttons on the bracket page.
-  document.addEventListener('click', async (e)=>{
-    const bestBtn = e.target && e.target.closest ? e.target.closest('#homeGoBest') : null;
-    const worstBtn = e.target && e.target.closest ? e.target.closest('#homeGoWorst') : null;
-    if(bestBtn){
-      e.preventDefault();
-      e.stopPropagation();
-      await saveBracketThenEnterChallenge('best');
-      return;
-    }
-    if(worstBtn){
-      e.preventDefault();
-      e.stopPropagation();
-      await saveBracketThenEnterChallenge('worst');
-      return;
-    }
-  }, true);
-
-  document.addEventListener('click', (e)=>{
-    const trigger = e.target.closest('.betOnlineRegionPromoText, .betOnlineRegionPromoLogoLink, .betOnlineBracketPromoText, .betOnlineBracketPromoLogoWrap, .betOnlinePrizePoolBtn');
-    if(!trigger) return;
-    const href = trigger.getAttribute('href');
-    if(!href) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const isExternal = /^https?:\/\//i.test(href);
-    const isAffiliate = trigger.matches('.betOnlineRegionPromoText, .betOnlineRegionPromoLogoLink, .betOnlineBracketPromoText, .betOnlineBracketPromoLogoWrap') || trigger.hasAttribute('data-sportsbook');
-    saveBracketThenNavigate(href, { newTab: true, isAffiliate });
-  }, true);
-
   // Undo buttons (bracket header + mobile topbar)
   qs('#undoBtnTop')?.addEventListener('click', ()=>undoLastAction());
   qs('#undoBtnHeader')?.addEventListener('click', ()=>undoLastAction());
@@ -5324,8 +5290,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
           await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
             toast('Saved to My Brackets.');
-          }else if(pending.action === 'saveAndEnterChallenge' && pending.challenge){
-            await enterChallenge(pending.challenge, 'pre', __savedId);
+          }else if(pending.action === 'saveAndGoToChallenge' && pending.challenge){
             window.location.href = pending.challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
             return;
           }else if(pending.action === 'saveAndRedirect' && pending.href){
