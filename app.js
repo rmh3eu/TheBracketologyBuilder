@@ -723,7 +723,7 @@ async function featureBoostModal(bracketName='Your bracket'){
     const box = el('div','bb-confirm-box featureBoostBox');
 
     const title = el('div','featureBoostTitle');
-    title.textContent = 'Boost  Visibility';
+    title.textContent = 'Boost Your Bracket Visibility';
 
     const msg = el('div','featureBoostMessage');
     msg.innerHTML = `
@@ -823,7 +823,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
     const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = ' Has Been Saved to My Brackets!';
+    savedText.textContent = 'Your Bracket Has Been Saved to My Brackets!';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
@@ -1885,7 +1885,7 @@ async function completeSavedRedirect(href, opts={}){
     await betOnlinePromoModal();
     return;
   }
-  const ok = await confirmModal(' Has Been Saved to My Brackets!', 'View Prize Pool', 'Stay on Bracket');
+  const ok = await confirmModal('Your Bracket Has Been Saved to My Brackets!', 'View Prize Pool', 'Stay on Bracket');
   if(!ok) return;
   try{
     if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
@@ -2096,7 +2096,7 @@ async function ensureSavedToAccount(){
     'My Bracket',
     'Untitled Bracket',
     'Untitled bracket',
-    'Name  Here',
+    'Name Your Bracket Here',
     'Enter Bracket Name Here',
     ''
   ].includes(currentTitleRaw);
@@ -3357,8 +3357,12 @@ async function loadFeatured(){
     grid.innerHTML = '';
     items.forEach(it=>{
       const c = el('div','card');
+      const emojiBits = [];
+      if (Number(it.entered_best)) emojiBits.push('😇');
+      if (Number(it.entered_worst)) emojiBits.push('😈');
+      const cardTitle = `${escapeHtml(it.title || 'Featured Bracket')}${emojiBits.length ? ' ' + emojiBits.join('') : ''}`;
       c.innerHTML = `
-        <div class="cardTitle">${escapeHtml(it.title || 'Featured Bracket')}</div>
+        <div class="cardTitle">${cardTitle}</div>
         <div class="cardBody">${escapeHtml(it.caption || '')}</div>
         <div class="row" style="gap:8px;flex-wrap:wrap">
           <a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(it.bracket_id)}&readonly=1" target="_blank" rel="noopener">Open</a>
