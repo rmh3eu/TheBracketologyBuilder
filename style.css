@@ -4203,3 +4203,23 @@ a[href*="Bracket"]{
   gap: 2px;
   margin-left: 4px;
 }
+
+
+.page-mybrackets .bracketTitleRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.page-mybrackets .bracketChallengeIcons{
+  font-size: 2.1rem;
+  line-height: 1;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  flex:0 0 auto;
+  margin-left:8px;
+}
+.page-mybrackets .bracketTitle{
+  flex:1 1 auto;
+}

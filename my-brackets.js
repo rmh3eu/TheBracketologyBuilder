@@ -183,13 +183,6 @@ function renderBracketSection({ listId, emptyId, items }) {
     const emojiBits = [];
     if (Number(b.entered_best)) emojiBits.push('😇');
     if (Number(b.entered_worst)) emojiBits.push('😈');
-    if (emojiBits.length) {
-      const emoji = document.createElement('span');
-      emoji.className = 'bracketChallengeEmojis';
-      emoji.textContent = emojiBits.join(' ');
-      title.appendChild(document.createTextNode(' '));
-      title.appendChild(emoji);
-    }
 
     // Featured badge (user-visible): show when submitted/approved.
     const fs = String(b.feature_status || '').toLowerCase();
@@ -201,6 +194,12 @@ function renderBracketSection({ listId, emptyId, items }) {
     }
 
     titleRow.insertBefore(title, titleRow.firstChild);
+    if (emojiBits.length) {
+      const emoji = document.createElement('span');
+      emoji.className = 'bracketChallengeIcons';
+      emoji.textContent = emojiBits.join(' ');
+      titleRow.appendChild(emoji);
+    }
 
     const meta = document.createElement('div');
     meta.className = 'bracketMeta';
