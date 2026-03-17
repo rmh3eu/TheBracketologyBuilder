@@ -1919,6 +1919,92 @@ function saveFirstPromptModal(isAffiliate){
   });
 }
 
+
+function saveFirstPromptChallengeModal(challenge){
+  return new Promise((resolve)=>{
+    const overlay = el('div','bb-confirm-overlay');
+    const box = el('div','bb-confirm-box');
+    const msg = el('div','bb-confirm-message');
+    const challengeLabel = challenge === 'best' ? 'Best Bracket Challenge' : 'Worst Bracket Challenge';
+    msg.textContent = `Do you want to save your bracket first before entering the ${challengeLabel}?`;
+    const btnRow = el('div','bb-confirm-actions');
+    const yes = el('button','bb-confirm-btn ok');
+    yes.type = 'button';
+    yes.textContent = 'Yes';
+    const no = el('button','bb-confirm-btn cancel');
+    no.type = 'button';
+    no.textContent = `Continue to ${challengeLabel} Without Saving`;
+    btnRow.append(yes, no);
+    box.append(msg, btnRow);
+    overlay.append(box);
+    document.body.append(overlay);
+    const cleanup = ()=>{ try{ overlay.remove(); }catch(_e){} };
+    yes.addEventListener('click', ()=>{ cleanup(); resolve('save'); });
+    no.addEventListener('click', ()=>{ cleanup(); resolve('skip'); });
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ cleanup(); resolve('stay'); } });
+  });
+}
+
+async function saveBracketThenEnterChallenge(challenge){
+  saveLocal(state.picks);
+  if(!validateSaveRequirementsBeforeRedirect()) return;
+  const choice = await saveFirstPromptChallengeModal(challenge);
+  if(choice === 'stay') return;
+  const href = challenge === 'best' ? 'best-challenge.html' : 'worst-challenge.html';
+  if(choice === 'skip'){
+    window.location.href = href;
+    return;
+  }
+
+  if(!state.me){
+    __pendingPostAuth = { action: 'saveAndEnterChallenge', challenge };
+    try{
+      openAuth('signup', 'Save your bracket');
+    }catch(_){
+      openAuth('signup');
+    }
+    return;
+  }
+
+  try{
+    const liveTitle = getBracketTitleFromDom();
+    if(liveTitle) state.bracketTitle = liveTitle;
+
+    const sp = new URLSearchParams(location.search);
+    const isNewParam = (sp.get('new') === '1');
+    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    const urlMeta = getBracketMetaFromUrl();
+    const hasExisting = !!(urlMeta.bracketId || state.bracketId);
+    const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
+
+    if(isNewFlow){
+      const isHome = IS_HOME;
+      if(isHome){
+        if(sweet16ModeEnabled()) state.bracket_type = 'second_chance';
+        else if(OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
+        else state.bracket_type = 'bracketology';
+      }
+      state.bracketId = null;
+      state.bracketTitle = null;
+      saveMeta({ bracketId:null, bracketTitle:null });
+    }
+
+    const id = await ensureSavedToAccount();
+    phase3MarkSaved();
+    await enterChallenge(challenge, 'pre', id);
+    toast(`Saved and entered ${challenge === 'best' ? 'Best' : 'Worst'} Bracket Challenge!`);
+    window.location.href = href;
+  }catch(e){
+    if(e && e.message==='CANCELLED') return;
+    if(e && e.message==='NAME_TAKEN'){
+      alert('You already have a bracket with that name. Please choose a different name.');
+      return;
+    }
+    console.warn('saveBracketThenEnterChallenge failed', e);
+    toast('Could not save and enter. Please try again.');
+  }
+}
+
 async function saveBracketThenNavigate(href, opts={}){
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
@@ -4926,9 +5012,15 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   phase3UpdateVisibility();
   window.addEventListener('resize', ()=>{ phase3UpdateVisibility(); });
 
-  // Home page challenge buttons
-  qs('#homeGoBest')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='best-challenge.html'; });
-  qs('#homeGoWorst')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='worst-challenge.html'; });
+  // Home / bracket challenge buttons
+  qs('#homeGoBest')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await saveBracketThenEnterChallenge('best');
+  });
+  qs('#homeGoWorst')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await saveBracketThenEnterChallenge('worst');
+  });
 
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
@@ -5068,7 +5160,7 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
 const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
-    // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
+    // Save: ensure the bracket exists in the user's account
     saveLocal(state.picks);
     // Require a championship tiebreaker ONLY when the Official Bracket is live.
     if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
