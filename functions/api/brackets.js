@@ -80,7 +80,19 @@ export async function onRequest(context){
                      AND (fr.user_id = brackets.user_id OR fr.user_id IS NULL)
                    ORDER BY COALESCE(fr.created_at, fr.submitted_at, fr.updated_at) DESC
                    LIMIT 1
-                ) AS feature_status
+                ) AS feature_status,
+                EXISTS(
+                  SELECT 1 FROM challenge_entries ce
+                   WHERE ce.bracket_id = brackets.id
+                     AND LOWER(ce.challenge) = 'best'
+                   LIMIT 1
+                ) AS entered_best,
+                EXISTS(
+                  SELECT 1 FROM challenge_entries ce
+                   WHERE ce.bracket_id = brackets.id
+                     AND LOWER(ce.challenge) = 'worst'
+                   LIMIT 1
+                ) AS entered_worst
            FROM brackets
           WHERE user_id=?
           ORDER BY COALESCE(updated_at, created_at) DESC`

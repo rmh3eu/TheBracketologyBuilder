@@ -36,7 +36,7 @@ async function ensureTables(env){
     try{ await env.DB.prepare(stmt).run(); }catch(_e){}
   }
 
-  // removed index to allow unlimited entries
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_chal_user ON challenge_entries(user_id, challenge, stage)").run();
 
   // Remove legacy unique indexes that can block inserts on older schemas.
   try{
