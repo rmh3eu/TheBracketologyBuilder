@@ -93,7 +93,7 @@ View Featured Brackets: ${featuredUrl}
 
 The Official Brackets are Out
 
-Make an official bracket and enter the best and worst bracket challenges. Users can now make multiple brackets.
+Make an official bracket and enter the Best and Worst Bracket Challenges. Users can now make multiple brackets.
 
 Enter Now: ${siteUrl}
 
@@ -104,8 +104,8 @@ Thanks for choosing BracketologyBuilder.com!`;
             <p style="margin:0 0 12px 0">Congratulations — your bracket <b>${safeTitle.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</b> was approved and is now eligible to appear on our Featured Brackets page.</p>
             <p style="margin:0 0 16px 0"><a href="${featuredUrl}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px">View Featured Brackets</a></p>
             <p style="margin:18px 0 8px 0;font-weight:800">The Official Brackets are Out</p>
-            <p style="margin:0 0 16px 0">Make an official bracket and enter the best and worst bracket challenges. Users can now make multiple brackets.</p>
-            <p style="margin:0 0 16px 0"><a href="${siteUrl}" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px">Enter Now</a></p>
+            <p style="margin:0 0 16px 0">Make an official bracket and enter the Best and Worst Bracket Challenges. Users can now make multiple brackets.</p>
+            <p style="margin:0 0 16px 0"><a href="${siteUrl}" style="display:inline-block;background:#d62828;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px">Enter Now</a></p>
             <p style="margin:0">Thank you for choosing BracketologyBuilder.com!</p>
           </div>
         `;
