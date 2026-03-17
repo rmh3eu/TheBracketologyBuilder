@@ -1922,13 +1922,16 @@ function saveFirstPromptModal(isAffiliate){
 
 
 async function saveBracketThenEnterChallenge(challenge){
+  const choice = await saveBeforeChallengeModal();
+  if(choice !== 'save') return;
+
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
 
   const href = challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
 
   if(!state.me){
-    __pendingPostAuth = { action: 'saveAndGoToChallenge', challenge };
+    __pendingPostAuth = { action: 'saveAndEnterChallenge', challenge };
     try{
       openAuth('signup', 'Save your bracket');
     }catch(_){
@@ -1960,8 +1963,9 @@ async function saveBracketThenEnterChallenge(challenge){
       saveMeta({ bracketId:null, bracketTitle:null });
     }
 
-    await ensureSavedToAccount();
+    const id = await ensureSavedToAccount();
     phase3MarkSaved();
+    await enterChallenge(challenge, 'pre', id);
     window.location.href = href;
   }catch(e){
     if(e && e.message==='CANCELLED') return;
@@ -1970,7 +1974,7 @@ async function saveBracketThenEnterChallenge(challenge){
       return;
     }
     console.warn('saveBracketThenEnterChallenge failed', e);
-    toast('Could not save. Please try again.');
+    toast('Could not save and enter. Please try again.');
   }
 }
 
@@ -5291,7 +5295,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
           await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
             toast('Saved to My Brackets.');
-          }else if(pending.action === 'saveAndGoToChallenge' && pending.challenge){
+          }else if(pending.action === 'saveAndEnterChallenge' && pending.challenge){
             window.location.href = pending.challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
             return;
           }else if(pending.action === 'saveAndRedirect' && pending.href){
