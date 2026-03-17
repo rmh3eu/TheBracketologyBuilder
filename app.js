@@ -3351,16 +3351,24 @@ async function loadFeatured(){
       return;
     }
     grid.innerHTML = '';
+    const fmtFeaturedDate = (value)=>{
+      try{
+        if(!value) return '';
+        return new Date(value).toLocaleString([], { month:'numeric', day:'numeric', year:'2-digit', hour:'numeric', minute:'2-digit' });
+      }catch(_e){ return ''; }
+    };
     items.forEach(it=>{
       const c = el('div','card');
       const emojiBits = [];
       if (Number(it.entered_best)) emojiBits.push('😇');
       if (Number(it.entered_worst)) emojiBits.push('😈');
       const featuredTitle = `${escapeHtml(it.title || 'Featured Bracket')}${emojiBits.length ? ' ' + emojiBits.join(' ') : ''}`;
+      const when = fmtFeaturedDate(it.created_at || it.updated_at || it.approved_at);
       c.innerHTML = `
         <div class="cardTitle">${featuredTitle}</div>
         <div class="cardBody">${escapeHtml(it.caption || '')}</div>
-        <div class="row" style="gap:8px;flex-wrap:wrap">
+        ${when ? `<div class="cardBody" style="margin-top:6px">Created: ${escapeHtml(when)}</div>` : ``}
+        <div class="row" style="gap:8px;flex-wrap:wrap; margin-top:10px">
           <a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(it.bracket_id)}&readonly=1" target="_blank" rel="noopener">Open</a>
         </div>
       `;
