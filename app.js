@@ -4999,14 +4999,24 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }catch(_e){}
 
   // Home / bracket challenge buttons
-  qs('#homeGoBest')?.addEventListener('click', async (e)=>{
-    e.preventDefault();
-    await saveBracketThenEnterChallenge('best');
-  });
-  qs('#homeGoWorst')?.addEventListener('click', async (e)=>{
-    e.preventDefault();
-    await saveBracketThenEnterChallenge('worst');
-  });
+  const __homeGoBest = qs('#homeGoBest');
+  if(__homeGoBest){
+    __homeGoBest.setAttribute('type','button');
+    __homeGoBest.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      await saveBracketThenEnterChallenge('best');
+    });
+  }
+  const __homeGoWorst = qs('#homeGoWorst');
+  if(__homeGoWorst){
+    __homeGoWorst.setAttribute('type','button');
+    __homeGoWorst.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      await saveBracketThenEnterChallenge('worst');
+    });
+  }
 
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
@@ -5218,6 +5228,25 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
   });
   wireSaveEnter('#saveEnterBtn');
   wireSaveEnter('#saveEnterBtnTop');
+
+
+  // Fallback delegation for challenge buttons on the bracket page.
+  document.addEventListener('click', async (e)=>{
+    const bestBtn = e.target && e.target.closest ? e.target.closest('#homeGoBest') : null;
+    const worstBtn = e.target && e.target.closest ? e.target.closest('#homeGoWorst') : null;
+    if(bestBtn){
+      e.preventDefault();
+      e.stopPropagation();
+      await saveBracketThenEnterChallenge('best');
+      return;
+    }
+    if(worstBtn){
+      e.preventDefault();
+      e.stopPropagation();
+      await saveBracketThenEnterChallenge('worst');
+      return;
+    }
+  }, true);
 
   document.addEventListener('click', (e)=>{
     const trigger = e.target.closest('.betOnlineRegionPromoText, .betOnlineRegionPromoLogoLink, .betOnlineBracketPromoText, .betOnlineBracketPromoLogoWrap, .betOnlinePrizePoolBtn');
