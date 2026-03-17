@@ -2,7 +2,7 @@ export async function onRequest({ request }) {
   const affiliateUrl = "https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/";
   const url = new URL(request.url);
   const ogImage = `${url.origin}/images/contest-200k-betonline-preview.jpg`;
-  const sharePath = "200k";
+  const sharePath = "200kbetonline";
 
   const html = `<!doctype html>
 <html lang="en">
