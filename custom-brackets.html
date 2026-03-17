@@ -88,8 +88,8 @@
 	              </div>
 	              <section id="homeChallengePanel" class="homeChallengePanel" aria-label="Join a Challenge">
 	                <div class="challengeActions" style="gap:10px;flex-wrap:wrap">
-	                  <button class="btn" id="homeGoBest">Best Bracket Challenge</button>
-	                  <button class="btn" id="homeGoWorst">Worst Bracket Challenge</button>
+	                  <button class="btn" id="homeGoBest" type="button" onclick="return window.goToChallengeFromBracket ? window.goToChallengeFromBracket('best') : false;">Best Bracket Challenge</button>
+	                  <button class="btn" id="homeGoWorst" type="button" onclick="return window.goToChallengeFromBracket ? window.goToChallengeFromBracket('worst') : false;">Worst Bracket Challenge</button>
 	                </div>
 	                <!-- message now shown above, keep this removed to avoid duplicates -->
 	              </section>

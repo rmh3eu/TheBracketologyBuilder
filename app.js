@@ -1922,22 +1922,15 @@ function saveFirstPromptModal(isAffiliate){
 
 
 async function saveBracketThenEnterChallenge(challenge){
-  const choice = await saveBeforeChallengeModal();
-  if(choice !== 'save') return;
-
   saveLocal(state.picks);
-  if(!validateSaveRequirementsBeforeRedirect()) return;
+  if(!validateSaveRequirementsBeforeRedirect()) return false;
 
   const href = challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
 
   if(!state.me){
     __pendingPostAuth = { action: 'saveAndEnterChallenge', challenge };
-    try{
-      openAuth('signup', 'Save your bracket');
-    }catch(_){
-      openAuth('signup');
-    }
-    return;
+    try{ openAuth('signup', 'Save your bracket'); }catch(_){ openAuth('signup'); }
+    return false;
   }
 
   try{
@@ -1967,16 +1960,22 @@ async function saveBracketThenEnterChallenge(challenge){
     phase3MarkSaved();
     await enterChallenge(challenge, 'pre', id);
     window.location.href = href;
+    return false;
   }catch(e){
-    if(e && e.message==='CANCELLED') return;
+    if(e && e.message==='CANCELLED') return false;
     if(e && e.message==='NAME_TAKEN'){
       alert('You already have a bracket with that name. Please choose a different name.');
-      return;
+      return false;
     }
     console.warn('saveBracketThenEnterChallenge failed', e);
     toast('Could not save and enter. Please try again.');
+    return false;
   }
 }
+
+window.goToChallengeFromBracket = async function(challenge){
+  return await saveBracketThenEnterChallenge(challenge);
+};
 
 async function saveBracketThenNavigate(href, opts={}){
   saveLocal(state.picks);
@@ -5002,23 +5001,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }catch(_e){}
 
   // Home / bracket challenge buttons
+  // Buttons also use inline onclick on bracket pages for reliability.
   const __homeGoBest = qs('#homeGoBest');
-  if(__homeGoBest){
-    __homeGoBest.setAttribute('type','button');
-    __homeGoBest.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      await saveBracketThenEnterChallenge('best');
-    });
-  }
+  if(__homeGoBest) __homeGoBest.setAttribute('type','button');
   const __homeGoWorst = qs('#homeGoWorst');
-  if(__homeGoWorst){
-    __homeGoWorst.setAttribute('type','button');
-    __homeGoWorst.onclick = async (e)=>{
-      if(e) e.preventDefault();
-      await saveBracketThenEnterChallenge('worst');
-      return false;
-    };
-  }
+  if(__homeGoWorst) __homeGoWorst.setAttribute('type','button');
 
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
@@ -5295,7 +5282,8 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
           await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
             toast('Saved to My Brackets.');
-          }else if(pending.action === 'saveAndEnterChallenge' && pending.challenge){
+          }else if((pending.action === 'saveAndEnterChallenge' || pending.action === 'saveAndGoToChallenge') && pending.challenge){
+            await enterChallenge(pending.challenge, 'pre', __savedId);
             window.location.href = pending.challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
             return;
           }else if(pending.action === 'saveAndRedirect' && pending.href){
