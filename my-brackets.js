@@ -180,6 +180,10 @@ function renderBracketSection({ listId, emptyId, items }) {
       /^name your bracket here$/i.test(nmRaw) ||
       /^enter bracket name here$/i.test(nmRaw);
     title.textContent = isDefault ? 'Enter Bracket Name Here' : nmRaw;
+    const emojiBits = [];
+    if (Number(b.entered_best)) emojiBits.push('😇');
+    if (Number(b.entered_worst)) emojiBits.push('😈');
+    if (emojiBits.length) title.textContent += ' ' + emojiBits.join(' ');
 
     // Featured badge (user-visible): show when submitted/approved.
     const fs = String(b.feature_status || '').toLowerCase();
