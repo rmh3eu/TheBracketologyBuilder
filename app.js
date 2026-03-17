@@ -1920,41 +1920,12 @@ function saveFirstPromptModal(isAffiliate){
 }
 
 
-function saveFirstPromptChallengeModal(challenge){
-  return new Promise((resolve)=>{
-    const overlay = el('div','bb-confirm-overlay');
-    const box = el('div','bb-confirm-box');
-    const msg = el('div','bb-confirm-message');
-    const challengeLabel = challenge === 'best' ? 'Best Bracket Challenge' : 'Worst Bracket Challenge';
-    msg.textContent = `Do you want to save your bracket first before entering the ${challengeLabel}?`;
-    const btnRow = el('div','bb-confirm-actions');
-    const yes = el('button','bb-confirm-btn ok');
-    yes.type = 'button';
-    yes.textContent = 'Yes';
-    const no = el('button','bb-confirm-btn cancel');
-    no.type = 'button';
-    no.textContent = `Continue to ${challengeLabel} Without Saving`;
-    btnRow.append(yes, no);
-    box.append(msg, btnRow);
-    overlay.append(box);
-    document.body.append(overlay);
-    const cleanup = ()=>{ try{ overlay.remove(); }catch(_e){} };
-    yes.addEventListener('click', ()=>{ cleanup(); resolve('save'); });
-    no.addEventListener('click', ()=>{ cleanup(); resolve('skip'); });
-    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ cleanup(); resolve('stay'); } });
-  });
-}
 
 async function saveBracketThenEnterChallenge(challenge){
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
-  const choice = await saveFirstPromptChallengeModal(challenge);
-  if(choice === 'stay') return;
-  const href = challenge === 'best' ? 'best-challenge.html' : 'worst-challenge.html';
-  if(choice === 'skip'){
-    window.location.href = href;
-    return;
-  }
+
+  const href = challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
 
   if(!state.me){
     __pendingPostAuth = { action: 'saveAndEnterChallenge', challenge };
@@ -1992,7 +1963,6 @@ async function saveBracketThenEnterChallenge(challenge){
     const id = await ensureSavedToAccount();
     phase3MarkSaved();
     await enterChallenge(challenge, 'pre', id);
-    toast(`Saved and entered ${challenge === 'best' ? 'Best' : 'Worst'} Bracket Challenge!`);
     window.location.href = href;
   }catch(e){
     if(e && e.message==='CANCELLED') return;
@@ -5011,6 +4981,22 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   __phase3.hasSaved = !!state.bracketId;
   phase3UpdateVisibility();
   window.addEventListener('resize', ()=>{ phase3UpdateVisibility(); });
+
+
+  // Challenge page success message after auto-save + auto-entry from bracket page
+  try{
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('entered') === '1'){
+      const isBestPage = /best-challenge\.html$/i.test(location.pathname);
+      const isWorstPage = /worst-challenge\.html$/i.test(location.pathname);
+      if(isBestPage || isWorstPage){
+        toast('Your bracket has successfully been entered into our challenge!');
+        const clean = new URL(window.location.href);
+        clean.searchParams.delete('entered');
+        window.history.replaceState({}, '', clean.toString());
+      }
+    }
+  }catch(_e){}
 
   // Home / bracket challenge buttons
   qs('#homeGoBest')?.addEventListener('click', async (e)=>{
