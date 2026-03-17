@@ -3357,8 +3357,12 @@ async function loadFeatured(){
     grid.innerHTML = '';
     items.forEach(it=>{
       const c = el('div','card');
+      const emojiBits = [];
+      if (Number(it.entered_best)) emojiBits.push('😇');
+      if (Number(it.entered_worst)) emojiBits.push('😈');
+      const cardTitle = `${escapeHtml(it.title || 'Featured Bracket')}${emojiBits.length ? ' ' + emojiBits.join('') : ''}`;
       c.innerHTML = `
-        <div class="cardTitle">${escapeHtml(it.title || 'Featured Bracket')}</div>
+        <div class="cardTitle">${cardTitle}</div>
         <div class="cardBody">${escapeHtml(it.caption || '')}</div>
         <div class="row" style="gap:8px;flex-wrap:wrap">
           <a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(it.bracket_id)}&readonly=1" target="_blank" rel="noopener">Open</a>
