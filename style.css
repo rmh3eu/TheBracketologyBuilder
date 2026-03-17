@@ -4191,3 +4191,15 @@ a[href*="Bracket"]{
   transform:scale(1.9);
   transform-origin:center center;
 }
+
+
+/* Challenge emojis on bracket cards */
+.bracketChallengeEmojis{
+  font-size: 1.28em;
+  line-height: 1;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+}
