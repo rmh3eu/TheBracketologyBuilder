@@ -1921,11 +1921,51 @@ function saveFirstPromptModal(isAffiliate){
 
 
 
+
+function saveBeforeChallengeModal(){
+  return new Promise((resolve)=>{
+    const overlay = el('div','bb-confirm-overlay');
+    const box = el('div','bb-confirm-box');
+    const msg = el('div','bb-confirm-message');
+    msg.textContent = 'Save Before Exiting the Screen';
+    const btnRow = el('div','bb-confirm-actions');
+
+    const saveBtn = el('button','bb-confirm-btn ok');
+    saveBtn.type = 'button';
+    saveBtn.textContent = 'Save';
+
+    const cancelWrap = el('div');
+    cancelWrap.style.marginTop = '14px';
+    cancelWrap.style.display = 'flex';
+    cancelWrap.style.justifyContent = 'flex-start';
+
+    const closeBtn = el('button','bb-confirm-btn cancel');
+    closeBtn.type = 'button';
+    closeBtn.textContent = '×';
+    closeBtn.style.minWidth = '40px';
+    closeBtn.style.padding = '10px 12px';
+
+    btnRow.append(saveBtn);
+    cancelWrap.append(closeBtn);
+    box.append(msg, btnRow, cancelWrap);
+    overlay.append(box);
+    document.body.append(overlay);
+
+    const cleanup = ()=>{ try{ overlay.remove(); }catch(_e){} };
+    saveBtn.addEventListener('click', ()=>{ cleanup(); resolve('save'); });
+    closeBtn.addEventListener('click', ()=>{ cleanup(); resolve('stay'); });
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ cleanup(); resolve('stay'); } });
+  });
+}
+
 async function saveBracketThenEnterChallenge(challenge){
+  const choice = await saveBeforeChallengeModal();
+  if(choice !== 'save') return;
+
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
 
-  const href = challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
+  const href = challenge === 'best' ? 'best-challenge.html' : 'worst-challenge.html';
 
   if(!state.me){
     __pendingPostAuth = { action: 'saveAndGoToChallenge', challenge };
@@ -1974,7 +2014,7 @@ async function saveBracketThenEnterChallenge(challenge){
   }
 }
 
-async function saveBracketThenNavigate(href, opts={}){
+async function saveBracketThenNavigateasync function saveBracketThenNavigate(href, opts={}){
   saveLocal(state.picks);
   if(!validateSaveRequirementsBeforeRedirect()) return;
   const isAffiliate = !!(opts && opts.isAffiliate);
@@ -4998,23 +5038,14 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }catch(_e){}
 
   // Home / bracket challenge buttons
-  const __homeGoBest = qs('#homeGoBest');
-  if(__homeGoBest){
-    __homeGoBest.setAttribute('type','button');
-    __homeGoBest.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      await saveBracketThenEnterChallenge('best');
-    });
-  }
-  const __homeGoWorst = qs('#homeGoWorst');
-  if(__homeGoWorst){
-    __homeGoWorst.setAttribute('type','button');
-    __homeGoWorst.onclick = async (e)=>{
-      if(e) e.preventDefault();
-      await saveBracketThenEnterChallenge('worst');
-      return false;
-    };
-  }
+  qs('#homeGoBest')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await saveBracketThenEnterChallenge('best');
+  });
+  qs('#homeGoWorst')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await saveBracketThenEnterChallenge('worst');
+  });
 
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
@@ -5292,7 +5323,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
           if(pending.action === 'saveEnter'){
             toast('Saved to My Brackets.');
           }else if(pending.action === 'saveAndGoToChallenge' && pending.challenge){
-            window.location.href = pending.challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
+            window.location.href = pending.challenge === 'best' ? 'best-challenge.html' : 'worst-challenge.html';
             return;
           }else if(pending.action === 'saveAndRedirect' && pending.href){
             toast('Saved to My Brackets.');
