@@ -284,6 +284,8 @@ export async function onRequestGet({ request, env }){
     });
   }
 
+  if(!rows || !rows.length){ return json({ok:true, leaderboard: [], group, me_user_id}); }
+
   rows.sort((a,b)=>{
     if(b.score!==a.score) return b.score-a.score;
     // If final is known + total provided, use closest tiebreaker
