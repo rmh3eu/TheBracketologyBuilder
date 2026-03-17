@@ -135,7 +135,15 @@ export async function onRequestGet({ request, env }){
     q += " GROUP BY e.user_id, e.bracket_id";
     const ent = await env.DB.prepare(q).bind(...binds).all();
     let entries = ent.results||[];
-    entries = entries.filter((row, idx, arr)=> arr.findIndex(x => String(x.user_id)===String(row.user_id) && String(x.bracket_id)===String(row.bracket_id))===idx);
+    // Hide duplicate submissions of the same bracket within the same challenge.
+    const seenBestBracketIds = new Set();
+    entries = entries.filter(row=>{
+      const key = String(row.bracket_id||'');
+      if(!key) return false;
+      if(seenBestBracketIds.has(key)) return false;
+      seenBestBracketIds.add(key);
+      return true;
+    });
     if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
     const ids = entries.map(e=>e.bracket_id);
@@ -204,8 +212,8 @@ export async function onRequestGet({ request, env }){
     return json({ok:true, leaderboard: out, actual_final_total: actualFinalTotal, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
   }
 
-  // WORST: score each submitted entry as its own leaderboard row.
-  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+  // WORST: one visible/counting row per unique bracket_id (duplicates hidden from standings).
+  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email, e.created_at FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
   const binds = [];
   if(groupId){
     q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -215,21 +223,25 @@ export async function onRequestGet({ request, env }){
     q += " AND gm.group_id=?";
     binds.push(groupId);
   }
+  q += " ORDER BY COALESCE(e.created_at, e.updated_at, '') ASC, e.id ASC";
   const ent = await env.DB.prepare(q).bind(...binds).all();
-  const entries = ent.results||[];
+  let entries = ent.results||[];
+  const seenWorstBracketIds = new Set();
+  entries = entries.filter(row=>{
+    const key = String(row.bracket_id||'');
+    if(!key) return false;
+    if(seenWorstBracketIds.has(key)) return false;
+    seenWorstBracketIds.add(key);
+    return true;
+  });
   if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
-  // load bracket data for all bracket_ids
   const allIds = entries.map(e=>e.bracket_id).filter(Boolean);
   const placeholders = allIds.map(()=>'?').join(',');
   const bq = allIds.length ? await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...allIds).all() : {results:[]};
   const bmap = new Map((bq.results||[]).map(b=>[b.id, { data: JSON.parse(b.data_json||"{}"), title: b.title }]));
 
-  // Totals are expressed in points.
-  // Each finalized game is worth 10 points.
-  const totals = { pre:480, r16:120, f4:30 };
   const overallTotal = (TOTAL_GAMES * 10);
-
   const rows = [];
   for(const e of entries){
     const picks = (bmap.get(e.bracket_id)?.data) || {};

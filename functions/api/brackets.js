@@ -44,6 +44,22 @@ async function ensureBracketsSchema(env){
   }catch(e){}
 }
 
+
+async function ensureChallengeEntriesSchema(env){
+  try{
+    await env.DB.prepare(`CREATE TABLE IF NOT EXISTS challenge_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      challenge TEXT NOT NULL,
+      stage TEXT NOT NULL DEFAULT 'pre',
+      bracket_id TEXT NOT NULL DEFAULT '',
+      score INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )`).run();
+  }catch(e){}
+}
+
 function normalizeType(v){
   const t = String(v || '').trim().toLowerCase();
   if(t === 'official') return 'official';
@@ -57,6 +73,7 @@ export async function onRequest(context){
   if(!user) return json({ ok:false, error:'Unauthorized' }, 401);
 
   await ensureBracketsSchema(env);
+  await ensureChallengeEntriesSchema(env);
 
   if(request.method === 'GET'){
     // Return ALL brackets for this user (no phase filtering, no date filtering).
@@ -78,15 +95,27 @@ export async function onRequest(context){
                     FROM feature_requests fr
                    WHERE fr.bracket_id = brackets.id
                      AND (fr.user_id = brackets.user_id OR fr.user_id IS NULL)
-                   ORDER BY COALESCE(fr.created_at, fr.submitted_at, fr.updated_at) DESC
+                   ORDER BY COALESCE(fr.created_at, fr.submitted_at, fr.updated_at, fr.approved_at) DESC
                    LIMIT 1
-                ) AS feature_status
+                ) AS feature_status,
+                EXISTS(
+                  SELECT 1 FROM challenge_entries ce
+                   WHERE ce.bracket_id = brackets.id
+                     AND LOWER(ce.challenge)='best'
+                   LIMIT 1
+                ) AS entered_best,
+                EXISTS(
+                  SELECT 1 FROM challenge_entries ce
+                   WHERE ce.bracket_id = brackets.id
+                     AND LOWER(ce.challenge)='worst'
+                   LIMIT 1
+                ) AS entered_worst
            FROM brackets
           WHERE user_id=?
           ORDER BY COALESCE(updated_at, created_at) DESC`
       ).bind(user.id).all();
     } catch (e) {
-      // Backward-compatible fallback if feature_requests schema differs or table is missing.
+      // Backward-compatible fallback if feature_requests or challenge_entries schema differs.
       rs = await env.DB.prepare(
         `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at
            FROM brackets
