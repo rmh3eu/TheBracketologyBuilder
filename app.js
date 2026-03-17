@@ -3357,10 +3357,13 @@ async function loadFeatured(){
       const emojiBits = [];
       if (Number(it.entered_best)) emojiBits.push('😇');
       if (Number(it.entered_worst)) emojiBits.push('😈');
-      const featuredTitle = `${escapeHtml(it.title || 'Featured Bracket')}${emojiBits.length ? ' ' + emojiBits.join(' ') : ''}`;
+      const featuredTitle = `${escapeHtml(it.title || 'Featured Bracket')}`;
       const when = fmtFeaturedDate(it.created_at || it.updated_at || it.approved_at);
       c.innerHTML = `
-        <div class="cardTitle">${featuredTitle}</div>
+        <div class="featuredCardTitleRow">
+          <div class="cardTitle featuredCardTitleText">${featuredTitle}</div>
+          ${emojiBits.length ? `<div class="featuredChallengeIcons">${emojiBits.join(' ')}</div>` : ``}
+        </div>
         <div class="cardBody">${escapeHtml(it.caption || '')}</div>
         ${when ? `<div class="cardBody" style="margin-top:6px">Created: ${escapeHtml(when)}</div>` : ``}
         <div class="row" style="gap:8px;flex-wrap:wrap; margin-top:10px">
