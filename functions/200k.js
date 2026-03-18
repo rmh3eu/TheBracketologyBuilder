@@ -1,5 +1,5 @@
 export async function onRequest({ request }) {
-  const affiliateUrl = "https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/";
+  const affiliateUrl = "https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/";
   const url = new URL(request.url);
   const ogImage = `${url.origin}/images/contest-200k-preview.png`;
 
