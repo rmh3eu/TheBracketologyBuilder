@@ -814,7 +814,7 @@ async function betOnlinePromoModal(){
     const box = el('div','betOnlinePromoBox');
     box.setAttribute('role','dialog');
 
-    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
 
     const close = el('button','betOnlinePromoClose');
     close.type = 'button';
@@ -3893,10 +3893,10 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.className = 'betOnlineRegionPromo';
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
-      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
         Enter the $200,000 Bracket Madness Contest
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
@@ -3936,14 +3936,14 @@ function mountBetOnlineBracketPromo(regionName, mount){
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineBracketPromoText"
-         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
          Enter the $200,000 Bracket Madness Contest
       </a>
 
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1"
