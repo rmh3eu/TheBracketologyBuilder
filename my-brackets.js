@@ -180,6 +180,9 @@ function renderBracketSection({ listId, emptyId, items }) {
       /^name your bracket here$/i.test(nmRaw) ||
       /^enter bracket name here$/i.test(nmRaw);
     title.textContent = isDefault ? 'Enter Bracket Name Here' : nmRaw;
+    const emojiBits = [];
+    if (Number(b.entered_best)) emojiBits.push('😇');
+    if (Number(b.entered_worst)) emojiBits.push('😈');
 
     // Featured badge (user-visible): show when submitted/approved.
     const fs = String(b.feature_status || '').toLowerCase();
@@ -191,6 +194,12 @@ function renderBracketSection({ listId, emptyId, items }) {
     }
 
     titleRow.insertBefore(title, titleRow.firstChild);
+    if (emojiBits.length) {
+      const emoji = document.createElement('span');
+      emoji.className = 'bracketChallengeIcons';
+      emoji.textContent = emojiBits.join(' ');
+      titleRow.appendChild(emoji);
+    }
 
     const meta = document.createElement('div');
     meta.className = 'bracketMeta';

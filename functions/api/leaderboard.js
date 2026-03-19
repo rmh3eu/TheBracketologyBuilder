@@ -41,7 +41,6 @@ async function ensureTables(env){
   )`).run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_group_members_group ON group_members(group_id)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)").run();
-  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS scoring_meta (stage TEXT PRIMARY KEY, completed_games INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL DEFAULT '')`).run();
 }
 
 function teamEq(a,b){ return a && b && a.seed===b.seed && a.name===b.name; }
@@ -108,12 +107,7 @@ export async function onRequestGet({ request, env }){
 
   // NCAA tournament main bracket (no play-in): 63 games total
   const TOTAL_GAMES = 63;
-  let finalizedCount = finalized.filter(g=>gameGroupFromId(g.id)!==null).length;
-  try{
-    const meta = await env.DB.prepare("SELECT completed_games FROM scoring_meta WHERE stage='pre'").first();
-    const forced = Number(meta && meta.completed_games);
-    if(Number.isFinite(forced) && forced > finalizedCount) finalizedCount = forced;
-  }catch(_e){}
+  const finalizedCount = finalized.filter(g=>gameGroupFromId(g.id)!==null).length;
   const remainingGames = Math.max(0, TOTAL_GAMES - finalizedCount);
 
   // Determine actual final total for tie-break
@@ -128,7 +122,7 @@ export async function onRequestGet({ request, env }){
   }catch{ me_user_id = null; }
 
   if(challenge === "best"){
-    let q = "SELECT e.user_id, e.bracket_id, b.title AS bracket_title, u.email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+    let q = "SELECT e.user_id, e.bracket_id, MAX(b.title) AS bracket_title, MAX(u.email) AS email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
     const binds = [];
     if(groupId){
       q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -138,8 +132,18 @@ export async function onRequestGet({ request, env }){
       q += " AND gm.group_id=?";
       binds.push(groupId);
     }
+    q += " GROUP BY e.user_id, e.bracket_id";
     const ent = await env.DB.prepare(q).bind(...binds).all();
-    const entries = ent.results||[];
+    let entries = ent.results||[];
+    // Hide duplicate submissions of the same bracket within the same challenge.
+    const seenBestBracketIds = new Set();
+    entries = entries.filter(row=>{
+      const key = String(row.bracket_id||'');
+      if(!key) return false;
+      if(seenBestBracketIds.has(key)) return false;
+      seenBestBracketIds.add(key);
+      return true;
+    });
     if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
     const ids = entries.map(e=>e.bracket_id);
@@ -208,8 +212,8 @@ export async function onRequestGet({ request, env }){
     return json({ok:true, leaderboard: out, actual_final_total: actualFinalTotal, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
   }
 
-  // WORST: combine pre + r16 + f4 stage entries, score by picking losers (+1 when NOT equal winner)
-  let q = "SELECT e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+  // WORST: one visible/counting row per unique bracket_id (duplicates hidden from standings).
+  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email, e.created_at, e.updated_at FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
   const binds = [];
   if(groupId){
     q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -219,89 +223,74 @@ export async function onRequestGet({ request, env }){
     q += " AND gm.group_id=?";
     binds.push(groupId);
   }
+  q += " ORDER BY COALESCE(e.created_at, e.updated_at, '') ASC, e.id ASC";
   const ent = await env.DB.prepare(q).bind(...binds).all();
-  const entries = ent.results||[];
+  let entries = ent.results || [];
+  const seenWorstBracketIds = new Set();
+  entries = entries.filter(row=>{
+    const key = String(row.bracket_id || '');
+    if(!key) return false;
+    if(seenWorstBracketIds.has(key)) return false;
+    seenWorstBracketIds.add(key);
+    return true;
+  });
   if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
 
-  // group by user
-  const byUser = new Map();
-  for(const e of entries){
-    if(!byUser.has(e.user_id)) byUser.set(e.user_id, { user_id:e.user_id, display_name: (e.bracket_title || (e.email ? e.email.split('@')[0] : 'Bracket')), brackets:{} });
-    byUser.get(e.user_id).brackets[e.stage]=e.bracket_id;
-  }
-
-  // load bracket data for all bracket_ids
-  const allIds = [];
-  for(const u of byUser.values()){
-    for(const st of ["pre","r16","f4"]){
-      if(u.brackets[st]) allIds.push(u.brackets[st]);
-    }
-  }
+  const allIds = entries.map(e=>e.bracket_id).filter(Boolean);
   const placeholders = allIds.map(()=>'?').join(',');
   const bq = allIds.length ? await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...allIds).all() : {results:[]};
   const bmap = new Map((bq.results||[]).map(b=>[b.id, { data: JSON.parse(b.data_json||"{}"), title: b.title }]));
 
-  // Totals are expressed in points.
-  // Each finalized game is worth 10 points.
-  // Fixed totals (points) for the full bracket.
   const totals = { pre:480, r16:120, f4:30 };
   const overallTotal = (TOTAL_GAMES * 10);
-
   const rows = [];
-  for(const u of byUser.values()){
+  for(const e of entries){
+    const picks = (bmap.get(e.bracket_id)?.data) || {};
     const stageScores = { pre:0, r16:0, f4:0 };
     const stageSeen = { pre:0, r16:0, f4:0 };
-    for(const st of ["pre","r16","f4"]){
-      const bid = u.brackets[st];
-      if(!bid) continue;
-      const picks = (bmap.get(bid)?.data) || {};
-      for(const g of finalized){
-        const grp = gameGroupFromId(g.id);
-        if(grp!==st) continue;
-        const pick = pickForGame(picks, g.id);
-        if(!pick) continue;
-        stageSeen[st]+=1;
-        const correct = teamEq(pick, g.winner);
-        // Worst: 10 points when incorrect (picked loser)
-        if(!correct) stageScores[st] += 10;
-      }
-    }
-    const totalScore = stageScores.pre + stageScores.r16 + stageScores.f4;
-    const x = totalScore;
-    const y = overallTotal;
-    const pct = y ? (x/y) : 0;
 
-    // Display name should prefer the user's submitted bracket title (stage 1 if present)
-    const preTitle = u.brackets.pre ? (bmap.get(u.brackets.pre)?.title || null) : null;
-    const r16Title = u.brackets.r16 ? (bmap.get(u.brackets.r16)?.title || null) : null;
-    const f4Title  = u.brackets.f4  ? (bmap.get(u.brackets.f4 )?.title || null) : null;
-    const display_name = preTitle || r16Title || f4Title || (u.email ? u.email.split('@')[0] : 'Bracket');
-        // Tie-breaker: use the first provided tiebreaker across the user's stage brackets (prefer latest stage)
-    const tb =
-      (u.brackets.f4  ? tieBreaker((bmap.get(u.brackets.f4 )?.data)||{}) : null) ??
-      (u.brackets.r16 ? tieBreaker((bmap.get(u.brackets.r16)?.data)||{}) : null) ??
-      (u.brackets.pre ? tieBreaker((bmap.get(u.brackets.pre)?.data)||{}) : null);
+    for(const g of finalized){
+      const grp = gameGroupFromId(g.id);
+      if(!grp) continue;
+      const pick = pickForGame(picks, g.id);
+      if(!pick) continue;
+      stageSeen[grp] += 1;
+      if(!teamEq(pick, g.winner)) stageScores[grp] += 10;
+    }
+
+    const score = stageScores.pre + stageScores.r16 + stageScores.f4;
+    const finishedPossible = (stageSeen.pre*10) + (stageSeen.r16*10) + (stageSeen.f4*10);
+    const total_possible = score + Math.max(0, overallTotal - finishedPossible);
+    const champ = championPick(picks);
+    const tb = tieBreaker(picks);
     const diff = (actualFinalTotal!==null && tb!==null) ? Math.abs(tb-actualFinalTotal) : null;
 
-rows.push({
-      user_id: u.user_id,
-      email: u.email,
-      display_name,
-      score: totalScore,
+    rows.push({
+      entry_id: e.entry_id,
+      user_id: e.user_id,
+      display_name: (e.bracket_title || (e.email ? e.email.split('@')[0] : 'Bracket')),
+      bracket_id: e.bracket_id,
+      title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
+      score,
+      x: score,
+      y: overallTotal,
+      total_possible,
+      pct: overallTotal ? (score/overallTotal) : 0,
       stage1: stageScores.pre,
       stage2: stageScores.r16,
       stage3: stageScores.f4,
-      x, y, pct,
+      champion: champ ? `${champ.seed} ${champ.name}` : "",
       tiebreaker: tb,
-      tiebreaker_diff: diff,
-      total_possible: totalScore + (remainingGames * 10),
-      brackets: u.brackets
+      tiebreaker_diff: diff
     });
+  }
+
+  if(!rows.length){
+    return json({ok:true, leaderboard: [], totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
   }
 
   rows.sort((a,b)=>{
     if(b.score!==a.score) return b.score-a.score;
-    // If final is known + total provided, use closest tiebreaker
     if(actualFinalTotal!==null){
       const ad = (a.tiebreaker_diff===null)? 10**9 : a.tiebreaker_diff;
       const bd = (b.tiebreaker_diff===null)? 10**9 : b.tiebreaker_diff;
@@ -310,7 +299,6 @@ rows.push({
     return (a.display_name||'').localeCompare(b.display_name||'');
   });
 
-  // assign ranks with ties (score first; at the end of the tournament, apply tiebreaker closeness if available)
   let rank=0, prevScore=null, prevDiff=null, count=0;
   const out = rows.map(row=>{
     count+=1;
