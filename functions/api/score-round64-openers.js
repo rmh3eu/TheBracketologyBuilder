@@ -1,87 +1,56 @@
+
 const WINNERS = ["TCU","Nebraska","Louisville","High Point","Duke","Vanderbilt"];
 const LOSERS = ["Ohio St","Troy","USF","Wisconsin","Siena","McNeese"];
 
-function getPicksFromData(data){
-  if(!data || typeof data !== 'object') return {};
-  if(data.picks && typeof data.picks === 'object') return data.picks;
-  const out = { ...data };
-  delete out.base;
-  delete out.base_version;
-  return out;
+function getPicks(data){
+  if(!data) return "";
+  try{
+    const obj = JSON.parse(data);
+    return JSON.stringify(obj);
+  }catch{
+    return "";
+  }
 }
 
 export async function onRequestGet({ env }) {
-  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS challenge_entries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    challenge TEXT NOT NULL,
-    stage TEXT NOT NULL DEFAULT 'pre',
-    bracket_id TEXT NOT NULL DEFAULT '',
-    score INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-  )`).run();
+
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS scoring_meta (
     stage TEXT PRIMARY KEY,
     completed_games INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT NOT NULL DEFAULT ''
   )`).run();
 
-  const ent = await env.DB.prepare(
-    "SELECT id, challenge, bracket_id FROM challenge_entries WHERE stage='pre'"
-  ).all();
+  const rows = await env.DB.prepare("SELECT id, challenge, bracket_id FROM challenge_entries WHERE stage='pre'").all();
 
   let updated = 0;
-  let bestUpdated = 0;
-  let worstUpdated = 0;
 
-  for (const e of (ent.results || [])) {
-    const b = await env.DB.prepare("SELECT data_json FROM brackets WHERE id=?").bind(e.bracket_id).first();
-    if (!b) continue;
+  for(const r of (rows.results || [])){
+    const b = await env.DB.prepare("SELECT data_json FROM brackets WHERE id=?").bind(r.bracket_id).first();
+    if(!b) continue;
 
-    let data = {};
-    try { data = JSON.parse(b.data_json || '{}'); } catch (_) { data = {}; }
-    const picksObj = getPicksFromData(data);
-    const picksStr = JSON.stringify(picksObj);
-
+    const picks = getPicks(b.data_json);
     let score = 0;
-    if (e.challenge === 'best') {
-      for (const team of WINNERS) {
-        if (picksStr.includes(team)) score += 10;
+
+    if(r.challenge === "best"){
+      for(const t of WINNERS){
+        if(picks.includes(t)) score += 10;
       }
-      bestUpdated++;
-    } else if (e.challenge === 'worst') {
-      for (const team of LOSERS) {
-        if (picksStr.includes(team)) score += 10;
+    } else if(r.challenge === "worst"){
+      for(const t of LOSERS){
+        if(picks.includes(t)) score += 10;
       }
-      worstUpdated++;
-    } else {
-      continue;
     }
 
     await env.DB.prepare(
       "UPDATE challenge_entries SET score=?, updated_at=? WHERE id=?"
-    ).bind(score, new Date().toISOString(), e.id).run();
+    ).bind(score, new Date().toISOString(), r.id).run();
 
     updated++;
   }
 
   await env.DB.prepare(
-    "INSERT INTO scoring_meta(stage, completed_games, updated_at) VALUES('pre', ?, ?) ON CONFLICT(stage) DO UPDATE SET completed_games=excluded.completed_games, updated_at=excluded.updated_at"
+    "INSERT INTO scoring_meta(stage, completed_games, updated_at) VALUES('pre', ?, ?) ON CONFLICT(stage) DO UPDATE SET completed_games=excluded.completed_games"
   ).bind(6, new Date().toISOString()).run();
 
-  return new Response(
-    [
-      "Round of 64 scoring applied to challenge entries.",
-      "Best winners: TCU, Nebraska, Louisville, High Point, Duke, Vanderbilt",
-      "Worst losers: Ohio St, Troy, USF, Wisconsin, Siena, McNeese",
-      `Updated entries: ${updated}`,
-      `Best entries updated: ${bestUpdated}`,
-      `Worst entries updated: ${worstUpdated}`,
-      "Completed games set to: 6",
-      "",
-      "Refresh the challenge pages to see updated leaderboard scores."
-    ].join("\n"),
-    { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } }
-  );
+  return new Response("Scoring applied. Updated: " + updated);
 }

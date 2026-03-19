@@ -41,6 +41,11 @@ async function ensureTables(env){
   )`).run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_group_members_group ON group_members(group_id)").run();
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)").run();
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS scoring_meta (
+    stage TEXT PRIMARY KEY,
+    completed_games INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT ''
+  )`).run();
 }
 
 function teamEq(a,b){ return a && b && a.seed===b.seed && a.name===b.name; }
@@ -107,7 +112,12 @@ export async function onRequestGet({ request, env }){
 
   // NCAA tournament main bracket (no play-in): 63 games total
   const TOTAL_GAMES = 63;
-  const finalizedCount = finalized.filter(g=>gameGroupFromId(g.id)!==null).length;
+  let finalizedCount = finalized.filter(g=>gameGroupFromId(g.id)!==null).length;
+try{
+  const meta = await env.DB.prepare("SELECT completed_games FROM scoring_meta WHERE stage='pre'").first();
+  const forced = Number(meta && meta.completed_games);
+  if(Number.isFinite(forced) && forced > finalizedCount) finalizedCount = forced;
+}catch(_e){}
   const remainingGames = Math.max(0, TOTAL_GAMES - finalizedCount);
 
   // Determine actual final total for tie-break
@@ -176,7 +186,7 @@ export async function onRequestGet({ request, env }){
         title: b?.title || "Bracket",
         // Each correct pick is worth 10 points.
         score,
-        x: score,
+        x: Math.round(score/10),
         y: totalGames * 10,
         total_possible: score + (remainingGames * 10),
         // pct remains based on correctness rate, not points.
@@ -272,7 +282,7 @@ export async function onRequestGet({ request, env }){
       bracket_id: e.bracket_id,
       title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
       score,
-      x: score,
+      x: Math.round(score/10),
       y: overallTotal,
       total_possible,
       pct: overallTotal ? (score/overallTotal) : 0,
