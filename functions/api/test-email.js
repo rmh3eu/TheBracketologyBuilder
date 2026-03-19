@@ -2,7 +2,7 @@ import { sendEmail } from './_util.js';
 
 export async function onRequest({ env }) {
   const to = 'rmh3eu@virginia.edu';
-  const subject = '🏀 The Official Bracket Is Out!';
+  const subject = '🏀 The Official Bracket Is Out!!';
 
   const html = `
   <div style="font-family: Arial, sans-serif; max-width:600px; margin:auto; line-height:1.6; color:#222;">
@@ -27,7 +27,7 @@ export async function onRequest({ env }) {
     <p style="text-align:center; font-weight:bold;">Also check out the $200,000 Bracket Challenge:</p>
 
     <div style="text-align:center; margin:25px 0;">
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
          style="display:inline-block; background:#d62828; color:#ffffff; padding:14px 24px; text-decoration:none; border-radius:6px; font-weight:bold;">
         Enter the $200K Contest
       </a>
@@ -47,7 +47,7 @@ Create Your Bracket:
 https://bracketologybuilder.com
 
 Also check out the $200,000 Bracket Challenge:
-https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/`;
+https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/`;
 
   try {
     await sendEmail(env, to, subject, html, text);

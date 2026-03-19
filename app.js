@@ -814,16 +814,13 @@ async function betOnlinePromoModal(){
     const box = el('div','betOnlinePromoBox');
     box.setAttribute('role','dialog');
 
-    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
+    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
 
     const close = el('button','betOnlinePromoClose');
     close.type = 'button';
     close.setAttribute('aria-label','Close');
     close.textContent = '×';
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
-
-    const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = 'Your Bracket Has Been Saved to My Brackets!';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
@@ -852,7 +849,7 @@ async function betOnlinePromoModal(){
       resolve('clicked');
     });
 
-    box.append(savedText, titleLink, logoWrap, close);
+    box.append(close, titleLink, logoWrap);
     overlay.append(box);
     document.body.append(overlay);
     overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ overlay.remove(); resolve('closed'); } });
@@ -1860,186 +1857,7 @@ function setBracketTitleDisplay(title) {
 }
 
 // If a guest triggers Save / Save & Enter, we queue the action and resume it after auth.
-let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' | 'saveAndRedirect', href?: string, newTab?: boolean }
-
-
-function validateSaveRequirementsBeforeRedirect(){
-  if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
-    const tb = state.picks.TIEBREAKER_TOTAL;
-    if(tb===null || tb===undefined || tb==='' || !Number.isFinite(Number(tb))){
-      toast('Please enter Tiebreaker: Total Points in Final.');
-      try{
-        const el = qs('#tiebreakerTotal');
-        if(el){ el.focus(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
-      }catch(_e){}
-      return false;
-    }
-  }
-  return true;
-}
-
-async function completeSavedRedirect(href, opts={}){
-  if(!href) return;
-  const isAffiliate = !!(opts && opts.isAffiliate);
-  if(isAffiliate){
-    await betOnlinePromoModal();
-    return;
-  }
-  const ok = await confirmModal('Your Bracket Has Been Saved to My Brackets!', 'View Prize Pool', 'Stay on Bracket');
-  if(!ok) return;
-  try{
-    if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
-    else window.location.href = href;
-  }catch(_e){
-    window.location.href = href;
-  }
-}
-
-function saveFirstPromptModal(isAffiliate){
-  return new Promise((resolve)=>{
-    const overlay = el('div','bb-confirm-overlay');
-    const box = el('div','bb-confirm-box');
-    const msg = el('div','bb-confirm-message');
-    msg.textContent = 'Do you want to save your bracket first?';
-    const btnRow = el('div','bb-confirm-actions');
-    const yes = el('button','bb-confirm-btn ok');
-    yes.type = 'button';
-    yes.textContent = 'Yes';
-    const no = el('button','bb-confirm-btn cancel');
-    no.type = 'button';
-    no.textContent = isAffiliate ? 'Continue to Contest Without Saving' : 'View Prize Pool Without Saving';
-    btnRow.append(yes, no);
-    box.append(msg, btnRow);
-    overlay.append(box);
-    document.body.append(overlay);
-    const cleanup = ()=>{ try{ overlay.remove(); }catch(_e){} };
-    yes.addEventListener('click', ()=>{ cleanup(); resolve('save'); });
-    no.addEventListener('click', ()=>{ cleanup(); resolve('skip'); });
-    overlay.addEventListener('click', (e)=>{ if(e.target===overlay){ cleanup(); resolve('stay'); } });
-  });
-}
-
-
-
-async function saveBracketThenEnterChallenge(challenge){
-  saveLocal(state.picks);
-  if(!validateSaveRequirementsBeforeRedirect()) return false;
-
-  const href = challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
-
-  if(!state.me){
-    __pendingPostAuth = { action: 'saveAndEnterChallenge', challenge };
-    try{ openAuth('signup', 'Save your bracket'); }catch(_){ openAuth('signup'); }
-    return false;
-  }
-
-  try{
-    const liveTitle = getBracketTitleFromDom();
-    if(liveTitle) state.bracketTitle = liveTitle;
-
-    const sp = new URLSearchParams(location.search);
-    const isNewParam = (sp.get('new') === '1');
-    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
-    const urlMeta = getBracketMetaFromUrl();
-    const hasExisting = !!(urlMeta.bracketId || state.bracketId);
-    const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
-
-    if(isNewFlow){
-      const isHome = IS_HOME;
-      if(isHome){
-        if(sweet16ModeEnabled()) state.bracket_type = 'second_chance';
-        else if(OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
-        else state.bracket_type = 'bracketology';
-      }
-      state.bracketId = null;
-      state.bracketTitle = null;
-      saveMeta({ bracketId:null, bracketTitle:null });
-    }
-
-    const id = await ensureSavedToAccount();
-    phase3MarkSaved();
-    await enterChallenge(challenge, 'pre', id);
-    window.location.href = href;
-    return false;
-  }catch(e){
-    if(e && e.message==='CANCELLED') return false;
-    if(e && e.message==='NAME_TAKEN'){
-      alert('You already have a bracket with that name. Please choose a different name.');
-      return false;
-    }
-    console.warn('saveBracketThenEnterChallenge failed', e);
-    toast('Could not save and enter. Please try again.');
-    return false;
-  }
-}
-
-window.goToChallengeFromBracket = async function(challenge){
-  return await saveBracketThenEnterChallenge(challenge);
-};
-
-async function saveBracketThenNavigate(href, opts={}){
-  saveLocal(state.picks);
-  if(!validateSaveRequirementsBeforeRedirect()) return;
-  const isAffiliate = !!(opts && opts.isAffiliate);
-  const choice = await saveFirstPromptModal(isAffiliate);
-  if(choice === 'stay') return;
-  if(choice === 'skip'){
-    try{
-      if(opts && opts.newTab) window.open(href, '_blank', 'noopener,noreferrer');
-      else window.location.href = href;
-    }catch(_e){
-      window.location.href = href;
-    }
-    return;
-  }
-
-  if(!state.me){
-    __pendingPostAuth = { action: 'saveAndRedirect', href, newTab: !!(opts && opts.newTab), isAffiliate };
-    try{
-      openAuth('signup', 'Save your bracket');
-    }catch(_){
-      openAuth('signup');
-    }
-    return;
-  }
-
-  try{
-    const liveTitle = getBracketTitleFromDom();
-    if(liveTitle) state.bracketTitle = liveTitle;
-
-    const sp = new URLSearchParams(location.search);
-    const isNewParam = (sp.get('new') === '1');
-    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
-    const urlMeta = getBracketMetaFromUrl();
-    const hasExisting = !!(urlMeta.bracketId || state.bracketId);
-    const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
-
-    if(isNewFlow){
-      const isHome = IS_HOME;
-      if(isHome){
-        if(sweet16ModeEnabled()) state.bracket_type = 'second_chance';
-        else if(OFFICIAL_BRACKET_LIVE) state.bracket_type = 'official';
-        else state.bracket_type = 'bracketology';
-      }
-      state.bracketId = null;
-      state.bracketTitle = null;
-      saveMeta({ bracketId:null, bracketTitle:null });
-    }
-
-    const id = await ensureSavedToAccount();
-    phase3MarkSaved();
-    await maybeAskSubmitFeatured(id);
-    await completeSavedRedirect(href, { newTab: !!(opts && opts.newTab), isAffiliate });
-  }catch(e){
-    if(e && e.message==='CANCELLED') return;
-    if(e && e.message==='NAME_TAKEN'){
-      alert('You already have a bracket with that name. Please choose a different name.');
-      return;
-    }
-    console.warn('saveBracketThenNavigate failed', e);
-    toast('Could not save. Please try again.');
-  }
-}
+let __pendingPostAuth = null; // { action: 'save' | 'saveEnter' }
 
 
 // Clear any unwanted browser autofill (some browsers inject the user's email into the bracket title input).
@@ -2463,18 +2281,18 @@ function lbTableBest(rows){
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
 
-    const champ = '—';
+    const champ = r.champion ? r.champion.name : '—';
     const displayName = r.title || r.display_name || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
+    const link = `${location.origin}${location.pathname}?id=${encodeURIComponent(r.bracket_id)}&challenge=best`;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = gamesPlayed;
     const pct = leaderboardPctText(xVal, yVal);
-    const userCell = escapeHtml(displayName) + ' 😇';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser">${userCell}</td>
+      <td class="lbUser"><a class="lbUserLink" href="${link}">${escapeHtml(displayName)}</a></td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
@@ -2497,11 +2315,14 @@ function lbTableWorst(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    <th>Score</th>
+    <th>Total</th>
     <th>Total Possible</th>
+    <th>S1</th>
+    <th>S2</th>
+    <th>S3</th>
     <th>x/y</th>
     <th>%</th>
-    <th>Champion</th>
+    <th>Entries</th>
   </tr>`;
   t.appendChild(thead);
   const tb = document.createElement('tbody');
@@ -2510,28 +2331,32 @@ function lbTableWorst(rows){
   const gamesPlayed = leaderboardGamesPlayedCount();
 
   (rows||[]).forEach(r=>{
-    const tr = document.createElement('tr');
-    if(meId && r.user_id === meId) tr.classList.add('isMe');
-
-    const champ = '—';
-    const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = gamesPlayed;
     const pct = leaderboardPctText(xVal, yVal);
-    const userCell = meId && r.user_id === meId
-      ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
-      : `${escapeHtml(displayName)} 😈`;
-
+    const displayName = r.display_name || r.title || 'Bracket';
+    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
+    const primaryBracketId = (r.brackets && (r.brackets.pre || r.brackets.r16 || r.brackets.f4)) ? (r.brackets.pre || r.brackets.r16 || r.brackets.f4) : null;
+    const primaryStage = (r.brackets && r.brackets.pre) ? 'pre' : ((r.brackets && r.brackets.r16) ? 'r16' : ((r.brackets && r.brackets.f4) ? 'f4' : 'pre'));
+    const userLink = primaryBracketId ? `${location.origin}${location.pathname}?id=${encodeURIComponent(primaryBracketId)}&challenge=worst&stage=${primaryStage}` : '';
+    const links = [];
+    if(r.brackets?.pre) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.pre)}&challenge=worst&stage=pre">S1</a>`);
+    if(r.brackets?.r16) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.r16)}&challenge=worst&stage=r16">S2</a>`);
+    if(r.brackets?.f4) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.f4)}&challenge=worst&stage=f4">S3</a>`);
+    const tr = document.createElement('tr');
+    if(meId && r.user_id === meId) tr.classList.add('isMe');
+    const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser">${userCell}</td>
+      <td class="lbUser">${userLink ? `<a class="lbUserLink" href="${userLink}">${escapeHtml(displayName)}</a>` : escapeHtml(displayName)}</td>
       <td class="lbScore">${r.score}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
+      <td class="lbScore">${r.stage1 ?? '—'}</td>
+      <td class="lbScore">${r.stage2 ?? '—'}</td>
+      <td class="lbScore">${r.stage3 ?? '—'}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
-      <td><span>${escapeHtml(champ)}</span></td>
+      <td class="lbEntries">${links.length ? links.join(' · ') : '—'}</td>
     `;
     tb.appendChild(tr);
   });
@@ -3404,27 +3229,12 @@ async function loadFeatured(){
       return;
     }
     grid.innerHTML = '';
-    const fmtFeaturedDate = (value)=>{
-      try{
-        if(!value) return '';
-        return new Date(value).toLocaleString([], { month:'numeric', day:'numeric', year:'2-digit', hour:'numeric', minute:'2-digit' });
-      }catch(_e){ return ''; }
-    };
     items.forEach(it=>{
       const c = el('div','card');
-      const emojiBits = [];
-      if (Number(it.entered_best)) emojiBits.push('😇');
-      if (Number(it.entered_worst)) emojiBits.push('😈');
-      const featuredTitle = `${escapeHtml(it.title || 'Featured Bracket')}`;
-      const when = fmtFeaturedDate(it.created_at || it.updated_at || it.approved_at);
       c.innerHTML = `
-        <div class="featuredCardTitleRow">
-          <div class="cardTitle featuredCardTitleText">${featuredTitle}</div>
-          ${emojiBits.length ? `<div class="featuredChallengeIcons">${emojiBits.join(' ')}</div>` : ``}
-        </div>
+        <div class="cardTitle">${escapeHtml(it.title || 'Featured Bracket')}</div>
         <div class="cardBody">${escapeHtml(it.caption || '')}</div>
-        ${when ? `<div class="cardBody" style="margin-top:6px">Created: ${escapeHtml(when)}</div>` : ``}
-        <div class="row" style="gap:8px;flex-wrap:wrap; margin-top:10px">
+        <div class="row" style="gap:8px;flex-wrap:wrap">
           <a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(it.bracket_id)}&readonly=1" target="_blank" rel="noopener">Open</a>
         </div>
       `;
@@ -3728,7 +3538,7 @@ function renderRegion(r, picks, opts={}){
   // start on the far RIGHT with Round of 64 and funnel LEFT to Final 4.
   const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
   const forcedMirror = (opts && typeof opts.isMirror === 'boolean') ? opts.isMirror : null;
-  const isMirror = (!isMobile) && (forcedMirror!==null ? forcedMirror : (r.name === 'West' || r.name === 'Midwest'));
+  const isMirror = (!isMobile) && (forcedMirror!==null ? forcedMirror : (r.name === 'East' || r.name === 'Midwest'));
 
   const startRound = (opts && Number.isFinite(opts.startRound)) ? opts.startRound : 0;
   const roundsToRender = (opts && Number.isFinite(opts.maxRounds)) ? opts.maxRounds : 4;
@@ -3883,7 +3693,7 @@ function renderRegion(r, picks, opts={}){
 function mountBetOnlineRegionPromo(regionName, mount){
   try{
     if(!mount) return;
-    if(regionName !== 'East' && regionName !== 'South') return;
+    if(regionName !== 'East') return;
     if(mount.querySelector('.betOnlineRegionPromo')) return;
 
     const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-Eastern') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
@@ -3891,15 +3701,13 @@ function mountBetOnlineRegionPromo(regionName, mount){
 
     const promo = document.createElement('div');
     promo.className = 'betOnlineRegionPromo';
-    promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
-      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
         Enter the $200,000 Bracket Madness Contest
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
-      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
 
     const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
@@ -3911,9 +3719,9 @@ function mountBetOnlineRegionPromo(regionName, mount){
 
 function maybeRevealBetOnlineRegionPromo(){
   try{
-    const promos = document.querySelectorAll('.betOnlineRegionPromo');
-    if(!promos || !promos.length) return;
-    promos.forEach((promo)=> promo.classList.add('isVisible'));
+    const promo = document.querySelector('.betOnlineRegionPromo');
+    if(!promo) return;
+    promo.classList.add('isVisible');
   }catch(_e){}
 }
 
@@ -3921,7 +3729,7 @@ function maybeRevealBetOnlineRegionPromo(){
 
 function mountBetOnlineBracketPromo(regionName, mount){
   try{
-    if(!mount || (regionName !== 'East' && regionName !== 'South')) return;
+    if(!mount || regionName !== 'East') return;
     if(mount.querySelector('.betOnlineBracketPromo')) return;
 
     const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
@@ -3933,17 +3741,16 @@ function mountBetOnlineBracketPromo(regionName, mount){
 
     const promo = document.createElement('div');
     promo.className = 'betOnlineBracketPromo';
-    promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineBracketPromoText"
-         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
+         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
          Enter the $200,000 Bracket Madness Contest
       </a>
 
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1"
@@ -3952,7 +3759,6 @@ function mountBetOnlineBracketPromo(regionName, mount){
             <span class="betRed">BET</span><span class="betBlack">ONLINE</span>
          </div>
       </a>
-      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
 
     geo.appendChild(promo);
@@ -4118,7 +3924,7 @@ function renderUnifiedMobileBracket(picks, resultsMap){
   }
   mount.innerHTML = '';
 
-  const regionOrder = ['East','South','West','Midwest'];
+  const regionOrder = ['East','Midwest','West','South'];
   const regionsByName = {};
   (state.regions||[]).forEach(r=> regionsByName[r.name]=r);
 
@@ -4984,28 +4790,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   phase3UpdateVisibility();
   window.addEventListener('resize', ()=>{ phase3UpdateVisibility(); });
 
-
-  // Challenge page success message after auto-save + auto-entry from bracket page
-  try{
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('entered') === '1'){
-      const isBestPage = /best-challenge\.html$/i.test(location.pathname);
-      const isWorstPage = /worst-challenge\.html$/i.test(location.pathname);
-      if(isBestPage || isWorstPage){
-        toast('Your bracket has successfully been entered into our challenge!');
-        const clean = new URL(window.location.href);
-        clean.searchParams.delete('entered');
-        window.history.replaceState({}, '', clean.toString());
-      }
-    }
-  }catch(_e){}
-
-  // Home / bracket challenge buttons
-  // Buttons also use inline onclick on bracket pages for reliability.
-  const __homeGoBest = qs('#homeGoBest');
-  if(__homeGoBest) __homeGoBest.setAttribute('type','button');
-  const __homeGoWorst = qs('#homeGoWorst');
-  if(__homeGoWorst) __homeGoWorst.setAttribute('type','button');
+  // Home page challenge buttons
+  qs('#homeGoBest')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='best-challenge.html'; });
+  qs('#homeGoWorst')?.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href='worst-challenge.html'; });
 
   // Admin view controls
   qs('#adminBracketsMore')?.addEventListener('click', ()=>loadAdminBracketsView(false));
@@ -5145,7 +4932,7 @@ qs('#saveBtnHeader')?.addEventListener('click', async ()=>{
   wireRandomPicks('#randomPicksBtnHeader');
   bindTiebreakerInput();
 const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
-    // Save: ensure the bracket exists in the user's account
+    // Save/Enter: ensure the bracket exists in the user's account, then go to My Brackets
     saveLocal(state.picks);
     // Require a championship tiebreaker ONLY when the Official Bracket is live.
     if(OFFICIAL_BRACKET_LIVE && state.picks && state.picks.CHAMPION){
@@ -5217,7 +5004,6 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
   });
   wireSaveEnter('#saveEnterBtn');
   wireSaveEnter('#saveEnterBtnTop');
-
   // Undo buttons (bracket header + mobile topbar)
   qs('#undoBtnTop')?.addEventListener('click', ()=>undoLastAction());
   qs('#undoBtnHeader')?.addEventListener('click', ()=>undoLastAction());
@@ -5277,18 +5063,11 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
         __pendingPostAuth = null;
         closeAuth();
         try{
-          const __savedId = await ensureSavedToAccount();
+          const __savedId = await ensureSavedToAccount(false);
           toast('Saved to your account.');
           await maybeAskSubmitFeatured(__savedId);
           if(pending.action === 'saveEnter'){
             toast('Saved to My Brackets.');
-          }else if((pending.action === 'saveAndEnterChallenge' || pending.action === 'saveAndGoToChallenge') && pending.challenge){
-            await enterChallenge(pending.challenge, 'pre', __savedId);
-            window.location.href = pending.challenge === 'best' ? 'best-challenge.html?entered=1' : 'worst-challenge.html?entered=1';
-            return;
-          }else if(pending.action === 'saveAndRedirect' && pending.href){
-            toast('Saved to My Brackets.');
-            await completeSavedRedirect(pending.href, { newTab: !!pending.newTab, isAffiliate: !!pending.isAffiliate });
           }
         }catch(e){
           console.error(e);
@@ -5371,7 +5150,6 @@ try { window.renderChallengeCallout = renderChallengeCallout; } catch(e) {}
 document.addEventListener("click", function(e) {
   const link = e.target.closest("a[data-sportsbook]");
   if (!link) return;
-  if (link.closest('.betOnlineRegionPromo, .betOnlineBracketPromo, .betOnlinePromoWrap')) return;
 
   e.preventDefault();
 
