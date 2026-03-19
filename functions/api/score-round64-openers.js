@@ -1,5 +1,3 @@
-import { json } from './_util.js';
-
 const WINNERS = ["TCU","Nebraska","Louisville","High Point","Duke","Vanderbilt"];
 const LOSERS = ["Ohio St","Troy","USF","Wisconsin","Siena","McNeese"];
 
@@ -18,14 +16,19 @@ export async function onRequestGet({ env }) {
     user_id INTEGER NOT NULL,
     challenge TEXT NOT NULL,
     stage TEXT NOT NULL DEFAULT 'pre',
-    bracket_id TEXT NOT NULL,
+    bracket_id TEXT NOT NULL DEFAULT '',
     score INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`).run();
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS scoring_meta (
+    stage TEXT PRIMARY KEY,
+    completed_games INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT ''
+  )`).run();
 
   const ent = await env.DB.prepare(
-    "SELECT id, challenge, bracket_id, score FROM challenge_entries WHERE stage='pre'"
+    "SELECT id, challenge, bracket_id FROM challenge_entries WHERE stage='pre'"
   ).all();
 
   let updated = 0;
@@ -63,6 +66,10 @@ export async function onRequestGet({ env }) {
     updated++;
   }
 
+  await env.DB.prepare(
+    "INSERT INTO scoring_meta(stage, completed_games, updated_at) VALUES('pre', ?, ?) ON CONFLICT(stage) DO UPDATE SET completed_games=excluded.completed_games, updated_at=excluded.updated_at"
+  ).bind(6, new Date().toISOString()).run();
+
   return new Response(
     [
       "Round of 64 scoring applied to challenge entries.",
@@ -71,6 +78,7 @@ export async function onRequestGet({ env }) {
       `Updated entries: ${updated}`,
       `Best entries updated: ${bestUpdated}`,
       `Worst entries updated: ${worstUpdated}`,
+      "Completed games set to: 6",
       "",
       "Refresh the challenge pages to see updated leaderboard scores."
     ].join("\n"),
