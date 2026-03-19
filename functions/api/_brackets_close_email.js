@@ -1,3 +1,4 @@
+// v221 tweak
 // v220 route fix
 import { sendEmail } from './_util.js';
 
@@ -18,11 +19,11 @@ export function buildEmail(){
       </p>
 
       <p style="font-size:16px;line-height:1.6;font-weight:bold;">
-        There’s limited entries you’d have a great chance at winning a prize!
+        There’s limited entries so you’d have a great chance at winning a prize!
       </p>
 
       <div style="margin:25px 0;">
-        <a href="${SITE_URL}" style="background:#cf2e2e;color:#fff;padding:14px 26px;border-radius:999px;text-decoration:none;font-weight:800;">
+        <a href="${SITE_URL}" style="background:#2563eb;color:#fff;padding:14px 26px;border-radius:999px;text-decoration:none;font-weight:800;">
           Click here to enter before it’s too late!
         </a>
       </div>
@@ -48,7 +49,7 @@ export function buildEmail(){
 
 There’s still time to enter our bracket challenges.
 
-There’s limited entries you’d have a great chance at winning a prize!
+There’s limited entries so you’d have a great chance at winning a prize!
 
 Enter here: ${SITE_URL}
 
