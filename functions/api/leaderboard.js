@@ -113,11 +113,11 @@ export async function onRequestGet({ request, env }){
   // NCAA tournament main bracket (no play-in): 63 games total
   const TOTAL_GAMES = 63;
   let finalizedCount = finalized.filter(g=>gameGroupFromId(g.id)!==null).length;
-try{
-  const meta = await env.DB.prepare("SELECT completed_games FROM scoring_meta WHERE stage='pre'").first();
-  const forced = Number(meta && meta.completed_games);
-  if(Number.isFinite(forced) && forced > finalizedCount) finalizedCount = forced;
-}catch(_e){}
+  try{
+    const meta = await env.DB.prepare("SELECT completed_games FROM scoring_meta WHERE stage='pre'").first();
+    const forced = Number(meta && meta.completed_games);
+    if(Number.isFinite(forced) && forced > finalizedCount) finalizedCount = forced;
+  }catch(_e){}
   const remainingGames = Math.max(0, TOTAL_GAMES - finalizedCount);
 
   // Determine actual final total for tie-break
@@ -132,7 +132,7 @@ try{
   }catch{ me_user_id = null; }
 
   if(challenge === "best"){
-    let q = "SELECT e.user_id, e.bracket_id, MAX(b.title) AS bracket_title, MAX(u.email) AS email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+    let q = "SELECT e.user_id, e.bracket_id, e.score, MAX(b.title) AS bracket_title, MAX(u.email) AS email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
     const binds = [];
     if(groupId){
       q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -142,10 +142,9 @@ try{
       q += " AND gm.group_id=?";
       binds.push(groupId);
     }
-    q += " GROUP BY e.user_id, e.bracket_id";
+    q += " GROUP BY e.user_id, e.bracket_id, e.score";
     const ent = await env.DB.prepare(q).bind(...binds).all();
     let entries = ent.results||[];
-    // Hide duplicate submissions of the same bracket within the same challenge.
     const seenBestBracketIds = new Set();
     entries = entries.filter(row=>{
       const key = String(row.bracket_id||'');
@@ -161,36 +160,24 @@ try{
     const bq = await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...ids).all();
     const bmap = new Map((bq.results||[]).map(b=>[b.id, { data: JSON.parse(b.data_json||"{}"), title: b.title }]));
 
-    const totalGames = TOTAL_GAMES;
     const scored = entries.map(e=>{
       const b = bmap.get(e.bracket_id);
       const picks = b?.data || {};
-      let correct = 0;
-      let seen = 0;
-      finalized.forEach(g=>{
-        const grp = gameGroupFromId(g.id);
-        if(!grp) return;
-        const pick = pickForGame(picks, g.id);
-        if(!pick) return;
-        seen += 1;
-        if(teamEq(pick, g.winner)) correct += 1;
-      });
       const champ = championPick(picks);
       const tb = tieBreaker(picks);
       const diff = (actualFinalTotal!==null && tb!==null) ? Math.abs(tb-actualFinalTotal) : null;
-      const score = correct * 10;
+      const score = Number(e.score || 0);
+      const correct = Math.round(score / 10);
       return {
         user_id: e.user_id,
         display_name: (e.bracket_title || (e.email ? e.email.split('@')[0] : 'Bracket')),
         bracket_id: e.bracket_id,
         title: b?.title || "Bracket",
-        // Each correct pick is worth 10 points.
         score,
-        x: Math.round(score/10),
-        y: totalGames * 10,
+        x: correct,
+        y: finalizedCount,
         total_possible: score + (remainingGames * 10),
-        // pct remains based on correctness rate, not points.
-        pct: totalGames ? (correct/totalGames) : 0,
+        pct: finalizedCount ? (correct/finalizedCount) : 0,
         champion: champ,
         tiebreaker: tb,
         tiebreaker_diff: diff
@@ -199,7 +186,6 @@ try{
 
     scored.sort((a,b)=>{
       if(b.score!==a.score) return b.score-a.score;
-      // If final is known + total provided, use closest tiebreaker
       if(actualFinalTotal!==null){
         const ad = (a.tiebreaker_diff===null)? 10**9 : a.tiebreaker_diff;
         const bd = (b.tiebreaker_diff===null)? 10**9 : b.tiebreaker_diff;
@@ -208,7 +194,6 @@ try{
       return (a.display_name||'').localeCompare(b.display_name||'');
     });
 
-    // assign ranks with ties
     let rank=0, prevScore=null, prevDiff=null, count=0;
     const out=scored.map(row=>{
       count+=1;
@@ -222,8 +207,8 @@ try{
     return json({ok:true, leaderboard: out, actual_final_total: actualFinalTotal, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
   }
 
-  // WORST: one visible/counting row per unique bracket_id (duplicates hidden from standings).
-  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, b.title AS bracket_title, u.email, e.created_at, e.updated_at FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
+// WORST: one visible/counting row per unique bracket_id (duplicates hidden from standings).
+  let q = "SELECT e.id AS entry_id, e.user_id, e.stage, e.bracket_id, e.score, b.title AS bracket_title, u.email, e.created_at, e.updated_at FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
   const binds = [];
   if(groupId){
     q += " JOIN group_members gm ON gm.user_id = e.user_id";
@@ -251,29 +236,14 @@ try{
   const bq = allIds.length ? await env.DB.prepare(`SELECT id, data_json, title FROM brackets WHERE id IN (${placeholders})`).bind(...allIds).all() : {results:[]};
   const bmap = new Map((bq.results||[]).map(b=>[b.id, { data: JSON.parse(b.data_json||"{}"), title: b.title }]));
 
-  const totals = { pre:480, r16:120, f4:30 };
-  const overallTotal = (TOTAL_GAMES * 10);
   const rows = [];
   for(const e of entries){
     const picks = (bmap.get(e.bracket_id)?.data) || {};
-    const stageScores = { pre:0, r16:0, f4:0 };
-    const stageSeen = { pre:0, r16:0, f4:0 };
-
-    for(const g of finalized){
-      const grp = gameGroupFromId(g.id);
-      if(!grp) continue;
-      const pick = pickForGame(picks, g.id);
-      if(!pick) continue;
-      stageSeen[grp] += 1;
-      if(!teamEq(pick, g.winner)) stageScores[grp] += 10;
-    }
-
-    const score = stageScores.pre + stageScores.r16 + stageScores.f4;
-    const finishedPossible = (stageSeen.pre*10) + (stageSeen.r16*10) + (stageSeen.f4*10);
-    const total_possible = score + Math.max(0, overallTotal - finishedPossible);
     const champ = championPick(picks);
     const tb = tieBreaker(picks);
     const diff = (actualFinalTotal!==null && tb!==null) ? Math.abs(tb-actualFinalTotal) : null;
+    const score = Number(e.score || 0);
+    const correct = Math.round(score / 10);
 
     rows.push({
       entry_id: e.entry_id,
@@ -282,21 +252,18 @@ try{
       bracket_id: e.bracket_id,
       title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
       score,
-      x: Math.round(score/10),
-      y: overallTotal,
-      total_possible,
-      pct: overallTotal ? (score/overallTotal) : 0,
-      stage1: stageScores.pre,
-      stage2: stageScores.r16,
-      stage3: stageScores.f4,
-      champion: champ ? `${champ.seed} ${champ.name}` : "",
+      x: correct,
+      y: finalizedCount,
+      total_possible: score + (remainingGames * 10),
+      pct: finalizedCount ? (correct/finalizedCount) : 0,
+      champion: champ,
       tiebreaker: tb,
       tiebreaker_diff: diff
     });
   }
 
   if(!rows.length){
-    return json({ok:true, leaderboard: [], totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
+    return json({ok:true, leaderboard: [], group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
   }
 
   rows.sort((a,b)=>{
@@ -319,5 +286,5 @@ try{
     return { rank, ...row };
   });
 
-  return json({ok:true, leaderboard: out, totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
+  return json({ok:true, leaderboard: out, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
 }
