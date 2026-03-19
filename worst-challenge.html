@@ -45,13 +45,12 @@
         <div class="subhead">Pick the losers. Every game is worth 10 points when your pick is WRONG.</div>
       </div>
 
-            <div class="challengePageLayout">
-        <div class="miniCard challengeFormatCard">
+      <div class="challengeTopGrid">
+        <div class="miniCard">
           <div class="miniTitle">Format</div>
-          <div class="miniBody"><ul><li>10 points per incorrect pick</li><li>All games, regardless of of round, are worth the same (So you may have a 15 vs 16 in the elite 8 but the first two rounds are crucial)</li><li>Tiebreakers are scored normally</li><li>Round of 64 through the Championship</li><li>The more wrong you are the better</li></ul></div>
+          <div class="miniBody"><ul><li>10 points per incorrect pick</li><li>Tiebreakers are scored normally</li><li>Full tournament</li><li>Round of 64 through the Championship</li><li>The more wrong you are the better</li></ul></div>
         </div>
-
-        <a class="miniCard miniCardLink prizePreviewCard challengePrizeCard" href="/prizes.html" aria-label="Open prize pool page">
+        <a class="miniCard miniCardLink prizePreviewCard" href="/prizes.html" aria-label="Open prize pool page">
           <div class="miniTitle">Prizes</div>
           <div class="prizePreviewGrid">
             <div class="prizePreviewItem">
@@ -59,7 +58,7 @@
               <div class="prizePreviewLabel">Jerseys</div>
             </div>
             <div class="prizePreviewItem">
-              <div class="prizePreviewThumb"><img src="/prizes/custom-gear-bracket-champion.png" alt="Custom Gear prize preview"></div>
+              <div class="prizePreviewThumb"><img src="/prizes/custom-gear-shirt.jpg" alt="Custom Gear prize preview"></div>
               <div class="prizePreviewLabel">Custom Gear</div>
             </div>
             <div class="prizePreviewItem">
@@ -68,29 +67,28 @@
             </div>
           </div>
         </a>
-
-        <div class="leaderboardEntryPanel challengeEntryPanelInline">
-          <div class="challengeActions">
-            <button id="worstChallengeOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
-            <a class="btn" href="worst-leaderboard.html">Leaderboard</a>
-          </div>
-
-          <div id="worstChallengeEntryControls" class="leaderboardEntryControls" style="display:none">
-            <select id="worstChallengeEntrySelect" class="select">
-              <option value="">Choose one of your saved brackets…</option>
-            </select>
-            <button id="worstChallengeEntrySubmitBtn" class="btn primary" type="button">Submit to Worst Leaderboard</button>
-          </div>
-
-          <div id="worstChallengeEntryMsg" class="submitFeaturedMsg"></div>
-          <p class="signinHint blackNote" style="margin:12px 0 0">Brackets can now be submitted to this challenge.</p>
-        </div>
-
-        
       </div>
 
+      <div class="leaderboardEntryPanel" style="margin-top:14px">
+        <div class="challengeActions">
+          <button id="worstChallengeOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
+          <a class="btn" href="worst-leaderboard.html">Leaderboard</a>
+        </div>
+
+        <div id="worstChallengeEntryControls" class="leaderboardEntryControls" style="display:none">
+          <select id="worstChallengeEntrySelect" class="select">
+            <option value="">Choose one of your saved brackets…</option>
+          </select>
+          <button id="worstChallengeEntrySubmitBtn" class="btn primary" type="button">Submit to Worst Leaderboard</button>
+        </div>
+
+        <div id="worstChallengeEntryMsg" class="submitFeaturedMsg"></div>
+        <p class="signinHint blackNote" style="margin:12px 0 0">Brackets can now be submitted to this challenge.</p>
+      </div>
+    </div>
+
     <div class="panel challengeLeaderboardPanelMobileVisible" style="margin-top:16px">
-      <div class="panelHead"><h3 style="margin:0">😈 Worst Bracket Challenge Leaderboard</h3></div>
+      <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
       <div id="worstLeaderboard" style="padding:12px 14px">
         <div class="muted">Loading leaderboard…</div>
       </div>
