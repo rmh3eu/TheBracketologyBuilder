@@ -1,7 +1,35 @@
-import { json } from "./_util.js";
+import { json, ensureGamesSchema } from "./_util.js";
 
-const GAMES = [{"id": "SOUTH__R0__G2", "winner": {"name": "Vanderbilt"}}, {"id": "SOUTH__R0__G3", "winner": {"name": "Nebraska"}}, {"id": "SOUTH__R0__G4", "winner": {"name": "VCU"}}, {"id": "SOUTH__R0__G6", "winner": {"name": "Texas A&M"}}, {"id": "WEST__R0__G2", "winner": {"name": "High Point"}}, {"id": "WEST__R0__G3", "winner": {"name": "Arkansas"}}, {"id": "WEST__R0__G4", "winner": {"name": "Texas/NC State"}}, {"id": "EAST__R0__G0", "winner": {"name": "Duke"}}, {"id": "EAST__R0__G1", "winner": {"name": "TCU"}}, {"id": "EAST__R0__G4", "winner": {"name": "Louisville"}}, {"id": "EAST__R0__G5", "winner": {"name": "Michigan St"}}, {"id": "MIDWEST__R0__G0", "winner": {"name": "Michigan"}}];
+async function ensureTables(env){
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS games (
+    id TEXT PRIMARY KEY,
+    stage TEXT NOT NULL,
+    region TEXT,
+    game_index INTEGER NOT NULL,
+    team1_json TEXT,
+    team2_json TEXT,
+    winner_json TEXT,
+    updated_at TEXT,
+    score_total INTEGER
+  )`).run();
+}
 
-export async function onRequestGet() {
-  return json({ ok:true, games: GAMES });
+export async function onRequestGet({ request, env }){
+  await ensureTables(env);
+  await ensureGamesSchema(env);
+
+  const rows = await env.DB.prepare("SELECT id, stage, region, game_index, team1_json, team2_json, winner_json, updated_at, score_total FROM games").all();
+  const games = (rows.results||[]).map(r=>({
+    id: r.id,
+    stage: r.stage,
+    region: r.region,
+    game_index: r.game_index,
+    team1: r.team1_json ? JSON.parse(r.team1_json) : null,
+    team2: r.team2_json ? JSON.parse(r.team2_json) : null,
+    winner: r.winner_json ? JSON.parse(r.winner_json) : null,
+    updated_at: r.updated_at,
+    score_total: r.score_total===null||r.score_total===undefined ? null : Number(r.score_total)
+  }));
+
+  return json({ok:true, games});
 }
