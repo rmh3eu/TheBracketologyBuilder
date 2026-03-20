@@ -2354,26 +2354,28 @@ function lbTableBest(rows){
   t.appendChild(thead);
   const tb = document.createElement('tbody');
 
-  const meId = state.me ? state.me.id : null;
-  const gamesPlayed = leaderboardGamesPlayedCount();
+  const meId = state.me ? Number(state.me.id) : null;
 
   (rows||[]).forEach(r=>{
     const tr = document.createElement('tr');
-    if(meId && r.user_id === meId) tr.classList.add('isMe');
+    if(meId && Number(r.user_id) === meId) tr.classList.add('isMe');
 
-    const champ = r.champion ? r.champion.name : '—';
+    const champ = (r.champion && typeof r.champion === 'object') ? (r.champion.name || '—') : (r.champion || '—');
     const displayName = r.title || r.display_name || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const link = `${location.origin}${location.pathname}?id=${encodeURIComponent(r.bracket_id)}&challenge=best`;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
-    const yVal = gamesPlayed;
+    const yVal = Number(r.y || 0);
     const pct = leaderboardPctText(xVal, yVal);
+    const link = `${location.origin}/?id=${encodeURIComponent(r.bracket_id)}&readonly=1`;
+    const userCell = meId && Number(r.user_id) === meId
+      ? `<a class="lbUserLink" href="${link}">${escapeHtml(displayName)} 😇</a> <span class="lbYouBadge">My Bracket</span>`
+      : `<a class="lbUserLink" href="${link}">${escapeHtml(displayName)} 😇</a>`;
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser"><a class="lbUserLink" href="${link}">${escapeHtml(displayName)}</a></td>
-      <td class="lbScore">${r.score}</td>
+      <td class="lbUser">${userCell}</td>
+      <td class="lbScore">${Number(r.score || 0)}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
@@ -2395,48 +2397,41 @@ function lbTableWorst(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    <th>Total</th>
+    <th>Score</th>
     <th>Total Possible</th>
-    <th>S1</th>
-    <th>S2</th>
-    <th>S3</th>
     <th>x/y</th>
     <th>%</th>
-    <th>Entries</th>
+    <th>Champion</th>
   </tr>`;
   t.appendChild(thead);
   const tb = document.createElement('tbody');
 
-  const meId = state.me ? state.me.id : null;
-  const gamesPlayed = leaderboardGamesPlayedCount();
+  const meId = state.me ? Number(state.me.id) : null;
 
   (rows||[]).forEach(r=>{
-    const xVal = Number(r.x || 0);
-    const yVal = gamesPlayed;
-    const pct = leaderboardPctText(xVal, yVal);
-    const displayName = r.display_name || r.title || 'Bracket';
-    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
-    const primaryBracketId = (r.brackets && (r.brackets.pre || r.brackets.r16 || r.brackets.f4)) ? (r.brackets.pre || r.brackets.r16 || r.brackets.f4) : null;
-    const primaryStage = (r.brackets && r.brackets.pre) ? 'pre' : ((r.brackets && r.brackets.r16) ? 'r16' : ((r.brackets && r.brackets.f4) ? 'f4' : 'pre'));
-    const userLink = primaryBracketId ? `${location.origin}${location.pathname}?id=${encodeURIComponent(primaryBracketId)}&challenge=worst&stage=${primaryStage}` : '';
-    const links = [];
-    if(r.brackets?.pre) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.pre)}&challenge=worst&stage=pre">S1</a>`);
-    if(r.brackets?.r16) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.r16)}&challenge=worst&stage=r16">S2</a>`);
-    if(r.brackets?.f4) links.push(`<a href="${location.origin}${location.pathname}?id=${encodeURIComponent(r.brackets.f4)}&challenge=worst&stage=f4">S3</a>`);
     const tr = document.createElement('tr');
-    if(meId && r.user_id === meId) tr.classList.add('isMe');
+    if(meId && Number(r.user_id) === meId) tr.classList.add('isMe');
+
+    const champ = (r.champion && typeof r.champion === 'object') ? (r.champion.name || '—') : (r.champion || '—');
+    const displayName = r.title || r.display_name || 'Bracket';
+    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
+    const xVal = Number(r.x || 0);
+    const yVal = Number(r.y || 0);
+    const pct = leaderboardPctText(xVal, yVal);
+    const link = `${location.origin}/?id=${encodeURIComponent(r.bracket_id)}&readonly=1`;
+    const userCell = meId && Number(r.user_id) === meId
+      ? `<a class="lbUserLink" href="${link}">${escapeHtml(displayName)} 😈</a> <span class="lbYouBadge">My Bracket</span>`
+      : `<a class="lbUserLink" href="${link}">${escapeHtml(displayName)} 😈</a>`;
+
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
-      <td class="lbUser">${userLink ? `<a class="lbUserLink" href="${userLink}">${escapeHtml(displayName)}</a>` : escapeHtml(displayName)}</td>
-      <td class="lbScore">${r.score}</td>
+      <td class="lbUser">${userCell}</td>
+      <td class="lbScore">${Number(r.score || 0)}</td>
       <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
-      <td class="lbScore">${r.stage1 ?? '—'}</td>
-      <td class="lbScore">${r.stage2 ?? '—'}</td>
-      <td class="lbScore">${r.stage3 ?? '—'}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
-      <td class="lbEntries">${links.length ? links.join(' · ') : '—'}</td>
+      <td><span>${escapeHtml(champ)}</span></td>
     `;
     tb.appendChild(tr);
   });

@@ -3986,3 +3986,6 @@ a[href*="Bracket"]{
 .betOnlineBracketPromo .betOnlinePrizePoolBtn{
   margin-top:22px !important;
 }
+
+
+.lbYouBadge{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.16);font-size:12px;font-weight:700;}
