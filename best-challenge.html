@@ -45,12 +45,13 @@
         <div class="subhead">Most correct picks wins. Every game is worth 10 points.</div>
       </div>
 
-      <div class="challengeTopGrid">
-        <div class="miniCard">
+            <div class="challengePageLayout">
+        <div class="miniCard challengeFormatCard">
           <div class="miniTitle">Format</div>
-          <div class="miniBody"><ul><li>10 points per correct pick</li><li>No round multipliers</li><li>Full tournament</li><li>Round of 64 through the Championship</li><li>The first weekend matters more than in other formats</li></ul></div>
+          <div class="miniBody"><ul><li>10 points per correct pick</li><li>All games, regardless of round, are worth the same (finally a bracket where it’s not all about picking the champion)</li><li>Round of 64 through the Championship</li><li>The first weekend matters more than in other formats</li></ul></div>
         </div>
-        <a class="miniCard miniCardLink prizePreviewCard" href="/prizes.html" aria-label="Open prize pool page">
+
+        <a class="miniCard miniCardLink prizePreviewCard challengePrizeCard" href="/prizes.html" aria-label="Open prize pool page">
           <div class="miniTitle">Prizes</div>
           <div class="prizePreviewGrid">
             <div class="prizePreviewItem">
@@ -58,7 +59,7 @@
               <div class="prizePreviewLabel">Jerseys</div>
             </div>
             <div class="prizePreviewItem">
-              <div class="prizePreviewThumb"><img src="/prizes/custom-gear-shirt.jpg" alt="Custom Gear prize preview"></div>
+              <div class="prizePreviewThumb"><img src="/prizes/custom-gear-bracket-champion.png" alt="Custom Gear prize preview"></div>
               <div class="prizePreviewLabel">Custom Gear</div>
             </div>
             <div class="prizePreviewItem">
@@ -67,28 +68,29 @@
             </div>
           </div>
         </a>
-      </div>
 
-      <div class="leaderboardEntryPanel" style="margin-top:14px">
-        <div class="challengeActions">
-          <button id="bestChallengeOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
-          <a class="btn" href="best-leaderboard.html">Leaderboard</a>
+        <div class="leaderboardEntryPanel challengeEntryPanelInline">
+          <div class="challengeActions">
+            <button id="bestChallengeOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
+            <a class="btn" href="best-leaderboard.html">Leaderboard</a>
+          </div>
+
+          <div id="bestChallengeEntryControls" class="leaderboardEntryControls" style="display:none">
+            <select id="bestChallengeEntrySelect" class="select">
+              <option value="">Choose one of your saved brackets…</option>
+            </select>
+            <button id="bestChallengeEntrySubmitBtn" class="btn primary" type="button">Submit to Best Leaderboard</button>
+          </div>
+
+          <div id="bestChallengeEntryMsg" class="submitFeaturedMsg"></div>
+          <p class="signinHint blackNote" style="margin:12px 0 0">Brackets can now be submitted to this challenge.</p>
         </div>
 
-        <div id="bestChallengeEntryControls" class="leaderboardEntryControls" style="display:none">
-          <select id="bestChallengeEntrySelect" class="select">
-            <option value="">Choose one of your saved brackets…</option>
-          </select>
-          <button id="bestChallengeEntrySubmitBtn" class="btn primary" type="button">Submit to Best Leaderboard</button>
-        </div>
-
-        <div id="bestChallengeEntryMsg" class="submitFeaturedMsg"></div>
-        <p class="signinHint blackNote" style="margin:12px 0 0">Brackets can now be submitted to this challenge.</p>
+        
       </div>
-    </div>
 
     <div class="panel challengeLeaderboardPanelMobileVisible" style="margin-top:16px">
-      <div class="panelHead"><h3 style="margin:0">Leaderboard</h3></div>
+      <div class="panelHead"><h3 style="margin:0">😇 Best Bracket Challenge Leaderboard</h3></div>
       <div id="bestLeaderboard" style="padding:12px 14px">
         <div class="muted">Loading leaderboard…</div>
       </div>
