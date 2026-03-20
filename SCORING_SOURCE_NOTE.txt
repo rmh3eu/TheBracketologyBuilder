@@ -1,1 +1,4 @@
 Leaderboard values in this build are generated from the uploaded workbook 'Leaderboard Data Entry.xlsx' (Option A).\n
+
+LEADERBOARD FIX PHASE:
+Overall pre-stage best/worst leaderboards now read from functions/api/_leaderboard_static_data.js, generated from the uploaded spreadsheet. This bypasses bracket scoring and leaves saved bracket data untouched.
