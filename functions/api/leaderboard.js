@@ -1,4 +1,5 @@
 import { json, ensureUserSchema, ensureGamesSchema, requireUser } from "./_util.js";
+import { STATIC_BEST_LEADERBOARD, STATIC_WORST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static_data.js";
 
 async function ensureTables(env){
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS games (
@@ -85,6 +86,37 @@ export async function onRequestGet({ request, env }){
   const groupId = url.searchParams.get("group");
   if(!['best','worst'].includes(challenge)) return json({ok:false, error:"Invalid challenge."}, 400);
   if(!['pre','r16','f4','sc'].includes(stage)) return json({ok:false, error:"Invalid stage."}, 400);
+  if(!groupId && stage === 'pre'){
+    let me_user_id = null;
+    try{
+      const me = await requireUser({request, env});
+      me_user_id = me?.id ?? null;
+    }catch{ me_user_id = null; }
+
+    if(challenge === 'best'){
+      return json({
+        ok: true,
+        leaderboard: STATIC_BEST_LEADERBOARD,
+        group: null,
+        me_user_id,
+        total_games: STATIC_LEADERBOARD_META.total_games,
+        finalized_games: STATIC_LEADERBOARD_META.finalized_games,
+        static_source: 'spreadsheet'
+      });
+    }
+
+    if(challenge === 'worst'){
+      return json({
+        ok: true,
+        leaderboard: STATIC_WORST_LEADERBOARD,
+        group: null,
+        me_user_id,
+        total_games: STATIC_LEADERBOARD_META.total_games,
+        finalized_games: STATIC_LEADERBOARD_META.finalized_games,
+        static_source: 'spreadsheet'
+      });
+    }
+  }
 
   let group = null;
   if(groupId){
