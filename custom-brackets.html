@@ -28,9 +28,9 @@
       <!-- ESPN-style desktop layout: regions on left/right, final rounds in the center -->
       <section class="espnDesk" id="ncaaFullSection">
         <div class="deskCol left">
-<div id="region-East"></div>
-<div id="region-South"></div>
-</div>
+          <div id="region-South"></div>
+          <div id="region-West"></div>
+        </div>
 <div class="deskCol center">
 
           <div class="bracketTitleRow homeTitleRow">
@@ -59,8 +59,8 @@
 
               <!-- Phase 3 (mobile only): completion cue shown after the user starts interacting, hidden after save -->
               <div id="phase3Cue" class="phase3Cue" aria-hidden="true">
-                <div class="phase3Headline"><strong>Enter A Bracket Challenge</strong></div>
-                <div class="phase3Subtext">Finish your Final Four → Save and head over to the best and/or worst bracket challenge pages to enter.</div>
+                <div class="phase3Headline"><strong>Save multiple brackets as projections change.</strong></div>
+                <div class="phase3Subtext">Finish your Final Four → Submit your bracket for a chance to be featured on TikTok or the site.</div>
               </div>
 	            </div>
 
@@ -88,8 +88,8 @@
 	              </div>
 	              <section id="homeChallengePanel" class="homeChallengePanel" aria-label="Join a Challenge">
 	                <div class="challengeActions" style="gap:10px;flex-wrap:wrap">
-	                  <button class="btn" id="homeGoBest" type="button" onclick="return window.goToChallengeFromBracket ? window.goToChallengeFromBracket('best') : false;">Best Bracket Challenge</button>
-	                  <button class="btn" id="homeGoWorst" type="button" onclick="return window.goToChallengeFromBracket ? window.goToChallengeFromBracket('worst') : false;">Worst Bracket Challenge</button>
+	                  <button class="btn" id="homeGoBest">Best Bracket Challenge</button>
+	                  <button class="btn" id="homeGoWorst">Worst Bracket Challenge</button>
 	                </div>
 	                <!-- message now shown above, keep this removed to avoid duplicates -->
 	              </section>
@@ -98,8 +98,8 @@
 	        </div>
 
         <div class="deskCol right">
-          <div id="region-West"></div>
-<div id="region-Midwest"></div>
+          <div id="region-East"></div>
+          <div id="region-Midwest"></div>
         </div>
       </section>
 
