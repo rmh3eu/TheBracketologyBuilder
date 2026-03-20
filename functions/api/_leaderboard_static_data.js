@@ -19,7 +19,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 1
   },
   {
@@ -36,7 +36,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Arizona",
     "rank": 1
   },
   {
@@ -53,7 +53,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 1
   },
   {
@@ -70,7 +70,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 1
   },
   {
@@ -87,7 +87,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 5
   },
   {
@@ -104,7 +104,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Arizona",
     "rank": 5
   },
   {
@@ -121,7 +121,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Michigan",
     "rank": 5
   },
   {
@@ -138,7 +138,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 5
   },
   {
@@ -155,7 +155,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 5
   },
   {
@@ -172,7 +172,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Michigan St",
     "rank": 10
   },
   {
@@ -189,7 +189,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 10
   },
   {
@@ -206,7 +206,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Michigan",
     "rank": 10
   },
   {
@@ -240,7 +240,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 10
   },
   {
@@ -257,7 +257,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Arizona",
     "rank": 10
   },
   {
@@ -274,7 +274,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 10
   },
   {
@@ -291,7 +291,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Arizona",
     "rank": 10
   },
   {
@@ -308,7 +308,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Michigan",
     "rank": 10
   },
   {
@@ -325,7 +325,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Florida",
     "rank": 10
   },
   {
@@ -342,7 +342,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 10
   },
   {
@@ -359,7 +359,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 10
   },
   {
@@ -376,7 +376,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "UConn",
     "rank": 22
   },
   {
@@ -393,7 +393,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Michigan",
     "rank": 22
   },
   {
@@ -410,7 +410,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Michigan",
     "rank": 22
   },
   {
@@ -427,7 +427,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 22
   },
   {
@@ -444,7 +444,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 22
   },
   {
@@ -461,7 +461,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 22
   },
   {
@@ -478,7 +478,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 22
   },
   {
@@ -495,7 +495,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Florida",
     "rank": 29
   },
   {
@@ -512,7 +512,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 29
   },
   {
@@ -529,7 +529,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Florida",
     "rank": 29
   },
   {
@@ -546,7 +546,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Louisville",
     "rank": 32
   },
   {
@@ -563,7 +563,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Queens",
     "rank": 32
   },
   {
@@ -580,7 +580,7 @@ export const STATIC_BEST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 34
   }
 ];
@@ -600,7 +600,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Lehigh/Prairie View",
     "rank": 1
   },
   {
@@ -617,7 +617,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Lehigh/Prairie View",
     "rank": 1
   },
   {
@@ -634,7 +634,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Hofstra",
     "rank": 1
   },
   {
@@ -651,7 +651,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Hawaii",
     "rank": 4
   },
   {
@@ -668,7 +668,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Lehigh/Prairie View",
     "rank": 4
   },
   {
@@ -685,7 +685,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "LIU",
     "rank": 4
   },
   {
@@ -702,7 +702,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 4
   },
   {
@@ -719,7 +719,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Penn",
     "rank": 4
   },
   {
@@ -736,7 +736,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 4
   },
   {
@@ -753,7 +753,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Idaho",
     "rank": 4
   },
   {
@@ -770,7 +770,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 4
   },
   {
@@ -787,7 +787,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "High Point",
     "rank": 12
   },
   {
@@ -804,7 +804,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "UMBC/Howard",
     "rank": 12
   },
   {
@@ -821,7 +821,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Queens",
     "rank": 12
   },
   {
@@ -838,7 +838,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 12
   },
   {
@@ -855,7 +855,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 12
   },
   {
@@ -872,7 +872,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Siena",
     "rank": 17
   },
   {
@@ -889,7 +889,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "LIU",
     "rank": 17
   },
   {
@@ -906,7 +906,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Queens",
     "rank": 17
   },
   {
@@ -923,7 +923,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "LIU",
     "rank": 17
   },
   {
@@ -940,7 +940,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Saint Louis",
     "rank": 21
   },
   {
@@ -957,7 +957,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 22
   },
   {
@@ -974,7 +974,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "Duke",
     "rank": 23
   },
   {
@@ -991,7 +991,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "UConn",
     "rank": 24
   },
   {
@@ -1008,7 +1008,7 @@ export const STATIC_WORST_LEADERBOARD = [
     "stage1": 0,
     "stage2": 0,
     "stage3": 0,
-    "champion": "",
+    "champion": "LIU",
     "rank": 24
   }
 ];
