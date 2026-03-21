@@ -2448,7 +2448,7 @@ function lbTableBest(rows){
     <th>Rank</th>
     <th>User</th>
     <th>Score</th>
-    <th>Total Possible</th>
+    
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2498,7 +2498,7 @@ function lbTableWorst(rows){
     <th>Rank</th>
     <th>User</th>
     <th>Score</th>
-    <th>Total Possible</th>
+    
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
