@@ -2463,13 +2463,13 @@ function lbTableBest(rows){
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
 
-    const champ = '—';
+    const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
     const displayName = r.title || r.display_name || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
-    const yVal = gamesPlayed;
-    const pct = leaderboardPctText(xVal, yVal);
+    const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
+    const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
     const userCell = escapeHtml(displayName) + ' 😇';
 
     tr.innerHTML = `
@@ -2513,13 +2513,13 @@ function lbTableWorst(rows){
     const tr = document.createElement('tr');
     if(meId && r.user_id === meId) tr.classList.add('isMe');
 
-    const champ = '—';
+    const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
     const displayName = r.title || r.display_name || 'Bracket';
     const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
-    const yVal = gamesPlayed;
-    const pct = leaderboardPctText(xVal, yVal);
+    const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
+    const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
     const userCell = meId && r.user_id === meId
       ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
       : `${escapeHtml(displayName)} 😈`;
