@@ -1,4 +1,3 @@
-import { STATIC_BEST_LEADERBOARD, STATIC_WORST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
 import { json, ensureUserSchema, ensureGamesSchema, requireUser } from "./_util.js";
 
 async function ensureTables(env){
@@ -88,26 +87,6 @@ export async function onRequestGet({ request, env }){
   if(!['pre','r16','f4','sc'].includes(stage)) return json({ok:false, error:"Invalid stage."}, 400);
 
   let group = null;
-  // Static spreadsheet-based leaderboard override for overall pre-stage boards.
-  // This avoids any live score recomputation against saved bracket data.
-  if(!groupId && stage === 'pre'){
-    let me_user_id = null;
-    try{
-      const me = await requireUser({request, env});
-      me_user_id = me?.id ?? null;
-    }catch{ me_user_id = null; }
-
-    const staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
-    return json({
-      ok: true,
-      leaderboard: staticRows,
-      group: null,
-      me_user_id,
-      total_games: 63,
-      finalized_games: Number(STATIC_LEADERBOARD_META?.games_played || 0)
-    });
-  }
-
   if(groupId){
     group = await env.DB.prepare(
       `SELECT g.id, g.challenge, g.name,
