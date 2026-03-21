@@ -2438,35 +2438,7 @@ function leaderboardPctText(x, y){
   return ((xn / yn) * 100).toFixed(1) + '%';
 }
 
-function lbTableBest(rows){
-  const wrap = el('div','lbTableWrap');
-  const t = el('table','lbTable');
-  const rankCounts = new Map();
-  (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
-  const thead = document.createElement('thead');
-  thead.innerHTML = `<tr>
-    <th>Rank</th>
-    <th>User</th>
-    <th>Score</th>
-    <th>Total Possible</th>
-    <th>x/y</th>
-    <th>%</th>
-    <th>Champion</th>
-  </tr>`;
-  t.appendChild(thead);
-  const tb = document.createElement('tbody');
-
-  const meId = state.me ? state.me.id : null;
-  const gamesPlayed = leaderboardGamesPlayedCount();
-
-  (rows||[]).forEach(r=>{
-    const tr = document.createElement('tr');
-    if(meId && r.user_id === meId) tr.classList.add('isMe');
-
-    const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
-    const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = ((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==undefined && (630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==null) ? Number((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))) : null;
-    const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
+function lbTableBest(rows){}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
@@ -2488,35 +2460,7 @@ function lbTableBest(rows){
   return wrap;
 }
 
-function lbTableWorst(rows){
-  const wrap = el('div','lbTableWrap');
-  const t = el('table','lbTable');
-  const rankCounts = new Map();
-  (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
-  const thead = document.createElement('thead');
-  thead.innerHTML = `<tr>
-    <th>Rank</th>
-    <th>User</th>
-    <th>Score</th>
-    <th>Total Possible</th>
-    <th>x/y</th>
-    <th>%</th>
-    <th>Champion</th>
-  </tr>`;
-  t.appendChild(thead);
-  const tb = document.createElement('tbody');
-
-  const meId = state.me ? state.me.id : null;
-  const gamesPlayed = leaderboardGamesPlayedCount();
-
-  (rows||[]).forEach(r=>{
-    const tr = document.createElement('tr');
-    if(meId && r.user_id === meId) tr.classList.add('isMe');
-
-    const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
-    const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = ((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==undefined && (630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==null) ? Number((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))) : null;
-    const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
+function lbTableWorst(rows){}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
