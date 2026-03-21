@@ -1,3 +1,4 @@
+import { STATIC_BEST_LEADERBOARD, STATIC_WORST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
 import { json, ensureUserSchema, ensureGamesSchema, requireUser } from "./_util.js";
 
 async function ensureTables(env){
@@ -120,6 +121,20 @@ export async function onRequestGet({ request, env }){
     const me = await requireUser({request, env});
     me_user_id = me?.id ?? null;
   }catch{ me_user_id = null; }
+
+  // Static spreadsheet-based override for the overall pre-stage leaderboards.
+  // This keeps leaderboard scoring completely outside bracket logic.
+  if(!groupId && stage === 'pre'){
+    const staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
+    return json({
+      ok:true,
+      leaderboard: staticRows,
+      group,
+      me_user_id,
+      total_games: 63,
+      finalized_games: Number(STATIC_LEADERBOARD_META?.games_played || 0)
+    });
+  }
 
   if(challenge === "best"){
     let q = "SELECT e.user_id, e.bracket_id, MAX(b.title) AS bracket_title, MAX(u.email) AS email FROM challenge_entries e JOIN users u ON u.id=e.user_id JOIN brackets b ON b.id=e.bracket_id";
