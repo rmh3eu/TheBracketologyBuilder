@@ -2448,7 +2448,7 @@ function lbTableBest(rows){
     <th>Rank</th>
     <th>User</th>
     <th>Score</th>
-    
+    <th>Total Possible</th>
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2465,7 +2465,7 @@ function lbTableBest(rows){
 
     const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
     const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
+    const totalPossible = ((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==undefined && (630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==null) ? Number((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
@@ -2498,7 +2498,7 @@ function lbTableWorst(rows){
     <th>Rank</th>
     <th>User</th>
     <th>Score</th>
-    
+    <th>Total Possible</th>
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2515,7 +2515,7 @@ function lbTableWorst(rows){
 
     const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
     const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
+    const totalPossible = ((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==undefined && (630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==null) ? Number((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
