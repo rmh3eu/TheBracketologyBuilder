@@ -831,7 +831,7 @@ async function betOnlinePromoModal(){
     titleLink.target = '_blank';
     titleLink.rel = 'noopener noreferrer';
     titleLink.setAttribute('data-sportsbook','1');
-    titleLink.innerHTML = '<div class="betOnlinePromoTitle simpleAffiliateTitle">Get $200 in Bonus<br>with Sign Up</div>';
+    titleLink.innerHTML = '<div class="betOnlinePromoTitle simpleAffiliateTitle">Get $250 in Bonus<br>with Sign Up</div>';
 
     const logoWrap = document.createElement('a');
     logoWrap.className = 'betOnlinePromoLogoWrap';
@@ -3894,9 +3894,9 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
-        Get $200 in Bonus with Sign Up
+        Get $250 in Bonus with Sign Up
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Get $200 in Bonus with Sign Up Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Get $250 in Bonus with Sign Up Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
@@ -3940,7 +3940,7 @@ function mountBetOnlineBracketPromo(regionName, mount){
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
-         Get $200 in Bonus with Sign Up
+         Get $250 in Bonus with Sign Up
       </a>
 
       <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
