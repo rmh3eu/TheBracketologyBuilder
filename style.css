@@ -4349,3 +4349,11 @@ a[href*="Bracket"]{
   text-align:left;
 }
 
+
+
+/* add spacing so buttons don't overlap text */
+.betrInlinePromoBody .btn,
+.betOnlineCardPromoBody .btn{
+  margin-top:10px;
+}
+
