@@ -125,7 +125,18 @@ export async function onRequestGet({ request, env }){
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
   // This keeps leaderboard scoring completely outside bracket logic.
   if(!groupId && stage === 'pre'){
-    const staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
+    let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
+    const me = me_user_id ? await env.DB.prepare("SELECT id, email, is_admin FROM users WHERE id=?").bind(me_user_id).first().catch(()=>null) : null;
+    const isAdminViewer = !!(me && (Number(me.is_admin) === 1 || me.is_admin === true));
+    if(isAdminViewer){
+      const ids = [...new Set((staticRows||[]).map(r => Number(r.user_id)).filter(n => Number.isFinite(n)))];
+      if(ids.length){
+        const placeholders = ids.map(() => "?").join(",");
+        const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...ids).all().catch(()=>({results:[]}));
+        const emailMap = new Map((uq.results||[]).map(u => [Number(u.id), u.email || ""]));
+        staticRows = (staticRows||[]).map(r => ({...r, email: emailMap.get(Number(r.user_id)) || ""}));
+      }
+    }
     return json({
       ok:true,
       leaderboard: staticRows,
