@@ -7,10 +7,10 @@ export async function onRequest({ request }) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>🏀 Get $200 in Bonus with Sign Up</title>
+  <title>🏀 Get $250 in Bonus with Sign Up</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Get $200 in Bonus with Sign Up through BracketologyBuilder.">
-  <meta property="og:title" content="🏀 Get $200 in Bonus with Sign Up">
+  <meta name="description" content="Enter the Get $250 in Bonus with Sign Up through BracketologyBuilder.">
+  <meta property="og:title" content="🏀 Get $250 in Bonus with Sign Up">
   <meta property="og:description" content="Tap to enter through BracketologyBuilder.">
   <meta property="og:image" content="${ogImage}">
   <meta property="og:image:width" content="1200">
@@ -19,7 +19,7 @@ export async function onRequest({ request }) {
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="BracketologyBuilder">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="🏀 Get $200 in Bonus with Sign Up">
+  <meta name="twitter:title" content="🏀 Get $250 in Bonus with Sign Up">
   <meta name="twitter:description" content="Tap to enter through BracketologyBuilder.">
   <meta name="twitter:image" content="${ogImage}">
   <meta http-equiv="refresh" content="1; url=${affiliateUrl}">

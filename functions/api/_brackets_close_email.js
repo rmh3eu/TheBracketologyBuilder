@@ -29,12 +29,12 @@ export function buildEmail(){
       </div>
 
       <p style="margin-top:25px;font-size:16px;">
-        Also, check out BetOnline and get $200 in bonus with sign up
+        Also, check out BetOnline and get $250 in bonus with sign up
       </p>
 
       <div style="margin:20px 0;">
         <a href="${AFFILIATE_URL}" style="background:#111;color:#fff;padding:14px 26px;border-radius:999px;text-decoration:none;font-weight:800;">
-          Enter the $200K Bracket Contest
+          Get $250 in Bonus with Sign Up
         </a>
       </div>
 
@@ -53,7 +53,7 @@ There’s limited entries so you’d have a great chance at winning a prize!
 
 Enter here: ${SITE_URL}
 
-Also, check out BetOnline and get $200 in bonus with sign up:
+Also, check out BetOnline and get $250 in bonus with sign up:
 ${AFFILIATE_URL}
 
 Hurry up and good luck!`;

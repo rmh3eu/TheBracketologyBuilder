@@ -64,12 +64,12 @@ Create Your Bracket
 </a>
 </div>
 
-<p style="text-align:center;font-weight:bold;">Also check out BetOnline and get $200 in bonus with sign up:</p>
+<p style="text-align:center;font-weight:bold;">Also check out BetOnline and get $250 in bonus with sign up:</p>
 
 <div style="text-align:center;margin:25px 0;">
 <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
 style="display:inline-block;background:#d62828;color:#fff;padding:14px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">
-Enter the $200K Contest
+Get $250 in Bonus with Sign Up
 </a>
 </div>
 </div>
@@ -83,7 +83,7 @@ Fill out your brackets now!
 Create your bracket:
 https://bracketologybuilder.com
 
-Enter the $200K contest:
+Get $250 in bonus with sign up:
 https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/
 `;
 
