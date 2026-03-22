@@ -2449,7 +2449,6 @@ function lbTableBest(rows){
     <th>Rank</th>
     <th>User</th>${isAdminViewer ? '<th>Email</th>' : ''}
     <th>Score</th>
-    <th>Total Possible</th>
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2479,7 +2478,6 @@ function lbTableBest(rows){
       <td class="lbUser">${userCell}</td>
       ${emailCell}
       <td class="lbScore">${r.score}</td>
-      <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
       <td><span>${escapeHtml(champ)}</span></td>
@@ -2502,7 +2500,6 @@ function lbTableWorst(rows){
     <th>Rank</th>
     <th>User</th>${isAdminViewer ? '<th>Email</th>' : ''}
     <th>Score</th>
-    <th>Total Possible</th>
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2534,7 +2531,6 @@ function lbTableWorst(rows){
       <td class="lbUser">${userCell}</td>
       ${emailCell}
       <td class="lbScore">${r.score}</td>
-      <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
       <td><span>${escapeHtml(champ)}</span></td>

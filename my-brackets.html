@@ -87,6 +87,34 @@
       <div id="offEmpty" class="muted">No official brackets yet.</div>
       <div id="offList" class="bracketsGrid"></div>
     </section>
+  
+    <section class="panel" id="adminAllBracketsPanel" style="margin-top:16px; display:none;">
+      <div class="panelHead">
+        <h2 style="margin:0;">All Brackets</h2>
+      </div>
+      <div id="adminBracketsMount"></div>
+      <div id="adminBracketsStatus" class="muted" style="margin-top:10px;"></div>
+      <div style="margin-top:10px;">
+        <button id="adminBracketsMore" class="btn" type="button">Load More</button>
+      </div>
+    </section>
+
+    <section class="panel" id="adminFeaturedPanel" style="margin-top:16px; display:none;">
+      <div class="panelHead">
+        <h2 style="margin:0;">Featured Brackets Review</h2>
+      </div>
+      <div id="adminFeaturedStatus" class="muted" style="margin-bottom:12px;"></div>
+
+      <h3 style="margin:8px 0;">Pending</h3>
+      <div id="adminFeaturedPending"></div>
+
+      <h3 style="margin:16px 0 8px;">Approved</h3>
+      <div id="adminFeaturedApproved"></div>
+
+      <h3 style="margin:16px 0 8px;">Rejected</h3>
+      <div id="adminFeaturedDenied"></div>
+    </section>
+
   </main>
 
   <script src="./public-config.js?v=1"></script>

@@ -4330,3 +4330,22 @@ a[href*="Bracket"]{
   }
 }
 
+
+
+.featureReviewCard{
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  padding:12px;
+  margin-bottom:10px;
+}
+.adminTable{
+  width:100%;
+  border-collapse:collapse;
+}
+.adminTable th,.adminTable td{
+  padding:10px 8px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+}
+
