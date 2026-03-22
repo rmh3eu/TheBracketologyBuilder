@@ -4,7 +4,7 @@ import { sendEmail } from './_util.js';
 
 export const SUBJECT = 'Brackets Close at 12:15 PM EST🏀';
 export const TEST_TO = 'rmh3eu@virginia.edu';
-export const AFFILIATE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
+export const AFFILIATE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
 export const SITE_URL = 'https://bracketologybuilder.com';
 
 export function buildEmail(){
@@ -29,7 +29,7 @@ export function buildEmail(){
       </div>
 
       <p style="margin-top:25px;font-size:16px;">
-        Also, be sure to enter the 200k Bracket Contest hosted by BetOnline
+        Also, check out BetOnline and get $200 in bonus with sign up
       </p>
 
       <div style="margin:20px 0;">
@@ -53,7 +53,7 @@ There’s limited entries so you’d have a great chance at winning a prize!
 
 Enter here: ${SITE_URL}
 
-Also, be sure to enter the 200k Bracket Contest hosted by BetOnline:
+Also, check out BetOnline and get $200 in bonus with sign up:
 ${AFFILIATE_URL}
 
 Hurry up and good luck!`;

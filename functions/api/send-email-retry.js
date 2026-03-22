@@ -64,10 +64,10 @@ Create Your Bracket
 </a>
 </div>
 
-<p style="text-align:center;font-weight:bold;">Also check out the $200,000 Bracket Challenge:</p>
+<p style="text-align:center;font-weight:bold;">Also check out BetOnline and get $200 in bonus with sign up:</p>
 
 <div style="text-align:center;margin:25px 0;">
-<a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
+<a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
 style="display:inline-block;background:#d62828;color:#fff;padding:14px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">
 Enter the $200K Contest
 </a>
@@ -84,7 +84,7 @@ Create your bracket:
 https://bracketologybuilder.com
 
 Enter the $200K contest:
-https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/
+https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/
 `;
 
 let sent = 0;
