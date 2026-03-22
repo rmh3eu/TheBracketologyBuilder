@@ -4380,3 +4380,35 @@ a[href*="Bracket"]{
   margin-top:-2px;
 }
 
+
+
+/* FINAL spacing fix for ads */
+.betrInlinePromoBody,
+.betOnlineCardPromoBody{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:140px;
+}
+
+.betrInlinePromoText,
+.betOnlineCardPromoText{
+  margin-bottom:4px;
+}
+
+.betrInlinePromoSub,
+.betOnlineCardPromoSub{
+  margin-bottom:6px;
+}
+
+/* push button clearly down */
+.betrInlinePromoBody .btn,
+.betOnlineCardPromoBody .btn{
+  margin-top:18px;
+}
+
+/* tighten top spacing slightly */
+.betrInlinePromoTitle,
+.betOnlineCardPromoTitle{
+  margin-bottom:2px;
+}
