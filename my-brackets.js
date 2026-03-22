@@ -415,20 +415,10 @@ async function loadPage() {
     (me && me.user && (me.user.isAdmin || me.user.is_admin)) ||
     (me && (me.isAdmin || me.is_admin))
   );
+  const adminNavLink = document.getElementById('adminNavLink');
+  if (adminNavLink) adminNavLink.style.display = isAdmin ? '' : 'none';
 
-  if (adminWrap) adminWrap.style.display = isAdmin ? 'flex' : 'none';
-  const adminAllBracketsPanel = document.getElementById('adminAllBracketsPanel');
-  const adminFeaturedPanel = document.getElementById('adminFeaturedPanel');
-  if (adminAllBracketsPanel) adminAllBracketsPanel.style.display = isAdmin ? '' : 'none';
-  if (adminFeaturedPanel) adminFeaturedPanel.style.display = isAdmin ? '' : 'none';
-  const adminMoreBtn = document.getElementById('adminBracketsMore');
-  if (adminMoreBtn && !adminMoreBtn._wired) {
-    adminMoreBtn._wired = true;
-    adminMoreBtn.addEventListener('click', ()=>loadAdminBracketsView(false));
-  }
-  if (isAdmin) {
-    try { await loadAdminBracketsView(true); } catch {}
-    try { await loadAdminFeaturedReview(); } catch {}
+  if (adminWrap) adminWrap.style.display = isAdmin ? 'flex' : 'none'; catch {}
   }
   if (toggle) {
     toggle.checked = officialLive;

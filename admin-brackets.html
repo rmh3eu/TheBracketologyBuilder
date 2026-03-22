@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Brackets</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-admin-brackets page-challenge-standalone page-challenge-clean-header">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" data-view="build" href="/">Home</a>
+      <a class="navLink" data-view="best" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" data-view="worst" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" data-view="mybrackets" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" data-view="featured" href="/#featured">Featured Brackets</a>
+      <a class="navLink" data-view="upcoming" href="/#upcoming">Upcoming Events</a>
+      <a class="navLink active adminOnlyNav" id="adminNavLink" href="admin-brackets.html" style="display:none;">All Brackets</a>
+    </nav>
+  </div>
+
+  <main class="wrap">
+    <div class="panel" id="adminGatePanel">
+      <div class="panelHead"><h2 style="margin:0;">All Brackets</h2></div>
+      <div id="adminGateMsg" class="muted">Loading…</div>
+    </div>
+
+    <section class="panel" id="adminAllBracketsPanel" style="display:none;">
+      <div class="panelHead">
+        <h2 style="margin:0;">All Brackets</h2>
+      </div>
+      <div id="adminBracketsMount"></div>
+      <div id="adminBracketsStatus" class="muted" style="margin-top:10px;"></div>
+      <div style="margin-top:10px;">
+        <button id="adminBracketsMore" class="btn" type="button">Load More</button>
+      </div>
+    </section>
+
+    <section class="panel" id="adminFeaturedPanel" style="margin-top:16px; display:none;">
+      <div class="panelHead">
+        <h2 style="margin:0;">Featured Brackets Review</h2>
+      </div>
+      <div id="adminFeaturedStatus" class="muted" style="margin-bottom:12px;"></div>
+
+      <h3 style="margin:8px 0;">Pending</h3>
+      <div id="adminFeaturedPending"></div>
+
+      <h3 style="margin:16px 0 8px;">Approved</h3>
+      <div id="adminFeaturedApproved"></div>
+
+      <h3 style="margin:16px 0 8px;">Rejected</h3>
+      <div id="adminFeaturedDenied"></div>
+    </section>
+  </main>
+
+  <script src="/admin-brackets.js"></script>
+</body>
+</html>

@@ -134,6 +134,8 @@ function setSeasonBar(){
   textEl.textContent = txt;
 
   const isAdm = !!(state && state.me && state.me.isAdmin);
+  const adminNavLink = document.getElementById('adminNavLink');
+  if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
 
   // Admin-only quick edit for banner
   if(editBtn){
@@ -1650,6 +1652,8 @@ async function sendAdminBroadcast(panel){
 
 function wireAdminBroadcastPanels(){
   const isAdm = !!(state && state.me && state.me.isAdmin);
+  const adminNavLink = document.getElementById('adminNavLink');
+  if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
   document.querySelectorAll('.adminBroadcast').forEach(panel=>{
     panel.style.display = isAdm ? '' : 'none';
     if(!isAdm) return;
@@ -1664,6 +1668,8 @@ function wireAdminBroadcastPanels(){
 
 function wireAdminNavLinks(){
   const isAdm = !!(state && state.me && state.me.isAdmin);
+  const adminNavLink = document.getElementById('adminNavLink');
+  if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
   qsa('.adminOnly').forEach(a=>{
     a.style.display = isAdm ? '' : 'none';
   });
