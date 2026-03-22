@@ -4275,3 +4275,58 @@ a[href*="Bracket"]{
   }
 }
 
+
+
+/* targeted promo layout fixes */
+.page-challenge-leaderboard .promoDualRow,
+.page-challenge-standalone .promoDualRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  align-items:stretch;
+}
+.page-challenge-leaderboard .promoDualRow .betrInlinePromo,
+.page-challenge-leaderboard .promoDualRow .betOnlineCardPromo{
+  padding:10px 12px;
+  gap:12px;
+}
+.page-challenge-leaderboard .promoDualRow .betrInlinePromoVisual,
+.page-challenge-leaderboard .promoDualRow .betOnlineCardPromoVisual{
+  flex:0 0 150px;
+}
+.page-challenge-leaderboard .promoDualRow .betrInlinePromoLogo,
+.page-challenge-leaderboard .promoDualRow .betOnlineCardPromoLogo{
+  max-width:150px;
+}
+.page-challenge-leaderboard .promoDualRow .betrInlinePromoTitle,
+.page-challenge-leaderboard .promoDualRow .betOnlineCardPromoTitle{
+  font-size:16px;
+}
+.page-challenge-leaderboard .promoDualRow .betrInlinePromoText,
+.page-challenge-leaderboard .promoDualRow .betOnlineCardPromoText{
+  font-size:15px;
+}
+.page-challenge-leaderboard .promoDualRow .betrInlinePromoSub,
+.page-challenge-leaderboard .promoDualRow .betOnlineCardPromoSub{
+  font-size:12px;
+}
+.page-challenge-standalone .promoDualRow .betrInlinePromo,
+.page-challenge-standalone .promoDualRow .betOnlineCardPromo{
+  padding:12px 14px;
+  gap:14px;
+}
+.page-challenge-standalone .promoDualRow .betrInlinePromoVisual,
+.page-challenge-standalone .promoDualRow .betOnlineCardPromoVisual{
+  flex:0 0 180px;
+}
+.page-challenge-standalone .promoDualRow .betrInlinePromoLogo,
+.page-challenge-standalone .promoDualRow .betOnlineCardPromoLogo{
+  max-width:180px;
+}
+@media (max-width: 960px){
+  .page-challenge-leaderboard .promoDualRow,
+  .page-challenge-standalone .promoDualRow{
+    grid-template-columns:1fr;
+  }
+}
+
