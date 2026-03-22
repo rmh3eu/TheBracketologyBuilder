@@ -134,6 +134,10 @@ function setSeasonBar(){
   textEl.textContent = txt;
 
   const isAdm = !!(state && state.me && state.me.isAdmin);
+  const adminBracketsNavLink = document.getElementById('adminBracketsNavLink');
+  const adminFeaturedNavLink = document.getElementById('adminFeaturedNavLink');
+  if(adminBracketsNavLink) adminBracketsNavLink.style.display = isAdm ? '' : 'none';
+  if(adminFeaturedNavLink) adminFeaturedNavLink.style.display = isAdm ? '' : 'none';
   const adminNavLink = document.getElementById('adminNavLink');
   if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
 
@@ -1652,6 +1656,10 @@ async function sendAdminBroadcast(panel){
 
 function wireAdminBroadcastPanels(){
   const isAdm = !!(state && state.me && state.me.isAdmin);
+  const adminBracketsNavLink = document.getElementById('adminBracketsNavLink');
+  const adminFeaturedNavLink = document.getElementById('adminFeaturedNavLink');
+  if(adminBracketsNavLink) adminBracketsNavLink.style.display = isAdm ? '' : 'none';
+  if(adminFeaturedNavLink) adminFeaturedNavLink.style.display = isAdm ? '' : 'none';
   const adminNavLink = document.getElementById('adminNavLink');
   if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
   document.querySelectorAll('.adminBroadcast').forEach(panel=>{
@@ -1668,6 +1676,10 @@ function wireAdminBroadcastPanels(){
 
 function wireAdminNavLinks(){
   const isAdm = !!(state && state.me && state.me.isAdmin);
+  const adminBracketsNavLink = document.getElementById('adminBracketsNavLink');
+  const adminFeaturedNavLink = document.getElementById('adminFeaturedNavLink');
+  if(adminBracketsNavLink) adminBracketsNavLink.style.display = isAdm ? '' : 'none';
+  if(adminFeaturedNavLink) adminFeaturedNavLink.style.display = isAdm ? '' : 'none';
   const adminNavLink = document.getElementById('adminNavLink');
   if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
   qsa('.adminOnly').forEach(a=>{
