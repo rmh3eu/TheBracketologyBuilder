@@ -1,6 +1,6 @@
 v124:
 - Replaced the post-save featured submission yes/no popup with a BetOnline promo popup.
-- Popup text: Get $250 in Bonus with Sign Up Contest.
+- Popup text: Enter BetOnline's $200,000 Bracket Madness Contest.
 - CTA button uses the user's BetOnline affiliate link.
 - Added an X close button to dismiss the popup.
 - Save & Enter now saves to My Brackets first, then shows the popup without redirecting to My Brackets.

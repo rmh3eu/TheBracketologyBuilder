@@ -4246,31 +4246,32 @@ a[href*="Bracket"]{
 }
 
 
-/* Betr promo blocks on challenge + leaderboard pages */
-.betrInlinePromo{display:flex;align-items:center;gap:16px;padding:14px 16px;margin:16px 0;border:1px solid #d9dee7;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.06);}
-.betrInlinePromoVisual{display:flex;align-items:center;justify-content:center;flex:0 0 210px;text-decoration:none;}
-.betrInlinePromoLogo{display:block;max-width:210px;width:100%;height:auto;}
-.betrInlinePromoBody{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
-.betrInlinePromoTitle{font-size:20px;font-weight:800;line-height:1.1;color:#111827;}
-.betrInlinePromoText{font-size:18px;font-weight:700;line-height:1.2;color:#111827;}
-.betrInlinePromoSub{font-size:14px;font-weight:700;letter-spacing:.02em;color:#4b5563;}
-.page-challenge-leaderboard .betOnlineInlinePromo{padding:0 16px 0 16px;margin-top:0;margin-bottom:12px;}
-.page-challenge-leaderboard .betOnlineInlinePromo .btn{width:100%;}
-@media (max-width: 720px){
-  .betrInlinePromo{flex-direction:column;align-items:flex-start;}
-  .betrInlinePromoVisual{flex:0 0 auto;width:100%;justify-content:flex-start;}
-  .betrInlinePromoLogo{max-width:180px;}
+/* challenge page promo cards widened to match leaderboard layout */
+.page-challenge-standalone .promoDualRow{
+  width:100%;
+  max-width:100%;
+  gap:18px;
+}
+.page-challenge-standalone .promoDualRow .betrInlinePromo,
+.page-challenge-standalone .promoDualRow .betOnlineCardPromo{
+  min-width:0;
+}
+.page-challenge-standalone .promoDualRow .betrInlinePromoVisual,
+.page-challenge-standalone .promoDualRow .betOnlineCardPromoVisual{
+  flex:0 0 240px;
+}
+.page-challenge-standalone .promoDualRow .betrInlinePromoLogo,
+.page-challenge-standalone .promoDualRow .betOnlineCardPromoLogo{
+  max-width:240px;
+}
+@media (max-width: 1100px){
+  .page-challenge-standalone .promoDualRow .betrInlinePromoVisual,
+  .page-challenge-standalone .promoDualRow .betOnlineCardPromoVisual{
+    flex-basis:220px;
+  }
+  .page-challenge-standalone .promoDualRow .betrInlinePromoLogo,
+  .page-challenge-standalone .promoDualRow .betOnlineCardPromoLogo{
+    max-width:220px;
+  }
 }
 
-
-.promoDualRow{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;margin:16px 0;}
-.promoDualRow .betrInlinePromo,.promoDualRow .betOnlineCardPromo{margin:0;height:100%;}
-.betOnlineCardPromo{display:flex;align-items:center;gap:16px;padding:14px 16px;border:1px solid #d9dee7;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.06);}
-.betOnlineCardPromoVisual{display:flex;align-items:center;justify-content:center;flex:0 0 210px;text-decoration:none;}
-.betOnlineCardPromoLogo{display:block;max-width:210px;width:100%;height:auto;border-radius:10px;}
-.betOnlineCardPromoBody{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
-.betOnlineCardPromoTitle{font-size:20px;font-weight:800;line-height:1.1;color:#111827;}
-.betOnlineCardPromoText{font-size:18px;font-weight:700;line-height:1.2;color:#111827;}
-.betOnlineCardPromoSub{font-size:14px;font-weight:700;letter-spacing:.02em;color:#4b5563;}
-@media (max-width: 960px){.promoDualRow{grid-template-columns:1fr;}}
-@media (max-width: 720px){.betOnlineCardPromo{flex-direction:column;align-items:flex-start;}.betOnlineCardPromoVisual{flex:0 0 auto;width:100%;justify-content:flex-start;}.betOnlineCardPromoLogo{max-width:180px;}}

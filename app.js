@@ -814,7 +814,7 @@ async function betOnlinePromoModal(){
     const box = el('div','betOnlinePromoBox');
     box.setAttribute('role','dialog');
 
-    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
 
     const close = el('button','betOnlinePromoClose');
     close.type = 'button';
@@ -831,7 +831,7 @@ async function betOnlinePromoModal(){
     titleLink.target = '_blank';
     titleLink.rel = 'noopener noreferrer';
     titleLink.setAttribute('data-sportsbook','1');
-    titleLink.innerHTML = '<div class="betOnlinePromoTitle simpleAffiliateTitle">Get $250 in Bonus<br>with Sign Up</div>';
+    titleLink.innerHTML = '<div class="betOnlinePromoTitle simpleAffiliateTitle">Enter the $200,000 Bracket<br>Madness Contest</div>';
 
     const logoWrap = document.createElement('a');
     logoWrap.className = 'betOnlinePromoLogoWrap';
@@ -3893,10 +3893,10 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.className = 'betOnlineRegionPromo';
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
-      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
-        Get $250 in Bonus with Sign Up
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+        Enter the $200,000 Bracket Madness Contest
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Get $250 in Bonus with Sign Up Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
@@ -3936,14 +3936,14 @@ function mountBetOnlineBracketPromo(regionName, mount){
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineBracketPromoText"
-         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
-         Get $250 in Bonus with Sign Up
+         Enter the $200,000 Bracket Madness Contest
       </a>
 
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1"
