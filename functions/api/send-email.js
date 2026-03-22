@@ -25,12 +25,12 @@ export async function onRequest({ env }) {
       </a>
     </div>
 
-    <p style="text-align:center; font-weight:bold;">Also check out BetOnline and get $250 in bonus with sign up:</p>
+    <p style="text-align:center; font-weight:bold;">Also check out the $200,000 Bracket Challenge:</p>
 
     <div style="text-align:center; margin:25px 0;">
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          style="display:inline-block; background:#d62828; color:#ffffff; padding:14px 24px; text-decoration:none; border-radius:6px; font-weight:bold;">
-        Get $250 in Bonus with Sign Up
+        Enter the $200K Contest
       </a>
     </div>
   </div>`;
@@ -47,8 +47,8 @@ Head over to BracketologyBuilder to build your bracket and enter our challenges.
 Create Your Bracket:
 https://bracketologybuilder.com
 
-Also check out BetOnline and get $250 in bonus with sign up:
-https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/`;
+Also check out the $200,000 Bracket Challenge:
+https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/`;
 
   const rs = await env.DB.prepare(
     "SELECT DISTINCT TRIM(email) AS email FROM users WHERE email IS NOT NULL AND TRIM(email) != '' ORDER BY created_at DESC"
