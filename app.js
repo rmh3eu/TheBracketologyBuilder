@@ -3896,9 +3896,9 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
-        Sign Up for BetOnline
+        Get $250 in Bonus with Sign Up
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Sign Up for BetOnline Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Get $250 in Bonus with Sign Up Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
@@ -3942,7 +3942,7 @@ function mountBetOnlineBracketPromo(regionName, mount){
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
-         Sign Up for BetOnline
+         Get $250 in Bonus with Sign Up
       </a>
 
       <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
