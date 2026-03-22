@@ -126,15 +126,16 @@ export async function onRequestGet({ request, env }){
   // This keeps leaderboard scoring completely outside bracket logic.
   if(!groupId && stage === 'pre'){
     let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
-    const me = me_user_id ? await env.DB.prepare("SELECT id, email, is_admin FROM users WHERE id=?").bind(me_user_id).first().catch(()=>null) : null;
-    const isAdminViewer = !!(me && (Number(me.is_admin) === 1 || me.is_admin === true));
+    const me = me_user_id ? await env.DB.prepare("SELECT id, email FROM users WHERE id=?").bind(me_user_id).first().catch(()=>null) : null;
+    const adminEmail = String(env.ADMIN_EMAIL || "").trim().toLowerCase();
+    const isAdminViewer = !!(me && me.email && adminEmail && String(me.email).trim().toLowerCase() === adminEmail);
     if(isAdminViewer){
-      const ids = [...new Set((staticRows||[]).map(r => Number(r.user_id)).filter(n => Number.isFinite(n)))];
+      const ids = [...new Set((staticRows||[]).map(r => String(r.user_id || "").trim()).filter(Boolean))];
       if(ids.length){
         const placeholders = ids.map(() => "?").join(",");
         const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...ids).all().catch(()=>({results:[]}));
-        const emailMap = new Map((uq.results||[]).map(u => [Number(u.id), u.email || ""]));
-        staticRows = (staticRows||[]).map(r => ({...r, email: emailMap.get(Number(r.user_id)) || ""}));
+        const emailMap = new Map((uq.results||[]).map(u => [String(u.id || "").trim(), String(u.email || "").trim()]));
+        staticRows = (staticRows||[]).map(r => ({...r, email: emailMap.get(String(r.user_id || "").trim()) || ""}));
       }
     }
     return json({
