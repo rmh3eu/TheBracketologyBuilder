@@ -4357,3 +4357,26 @@ a[href*="Bracket"]{
   margin-top:10px;
 }
 
+
+
+/* stronger spacing fix */
+.betrInlinePromoBody,
+.betOnlineCardPromoBody{
+  justify-content:flex-start;
+}
+
+.betrInlinePromoBody .btn,
+.betOnlineCardPromoBody .btn{
+  margin-top:16px;
+}
+
+/* pull text slightly up */
+.betrInlinePromoText,
+.betOnlineCardPromoText{
+  margin-top:-2px;
+}
+.betrInlinePromoSub,
+.betOnlineCardPromoSub{
+  margin-top:-2px;
+}
+
