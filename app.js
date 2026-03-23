@@ -5463,3 +5463,50 @@ function triggerSaveAndGoMyBrackets(){
 
 try { window.featureBoostModal = featureBoostModal; } catch(e) {}
 try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
+
+
+/* FINAL promo nudge override */
+(function(){
+  function nudgeBracketPromos(){
+    try{
+      var regionPromos = document.querySelectorAll('.betOnlineRegionPromo');
+      var bracketPromos = document.querySelectorAll('.betOnlineBracketPromo');
+
+      var mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+
+      regionPromos.forEach(function(p){
+        if(mobile){
+          p.style.left = 'auto';
+          p.style.right = '18px';
+          p.style.top = '18px';
+        }else{
+          p.style.right = 'auto';
+          p.style.left = '48px';
+        }
+      });
+
+      bracketPromos.forEach(function(p){
+        if(mobile){
+          p.style.left = 'auto';
+          p.style.right = '18px';
+          p.style.top = '95px';
+        }else{
+          p.style.right = '30px';
+        }
+      });
+
+      document.querySelectorAll('.betOnlineRegionPromo .betOnlinePrizePoolBtn, .betOnlineBracketPromo .betOnlinePrizePoolBtn').forEach(function(btn){
+        if(mobile){
+          btn.style.left = 'auto';
+          btn.style.right = '0';
+          btn.style.transform = 'none';
+        }
+      });
+    }catch(e){}
+  }
+
+  window.addEventListener('load', function(){ setTimeout(nudgeBracketPromos, 50); setTimeout(nudgeBracketPromos, 400); });
+  window.addEventListener('resize', function(){ setTimeout(nudgeBracketPromos, 50); });
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(nudgeBracketPromos, 50); setTimeout(nudgeBracketPromos, 400); });
+})();
+

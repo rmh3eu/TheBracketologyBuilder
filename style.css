@@ -4504,3 +4504,43 @@ body .betOnlineRegionPromo{
   }
 }
 
+
+
+/* FINAL targeted homepage bracket promo placement override */
+html body .geoCanvas .betOnlineRegionPromo,
+html body .geo .betOnlineRegionPromo,
+html body .betOnlineRegionPromo{
+  left: 48px !important;
+}
+
+html body .geoCanvas .betOnlineBracketPromo,
+html body .geo .betOnlineBracketPromo,
+html body .betOnlineBracketPromo{
+  right: 30px !important;
+}
+
+@media (max-width: 820px){
+  html body .geoCanvas .betOnlineRegionPromo,
+  html body .geo .betOnlineRegionPromo,
+  html body .betOnlineRegionPromo{
+    left: auto !important;
+    right: 18px !important;
+    top: 18px !important;
+  }
+
+  html body .geoCanvas .betOnlineBracketPromo,
+  html body .geo .betOnlineBracketPromo,
+  html body .betOnlineBracketPromo{
+    left: auto !important;
+    right: 18px !important;
+    top: 95px !important;
+  }
+
+  html body .betOnlineRegionPromo .betOnlinePrizePoolBtn,
+  html body .betOnlineBracketPromo .betOnlinePrizePoolBtn{
+    left: auto !important;
+    right: 0 !important;
+    transform: none !important;
+  }
+}
+
