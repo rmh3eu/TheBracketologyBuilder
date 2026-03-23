@@ -126,6 +126,30 @@ export async function onRequestGet({ request, env }){
   // This keeps leaderboard scoring completely outside bracket logic.
   if(!groupId && stage === 'pre'){
     const staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
+    // Exclude brackets created before official bracket release from the original challenges.
+    const cutoffIso = "2026-03-15T23:00:00.000Z";
+    const bracketIds = [...new Set((staticRows||[]).map(r => String(r.bracket_id || "").trim()).filter(Boolean))];
+    if(bracketIds.length){
+      const placeholders = bracketIds.map(() => "?").join(",");
+      const bq = await env.DB.prepare(`SELECT id, created_at FROM brackets WHERE id IN (${placeholders})`).bind(...bracketIds).all().catch(()=>({results:[]}));
+      const createdMap = new Map((bq.results||[]).map(b => [String(b.id || "").trim(), String(b.created_at || "").trim()]));
+      staticRows = (staticRows||[]).filter(r => {
+        const createdAt = createdMap.get(String(r.bracket_id || "").trim());
+        if(!createdAt) return false;
+        const ts = Date.parse(createdAt);
+        const cutoff = Date.parse(cutoffIso);
+        if(Number.isNaN(ts) || Number.isNaN(cutoff)) return false;
+        return ts >= cutoff;
+      });
+      let prevScore = null;
+      let rank = 0;
+      staticRows = staticRows.map((r, idx) => {
+        const score = Number(r.score || 0);
+        if(prevScore !== score){ rank = idx + 1; prevScore = score; }
+        return { ...r, rank };
+      });
+    }
+
     return json({
       ok:true,
       leaderboard: staticRows,
