@@ -4364,3 +4364,59 @@ a[href*="Bracket"]{
   }
 }
 
+
+
+/* soften promo repositioning */
+@media (min-width: 821px){
+  .betOnlineBracketPromo{
+    right: 95px !important;
+    top: 95px !important;
+  }
+  .betOnlineRegionPromo[data-region-name="East"],
+  .betOnlineRegionPromo[data-region-name="South"],
+  .betOnlineRegionPromo{
+    left: 28px !important;
+    top: 70px !important;
+  }
+}
+@media (max-width: 820px){
+  .betOnlineRegionPromo{
+    left: auto !important;
+    right: 18px !important;
+    top: 18px !important;
+  }
+  .betOnlineBracketPromo{
+    right: 18px !important;
+    left: auto !important;
+    top: 95px !important;
+  }
+  .betOnlineRegionPromo .betOnlinePrizePoolBtn,
+  .betOnlineBracketPromo .betOnlinePrizePoolBtn{
+    left: auto !important;
+    right: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* more obvious Second Chance buttons */
+.secondChanceJump{
+  margin-top:12px;
+}
+.secondChanceHeroBtn{
+  background:#1d4ed8;
+  color:#fff !important;
+  font-weight:900;
+  padding:12px 16px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(29,78,216,.20);
+  text-decoration:none;
+}
+.secondChanceHeroBtn:hover{
+  filter:brightness(1.04);
+}
+.secondChanceTopCta{
+  margin: 10px 0 14px;
+  display:flex;
+  justify-content:flex-start;
+}
+

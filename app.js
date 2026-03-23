@@ -2502,11 +2502,10 @@ function lbTableBest(rows){
   const t = el('table','lbTable');
   const rankCounts = new Map();
   (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
-  const isAdminViewer = !!(state && state.me && state.me.isAdmin);
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
     <th>Rank</th>
-    <th>User</th>${isAdminViewer ? '<th>Email</th>' : ''}
+    <th>User</th>
     <th>Score</th>
     <th>x/y</th>
     <th>%</th>
@@ -2529,12 +2528,10 @@ function lbTableBest(rows){
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
     const userCell = escapeHtml(displayName) + ' 😇';
-    const emailCell = isAdminViewer ? `<td class="lbEmail">${escapeHtml(r.email || '')}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
-      ${emailCell}
       <td class="lbScore">${r.score}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
@@ -2552,11 +2549,10 @@ function lbTableWorst(rows){
   const t = el('table','lbTable');
   const rankCounts = new Map();
   (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
-  const isAdminViewer = !!(state && state.me && state.me.isAdmin);
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
     <th>Rank</th>
-    <th>User</th>${isAdminViewer ? '<th>Email</th>' : ''}
+    <th>User</th>
     <th>Score</th>
     <th>x/y</th>
     <th>%</th>
@@ -2581,12 +2577,10 @@ function lbTableWorst(rows){
     const userCell = meId && r.user_id === meId
       ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
       : `${escapeHtml(displayName)} 😈`;
-    const emailCell = isAdminViewer ? `<td class="lbEmail">${escapeHtml(r.email || '')}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
-      ${emailCell}
       <td class="lbScore">${r.score}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
