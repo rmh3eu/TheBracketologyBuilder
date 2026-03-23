@@ -831,7 +831,7 @@ async function betOnlinePromoModal(){
     titleLink.target = '_blank';
     titleLink.rel = 'noopener noreferrer';
     titleLink.setAttribute('data-sportsbook','1');
-    titleLink.innerHTML = '<div class="betOnlinePromoTitle simpleAffiliateTitle">Enter the $200,000 Bracket<br>Madness Contest</div>';
+    titleLink.innerHTML = '<div class="betOnlinePromoTitle simpleAffiliateTitle">Get $250 in Bonus with Sign Up</div>';
 
     const logoWrap = document.createElement('a');
     logoWrap.className = 'betOnlinePromoLogoWrap';
@@ -1295,30 +1295,88 @@ function getTeamBySeed(regionKey, seed){
 }
 
 function ensurePlaceholderToSweet16(picks){
-  // When Sweet 16 is enabled but early-round results aren't entered yet,
-  // force rounds 0-1 picks to advance the top 4 seeds (1,2,3,4) in each region.
-  // This makes the bracket effectively start at Sweet 16 without breaking existing key scheme.
+  // 2026 Second Chance / Sweet 16 mode:
+  // Force early-round winners so home page + new second_chance brackets
+  // start from the ACTUAL Sweet 16 field without touching existing saved brackets.
   const np = { ...(picks||{}) };
+
   for(const r of REGIONS){
     const base = listToSeedArray(r.teams);
-    const t1 = base[0], t2 = base[1], t3 = base[2], t4 = base[3];
-    const t5 = base[4], t6 = base[5], t7 = base[6], t8 = base[7];
-    const t16 = base[15], t15 = base[14], t14 = base[13], t13 = base[12], t12 = base[11], t11 = base[10], t10 = base[9], t9 = base[8];
-    // Round of 64 (R0) winners to set up Round of 32 matchups that lead to top 4 seeds.
-    // Pairings: (1/16),(8/9),(5/12),(4/13),(6/11),(3/14),(7/10),(2/15)
-    if(t1 && t16) np[wKey(r.key,0,0)] = t1;
-    if(t8 && t9)  np[wKey(r.key,0,1)] = t8;
-    if(t5 && t12) np[wKey(r.key,0,2)] = t5;
-    if(t4 && t13) np[wKey(r.key,0,3)] = t4;
-    if(t6 && t11) np[wKey(r.key,0,4)] = t6;
-    if(t3 && t14) np[wKey(r.key,0,5)] = t3;
-    if(t7 && t10) np[wKey(r.key,0,6)] = t7;
-    if(t2 && t15) np[wKey(r.key,0,7)] = t2;
-    // Round of 32 (R1) winners: 1 over 8, 4 over 5, 3 over 6, 2 over 7
-    if(t1 && t8) np[wKey(r.key,1,0)] = t1;
-    if(t5 && t4) np[wKey(r.key,1,1)] = t4;
-    if(t6 && t3) np[wKey(r.key,1,2)] = t3;
-    if(t7 && t2) np[wKey(r.key,1,3)] = t2;
+    const bySeed = (seed)=> base[seed-1] || null;
+
+    if(r.key === 'REGION_EAST'){
+      const t1 = bySeed(1), t5 = bySeed(5), t3 = bySeed(3), t2 = bySeed(2);
+      const t16 = bySeed(16), t12 = bySeed(12), t14 = bySeed(14), t15 = bySeed(15);
+      const t9 = bySeed(9), t4 = bySeed(4), t6 = bySeed(6), t7 = bySeed(7);
+
+      if(t1) np[wKey(r.key,0,0)] = t1;  // Duke over Siena
+      if(t9) np[wKey(r.key,0,1)] = t9;  // TCU over Ohio St
+      if(t5) np[wKey(r.key,0,2)] = t5;  // St Johns over UNI
+      if(t4) np[wKey(r.key,0,3)] = t4;  // Kansas over Cal Baptist
+      if(t6) np[wKey(r.key,0,4)] = t6;  // Louisville over USF
+      if(t3) np[wKey(r.key,0,5)] = t3;  // Michigan St over N Dakota St
+      if(t7) np[wKey(r.key,0,6)] = t7;  // UCLA over UCF
+      if(t2) np[wKey(r.key,0,7)] = t2;  // UConn over Furman
+
+      if(t1) np[wKey(r.key,1,0)] = t1;  // Duke
+      if(t5) np[wKey(r.key,1,1)] = t5;  // St Johns
+      if(t3) np[wKey(r.key,1,2)] = t3;  // Michigan St
+      if(t2) np[wKey(r.key,1,3)] = t2;  // UConn
+    }else if(r.key === 'REGION_SOUTH'){
+      const t1 = bySeed(1), t9 = bySeed(9), t4 = bySeed(4), t3 = bySeed(3), t2 = bySeed(2);
+      const t16 = bySeed(16), t8 = bySeed(8), t13 = bySeed(13), t14 = bySeed(14), t10 = bySeed(10), t15 = bySeed(15);
+      const t5 = bySeed(5), t6 = bySeed(6), t7 = bySeed(7), t11 = bySeed(11);
+
+      if(t1) np[wKey(r.key,0,0)] = t1;  // Florida over Lehigh/PV
+      if(t9) np[wKey(r.key,0,1)] = t9;  // Iowa over Clemson
+      if(t5) np[wKey(r.key,0,2)] = t5;  // Vanderbilt over McNeese
+      if(t4) np[wKey(r.key,0,3)] = t4;  // Nebraska over Troy
+      if(t10) np[wKey(r.key,0,4)] = t10; // Texas A&M over VCU
+      if(t3) np[wKey(r.key,0,5)] = t3;  // Illinois over Penn
+      if(t11) np[wKey(r.key,0,6)] = t11; // High Point? placeholder path not used
+      if(t2) np[wKey(r.key,0,7)] = t2;  // Houston over Idaho
+
+      if(t9) np[wKey(r.key,1,0)] = t9;  // Iowa over Florida
+      if(t4) np[wKey(r.key,1,1)] = t4;  // Nebraska over Vanderbilt
+      if(t3) np[wKey(r.key,1,2)] = t3;  // Illinois
+      if(t2) np[wKey(r.key,1,3)] = t2;  // Houston
+    }else if(r.key === 'REGION_WEST'){
+      const t1 = bySeed(1), t4 = bySeed(4), t11 = bySeed(11), t2 = bySeed(2);
+      const t16 = bySeed(16), t9 = bySeed(9), t12 = bySeed(12), t15 = bySeed(15);
+      const t8 = bySeed(8), t5 = bySeed(5), t13 = bySeed(13), t6 = bySeed(6), t3 = bySeed(3), t7 = bySeed(7);
+
+      if(t1) np[wKey(r.key,0,0)] = t1;  // Arizona
+      if(t9) np[wKey(r.key,0,1)] = t9;  // Utah St
+      if(t12) np[wKey(r.key,0,2)] = t12; // High Point
+      if(t4) np[wKey(r.key,0,3)] = t4;  // Arkansas
+      if(t6) np[wKey(r.key,0,4)] = t6;  // BYU
+      if(t11) np[wKey(r.key,0,5)] = t11; // Texas
+      if(t7) np[wKey(r.key,0,6)] = t7;  // Miami (FL)
+      if(t2) np[wKey(r.key,0,7)] = t2;  // Purdue
+
+      if(t1) np[wKey(r.key,1,0)] = t1;  // Arizona
+      if(t4) np[wKey(r.key,1,1)] = t4;  // Arkansas
+      if(t11) np[wKey(r.key,1,2)] = t11; // Texas
+      if(t2) np[wKey(r.key,1,3)] = t2;  // Purdue
+    }else if(r.key === 'REGION_MIDWEST'){
+      const t1 = bySeed(1), t4 = bySeed(4), t6 = bySeed(6), t2 = bySeed(2);
+      const t16 = bySeed(16), t9 = bySeed(9), t12 = bySeed(12), t15 = bySeed(15);
+      const t8 = bySeed(8), t5 = bySeed(5), t13 = bySeed(13), t11 = bySeed(11), t3 = bySeed(3), t7 = bySeed(7);
+
+      if(t1) np[wKey(r.key,0,0)] = t1;  // Michigan
+      if(t9) np[wKey(r.key,0,1)] = t9;  // Saint Louis
+      if(t5) np[wKey(r.key,0,2)] = t5;  // Texas Tech
+      if(t4) np[wKey(r.key,0,3)] = t4;  // Alabama
+      if(t6) np[wKey(r.key,0,4)] = t6;  // Tennessee
+      if(t3) np[wKey(r.key,0,5)] = t3;  // Virginia
+      if(t7) np[wKey(r.key,0,6)] = t7;  // Kentucky
+      if(t2) np[wKey(r.key,0,7)] = t2;  // Iowa St
+
+      if(t1) np[wKey(r.key,1,0)] = t1;  // Michigan
+      if(t4) np[wKey(r.key,1,1)] = t4;  // Alabama
+      if(t6) np[wKey(r.key,1,2)] = t6;  // Tennessee
+      if(t2) np[wKey(r.key,1,3)] = t2;  // Iowa St
+    }
   }
   return np;
 }
@@ -1326,7 +1384,7 @@ function ensurePlaceholderToSweet16(picks){
 function getPlaceholderSweet16Field(regionKey){
   const bySeed = (seed)=>getTeamBySeed(regionKey, seed);
   switch(regionKey){
-    case 'REGION_SOUTH': return [bySeed(4), bySeed(9), bySeed(3), bySeed(2)];
+    case 'REGION_SOUTH': return [bySeed(9), bySeed(4), bySeed(3), bySeed(2)];
     case 'REGION_WEST': return [bySeed(1), bySeed(4), bySeed(11), bySeed(2)];
     case 'REGION_EAST': return [bySeed(1), bySeed(5), bySeed(3), bySeed(2)];
     case 'REGION_MIDWEST': return [bySeed(1), bySeed(4), bySeed(6), bySeed(2)];
