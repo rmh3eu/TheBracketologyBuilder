@@ -4,7 +4,7 @@ import { sendEmail } from './_util.js';
 
 export const SUBJECT = 'Brackets Close at 12:15 PM EST🏀';
 export const TEST_TO = 'rmh3eu@virginia.edu';
-export const AFFILIATE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+export const AFFILIATE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
 export const SITE_URL = 'https://bracketologybuilder.com';
 
 export function buildEmail(){

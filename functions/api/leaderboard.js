@@ -125,48 +125,7 @@ export async function onRequestGet({ request, env }){
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
   // This keeps leaderboard scoring completely outside bracket logic.
   if(!groupId && stage === 'pre'){
-    let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
-    const me = me_user_id ? await env.DB.prepare("SELECT id, email FROM users WHERE id=?").bind(me_user_id).first().catch(()=>null) : null;
-    const adminEmail = String(env.ADMIN_EMAIL || "").trim().toLowerCase();
-    const isAdminViewer = !!(me && me.email && adminEmail && String(me.email).trim().toLowerCase() === adminEmail);
-    // Exclude pre-official-bracket entries from challenge leaderboards.
-    // Threshold: 2026-03-15 7:00 PM ET = 2026-03-15T23:00:00.000Z
-    const cutoffIso = "2026-03-15T23:00:00.000Z";
-    const bracketIds = [...new Set((staticRows||[]).map(r => String(r.bracket_id || "").trim()).filter(Boolean))];
-    if(bracketIds.length){
-      const placeholders = bracketIds.map(() => "?").join(",");
-      const bq = await env.DB.prepare(`SELECT id, created_at FROM brackets WHERE id IN (${placeholders})`).bind(...bracketIds).all().catch(()=>({results:[]}));
-      const createdMap = new Map((bq.results||[]).map(b => [String(b.id || "").trim(), String(b.created_at || "").trim()]));
-      staticRows = (staticRows||[]).filter(r => {
-        const createdAt = createdMap.get(String(r.bracket_id || "").trim());
-        if(!createdAt) return false;
-        const ts = Date.parse(createdAt);
-        const cutoff = Date.parse(cutoffIso);
-        if(Number.isNaN(ts) || Number.isNaN(cutoff)) return false;
-        return ts >= cutoff;
-      });
-      // Re-rank after filtering so displayed ranks stay correct.
-      let prevScore = null;
-      let rank = 0;
-      staticRows = staticRows.map((r, idx) => {
-        const score = Number(r.score || 0);
-        if(prevScore !== score){
-          rank = idx + 1;
-          prevScore = score;
-        }
-        return { ...r, rank };
-      });
-    }
-
-    if(isAdminViewer){
-      const ids = [...new Set((staticRows||[]).map(r => String(r.user_id || "").trim()).filter(Boolean))];
-      if(ids.length){
-        const placeholders = ids.map(() => "?").join(",");
-        const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...ids).all().catch(()=>({results:[]}));
-        const emailMap = new Map((uq.results||[]).map(u => [String(u.id || "").trim(), String(u.email || "").trim()]));
-        staticRows = (staticRows||[]).map(r => ({...r, email: emailMap.get(String(r.user_id || "").trim()) || ""}));
-      }
-    }
+    const staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
     return json({
       ok:true,
       leaderboard: staticRows,
