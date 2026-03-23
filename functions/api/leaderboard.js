@@ -149,16 +149,6 @@ export async function onRequestGet({ request, env }){
         return { ...r, rank };
       });
     }
-
-    if(isAdminViewer){
-      const ids = [...new Set((staticRows||[]).map(r => String(r.user_id || "").trim()).filter(Boolean))];
-      if(ids.length){
-        const placeholders = ids.map(() => "?").join(",");
-        const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...ids).all().catch(()=>({results:[]}));
-        const emailMap = new Map((uq.results||[]).map(u => [String(u.id || "").trim(), String(u.email || "").trim()]));
-        staticRows = (staticRows||[]).map(r => ({...r, email: emailMap.get(String(r.user_id || "").trim()) || ""}));
-      }
-    }
     return json({
       ok:true,
       leaderboard: staticRows,
