@@ -125,7 +125,7 @@ export async function onRequestGet({ request, env }){
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
   // This keeps leaderboard scoring completely outside bracket logic.
   if(!groupId && stage === 'pre'){
-    const staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
+    let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
     // Exclude brackets created before official bracket release from the original challenges.
     const cutoffIso = "2026-03-15T23:00:00.000Z";
     const bracketIds = [...new Set((staticRows||[]).map(r => String(r.bracket_id || "").trim()).filter(Boolean))];
