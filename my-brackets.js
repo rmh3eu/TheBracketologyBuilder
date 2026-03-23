@@ -242,9 +242,9 @@ function reorderSections({ officialLive, sweet16Set }) {
   }
 
   // Either Official or Sweet16 is enabled:
-  // Official, Second Chance, Bracketology
-  main.appendChild(secO);
+  // Second Chance, Official, Bracketology
   main.appendChild(secS);
+  main.appendChild(secO);
   main.appendChild(secB);
 }
 
@@ -356,25 +356,25 @@ async function loadPage() {
     });
 
     // Always render Bracketology brackets somewhere (never disappear)
-    renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: bracketology });
+    const proj = [];
+    const off = [];
+    const sc = [];
 
-    // Second Chance section: show saved brackets, but creation may be locked.
-    if (sweet16Set) {
-      renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: secondChance });
-    } else {
-      renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: secondChance });
-      const scEmpty = document.getElementById('scEmpty');
-      if (scEmpty && secondChance.length === 0) scEmpty.textContent = 'Second Chance Brackets unlock once the Sweet 16 is set.';
+    for (const b of brackets) {
+      const type = String(b.bracket_type || '').toLowerCase();
+      if (type === 'second_chance') {
+        sc.push(b);
+      } else if (type === 'official') {
+        off.push(b);
+      } else {
+        proj.push(b);
+      }
     }
 
-    // Official section: show saved official brackets; if not live and none exist, show locked message.
-    renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: official });
-    const offEmpty = document.getElementById('offEmpty');
-    if (offEmpty && official.length === 0) {
-      offEmpty.textContent = officialLive ? 'No official brackets yet.' : 'Official bracket is not live yet.';
-    }
+    renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: proj });
+    renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: off });
+    renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: sc });
 
-    // Reorder sections based on mode flags (Bracketology moves down when either is enabled)
     reorderSections({ officialLive, sweet16Set });
   } catch (e) {
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: [] });

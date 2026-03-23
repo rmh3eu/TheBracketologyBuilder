@@ -4475,3 +4475,32 @@ body .betOnlineRegionPromo{
   }
 }
 
+
+
+/* homepage promo placement tweak */
+body .betOnlineBracketPromo[data-region-name="East"],
+body .betOnlineBracketPromo[data-region-name="South"],
+body .betOnlineBracketPromo{
+  right: 34px !important;
+}
+body .betOnlineRegionPromo[data-region-name="East"],
+body .betOnlineRegionPromo[data-region-name="South"],
+body .betOnlineRegionPromo{
+  left: 54px !important;
+}
+
+@media (max-width: 820px){
+  body .betOnlineRegionPromo[data-region-name="East"],
+  body .betOnlineRegionPromo[data-region-name="South"],
+  body .betOnlineRegionPromo{
+    right: 10px !important;
+    left: auto !important;
+  }
+  body .betOnlineBracketPromo[data-region-name="East"],
+  body .betOnlineBracketPromo[data-region-name="South"],
+  body .betOnlineBracketPromo{
+    right: 10px !important;
+    left: auto !important;
+  }
+}
+
