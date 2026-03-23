@@ -4420,3 +4420,29 @@ a[href*="Bracket"]{
   justify-content:flex-start;
 }
 
+
+
+/* refined homepage promo positions */
+@media (min-width: 821px){
+  .betOnlineBracketPromo{
+    right: 68px !important;
+    top: 95px !important;
+  }
+  .betOnlineRegionPromo{
+    left: 34px !important;
+    top: 70px !important;
+  }
+}
+@media (max-width: 820px){
+  .betOnlineRegionPromo{
+    right: 12px !important;
+    left: auto !important;
+    top: 18px !important;
+  }
+  .betOnlineBracketPromo{
+    right: 12px !important;
+    left: auto !important;
+    top: 95px !important;
+  }
+}
+
