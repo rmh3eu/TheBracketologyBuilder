@@ -42,11 +42,11 @@
     <div class="panel">
       <div class="panelHead">
         <h2>Worst Bracket Challenge</h2>
-        <div class="subhead">Pick the losers. Every game is worth 10 points when your pick is WRONG.
+        <div class="subhead">Pick the losers. Every game is worth 10 points when your pick is WRONG.</div>
         <div class="secondChanceJump"><a class="btn primary secondChanceHeroBtn" href="second-worst-challenge.html">Go to Worst Second Chance</a></div>
       </div>
 
-            <div class="challengePageLayout">
+      <div class="challengePageLayout">
         <div class="miniCard challengeFormatCard">
           <div class="miniTitle">Format</div>
           <div class="miniBody"><ul><li>10 points per incorrect pick</li><li>All games, regardless of of round, are worth the same (So you may have a 15 vs 16 in the elite 8 but the first two rounds are crucial)</li><li>Tiebreakers are scored normally</li><li>Round of 64 through the Championship</li><li>The more wrong you are the better</li></ul></div>
@@ -69,96 +69,45 @@
             </div>
           </div>
         </a>
-
-        <div class="leaderboardEntryPanel challengeEntryPanelInline">
-          <div class="challengeActions">
-            <button id="worstChallengeOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
-            <a class="btn" href="worst-leaderboard.html">Leaderboard</a>
-          </div>
-
-          <div id="worstChallengeEntryControls" class="leaderboardEntryControls" style="display:none">
-            <select id="worstChallengeEntrySelect" class="select">
-              <option value="">Choose one of your saved brackets…</option>
-            </select>
-            <button id="worstChallengeEntrySubmitBtn" class="btn primary" type="button">Submit to Worst Leaderboard</button>
-          </div>
-
-          <div id="worstChallengeEntryMsg" class="submitFeaturedMsg"></div>
-          <p class="signinHint blackNote" style="margin:12px 0 0">Brackets can now be submitted to this challenge.</p>
-        </div>
-
-        
       </div>
 
-    <div class="panel challengeLeaderboardPanelMobileVisible" style="margin-top:16px">
-      <div class="panelHead"><h3 style="margin:0">😈 Worst Bracket Challenge Leaderboard</h3></div>
-      <div id="worstLeaderboard" style="padding:12px 14px">
-        <div class="muted">Loading leaderboard…</div>
+      <div class="promoDualRow">
+        <div class="betrInlinePromo">
+          <a class="betrInlinePromoVisual" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
+            <img class="betrInlinePromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr Picks">
+          </a>
+          <div class="betrInlinePromoBody">
+            <div class="betrInlinePromoTitle">Betr Picks</div>
+            <div class="betrInlinePromoText">Get $200 in Bonus with Sign Up</div>
+            <div class="betrInlinePromoSub">when you use code BRACKETS</div>
+            <a class="btn primary" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">Get $200 in Bonus with Sign Up</a>
+          </div>
+        </div>
+        <div class="betOnlineCardPromo">
+          <a class="betOnlineCardPromoVisual" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+            <img class="betOnlineCardPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline">
+          </a>
+          <div class="betOnlineCardPromoBody">
+            <div class="betOnlineCardPromoTitle">BetOnline</div>
+            <div class="betOnlineCardPromoText">Get $250 in Bonus with Sign Up</div>
+            <div class="betOnlineCardPromoSub">Up to $100 back on an under bet if the game goes to OT</div>
+            <a class="btn primary" data-sportsbook="1" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer">Sign Up for BetOnline</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel challengeLeaderboardPanelMobileVisible" style="margin-top:16px">
+        <div class="panelHead"><h3 style="margin:0">😈 Worst Bracket Challenge Leaderboard</h3></div>
+        <div id="worstLeaderboard" style="padding:12px 14px">
+          <div class="muted">Loading leaderboard…</div>
+        </div>
       </div>
     </div>
   </main>
 
-  <script src="/app.js"></script>
+    <script src="/app.js"></script>
   <script>
-    async function initChallengeEntryFlow(){
-      const openBtn = document.getElementById('worstChallengeOpenEntryBtn');
-      const controls = document.getElementById('worstChallengeEntryControls');
-      const select = document.getElementById('worstChallengeEntrySelect');
-      const submitBtn = document.getElementById('worstChallengeEntrySubmitBtn');
-      const msg = document.getElementById('worstChallengeEntryMsg');
-      const setMsg = (text, ok=true) => {
-        msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
-        msg.textContent = text || '';
-      };
-      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
-
-      openBtn.addEventListener('click', async () => {
-        controls.style.display = 'flex';
-        openBtn.style.display = 'none';
-        setMsg('', true);
-        try {
-          const d = await api('/api/brackets', { method:'GET' });
-          const brackets = d.brackets || [];
-          select.innerHTML = '<option value="">Choose one of your saved brackets…</option>';
-          brackets.forEach(bk => {
-            const opt = document.createElement('option');
-            opt.value = bk.id;
-            opt.textContent = bk.title || bk.id;
-            select.appendChild(opt);
-          });
-          if (!brackets.length) setMsg('No saved brackets yet.', false);
-        } catch(_e) {
-          setMsg('Could not load your saved brackets.', false);
-        }
-      }, { once:true });
-
-      submitBtn.addEventListener('click', async () => {
-        const id = select.value;
-        if (!id) {
-          setMsg('Choose one of your saved brackets first.', false);
-          return;
-        }
-        submitBtn.disabled = true;
-        setMsg('', true);
-        try {
-          await api('/api/challenge/enter', {
-            method:'POST',
-            body: JSON.stringify({ challenge:'worst', stage:'pre', bracket_id:id })
-          });
-          setMsg('Bracket entered successfully.', true);
-          try{ if (typeof renderWorstLeaderboard === 'function') await renderWorstLeaderboard(); }catch(_e){}
-        } catch(e) {
-          setMsg((e && e.message) ? e.message : 'Could not enter bracket.', false);
-        } finally {
-          submitBtn.disabled = false;
-        }
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initChallengeEntryFlow();
-      try{ if (typeof renderWorstLeaderboard === 'function') await renderWorstLeaderboard(); }catch(_e){}
-    });
+    document.addEventListener('DOMContentLoaded', async ()=>{ try{ if(typeof renderWorstLeaderboard==='function') await renderWorstLeaderboard(); }catch(_e){} });
   </script>
 </body>
 </html>

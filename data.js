@@ -17,8 +17,8 @@ const FIRST_FOUR_OUT = [
 const EAST = [
   [1, "Duke"],
   [2, "UConn"],
-  [3, "St Johns"],
-  [4, "Michigan St"],
+  [3, "Michigan St"],
+  [4, "Kansas"],
   [5, "St Johns"],
   [6, "Louisville"],
   [7, "UCLA"],
@@ -37,7 +37,7 @@ const EAST = [
 const WEST = [
   [1, "Arizona"],
   [2, "Purdue"],
-  [3, "Texas/NC State"],
+  [3, "Wisconsin"],
   [4, "Arkansas"],
   [5, "Wisconsin"],
   [6, "BYU"],
@@ -55,7 +55,7 @@ const WEST = [
 
 
 const SOUTH = [
-  [1, "Iowa"],
+  [1, "Florida"],
   [2, "Houston"],
   [3, "Illinois"],
   [4, "Nebraska"],
@@ -77,7 +77,7 @@ const SOUTH = [
 const MIDWEST = [
   [1, "Michigan"],
   [2, "Iowa St"],
-  [3, "Tennessee"],
+  [3, "Virginia"],
   [4, "Alabama"],
   [5, "Texas Tech"],
   [6, "Tennessee"],

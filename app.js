@@ -814,7 +814,7 @@ async function betOnlinePromoModal(){
     const box = el('div','betOnlinePromoBox');
     box.setAttribute('role','dialog');
 
-    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
+    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
 
     const close = el('button','betOnlinePromoClose');
     close.type = 'button';
@@ -1324,13 +1324,14 @@ function ensurePlaceholderToSweet16(picks){
 }
 
 function getPlaceholderSweet16Field(regionKey){
-  // Returns 4 teams in bracket order: (t0 vs t1), (t2 vs t3).
-  // Use 1 vs 4 and 3 vs 2 as a simple placeholder field.
-  const t1 = getTeamBySeed(regionKey, 1);
-  const t2 = getTeamBySeed(regionKey, 2);
-  const t3 = getTeamBySeed(regionKey, 3);
-  const t4 = getTeamBySeed(regionKey, 4);
-  return [t1, t4, t3, t2];
+  const bySeed = (seed)=>getTeamBySeed(regionKey, seed);
+  switch(regionKey){
+    case 'REGION_SOUTH': return [bySeed(4), bySeed(9), bySeed(3), bySeed(2)];
+    case 'REGION_WEST': return [bySeed(1), bySeed(4), bySeed(11), bySeed(2)];
+    case 'REGION_EAST': return [bySeed(1), bySeed(5), bySeed(3), bySeed(2)];
+    case 'REGION_MIDWEST': return [bySeed(1), bySeed(4), bySeed(6), bySeed(2)];
+    default: return [bySeed(1), bySeed(4), bySeed(3), bySeed(2)];
+  }
 }
 
 
@@ -3893,10 +3894,10 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.className = 'betOnlineRegionPromo';
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
-      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
-        Enter the $200,000 Bracket Madness Contest
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+        Get $250 in Bonus with Sign Up
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Get $250 in Bonus with Sign Up Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
@@ -3936,14 +3937,14 @@ function mountBetOnlineBracketPromo(regionName, mount){
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineBracketPromoText"
-         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
+         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
-         Enter the $200,000 Bracket Madness Contest
+         Get $250 in Bonus with Sign Up
       </a>
 
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1"
