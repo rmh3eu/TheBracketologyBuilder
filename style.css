@@ -4328,3 +4328,39 @@ a[href*="Bracket"]{
     top: -24px !important;
   }
 }
+
+
+/* Desktop: move homepage bracket promo/buttons LEFT closer to selection boxes */
+@media (min-width: 821px){
+  .betOnlineBracketPromo{
+    right: 150px !important;
+    top: 95px !important;
+  }
+  .betOnlineRegionPromo[data-region-name="East"],
+  .betOnlineRegionPromo[data-region-name="South"],
+  .betOnlineRegionPromo{
+    left: 16px !important;
+    top: 70px !important;
+  }
+}
+
+/* Mobile: move homepage promo/buttons RIGHT so they sit off the selection boxes */
+@media (max-width: 820px){
+  .betOnlineRegionPromo{
+    left: auto !important;
+    right: 8px !important;
+    top: 18px !important;
+  }
+  .betOnlineBracketPromo{
+    right: 8px !important;
+    left: auto !important;
+    top: 95px !important;
+  }
+  .betOnlineRegionPromo .betOnlinePrizePoolBtn,
+  .betOnlineBracketPromo .betOnlinePrizePoolBtn{
+    left: auto !important;
+    right: 0 !important;
+    transform: none !important;
+  }
+}
+
