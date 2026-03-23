@@ -1,0 +1,1 @@
+export const SWEET16_MODE = true;
