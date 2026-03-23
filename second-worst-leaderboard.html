@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worst Second Chance Challenge Leaderboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-challenge-leaderboard page-challenge-clean-header">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" href="/">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+    </nav>
+  </div>
+
+  <main class="wrap">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Worst Second Chance Challenge Leaderboard</h2>
+        <div class="secondChanceJump"><a class="btn secondChanceHeroBtn" href="second-worst-challenge.html">Open Challenge Page</a></div>
+      </div>
+
+      <div class="promoDualRow">
+        <div class="betrInlinePromo">
+          <a class="betrInlinePromoVisual" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
+            <img class="betrInlinePromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr Picks">
+          </a>
+          <div class="betrInlinePromoBody">
+            <div class="betrInlinePromoTitle">Betr Picks</div>
+            <div class="betrInlinePromoText">Get $200 in Bonus with Sign Up</div>
+            <div class="betrInlinePromoSub">when you use code BRACKETS</div>
+            <a class="btn primary" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">Get $200 in Bonus with Sign Up</a>
+          </div>
+        </div>
+        <div class="betOnlineCardPromo">
+          <a class="betOnlineCardPromoVisual" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+            <img class="betOnlineCardPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline">
+          </a>
+          <div class="betOnlineCardPromoBody">
+            <div class="betOnlineCardPromoTitle">BetOnline</div>
+            <div class="betOnlineCardPromoText">Get $250 in Bonus with Sign Up</div>
+            <div class="betOnlineCardPromoSub">Up to $100 back on an under bet if the game goes to OT</div>
+            <a class="btn primary" data-sportsbook="1" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer">Sign Up for BetOnline</a>
+          </div>
+        </div>
+      </div>
+      <div id="scLeaderboardMount">
+        <div class="muted">Loading leaderboard…</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    function scEscape(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    async function renderLeaderboard(){
+      const mount = document.getElementById('scLeaderboardMount');
+      if(!mount) return;
+      mount.innerHTML = '<div class="muted">Loading leaderboard…</div>';
+      try {
+        const d = await api('/api/leaderboard-second?challenge=worst', {method:'GET'});
+        const table = document.createElement('table');
+        table.className = 'lbTable';
+        table.innerHTML = `<thead><tr><th>Rank</th><th>User</th><th>Score</th><th>x/y</th><th>%</th><th>Champion</th></tr></thead><tbody></tbody>`;
+        const tbody = table.querySelector('tbody');
+        (d.leaderboard || []).forEach(r => {
+          const pct = (r.y && Number(r.y) > 0) ? ((Number(r.x || 0) / Number(r.y)) * 100).toFixed(1) + '%' : '—';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${scEscape(r.rank)}</td><td>${scEscape(r.title || r.display_name || 'Bracket')}</td><td>${scEscape(r.score || 0)}</td><td>${scEscape(r.x || 0)}/${scEscape(r.y || 0)}</td><td>${pct}</td><td>${scEscape(r.champion || '—')}</td>`;
+          tbody.appendChild(tr);
+        });
+        mount.innerHTML = '';
+        mount.appendChild(table);
+      } catch(e) {
+        mount.innerHTML = '<div class="muted">Could not load leaderboard.</div>';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', renderLeaderboard);
+  </script>
+</body>
+</html>

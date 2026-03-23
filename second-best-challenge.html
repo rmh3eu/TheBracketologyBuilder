@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Best Second Chance Challenge</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="page-challenge-standalone page-challenge-clean-header">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" data-view="build" href="/">Home</a>
+      <a class="navLink" data-view="mybrackets" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" data-view="best" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" data-view="worst" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" data-view="featured" href="/#featured">Featured Brackets</a>
+      <a class="navLink" data-view="upcoming" href="/#upcoming">Upcoming Events</a>
+    </nav>
+  </div>
+
+  <div aria-live="polite" class="seasonBar" id="seasonBar">
+    <div class="seasonText" id="seasonText"></div>
+    <div class="seasonControls">
+      <div class="lockStatus" id="lockStatus" style="display:none;"></div>
+      <button class="btnMini lockEditBtn" id="lockEditBtn" style="display:none;" type="button">Lock</button>
+      <button class="btnMini seasonEditBtn" id="seasonEditBtn" style="display:none;" type="button">Edit</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Best Second Chance Challenge</h2>
+        <div class="subhead">Sweet 16 through the Championship. Every game is worth 10 points.</div>
+        <div class="secondChanceJump"><a class="btn secondChanceHeroBtn" href="best-challenge.html">Back to Best Bracket Challenge</a></div>
+      </div>
+
+      <div class="challengePageLayout">
+        <div class="miniCard challengeFormatCard">
+          <div class="miniTitle">Format</div>
+          <div class="miniBody"><ul><li>10 points per correct pick</li><li>Sweet 16 through the Championship</li><li>Second Chance brackets only</li><li>Championship total score is the tiebreaker</li></ul></div>
+        </div>
+
+        <a class="miniCard miniCardLink prizePreviewCard challengePrizeCard" href="/prizes.html" aria-label="Open prize pool page">
+          <div class="miniTitle">Prizes</div>
+          <div class="prizePreviewGrid">
+            <div class="prizePreviewItem">
+              <div class="prizePreviewThumb"><img src="/prizes/jersey-flagg.jpg" alt="Jerseys prize preview"></div>
+              <div class="prizePreviewLabel">Jerseys</div>
+            </div>
+            <div class="prizePreviewItem">
+              <div class="prizePreviewThumb"><img src="/prizes/custom-gear-racecar-jacket.jpg" alt="Custom Gear prize preview"></div>
+              <div class="prizePreviewLabel">Custom Gear</div>
+            </div>
+            <div class="prizePreviewItem">
+              <div class="prizePreviewThumb"><img src="/prizes/more-prizes-sword.jpg" alt="And More prize preview"></div>
+              <div class="prizePreviewLabel">And More</div>
+            </div>
+          </div>
+        </a>
+
+        <div class="leaderboardEntryPanel challengeEntryPanelInline">
+          <div class="challengeActions">
+            <button id="bestSecondOpenEntryBtn" class="btn primary" type="button">Enter a bracket</button>
+            <a class="btn" href="second-best-leaderboard.html">Leaderboard</a>
+          </div>
+
+          <div id="bestSecondEntryControls" class="leaderboardEntryControls" style="display:none">
+            <select id="bestSecondEntrySelect" class="select">
+              <option value="">Choose one of your saved Second Chance brackets…</option>
+            </select>
+            <button id="bestSecondEntrySubmitBtn" class="btn primary" type="button">Submit to Leaderboard</button>
+          </div>
+
+          <div id="bestSecondEntryMsg" class="submitFeaturedMsg"></div>
+          <p class="signinHint blackNote" style="margin:12px 0 0">Second Chance brackets can now be submitted to this challenge.</p>
+        </div>
+      </div>
+
+
+      <div class="promoDualRow">
+        <div class="betrInlinePromo">
+          <a class="betrInlinePromoVisual" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
+            <img class="betrInlinePromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr Picks">
+          </a>
+          <div class="betrInlinePromoBody">
+            <div class="betrInlinePromoTitle">Betr Picks</div>
+            <div class="betrInlinePromoText">Get $200 in Bonus with Sign Up</div>
+            <div class="betrInlinePromoSub">when you use code BRACKETS</div>
+            <a class="btn primary" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">Get $200 in Bonus with Sign Up</a>
+          </div>
+        </div>
+        <div class="betOnlineCardPromo">
+          <a class="betOnlineCardPromoVisual" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+            <img class="betOnlineCardPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline">
+          </a>
+          <div class="betOnlineCardPromoBody">
+            <div class="betOnlineCardPromoTitle">BetOnline</div>
+            <div class="betOnlineCardPromoText">Get $250 in Bonus with Sign Up</div>
+            <div class="betOnlineCardPromoSub">Up to $100 back on an under bet if the game goes to OT</div>
+            <a class="btn primary" data-sportsbook="1" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer">Sign Up for BetOnline</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel challengeLeaderboardPanelMobileVisible" style="margin-top:16px">
+        <div class="panelHead"><h3 style="margin:0">😇 Best Second Chance Challenge Leaderboard</h3></div>
+        <div id="bestSecondLeaderboard" style="padding:12px 14px">
+          <div class="muted">Loading leaderboard…</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    function scEscape(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function renderSecondTable(rows, mountId) {
+      const mount = document.getElementById(mountId);
+      if(!mount) return;
+      const table = document.createElement('table');
+      table.className = 'lbTable';
+      table.innerHTML = `<thead><tr><th>Rank</th><th>User</th><th>Score</th><th>x/y</th><th>%</th><th>Champion</th></tr></thead><tbody></tbody>`;
+      const tbody = table.querySelector('tbody');
+      (rows || []).forEach(r => {
+        const tr = document.createElement('tr');
+        const pct = (r.y && Number(r.y) > 0) ? ((Number(r.x || 0) / Number(r.y)) * 100).toFixed(1) + '%' : '—';
+        tr.innerHTML = `
+          <td class="lbRank">${scEscape(r.rank)}</td>
+          <td class="lbUser">${scEscape(r.title || r.display_name || 'Bracket')}</td>
+          <td class="lbScore">${scEscape(r.score || 0)}</td>
+          <td class="lbPct"><span class="lbX">${scEscape(r.x || 0)}</span><span class="lbSlash">/${scEscape(r.y || 0)}</span></td>
+          <td class="lbPct">${pct}</td>
+          <td>${scEscape(r.champion || '—')}</td>`;
+        tbody.appendChild(tr);
+      });
+      mount.innerHTML = '';
+      mount.appendChild(table);
+    }
+
+    async function renderSecondLeaderboard() {
+      const mountId = 'bestSecondLeaderboard';
+      const mount = document.getElementById(mountId);
+      if(!mount) return;
+      mount.innerHTML = '<div class="muted">Loading leaderboard…</div>';
+      try {
+        const d = await api('/api/leaderboard-second?challenge=best', {method:'GET'});
+        renderSecondTable(d.leaderboard || [], mountId);
+      } catch(e) {
+        mount.innerHTML = '<div class="muted">Could not load leaderboard.</div>';
+      }
+    }
+
+    async function initSecondChallengeEntryFlow(){
+      const openBtn = document.getElementById('bestSecondOpenEntryBtn');
+      const controls = document.getElementById('bestSecondEntryControls');
+      const select = document.getElementById('bestSecondEntrySelect');
+      const submitBtn = document.getElementById('bestSecondEntrySubmitBtn');
+      const msg = document.getElementById('bestSecondEntryMsg');
+      const setMsg = (text, ok=true) => {
+        msg.className = 'submitFeaturedMsg ' + (ok ? 'ok' : 'err');
+        msg.textContent = text || '';
+      };
+      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
+
+      openBtn.addEventListener('click', async () => {
+        controls.style.display = 'flex';
+        openBtn.style.display = 'none';
+        setMsg('', true);
+        try {
+          const d = await api('/api/brackets', { method:'GET' });
+          const brackets = (d.brackets || []).filter(bk => String(bk.bracket_type || '').toLowerCase() === 'second_chance');
+          select.innerHTML = '<option value="">Choose one of your saved Second Chance brackets…</option>';
+          brackets.forEach(bk => {
+            const opt = document.createElement('option');
+            opt.value = bk.id;
+            opt.textContent = bk.title || bk.id;
+            select.appendChild(opt);
+          });
+          if (!brackets.length) setMsg('No saved Second Chance brackets yet.', false);
+        } catch(_e) {
+          setMsg('Could not load your saved brackets.', false);
+        }
+      }, { once:true });
+
+      submitBtn.addEventListener('click', async () => {
+        const id = select.value;
+        if (!id) {
+          setMsg('Choose one of your saved Second Chance brackets first.', false);
+          return;
+        }
+        submitBtn.disabled = true;
+        setMsg('', true);
+        try {
+          await api('/api/challenge/enter-second', {
+            method:'POST',
+            body: JSON.stringify({ challenge:'best', bracket_id:id })
+          });
+          setMsg('Bracket entered successfully.', true);
+          await renderSecondLeaderboard();
+        } catch(e) {
+          setMsg((e && e.message) ? e.message : 'Could not enter bracket.', false);
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initSecondChallengeEntryFlow();
+      await renderSecondLeaderboard();
+    });
+  </script>
+</body>
+</html>

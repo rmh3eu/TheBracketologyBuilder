@@ -31,7 +31,6 @@ async function api(path, opts = {}) {
 }
 
 
-
 function setSubmitFeaturedMsg(text, ok){
   const el = document.getElementById('submitFeaturedMsg');
   if(!el) return;
@@ -283,8 +282,6 @@ async function loadPage() {
     (me && me.user && (me.user.isAdmin || me.user.is_admin)) ||
     (me && (me.isAdmin || me.is_admin))
   );
-  const adminNavLink = document.getElementById('adminNavLink');
-  if (adminNavLink) adminNavLink.style.display = isAdmin ? '' : 'none';
 
   if (adminWrap) adminWrap.style.display = isAdmin ? 'flex' : 'none';
   if (toggle) {

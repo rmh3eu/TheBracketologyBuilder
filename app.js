@@ -134,12 +134,6 @@ function setSeasonBar(){
   textEl.textContent = txt;
 
   const isAdm = !!(state && state.me && state.me.isAdmin);
-  const adminBracketsNavLink = document.getElementById('adminBracketsNavLink');
-  const adminFeaturedNavLink = document.getElementById('adminFeaturedNavLink');
-  if(adminBracketsNavLink) adminBracketsNavLink.style.display = isAdm ? '' : 'none';
-  if(adminFeaturedNavLink) adminFeaturedNavLink.style.display = isAdm ? '' : 'none';
-  const adminNavLink = document.getElementById('adminNavLink');
-  if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
 
   // Admin-only quick edit for banner
   if(editBtn){
@@ -820,7 +814,7 @@ async function betOnlinePromoModal(){
     const box = el('div','betOnlinePromoBox');
     box.setAttribute('role','dialog');
 
-    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+    const promoUrl = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/';
 
     const close = el('button','betOnlinePromoClose');
     close.type = 'button';
@@ -1656,12 +1650,6 @@ async function sendAdminBroadcast(panel){
 
 function wireAdminBroadcastPanels(){
   const isAdm = !!(state && state.me && state.me.isAdmin);
-  const adminBracketsNavLink = document.getElementById('adminBracketsNavLink');
-  const adminFeaturedNavLink = document.getElementById('adminFeaturedNavLink');
-  if(adminBracketsNavLink) adminBracketsNavLink.style.display = isAdm ? '' : 'none';
-  if(adminFeaturedNavLink) adminFeaturedNavLink.style.display = isAdm ? '' : 'none';
-  const adminNavLink = document.getElementById('adminNavLink');
-  if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
   document.querySelectorAll('.adminBroadcast').forEach(panel=>{
     panel.style.display = isAdm ? '' : 'none';
     if(!isAdm) return;
@@ -1676,12 +1664,6 @@ function wireAdminBroadcastPanels(){
 
 function wireAdminNavLinks(){
   const isAdm = !!(state && state.me && state.me.isAdmin);
-  const adminBracketsNavLink = document.getElementById('adminBracketsNavLink');
-  const adminFeaturedNavLink = document.getElementById('adminFeaturedNavLink');
-  if(adminBracketsNavLink) adminBracketsNavLink.style.display = isAdm ? '' : 'none';
-  if(adminFeaturedNavLink) adminFeaturedNavLink.style.display = isAdm ? '' : 'none';
-  const adminNavLink = document.getElementById('adminNavLink');
-  if(adminNavLink) adminNavLink.style.display = isAdm ? '' : 'none';
   qsa('.adminOnly').forEach(a=>{
     a.style.display = isAdm ? '' : 'none';
   });
@@ -2461,12 +2443,12 @@ function lbTableBest(rows){
   const t = el('table','lbTable');
   const rankCounts = new Map();
   (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
-  const isAdminViewer = !!(state && state.me && state.me.isAdmin);
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
     <th>Rank</th>
-    <th>User</th>${isAdminViewer ? '<th>Email</th>' : ''}
+    <th>User</th>
     <th>Score</th>
+    <th>Total Possible</th>
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2483,19 +2465,18 @@ function lbTableBest(rows){
 
     const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
     const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = ((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==undefined && (630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==null) ? Number((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))) : null;
+    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
     const userCell = escapeHtml(displayName) + ' 😇';
-    const emailCell = isAdminViewer ? `<td class="lbEmail">${escapeHtml(r.email || '')}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
-      ${emailCell}
       <td class="lbScore">${r.score}</td>
+      <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
       <td><span>${escapeHtml(champ)}</span></td>
@@ -2512,12 +2493,12 @@ function lbTableWorst(rows){
   const t = el('table','lbTable');
   const rankCounts = new Map();
   (rows||[]).forEach(r=>rankCounts.set(r.rank, (rankCounts.get(r.rank)||0)+1));
-  const isAdminViewer = !!(state && state.me && state.me.isAdmin);
   const thead = document.createElement('thead');
   thead.innerHTML = `<tr>
     <th>Rank</th>
-    <th>User</th>${isAdminViewer ? '<th>Email</th>' : ''}
+    <th>User</th>
     <th>Score</th>
+    <th>Total Possible</th>
     <th>x/y</th>
     <th>%</th>
     <th>Champion</th>
@@ -2534,7 +2515,7 @@ function lbTableWorst(rows){
 
     const champ = (r.champion!==undefined && r.champion!==null && String(r.champion).trim()) ? String(r.champion).trim() : '—';
     const displayName = r.title || r.display_name || 'Bracket';
-    const totalPossible = ((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==undefined && (630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))!==null) ? Number((630 - (10 * ((Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed) || 0) - (Number((r.x!==undefined && r.x!==null) ? r.x : 0) || 0))))) : null;
+    const totalPossible = (r.total_possible!==undefined && r.total_possible!==null) ? Number(r.total_possible) : null;
     const rankLabel = (rankCounts.get(r.rank)||0) > 1 ? `T-${r.rank}` : String(r.rank);
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
@@ -2542,13 +2523,12 @@ function lbTableWorst(rows){
     const userCell = meId && r.user_id === meId
       ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
       : `${escapeHtml(displayName)} 😈`;
-    const emailCell = isAdminViewer ? `<td class="lbEmail">${escapeHtml(r.email || '')}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
-      ${emailCell}
       <td class="lbScore">${r.score}</td>
+      <td class="lbScore">${(totalPossible===null||Number.isNaN(totalPossible)) ? '—' : totalPossible}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
       <td><span>${escapeHtml(champ)}</span></td>
@@ -3913,10 +3893,10 @@ function mountBetOnlineRegionPromo(regionName, mount){
     promo.className = 'betOnlineRegionPromo';
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
-      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
-        Get $250 in Bonus with Sign Up
+      <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+        Enter the $200,000 Bracket Madness Contest
       </a>
-      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Get $250 in Bonus with Sign Up Contest">
+      <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1" aria-label="Enter the $200,000 Bracket Madness Contest Contest">
         <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
@@ -3956,14 +3936,14 @@ function mountBetOnlineBracketPromo(regionName, mount){
     promo.setAttribute('data-region-name', regionName);
     promo.innerHTML = `
       <a class="betOnlineBracketPromoText"
-         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+         href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1">
-         Get $250 in Bonus with Sign Up
+         Enter the $200,000 Bracket Madness Contest
       </a>
 
-      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/"
+      <a href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhJW0dkOQ7qvdWNd7ZgqdRLk/1/"
          target="_blank"
          rel="noopener noreferrer"
          data-sportsbook="1"
