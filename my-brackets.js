@@ -187,17 +187,14 @@ function isSecondChanceBracketRecord(b){
     for (const [k, v] of Object.entries(expected)) {
       if (getName(picks[k]) === v) matches += 1;
     }
-    return matches >= 8;
+    return matches >= 16;
   }catch(_e){
     return false;
   }
 }
 
 
-function maybeSecondChanceByShape(b){
-  try{
-    const raw = b && b.data_json ? JSON.parse(b.data_json) : null;
-    const picks = raw && raw.picks ? raw.picks : (raw || {});
+function maybeSecondChanceByShape(b){ return false; });
     const keys = Object.keys(picks || {});
     const r1count = keys.filter(k => /__R1__G\d__winner$/.test(k)).length;
     const r0count = keys.filter(k => /__R0__G\d__winner$/.test(k)).length;

@@ -1224,14 +1224,15 @@ function coerceTeamValue(v){
   // Returns {name, seed} or null.
   if(!v) return null;
   if(typeof v === "string"){
-    const name = v.trim();
+    const raw = v.trim();
+    const name = (raw === 'Texas/NC State') ? 'Texas' : raw;
     return TEAM_BY_NAME.get(name) ? ({...TEAM_BY_NAME.get(name)}) : null;
   }
   if(typeof v === "object"){
-    const name = (typeof v.name === "string") ? v.name.trim() : "";
+    let name = (typeof v.name === "string") ? v.name.trim() : "";
+    if(name === 'Texas/NC State') name = 'Texas';
     const seed = (typeof v.seed === "number") ? v.seed : Number(v.seed);
     if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
-    // If seed is missing/invalid but name exists, look it up.
     if(name && TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
   }
   return null;
@@ -1244,7 +1245,14 @@ function listToSeedArray(seedList){
   return SEEDS.map(s => map.get(s) ? ({ seed:s, name: map.get(s) }) : null);
 }
 
-function teamEq(a,b){ return !!a && !!b && a.seed===b.seed && a.name===b.name; }
+function bbNormalizeTeamName(name){
+  const n = String(name || '').trim();
+  if(n === 'Texas/NC State') return 'Texas';
+  return n;
+}
+function teamEq(a,b){
+  return !!a && !!b && a.seed===b.seed && bbNormalizeTeamName(a.name)===bbNormalizeTeamName(b.name);
+}
 function teamInPair(team, pair){ return !!team && !!pair && (teamEq(team, pair[0]) || teamEq(team, pair[1])); }
 
 function buildRoundTeams(regionKey, baseTeams, picks, roundIdx){
@@ -2256,7 +2264,10 @@ async function ensureSavedToAccount(){
     // Create a new bracket row first (server enforces unique name per user).
     let create;
     try{
-      create = await apiPost('/api/brackets', { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') });
+      const createBody = { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') };
+      if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') createBody.bracket_type = 'second_chance';
+      if (window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') createBody.bracket_type = 'official';
+      create = await apiPost('/api/brackets', createBody);
     }catch(e){
       // If the API returns 409 for duplicate name, ask again.
       if(e && e.status === 409){
@@ -2279,11 +2290,13 @@ async function ensureSavedToAccount(){
       setBracketTitleDisplay(desiredTitle);
 
       // Now save the actual bracket picks to the row.
-      await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, {
+      const putBody = {
         id: newId,
         title: desiredTitle,
-        data: state.picks || {}
-      });
+        data: state.picks || {},
+        bracket_type: (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') ? 'second_chance' : ((window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') ? 'official' : (state.bracket_type || 'bracketology'))
+      };
+      await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, putBody);
 
       return newId;
     }
@@ -3962,15 +3975,15 @@ function mountBetOnlineRegionPromo(regionName, mount){
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       promo.style.setProperty('position', 'absolute', 'important');
-      promo.style.setProperty('top', mobile ? '20px' : '112px', 'important');
+      promo.style.setProperty('top', mobile ? '20px' : '92px', 'important');
       if(mobile){
         // move LEFT on mobile by increasing right offset
         promo.style.setProperty('left', 'auto', 'important');
-        promo.style.setProperty('right', '88px', 'important');
+        promo.style.setProperty('right', '108px', 'important');
       }else{
         // move RIGHT on desktop by increasing left offset
         promo.style.setProperty('right', 'auto', 'important');
-        promo.style.setProperty('left', '178px', 'important');
+        promo.style.setProperty('left', '228px', 'important');
       }
     }catch(_e){}
 
@@ -4027,14 +4040,14 @@ function mountBetOnlineBracketPromo(regionName, mount){
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       promo.style.setProperty('position', 'absolute', 'important');
-      promo.style.setProperty('top', mobile ? '170px' : '148px', 'important');
+      promo.style.setProperty('top', mobile ? '170px' : '122px', 'important');
       promo.style.setProperty('left', 'auto', 'important');
       if(mobile){
         // move LEFT on mobile by increasing right offset
-        promo.style.setProperty('right', '88px', 'important');
+        promo.style.setProperty('right', '108px', 'important');
       }else{
         // move slightly RIGHT on desktop
-        promo.style.setProperty('right', '8px', 'important');
+        promo.style.setProperty('right', '0px', 'important');
       }
     }catch(_e){}
 
@@ -5548,24 +5561,24 @@ function bbForceHomepagePromoLayout(){
 
     document.querySelectorAll('.betOnlineRegionPromo').forEach((el)=>{
       el.style.setProperty('position', 'absolute', 'important');
-      el.style.setProperty('top', mobile ? '20px' : '112px', 'important');
+      el.style.setProperty('top', mobile ? '20px' : '92px', 'important');
       if(mobile){
         el.style.setProperty('left', 'auto', 'important');
-        el.style.setProperty('right', '88px', 'important');
+        el.style.setProperty('right', '108px', 'important');
       }else{
         el.style.setProperty('right', 'auto', 'important');
-        el.style.setProperty('left', '178px', 'important');
+        el.style.setProperty('left', '228px', 'important');
       }
     });
 
     document.querySelectorAll('.betOnlineBracketPromo').forEach((el)=>{
       el.style.setProperty('position', 'absolute', 'important');
-      el.style.setProperty('top', mobile ? '170px' : '148px', 'important');
+      el.style.setProperty('top', mobile ? '170px' : '122px', 'important');
       el.style.setProperty('left', 'auto', 'important');
       if(mobile){
-        el.style.setProperty('right', '88px', 'important');
+        el.style.setProperty('right', '108px', 'important');
       }else{
-        el.style.setProperty('right', '8px', 'important');
+        el.style.setProperty('right', '0px', 'important');
       }
     });
 
