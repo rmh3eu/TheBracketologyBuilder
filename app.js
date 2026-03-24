@@ -3962,15 +3962,15 @@ function mountBetOnlineRegionPromo(regionName, mount){
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       promo.style.setProperty('position', 'absolute', 'important');
-      promo.style.setProperty('top', mobile ? '20px' : '140px', 'important');
+      promo.style.setProperty('top', mobile ? '20px' : '112px', 'important');
       if(mobile){
         // move LEFT on mobile by increasing right offset
         promo.style.setProperty('left', 'auto', 'important');
-        promo.style.setProperty('right', '96px', 'important');
+        promo.style.setProperty('right', '88px', 'important');
       }else{
         // move RIGHT on desktop by increasing left offset
         promo.style.setProperty('right', 'auto', 'important');
-        promo.style.setProperty('left', '118px', 'important');
+        promo.style.setProperty('left', '178px', 'important');
       }
     }catch(_e){}
 
@@ -4027,14 +4027,14 @@ function mountBetOnlineBracketPromo(regionName, mount){
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       promo.style.setProperty('position', 'absolute', 'important');
-      promo.style.setProperty('top', mobile ? '170px' : '180px', 'important');
+      promo.style.setProperty('top', mobile ? '170px' : '148px', 'important');
       promo.style.setProperty('left', 'auto', 'important');
       if(mobile){
         // move LEFT on mobile by increasing right offset
-        promo.style.setProperty('right', '96px', 'important');
+        promo.style.setProperty('right', '88px', 'important');
       }else{
         // move slightly RIGHT on desktop
-        promo.style.setProperty('right', '18px', 'important');
+        promo.style.setProperty('right', '8px', 'important');
       }
     }catch(_e){}
 
@@ -5548,32 +5548,38 @@ function bbForceHomepagePromoLayout(){
 
     document.querySelectorAll('.betOnlineRegionPromo').forEach((el)=>{
       el.style.setProperty('position', 'absolute', 'important');
-      el.style.setProperty('top', mobile ? '20px' : '140px', 'important');
+      el.style.setProperty('top', mobile ? '20px' : '112px', 'important');
       if(mobile){
         el.style.setProperty('left', 'auto', 'important');
-        el.style.setProperty('right', '96px', 'important');
+        el.style.setProperty('right', '88px', 'important');
       }else{
         el.style.setProperty('right', 'auto', 'important');
-        el.style.setProperty('left', '118px', 'important');
+        el.style.setProperty('left', '178px', 'important');
       }
     });
 
     document.querySelectorAll('.betOnlineBracketPromo').forEach((el)=>{
       el.style.setProperty('position', 'absolute', 'important');
-      el.style.setProperty('top', mobile ? '170px' : '180px', 'important');
+      el.style.setProperty('top', mobile ? '170px' : '148px', 'important');
       el.style.setProperty('left', 'auto', 'important');
       if(mobile){
-        el.style.setProperty('right', '96px', 'important');
+        el.style.setProperty('right', '88px', 'important');
       }else{
-        el.style.setProperty('right', '18px', 'important');
+        el.style.setProperty('right', '8px', 'important');
       }
     });
 
+    
     document.querySelectorAll('.betOnlineRegionPromo .betOnlinePrizePoolBtn, .betOnlineBracketPromo .betOnlinePrizePoolBtn').forEach((btn)=>{
       if(mobile){
+        btn.style.setProperty('position', 'relative', 'important');
+        btn.style.setProperty('top', '8px', 'important');
         btn.style.setProperty('left', 'auto', 'important');
         btn.style.setProperty('right', '0', 'important');
         btn.style.setProperty('transform', 'none', 'important');
+        btn.style.setProperty('display', 'block', 'important');
+        btn.style.setProperty('margin-top', '10px', 'important');
+        btn.style.setProperty('z-index', '1', 'important');
       }
     });
   }catch(_e){}
