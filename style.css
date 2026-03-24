@@ -4307,10 +4307,7 @@ a[href*="Bracket"]{
 
 
 
-/* move homepage promo + prize buttons closer to selection boxes */
-.betOnlineRegionPromo{
-  top: 70px !important;
-}
+
 .betOnlineBracketPromo{
   top: 95px !important;
 }
@@ -4344,13 +4341,7 @@ a[href*="Bracket"]{
   }
 }
 
-/* Mobile: move homepage promo/buttons RIGHT so they sit off the selection boxes */
-@media (max-width: 820px){
-  .betOnlineRegionPromo{
-    left: auto !important;
-    right: 8px !important;
-    top: 18px !important;
-  }
+
   .betOnlineBracketPromo{
     right: 8px !important;
     left: auto !important;
@@ -4422,12 +4413,7 @@ a[href*="Bracket"]{
 
 
 
-/* refined homepage promo positions */
-@media (min-width: 821px){
-  .betOnlineBracketPromo{
-    right: 68px !important;
-    top: 95px !important;
-  }
+
   .betOnlineRegionPromo{
     left: 34px !important;
     top: 70px !important;
@@ -4448,12 +4434,7 @@ a[href*="Bracket"]{
 
 
 
-/* refined homepage promo positions - moderate movement */
-body .betOnlineBracketPromo[data-region-name="East"],
-body .betOnlineBracketPromo[data-region-name="South"],
-body .betOnlineBracketPromo{
-  right: 54px !important;
-}
+
 body .betOnlineRegionPromo[data-region-name="East"],
 body .betOnlineRegionPromo[data-region-name="South"],
 body .betOnlineRegionPromo{
@@ -4477,12 +4458,7 @@ body .betOnlineRegionPromo{
 
 
 
-/* homepage promo placement tweak */
-body .betOnlineBracketPromo[data-region-name="East"],
-body .betOnlineBracketPromo[data-region-name="South"],
-body .betOnlineBracketPromo{
-  right: 34px !important;
-}
+
 body .betOnlineRegionPromo[data-region-name="East"],
 body .betOnlineRegionPromo[data-region-name="South"],
 body .betOnlineRegionPromo{
@@ -4541,6 +4517,26 @@ html body .betOnlineBracketPromo{
     left: auto !important;
     right: 0 !important;
     transform: none !important;
+  }
+}
+
+
+
+/* precise homepage promo positioning (small adjustment only) */
+@media (min-width: 821px){
+  .betOnlineBracketPromo{
+    right: 42px !important;
+  }
+  .betOnlineRegionPromo{
+    left: 42px !important;
+  }
+}
+@media (max-width: 820px){
+  .betOnlineRegionPromo{
+    right: 22px !important;
+  }
+  .betOnlineBracketPromo{
+    right: 22px !important;
   }
 }
 
