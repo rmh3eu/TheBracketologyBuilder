@@ -1495,8 +1495,7 @@ function undoLastAction(){
 function fillRandomPicks(){
   let picks = {};
 
-  // In Sweet 16 / Second Chance mode, seed the correct remaining 16-team matrix first
-  // so random picks only come from valid remaining teams.
+  // In Sweet 16 / Second Chance mode, start from the actual remaining 16-team matrix.
   if(sweet16ModeEnabled()){
     picks = ensurePlaceholderToSweet16({});
   }
@@ -2269,11 +2268,19 @@ async function ensureSavedToAccount(){
     // Create a new bracket row first (server enforces unique name per user).
     let create;
     try{
-      const createBody = { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') };
+      const createBody = {
+        title: desiredTitle,
+        bracket_type: (state.bracket_type || 'bracketology'),
+        sport: 'ncaa',
+        template_id: 'ncaa_projection_full',
+        layout_type: 'single_elim'
+      };
       if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') {
         createBody.bracket_type = 'second_chance';
+        createBody.template_id = 'ncaa_second_chance_s16';
       } else if (window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') {
         createBody.bracket_type = 'official';
+        createBody.template_id = 'ncaa_official_full';
       }
       create = await apiPost('/api/brackets', createBody);
     }catch(e){
@@ -2302,7 +2309,10 @@ async function ensureSavedToAccount(){
         id: newId,
         title: desiredTitle,
         data: state.picks || {},
-        bracket_type: (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') ? 'second_chance' : ((window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') ? 'official' : (state.bracket_type || 'bracketology'))
+        bracket_type: (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') ? 'second_chance' : ((window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') ? 'official' : (state.bracket_type || 'bracketology')),
+        sport: 'ncaa',
+        template_id: (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') ? 'ncaa_second_chance_s16' : ((window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') ? 'ncaa_official_full' : 'ncaa_projection_full'),
+        layout_type: 'single_elim'
       });
 
       return newId;
@@ -3011,10 +3021,23 @@ function renderWorstStage2(picks, onUpdate){
           if(sweet16ModeEnabled()){
             np = ensurePlaceholderToSweet16(np);
           }
+          let forceTexasWest = false;
+          try{
+            const nm = bbNormalizeTeamName(team && team.name);
+            if (sweet16ModeEnabled() && rKey === 'REGION_WEST' && key === `${rKey}__R2__G1__winner` && nm === 'Texas/NC State'){
+              forceTexasWest = true;
+              np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
+              np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
+            }
+          }catch(_e){}
           // if E8 pick exists but conflicts, clear
           if(key.endsWith('__R2__G0__winner') || key.endsWith('__R2__G1__winner')){
             const e8Key = `${rKey}__R3__G0__winner`;
             if(np[e8Key] && !teamEq(np[e8Key], teams[0]) && !teamEq(np[e8Key], teams[1])) delete np[e8Key];
+          }
+          if(forceTexasWest){
+            np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
+            np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
           }
           onUpdate(np);
         });
@@ -3087,11 +3110,24 @@ function renderLateStage2(picks, onUpdate){
           if(sweet16ModeEnabled()){
             np = ensurePlaceholderToSweet16(np);
           }
+          let forceTexasWest = false;
+          try{
+            const nm = bbNormalizeTeamName(team && team.name);
+            if (sweet16ModeEnabled() && rKey === 'REGION_WEST' && key === `${rKey}__R2__G1__winner` && nm === 'Texas/NC State'){
+              forceTexasWest = true;
+              np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
+              np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
+            }
+          }catch(_e){}
           // prune downstream
           const e8Key = `${rKey}__R3__G0__winner`;
           if(np[e8Key] && !teamEq(np[e8Key], teams[0]) && !teamEq(np[e8Key], teams[1])) delete np[e8Key];
           // if final four picks exist but conflict, prune globally
           pruneInvalidPicks(np);
+          if(forceTexasWest){
+            np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
+            np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
+          }
           onUpdate(np);
         });
         if(cur && teamEq(cur, team)) applyPickResultClass(slot, cur, gameId, 'best');
@@ -4525,6 +4561,7 @@ function renderAll(){
       mount.appendChild(card);
       try{ mountBetOnlineRegionPromo(r.name, mount); }catch(_e){}
       try{ maybeRevealBetOnlineRegionPromo(); }catch(_e){}
+      try{ maybeRevealBetrPromos(); }catch(_e){}
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);

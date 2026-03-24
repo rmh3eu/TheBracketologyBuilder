@@ -1,39 +1,79 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Bracket</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css?vfix0424h">
 </head>
-<body>
-  <h1>NBA Playoff Bracket (Projection)</h1>
-  <p>This is a separate bracket template. It does NOT affect NCAA brackets.</p>
+<body class="page-challenge-standalone page-challenge-clean-header">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
 
-  <div id="nbaBracket"></div>
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" href="/">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+      <a class="navLink active" href="nba.html">NBA Bracket</a>
+    </nav>
+  </div>
 
-  <script>
-  const EAST = [
-    "Pistons","Celtics","Knicks","Cavaliers",
-    "Raptors","Hawks","76ers","Magic"
-  ];
-  const WEST = [
-    "Thunder","Spurs","Lakers","Nuggets",
-    "Timberwolves","Rockets","Suns","Clippers"
-  ];
+  <main class="wrap">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>NBA Bracket (Projection Scaffold)</h2>
+        <div class="subhead">Separate template foundation. Does not affect NCAA brackets.</div>
+      </div>
 
-  function renderSide(title, teams){
-    let html = "<h2>"+title+"</h2>";
-    teams.forEach(t=>{
-      html += "<div class='teamBox'>"+t+"</div>";
-    });
-    return html;
-  }
+      <div class="nbaTemplateNote">
+        This page is a separate NBA template scaffold so the site can support multiple bracket formats at once.
+      </div>
 
-  document.getElementById("nbaBracket").innerHTML =
-    "<div class='nbaGrid'>" +
-    "<div>"+renderSide("East", EAST)+"</div>" +
-    "<div>"+renderSide("West", WEST)+"</div>" +
-    "</div>";
-  </script>
+      <div class="nbaBracketGrid">
+        <section class="nbaConfCard">
+          <h3>Eastern Conference</h3>
+          <div class="nbaSeedRow"><span>1</span><span>Seed 1</span></div>
+          <div class="nbaSeedRow"><span>2</span><span>Seed 2</span></div>
+          <div class="nbaSeedRow"><span>3</span><span>Seed 3</span></div>
+          <div class="nbaSeedRow"><span>4</span><span>Seed 4</span></div>
+          <div class="nbaSeedRow"><span>5</span><span>Seed 5</span></div>
+          <div class="nbaSeedRow"><span>6</span><span>Seed 6</span></div>
+          <div class="nbaSeedRow"><span>7</span><span>Play-In Winner</span></div>
+          <div class="nbaSeedRow"><span>8</span><span>Play-In Winner</span></div>
+        </section>
+
+        <section class="nbaFinalsCard">
+          <h3>NBA Finals</h3>
+          <div class="nbaSeriesBox">East Champion</div>
+          <div class="nbaSeriesBox">West Champion</div>
+          <div class="nbaSeriesBox nbaChampBox">NBA Champion</div>
+        </section>
+
+        <section class="nbaConfCard">
+          <h3>Western Conference</h3>
+          <div class="nbaSeedRow"><span>1</span><span>Seed 1</span></div>
+          <div class="nbaSeedRow"><span>2</span><span>Seed 2</span></div>
+          <div class="nbaSeedRow"><span>3</span><span>Seed 3</span></div>
+          <div class="nbaSeedRow"><span>4</span><span>Seed 4</span></div>
+          <div class="nbaSeedRow"><span>5</span><span>Seed 5</span></div>
+          <div class="nbaSeedRow"><span>6</span><span>Seed 6</span></div>
+          <div class="nbaSeedRow"><span>7</span><span>Play-In Winner</span></div>
+          <div class="nbaSeedRow"><span>8</span><span>Play-In Winner</span></div>
+        </section>
+      </div>
+    </div>
+  </main>
 </body>
 </html>
