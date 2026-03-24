@@ -274,15 +274,13 @@ function reorderSections({ officialLive, sweet16Set }) {
   const secS = document.getElementById('secSecondChance');
   if (!main || !secB || !secO || !secS || !secN) return;
 
-  if (!officialLive && !sweet16Set) {
-    main.appendChild(secN);
-    main.appendChild(secB);
-    main.appendChild(secO);
-    main.appendChild(secS);
-    return;
-  }
   main.appendChild(secN);
   main.appendChild(secS);
+  if (!officialLive && !sweet16Set) {
+    main.appendChild(secB);
+    main.appendChild(secO);
+    return;
+  }
   main.appendChild(secO);
   main.appendChild(secB);
 }

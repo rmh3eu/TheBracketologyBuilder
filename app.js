@@ -5720,14 +5720,12 @@ function bbApplyRegionPromoStyles(el, regionName){
     el.style.setProperty('flex-direction','column','important');
     el.style.setProperty('align-items','flex-start','important');
     if(mobile){
-      // more left into view on mobile
-      el.style.setProperty('top','18px','important');
-      el.style.setProperty('right','118px','important');
+      el.style.setProperty('top','14px','important');
+      el.style.setProperty('right','134px','important');
       el.style.setProperty('left','auto','important');
     }else{
-      // inside region board, to the right and up
-      el.style.setProperty('top','62px','important');
-      el.style.setProperty('left','262px','important');
+      el.style.setProperty('top','36px','important');
+      el.style.setProperty('left','276px','important');
       el.style.setProperty('right','auto','important');
     }
     const btn = el.querySelector('.betOnlinePrizePoolBtn');
@@ -5760,6 +5758,9 @@ function bbForceNcaaRegionAds(){
       const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo');
       if(!geo) return;
       if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
+
+      // remove duplicate bracket-promo stacks; keep only one in-region stack
+      try{ geo.querySelectorAll('.betOnlineBracketPromo,.betrBracketPromo').forEach(n=>n.remove()); }catch(_e){}
 
       if(type === 'bet'){
         let promo = geo.querySelector('.betOnlineRegionPromo') || mount.querySelector('.betOnlineRegionPromo');
