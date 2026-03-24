@@ -1262,6 +1262,14 @@ function buildRoundTeams(regionKey, baseTeams, picks, roundIdx){
   }
   const prev = buildRoundTeams(regionKey, baseTeams, picks, roundIdx-1);
   const winners = prev.map((pair, gIdx) => picks[wKey(regionKey, roundIdx-1, gIdx)] || null);
+
+  // Fallback for West Sweet 16 selection so Texas/NC State visibly carries into Elite 8.
+  try{
+    if(regionKey === 'REGION_WEST' && roundIdx === 3){
+      const forced = picks['REGION_WEST__R2__G1__winner'];
+      if (forced && bbNormalizeTeamName(forced.name) === 'Texas/NC State') winners[1] = forced;
+    }
+  }catch(_e){}
   const out = [];
   for(let i=0;i<winners.length;i+=2){
     out.push([winners[i]||null, winners[i+1]||null]);
@@ -3993,6 +4001,73 @@ function maybeRevealBetOnlineRegionPromo(){
 }
 
 
+function mountBetrRegionPromo(regionName, mount){
+  try{
+    if(!mount) return;
+    if(regionName !== 'West' && regionName !== 'Midwest') return;
+    if(mount.querySelector('.betrRegionPromo')) return;
+
+    const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-West') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
+    if(!isBracketLikePage) return;
+
+    const promo = document.createElement('div');
+    promo.className = 'betrRegionPromo';
+    promo.setAttribute('data-region-name', regionName);
+    promo.innerHTML = `
+      <a class="betrRegionPromoText" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
+        Get $200 in Bonus with Sign Up
+      </a>
+      <div class="betrRegionPromoSub">Code BRACKETS</div>
+      <a class="betrRegionPromoLogoLink" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer" aria-label="Get $200 in Bonus with Sign Up">
+        <img class="betrRegionPromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr logo">
+      </a>
+      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
+    `;
+
+    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
+    if(!geo) return;
+    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
+    geo.appendChild(promo);
+  }catch(_e){}
+}
+
+function mountBetrBracketPromo(regionName, mount){
+  try{
+    if(!mount || (regionName !== 'West' && regionName !== 'Midwest')) return;
+    if(mount.querySelector('.betrBracketPromo')) return;
+
+    const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    if(!isHome) return;
+
+    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo');
+    if(!geo) return;
+    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
+
+    const promo = document.createElement('div');
+    promo.className = 'betrBracketPromo';
+    promo.setAttribute('data-region-name', regionName);
+    promo.innerHTML = `
+      <a class="betrBracketPromoText"
+         href="https://engagebetr.onelink.me/auSX/BRACKETS"
+         target="_blank"
+         rel="noopener noreferrer">
+         Get $200 in Bonus with Sign Up
+      </a>
+      <div class="betrBracketPromoSub">Code BRACKETS</div>
+      <a href="https://engagebetr.onelink.me/auSX/BRACKETS"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="betrBracketPromoLogoWrap">
+         <img class="betrBracketPromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr logo">
+      </a>
+      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
+    `;
+
+    geo.appendChild(promo);
+  }catch(_e){}
+}
+
+
 
 function mountBetOnlineBracketPromo(regionName, mount){
   try{
@@ -4509,10 +4584,12 @@ function renderAll(){
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       try{ mountBetOnlineRegionPromo(r.name, mount); }catch(_e){}
+      try{ mountBetrRegionPromo(r.name, mount); }catch(_e){}
       try{ maybeRevealBetOnlineRegionPromo(); }catch(_e){}
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);
+    try{ qsa('.deskCol .panel, .mobileRegionMount').forEach((m)=>{ const rid = (m && m.id || '').replace('region-',''); if(rid) mountBetrBracketPromo(rid, m); }); }catch(_e){}
   // Phase 4: update Submit for Featured CTA
   try{ phase4UpdateFeatureCTA(); }catch(_e){}
 
@@ -5532,3 +5609,5 @@ try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(nudgeBracketPromos, 50); setTimeout(nudgeBracketPromos, 400); });
 })();
 
+
+document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(bbApplyFixedPromoPositions, 150); setTimeout(bbApplyFixedPromoPositions, 700); });
