@@ -6,6 +6,9 @@ async function ensureBracketsHardening(env){
   await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
   await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
   await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN sport TEXT NOT NULL DEFAULT 'ncaa'");
+  await add("ALTER TABLE brackets ADD COLUMN template_id TEXT NOT NULL DEFAULT 'ncaa_projection_full'");
+  await add("ALTER TABLE brackets ADD COLUMN layout_type TEXT NOT NULL DEFAULT 'single_elim'");
 
   // Backfill to keep legacy rows visible.
   try{
@@ -35,7 +38,7 @@ export async function onRequestGet({ request, env }){
   const user = await requireUser({ request, env });
 
   const row = await env.DB.prepare(
-    "SELECT id,user_id,title,bracket_name,data_json,is_public,created_at,updated_at,bracket_type FROM brackets WHERE id=?"
+    "SELECT id,user_id,title,bracket_name,data_json,is_public,created_at,updated_at,bracket_type,sport,template_id,layout_type FROM brackets WHERE id=?"
   ).bind(id).first();
 
   if(!row) return json({ ok:false, error:"Not found." }, 404);
@@ -49,7 +52,10 @@ export async function onRequestGet({ request, env }){
     data: JSON.parse(row.data_json || "{}"),
     created_at: row.created_at,
     updated_at: row.updated_at,
-    bracket_type: row.bracket_type || "bracketology"
+    bracket_type: row.bracket_type || "bracketology",
+    sport: row.sport || "ncaa",
+    template_id: row.template_id || "ncaa_projection_full",
+    layout_type: row.layout_type || "single_elim"
   }});
 }
 
@@ -76,6 +82,9 @@ export async function onRequestPut({ request, env }){
   const bracket_type =
     (desired_type_raw === 'official') ? 'official' :
     ((desired_type_raw === 'second_chance' || desired_type_raw === 'secondchance') ? 'second_chance' : String(existing.bracket_type || 'bracketology'));
+  const sport = String(body.sport || existing.sport || 'ncaa').trim().toLowerCase() || 'ncaa';
+  const template_id = String(body.template_id || existing.template_id || (bracket_type === 'second_chance' ? 'ncaa_second_chance_s16' : (bracket_type === 'official' ? 'ncaa_official_full' : 'ncaa_projection_full'))).trim();
+  const layout_type = String(body.layout_type || existing.layout_type || 'single_elim').trim();
 
   if(!id) return json({ ok:false, error:"Missing id." }, 400);
 

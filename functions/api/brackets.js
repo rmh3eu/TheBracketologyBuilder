@@ -12,6 +12,9 @@ async function ensureBracketsSchema(env){
   await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
   await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
   await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN sport TEXT NOT NULL DEFAULT 'ncaa'");
+  await add("ALTER TABLE brackets ADD COLUMN template_id TEXT NOT NULL DEFAULT 'ncaa_projection_full'");
+  await add("ALTER TABLE brackets ADD COLUMN layout_type TEXT NOT NULL DEFAULT 'single_elim'");
   // Legacy column used by older frontends / inserts.
   await add("ALTER TABLE brackets ADD COLUMN payload TEXT");
 
@@ -77,7 +80,7 @@ export async function onRequest(context){
 
   if(request.method === 'GET'){
     const rs = await env.DB.prepare(
-      `SELECT id, user_id, title, bracket_name, bracket_type, data_json, created_at, updated_at
+      `SELECT id, user_id, title, bracket_name, bracket_type, sport, template_id, layout_type, data_json, created_at, updated_at
          FROM brackets
         WHERE user_id=?
         ORDER BY COALESCE(updated_at, created_at) DESC`
