@@ -156,7 +156,7 @@ function isSecondChanceBracketRecord(b){
   const t = normalizeType(b && b.bracket_type);
   if (t === 'second_chance' || t === 'secondchance' || t.includes('second')) return true;
 
-  // Fallback: detect the Sweet 16 placeholder pattern used by second-chance brackets.
+  // Fallback: detect saved Sweet 16 placeholder pattern used by second-chance brackets.
   try{
     const raw = b && b.data_json ? JSON.parse(b.data_json) : null;
     const picks = raw && raw.picks ? raw.picks : (raw || {});
@@ -187,9 +187,7 @@ function isSecondChanceBracketRecord(b){
     };
 
     let matches = 0;
-    let total = 0;
     for (const [k, v] of Object.entries(expected)) {
-      total += 1;
       if (getName(picks[k]) === v) matches += 1;
     }
     return matches >= 12;
