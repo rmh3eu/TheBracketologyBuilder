@@ -823,7 +823,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
     const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = 'Your Bracket Has Been Saved to My Brackets!';
+    savedText.textContent = 'Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
@@ -1262,14 +1262,6 @@ function buildRoundTeams(regionKey, baseTeams, picks, roundIdx){
   }
   const prev = buildRoundTeams(regionKey, baseTeams, picks, roundIdx-1);
   const winners = prev.map((pair, gIdx) => picks[wKey(regionKey, roundIdx-1, gIdx)] || null);
-
-  // Fallback for West Sweet 16 selection so Texas/NC State visibly carries into Elite 8.
-  try{
-    if(regionKey === 'REGION_WEST' && roundIdx === 3){
-      const forced = picks['REGION_WEST__R2__G1__winner'];
-      if (forced && bbNormalizeTeamName(forced.name) === 'Texas/NC State') winners[1] = forced;
-    }
-  }catch(_e){}
   const out = [];
   for(let i=0;i<winners.length;i+=2){
     out.push([winners[i]||null, winners[i+1]||null]);
@@ -1501,12 +1493,19 @@ function undoLastAction(){
 }
 
 function fillRandomPicks(){
-  const picks = {};
+  let picks = {};
+
+  // In Sweet 16 / Second Chance mode, seed the correct remaining 16-team matrix first
+  // so random picks only come from valid remaining teams.
+  if(sweet16ModeEnabled()){
+    picks = ensurePlaceholderToSweet16({});
+  }
 
   // Region rounds
   for(const r of REGIONS){
     const base = listToSeedArray(r.teams);
-    for(let round=0; round<=3; round++){
+    const roundStart = sweet16ModeEnabled() ? 2 : 0;
+    for(let round=roundStart; round<=3; round++){
       const games = buildRoundTeams(r.key, base, picks, round);
       for(let g=0; g<games.length; g++){
         const [a,b] = games[g];
@@ -3008,7 +3007,10 @@ function renderWorstStage2(picks, onUpdate){
       teams.forEach(team=>{
         const isWin = cur && teamEq(cur, team);
         const slot = miniSlot(team, isWin, ()=>{
-          const np={...picks}; np[key]=team; // prune
+          let np={...picks}; np[key]=team; // prune
+          if(sweet16ModeEnabled()){
+            np = ensurePlaceholderToSweet16(np);
+          }
           // if E8 pick exists but conflicts, clear
           if(key.endsWith('__R2__G0__winner') || key.endsWith('__R2__G1__winner')){
             const e8Key = `${rKey}__R3__G0__winner`;
@@ -3081,7 +3083,10 @@ function renderLateStage2(picks, onUpdate){
       teams.forEach(team=>{
         const isWin = cur && teamEq(cur, team);
         const slot = miniSlot(team, isWin, ()=>{
-          const np={...picks}; np[key]=team;
+          let np={...picks}; np[key]=team;
+          if(sweet16ModeEnabled()){
+            np = ensurePlaceholderToSweet16(np);
+          }
           // prune downstream
           const e8Key = `${rKey}__R3__G0__winner`;
           if(np[e8Key] && !teamEq(np[e8Key], teams[0]) && !teamEq(np[e8Key], teams[1])) delete np[e8Key];
@@ -3844,6 +3849,8 @@ function renderRegion(r, picks, opts={}){
   }
   const scroller = el('div','geo regionGeo');
   scroller.dataset.region = r.name;
+  scroller.style.overflowX = 'visible';
+  scroller.style.overflowY = 'visible';
   const canvas = el('div','geoCanvas');
 
   // Mobile: put the region header INSIDE the horizontal scroller so it moves
@@ -3997,73 +4004,6 @@ function maybeRevealBetOnlineRegionPromo(){
     const promos = document.querySelectorAll('.betOnlineRegionPromo');
     if(!promos || !promos.length) return;
     promos.forEach((promo)=> promo.classList.add('isVisible'));
-  }catch(_e){}
-}
-
-
-function mountBetrRegionPromo(regionName, mount){
-  try{
-    if(!mount) return;
-    if(regionName !== 'West' && regionName !== 'Midwest') return;
-    if(mount.querySelector('.betrRegionPromo')) return;
-
-    const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-West') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
-    if(!isBracketLikePage) return;
-
-    const promo = document.createElement('div');
-    promo.className = 'betrRegionPromo';
-    promo.setAttribute('data-region-name', regionName);
-    promo.innerHTML = `
-      <a class="betrRegionPromoText" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
-        Get $200 in Bonus with Sign Up
-      </a>
-      <div class="betrRegionPromoSub">Code BRACKETS</div>
-      <a class="betrRegionPromoLogoLink" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer" aria-label="Get $200 in Bonus with Sign Up">
-        <img class="betrRegionPromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr logo">
-      </a>
-      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
-    `;
-
-    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
-    if(!geo) return;
-    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
-    geo.appendChild(promo);
-  }catch(_e){}
-}
-
-function mountBetrBracketPromo(regionName, mount){
-  try{
-    if(!mount || (regionName !== 'West' && regionName !== 'Midwest')) return;
-    if(mount.querySelector('.betrBracketPromo')) return;
-
-    const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
-    if(!isHome) return;
-
-    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo');
-    if(!geo) return;
-    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
-
-    const promo = document.createElement('div');
-    promo.className = 'betrBracketPromo';
-    promo.setAttribute('data-region-name', regionName);
-    promo.innerHTML = `
-      <a class="betrBracketPromoText"
-         href="https://engagebetr.onelink.me/auSX/BRACKETS"
-         target="_blank"
-         rel="noopener noreferrer">
-         Get $200 in Bonus with Sign Up
-      </a>
-      <div class="betrBracketPromoSub">Code BRACKETS</div>
-      <a href="https://engagebetr.onelink.me/auSX/BRACKETS"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="betrBracketPromoLogoWrap">
-         <img class="betrBracketPromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr logo">
-      </a>
-      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
-    `;
-
-    geo.appendChild(promo);
   }catch(_e){}
 }
 
@@ -4584,12 +4524,10 @@ function renderAll(){
       const { card, scroller } = renderRegion(r, state.picks, opts);
       mount.appendChild(card);
       try{ mountBetOnlineRegionPromo(r.name, mount); }catch(_e){}
-      try{ mountBetrRegionPromo(r.name, mount); }catch(_e){}
       try{ maybeRevealBetOnlineRegionPromo(); }catch(_e){}
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);
-    try{ qsa('.deskCol .panel, .mobileRegionMount').forEach((m)=>{ const rid = (m && m.id || '').replace('region-',''); if(rid) mountBetrBracketPromo(rid, m); }); }catch(_e){}
   // Phase 4: update Submit for Featured CTA
   try{ phase4UpdateFeatureCTA(); }catch(_e){}
 
@@ -5609,5 +5547,3 @@ try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(nudgeBracketPromos, 50); setTimeout(nudgeBracketPromos, 400); });
 })();
 
-
-document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(bbApplyFixedPromoPositions, 150); setTimeout(bbApplyFixedPromoPositions, 700); });
