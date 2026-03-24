@@ -5111,3 +5111,12 @@ body, main, .wrap, .content{
   }
 }
 
+
+
+/* small desktop NCAA promo nudge upward */
+@media (min-width: 821px){
+  .betOnlineRegionPromo,
+  .betrRegionPromo{
+    top: 0px !important;
+  }
+}
