@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Bracket</title>
-  <link rel="stylesheet" href="/style.css?vfix_games1">
+  <link rel="stylesheet" href="/style.css?vfix0424p">
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
 <header class="topbar">
@@ -25,7 +25,6 @@
     <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
     <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
     <a class="navLink active" href="nba.html">NBA Bracket</a>
-    <a class="navLink" href="bracket-games.html">Bracket Games</a>
     <a class="navLink" href="/#featured">Featured Brackets</a>
     <a class="navLink" href="/#upcoming">Upcoming Events</a>
   </nav>
@@ -83,10 +82,10 @@ function getConferenceField(conf){
   const play8 = state[conf].play8 || getBySeed(conf,8);
   return {
     r1: [
-      [getBySeed(conf,1), play8],
+      [getBySeed(conf,1), play8 || getBySeed(conf,8)],
       [getBySeed(conf,4), getBySeed(conf,5)],
       [getBySeed(conf,3), getBySeed(conf,6)],
-      [getBySeed(conf,2), play7]
+      [getBySeed(conf,2), play7 || getBySeed(conf,7)]
     ],
     r2: [
       [state[conf].r1.a?.team || null, state[conf].r1.b?.team || null],
@@ -117,7 +116,7 @@ function matchupCard(teamA, teamB, currentWinner, currentGames, onPick){
     btn.type='button';
     btn.className='nbaTeamBtn' + ((currentWinner && team && currentWinner.name===team.name) ? ' isWinner' : '');
     btn.textContent = teamLabel(team);
-    if(!team) btn.disabled = true;
+    if(!team){ btn.disabled = true; btn.style.opacity = 0.4; }
     btn.addEventListener('click', ()=>{ if(!selectedGames) return; onPick(cloneTeam(team), Number(selectedGames)); });
     card.appendChild(btn);
   });
@@ -136,7 +135,7 @@ function playInCard(teamA, teamB, currentWinner, onPick){
     btn.type='button';
     btn.className='nbaTeamBtn' + ((currentWinner && team && currentWinner.name===team.name) ? ' isWinner' : '');
     btn.textContent = teamLabel(team);
-    if(!team) btn.disabled = true;
+    if(!team){ btn.disabled = true; btn.style.opacity = 0.4; }
     btn.addEventListener('click', ()=>onPick(cloneTeam(team)));
     card.appendChild(btn);
   });
