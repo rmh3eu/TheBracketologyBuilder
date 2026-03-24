@@ -5038,3 +5038,76 @@ html, body{
   }
 }
 
+
+
+
+/* 2026-04-24 definitive mobile vertical scroll + single promo stack */
+html, body{
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+}
+body, main, .wrap, .content{
+  overflow: visible !important;
+}
+
+/* never show the redundant bracket-level promo stacks */
+.betOnlineBracketPromo,
+.betrBracketPromo{
+  display:none !important;
+}
+
+/* one in-region stack only, positioned inside the region board */
+@media (min-width: 821px){
+  .betOnlineRegionPromo,
+  .betrRegionPromo{
+    top: 14px !important;
+    left: 276px !important;
+    right: auto !important;
+  }
+}
+
+@media (max-width: 820px){
+  .betOnlineRegionPromo,
+  .betrRegionPromo{
+    top: 8px !important;
+    right: 150px !important;
+    left: auto !important;
+  }
+}
+
+/* NBA page refinements */
+.nbaPlayInTop{
+  margin-bottom: 18px;
+}
+.nbaPlayInBoards{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:16px;
+}
+.nbaPlayInSection{
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  background:#fff;
+  padding:16px;
+  box-shadow:0 8px 24px rgba(15,23,42,.06);
+}
+.nbaInteractiveLayout{
+  grid-template-columns:minmax(0,1fr) 210px minmax(0,1fr) !important;
+}
+.nbaFinalsBoard{
+  max-width:210px;
+}
+@media (max-width: 1024px){
+  .nbaPlayInBoards{
+    grid-template-columns:1fr;
+  }
+  .nbaInteractiveLayout{
+    grid-template-columns:1fr !important;
+  }
+  .nbaFinalsBoard{
+    max-width:none;
+  }
+}
+

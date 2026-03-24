@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Bracket</title>
-  <link rel="stylesheet" href="/style.css?vfix0424n">
+  <link rel="stylesheet" href="/style.css?vfix0424p">
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
 <header class="topbar">
@@ -34,7 +34,7 @@
   <div class="panel">
     <div class="panelHead">
       <h2>NBA Bracket</h2>
-      <div class="subhead">Projected playoff field with play-in games and best-of-7 series picks.</div>
+      <div class="subhead">Current projected playoff field with play-in games and best-of-7 series picks.</div>
     </div>
 
     <div class="nbaTopBar">
@@ -95,22 +95,22 @@ function getConferenceField(conf){
   };
 }
 
-function seriesSelect(current, onChange, playin=false){
+function seriesSelect(current, onChange){
   const sel = document.createElement('select');
   sel.className = 'nbaSeriesSelect';
-  const opts = playin ? ['1'] : ['4','5','6','7'];
   const blank = document.createElement('option');
-  blank.value=''; blank.textContent = playin ? 'Advance' : 'Games';
+  blank.value=''; blank.textContent='Games';
   sel.appendChild(blank);
-  opts.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=playin ? 'Advance' : v; if(String(current||'')===v) o.selected=true; sel.appendChild(o); });
+  ['4','5','6','7'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; if(String(current||'')===v) o.selected=true; sel.appendChild(o); });
   sel.addEventListener('change', ()=>onChange(sel.value));
   return sel;
 }
-function matchupCard(teamA, teamB, currentWinner, currentGames, onPick, playin=false){
+
+function matchupCard(teamA, teamB, currentWinner, currentGames, onPick){
   const card = document.createElement('div');
   card.className = 'nbaMatchupCard';
   let selectedGames = currentGames ? String(currentGames) : '';
-  card.appendChild(seriesSelect(selectedGames, v=>selectedGames=v, playin));
+  card.appendChild(seriesSelect(selectedGames, v=>selectedGames=v));
   [teamA, teamB].forEach(team=>{
     const btn = document.createElement('button');
     btn.type='button';
@@ -118,6 +118,25 @@ function matchupCard(teamA, teamB, currentWinner, currentGames, onPick, playin=f
     btn.textContent = teamLabel(team);
     if(!team) btn.disabled = true;
     btn.addEventListener('click', ()=>{ if(!selectedGames) return; onPick(cloneTeam(team), Number(selectedGames)); });
+    card.appendChild(btn);
+  });
+  return card;
+}
+
+function playInCard(teamA, teamB, currentWinner, onPick){
+  const card = document.createElement('div');
+  card.className = 'nbaMatchupCard';
+  const label = document.createElement('div');
+  label.className = 'nbaRoundTitle';
+  label.textContent = 'Advance Winner';
+  card.appendChild(label);
+  [teamA, teamB].forEach(team=>{
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='nbaTeamBtn' + ((currentWinner && team && currentWinner.name===team.name) ? ' isWinner' : '');
+    btn.textContent = teamLabel(team);
+    if(!team) btn.disabled = true;
+    btn.addEventListener('click', ()=>onPick(cloneTeam(team)));
     card.appendChild(btn);
   });
   return card;
@@ -132,14 +151,14 @@ function renderPlayInTop(){
   const eastBox = document.createElement('section');
   eastBox.className = 'nbaPlayInSection';
   eastBox.innerHTML = '<h3>Eastern Conference Play-In</h3>';
-  eastBox.appendChild(matchupCard(getBySeed('east',7), getBySeed('east',8), state.east.play7, 1, (winner)=>{ state.east.play7=winner; state.east.r1.d=null; state.east.r2.b=null; state.east.conf=null; state.finals=null; renderNBA(); }, true));
-  eastBox.appendChild(matchupCard(getBySeed('east',9), getBySeed('east',10), state.east.play8, 1, (winner)=>{ state.east.play8=winner; state.east.r1.a=null; state.east.r2.a=null; state.east.conf=null; state.finals=null; renderNBA(); }, true));
+  eastBox.appendChild(playInCard(getBySeed('east',7), getBySeed('east',8), state.east.play7, (winner)=>{ state.east.play7=winner; state.east.r1.d=null; state.east.r2.b=null; state.east.conf=null; state.finals=null; renderNBA(); }));
+  eastBox.appendChild(playInCard(getBySeed('east',9), getBySeed('east',10), state.east.play8, (winner)=>{ state.east.play8=winner; state.east.r1.a=null; state.east.r2.a=null; state.east.conf=null; state.finals=null; renderNBA(); }));
 
   const westBox = document.createElement('section');
   westBox.className = 'nbaPlayInSection';
   westBox.innerHTML = '<h3>Western Conference Play-In</h3>';
-  westBox.appendChild(matchupCard(getBySeed('west',7), getBySeed('west',8), state.west.play7, 1, (winner)=>{ state.west.play7=winner; state.west.r1.d=null; state.west.r2.b=null; state.west.conf=null; state.finals=null; renderNBA(); }, true));
-  westBox.appendChild(matchupCard(getBySeed('west',9), getBySeed('west',10), state.west.play8, 1, (winner)=>{ state.west.play8=winner; state.west.r1.a=null; state.west.r2.a=null; state.west.conf=null; state.finals=null; renderNBA(); }, true));
+  westBox.appendChild(playInCard(getBySeed('west',7), getBySeed('west',8), state.west.play7, (winner)=>{ state.west.play7=winner; state.west.r1.d=null; state.west.r2.b=null; state.west.conf=null; state.finals=null; renderNBA(); }));
+  westBox.appendChild(playInCard(getBySeed('west',9), getBySeed('west',10), state.west.play8, (winner)=>{ state.west.play8=winner; state.west.r1.a=null; state.west.r2.a=null; state.west.conf=null; state.finals=null; renderNBA(); }));
 
   board.append(eastBox, westBox);
   wrap.appendChild(board);
@@ -150,6 +169,7 @@ function renderConference(conf, title, mirror=false){
   const board = document.createElement('section');
   board.className = 'nbaConferenceBoard';
   board.innerHTML = `<h3>${title}</h3>`;
+
   const r1 = document.createElement('div'); r1.className='nbaRoundColumn'; r1.innerHTML='<div class="nbaRoundTitle">Round 1</div>';
   r1.appendChild(matchupCard(field.r1[0][0], field.r1[0][1], state[conf].r1.a?.team, state[conf].r1.a?.games, (winner,games)=>{ state[conf].r1.a={team:winner,games}; state[conf].r2.a=null; state[conf].conf=null; state.finals=null; renderNBA(); }));
   r1.appendChild(matchupCard(field.r1[1][0], field.r1[1][1], state[conf].r1.b?.team, state[conf].r1.b?.games, (winner,games)=>{ state[conf].r1.b={team:winner,games}; state[conf].r2.a=null; state[conf].conf=null; state.finals=null; renderNBA(); }));

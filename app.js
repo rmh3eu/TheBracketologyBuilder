@@ -4526,7 +4526,6 @@ function renderAll(){
     // Mobile: render the standard full bracket (with horizontal scroll via CSS).
 // Preserve mobile scroll positions across re-render (prevents jitter).
     if(isMobile()){
-      try{ state.ui.pageScrollY = window.scrollY || window.pageYOffset || 0; }catch(_e){}
       const scs = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
       scs.forEach(s=>{
         const key = s.dataset.region || '';
@@ -4589,16 +4588,8 @@ function renderAll(){
         const saved = state.ui.regionScrollLeft['Final Four'];
         if(saved!==undefined && saved!==null) ff2.scrollLeft = saved;
       }
-      // Also keep the page where the user is vertically (prevents jump back up on iOS Safari).
-      try{
-        const y = state.ui.pageScrollY;
-        if(y!==undefined && y!==null) window.scrollTo(0, y);
-      }catch(_e){}
-
-      /* === REAPPLY_SCROLL_AFTER_RENDER ===
-         Some mobile browsers adjust scroll after focus/reflow following a click.
-         Re-apply saved scroll positions on the next tick to keep the user stable.
-      */
+      /* Keep only horizontal in-region scroll restoration.
+         Do NOT force page vertical scroll on mobile; it blocks natural up/down browsing. */
       try{
         setTimeout(()=>{
           try{
@@ -4614,10 +4605,6 @@ function renderAll(){
               const saved = state.ui.regionScrollLeft['Final Four'];
               if(saved!==undefined && saved!==null) ff3.scrollLeft = saved;
             }
-          }catch(_e){}
-          try{
-            const y = state.ui.pageScrollY;
-            if(y!==undefined && y!==null) window.scrollTo(0, y);
           }catch(_e){}
         }, 0);
       }catch(_e){}
@@ -5744,6 +5731,7 @@ function bbApplyRegionPromoStyles(el, regionName){
     }
   }catch(_e){}
 }
+
 function bbForceNcaaRegionAds(){
   try{
     const regions = [
@@ -5759,27 +5747,36 @@ function bbForceNcaaRegionAds(){
       if(!geo) return;
       if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
 
-      // remove duplicate bracket-promo stacks; keep only one in-region stack
-      try{ geo.querySelectorAll('.betOnlineBracketPromo,.betrBracketPromo').forEach(n=>n.remove()); }catch(_e){}
+      // Remove every duplicate promo stack first.
+      try{
+        mount.querySelectorAll('.betOnlineRegionPromo,.betOnlineBracketPromo,.betrRegionPromo,.betrBracketPromo').forEach(n=>n.remove());
+        geo.querySelectorAll('.betOnlineRegionPromo,.betOnlineBracketPromo,.betrRegionPromo,.betrBracketPromo').forEach(n=>n.remove());
+      }catch(_e){}
 
+      let promo = null;
       if(type === 'bet'){
-        let promo = geo.querySelector('.betOnlineRegionPromo') || mount.querySelector('.betOnlineRegionPromo');
-        if(!promo){
-          promo = bbMakeBetOnlineRegionPromo(name);
-          geo.appendChild(promo);
-        }
-        bbApplyRegionPromoStyles(promo, name);
+        promo = bbMakeBetOnlineRegionPromo(name);
       } else {
-        let promo = geo.querySelector('.betrRegionPromo') || mount.querySelector('.betrRegionPromo');
-        if(!promo){
-          promo = bbMakeBetrRegionPromo(name);
-          geo.appendChild(promo);
-        }
-        bbApplyRegionPromoStyles(promo, name);
+        promo = bbMakeBetrRegionPromo(name);
       }
+      geo.appendChild(promo);
+      bbApplyRegionPromoStyles(promo, name);
     });
   }catch(_e){}
 }
 window.addEventListener('load', ()=>{ setTimeout(bbForceNcaaRegionAds, 120); setTimeout(bbForceNcaaRegionAds, 500); setTimeout(bbForceNcaaRegionAds, 1200); });
 document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(bbForceNcaaRegionAds, 120); setTimeout(bbForceNcaaRegionAds, 500); });
 window.addEventListener('resize', ()=>setTimeout(bbForceNcaaRegionAds, 120));
+
+
+function bbRestorePageVerticalScroll(){
+  try{
+    document.documentElement.style.overflowY = 'auto';
+    document.body.style.overflowY = 'auto';
+    document.documentElement.style.height = 'auto';
+    document.body.style.height = 'auto';
+  }catch(_e){}
+}
+window.addEventListener('load', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
+document.addEventListener('DOMContentLoaded', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
+window.addEventListener('resize', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
