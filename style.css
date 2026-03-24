@@ -4657,3 +4657,16 @@ html body .betOnlineBracketPromo{
   height: 100% !important;
 }
 
+
+
+.nbaGrid{
+  display:flex;
+  gap:40px;
+}
+.teamBox{
+  background:#111;
+  color:white;
+  padding:8px;
+  margin:4px 0;
+  border-radius:6px;
+}

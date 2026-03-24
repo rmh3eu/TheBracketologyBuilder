@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NBA Bracket</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>NBA Playoff Bracket (Projection)</h1>
+  <p>This is a separate bracket template. It does NOT affect NCAA brackets.</p>
+
+  <div id="nbaBracket"></div>
+
+  <script>
+  const EAST = [
+    "Pistons","Celtics","Knicks","Cavaliers",
+    "Raptors","Hawks","76ers","Magic"
+  ];
+  const WEST = [
+    "Thunder","Spurs","Lakers","Nuggets",
+    "Timberwolves","Rockets","Suns","Clippers"
+  ];
+
+  function renderSide(title, teams){
+    let html = "<h2>"+title+"</h2>";
+    teams.forEach(t=>{
+      html += "<div class='teamBox'>"+t+"</div>";
+    });
+    return html;
+  }
+
+  document.getElementById("nbaBracket").innerHTML =
+    "<div class='nbaGrid'>" +
+    "<div>"+renderSide("East", EAST)+"</div>" +
+    "<div>"+renderSide("West", WEST)+"</div>" +
+    "</div>";
+  </script>
+</body>
+</html>
