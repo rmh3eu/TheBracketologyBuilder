@@ -150,6 +150,54 @@ function setAuthUI(me) {
   if (logoutBtn) logoutBtn.style.display = loggedIn ? '' : 'none';
 }
 
+
+function isSecondChanceBracketRecord(b){
+  const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
+  const t = normalizeType(b && b.bracket_type);
+  if (t === 'second_chance' || t === 'secondchance' || t.includes('second')) return true;
+
+  // Fallback: detect the Sweet 16 placeholder pattern used by second-chance brackets.
+  try{
+    const raw = b && b.data_json ? JSON.parse(b.data_json) : null;
+    const picks = raw && raw.picks ? raw.picks : (raw || {});
+    const getName = (v) => {
+      if (!v) return '';
+      if (typeof v === 'string') return v.trim();
+      if (typeof v === 'object' && typeof v.name === 'string') return v.name.trim();
+      return '';
+    };
+
+    const expected = {
+      'REGION_EAST__R1__G0__winner': 'Duke',
+      'REGION_EAST__R1__G1__winner': 'St Johns',
+      'REGION_EAST__R1__G2__winner': 'Michigan St',
+      'REGION_EAST__R1__G3__winner': 'UConn',
+      'REGION_SOUTH__R1__G0__winner': 'Iowa',
+      'REGION_SOUTH__R1__G1__winner': 'Nebraska',
+      'REGION_SOUTH__R1__G2__winner': 'Illinois',
+      'REGION_SOUTH__R1__G3__winner': 'Houston',
+      'REGION_WEST__R1__G0__winner': 'Arizona',
+      'REGION_WEST__R1__G1__winner': 'Arkansas',
+      'REGION_WEST__R1__G2__winner': 'Texas/NC State',
+      'REGION_WEST__R1__G3__winner': 'Purdue',
+      'REGION_MIDWEST__R1__G0__winner': 'Michigan',
+      'REGION_MIDWEST__R1__G1__winner': 'Alabama',
+      'REGION_MIDWEST__R1__G2__winner': 'Tennessee',
+      'REGION_MIDWEST__R1__G3__winner': 'Iowa St'
+    };
+
+    let matches = 0;
+    let total = 0;
+    for (const [k, v] of Object.entries(expected)) {
+      total += 1;
+      if (getName(picks[k]) === v) matches += 1;
+    }
+    return matches >= 12;
+  }catch(_e){
+    return false;
+  }
+}
+
 function renderBracketSection({ listId, emptyId, items }) {
   const grid = document.getElementById(listId);
   const empty = document.getElementById(emptyId);
@@ -346,21 +394,15 @@ async function loadPage() {
 
     // Split brackets by type
     const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
-    const isSecondChanceType = (v) => {
-      const t = normalizeType(v);
-      return t === 'second_chance' || t === 'secondchance' || t.includes('second');
-    };
-    const isOfficialType = (v) => normalizeType(v) === 'official';
-
     const proj = [];
     const off = [];
     const sc = [];
 
     for (const b of brackets) {
-      const type = b.bracket_type || '';
-      if (isSecondChanceType(type)) {
+      const type = normalizeType(b.bracket_type);
+      if (isSecondChanceBracketRecord(b)) {
         sc.push(b);
-      } else if (isOfficialType(type)) {
+      } else if (type === 'official') {
         off.push(b);
       } else {
         proj.push(b);

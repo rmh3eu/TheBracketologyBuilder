@@ -3959,19 +3959,19 @@ function mountBetOnlineRegionPromo(regionName, mount){
     if(!geo) return;
     if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
 
-    // UI positioning for the left-side promo:
-    // desktop = move a little RIGHT off the selection boxes
-    // mobile  = move a little LEFT into view
+    // Explicit UI placement:
+    // desktop => move RIGHT off selection boxes
+    // mobile  => move LEFT into view
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       promo.style.position = 'absolute';
       promo.style.top = mobile ? '18px' : '140px';
       if(mobile){
         promo.style.left = 'auto';
-        promo.style.right = '10px';
+        promo.style.right = '64px';
       }else{
         promo.style.right = 'auto';
-        promo.style.left = '58px';
+        promo.style.left = '112px';
       }
     }catch(_e){}
 
@@ -4025,15 +4025,12 @@ function mountBetOnlineBracketPromo(regionName, mount){
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
 
-    // UI positioning for the right-side promo:
-    // desktop = move a little RIGHT off the selection boxes
-    // mobile  = move a little LEFT into view
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       promo.style.position = 'absolute';
       promo.style.top = mobile ? '170px' : '180px';
       promo.style.left = 'auto';
-      promo.style.right = mobile ? '10px' : '58px';
+      promo.style.right = mobile ? '64px' : '24px';
     }catch(_e){}
 
     geo.appendChild(promo);
@@ -5540,7 +5537,7 @@ try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
 
 
 
-function nudgeHomepagePromosCarefully(){
+function bbApplyHomepagePromoPositions(){
   try{
     const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
 
@@ -5549,10 +5546,10 @@ function nudgeHomepagePromosCarefully(){
       promo.style.top = mobile ? '18px' : '140px';
       if(mobile){
         promo.style.left = 'auto';
-        promo.style.right = '10px';
+        promo.style.right = '64px';
       }else{
         promo.style.right = 'auto';
-        promo.style.left = '58px';
+        promo.style.left = '112px';
       }
     });
 
@@ -5560,7 +5557,7 @@ function nudgeHomepagePromosCarefully(){
       promo.style.position = 'absolute';
       promo.style.top = mobile ? '170px' : '180px';
       promo.style.left = 'auto';
-      promo.style.right = mobile ? '10px' : '58px';
+      promo.style.right = mobile ? '64px' : '24px';
     });
 
     document.querySelectorAll('.betOnlineRegionPromo .betOnlinePrizePoolBtn, .betOnlineBracketPromo .betOnlinePrizePoolBtn').forEach((btn)=>{
@@ -5572,6 +5569,6 @@ function nudgeHomepagePromosCarefully(){
     });
   }catch(_e){}
 }
-window.addEventListener('load', ()=>setTimeout(nudgeHomepagePromosCarefully, 60));
-window.addEventListener('resize', ()=>setTimeout(nudgeHomepagePromosCarefully, 60));
-document.addEventListener('DOMContentLoaded', ()=>setTimeout(nudgeHomepagePromosCarefully, 60));
+window.addEventListener('load', ()=>{ setTimeout(bbApplyHomepagePromoPositions, 80); setTimeout(bbApplyHomepagePromoPositions, 400); });
+window.addEventListener('resize', ()=>setTimeout(bbApplyHomepagePromoPositions, 80));
+document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(bbApplyHomepagePromoPositions, 80); setTimeout(bbApplyHomepagePromoPositions, 400); });
