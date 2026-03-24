@@ -154,7 +154,7 @@ function setAuthUI(me) {
 function isSecondChanceBracketRecord(b){
   const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
   const t = normalizeType(b && b.bracket_type);
-  if (t === 'second_chance' || t === 'secondchance' || t.includes('second')) return true;
+  if (t === 'second_chance' || t === 'secondchance') return true;
 
   try{
     const raw = b && b.data_json ? JSON.parse(b.data_json) : null;
@@ -176,7 +176,7 @@ function isSecondChanceBracketRecord(b){
       'REGION_SOUTH__R1__G3__winner': 'Houston',
       'REGION_WEST__R1__G0__winner': 'Arizona',
       'REGION_WEST__R1__G1__winner': 'Arkansas',
-      'REGION_WEST__R1__G2__winner': 'Texas',
+      'REGION_WEST__R1__G2__winner': 'Texas/NC State',
       'REGION_WEST__R1__G3__winner': 'Purdue',
       'REGION_MIDWEST__R1__G0__winner': 'Michigan',
       'REGION_MIDWEST__R1__G1__winner': 'Alabama',
@@ -191,15 +191,6 @@ function isSecondChanceBracketRecord(b){
   }catch(_e){
     return false;
   }
-}
-
-
-function maybeSecondChanceByShape(b){ return false; });
-    const keys = Object.keys(picks || {});
-    const r1count = keys.filter(k => /__R1__G\d__winner$/.test(k)).length;
-    const r0count = keys.filter(k => /__R0__G\d__winner$/.test(k)).length;
-    return r1count >= 12 && r0count >= 8;
-  }catch(_e){ return false; }
 }
 
 function renderBracketSection({ listId, emptyId, items }) {
@@ -298,7 +289,6 @@ function reorderSections({ officialLive, sweet16Set }) {
   main.appendChild(secS);
   main.appendChild(secO);
   main.appendChild(secB);
-  try{ secS.style.display = ''; }catch(_e){}
 }
 
 
@@ -405,7 +395,7 @@ async function loadPage() {
 
     for (const b of brackets) {
       const type = normalizeType(b.bracket_type);
-      if (isSecondChanceBracketRecord(b) || maybeSecondChanceByShape(b)) {
+      if (isSecondChanceBracketRecord(b)) {
         sc.push(b);
       } else if (type === 'official') {
         off.push(b);

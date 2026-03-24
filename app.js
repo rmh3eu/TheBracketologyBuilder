@@ -1225,12 +1225,12 @@ function coerceTeamValue(v){
   if(!v) return null;
   if(typeof v === "string"){
     const raw = v.trim();
-    const name = (raw === 'Texas/NC State') ? 'Texas' : raw;
+    const name = (raw === 'Texas') ? 'Texas/NC State' : raw;
     return TEAM_BY_NAME.get(name) ? ({...TEAM_BY_NAME.get(name)}) : null;
   }
   if(typeof v === "object"){
     let name = (typeof v.name === "string") ? v.name.trim() : "";
-    if(name === 'Texas/NC State') name = 'Texas';
+    if(name === 'Texas') name = 'Texas/NC State';
     const seed = (typeof v.seed === "number") ? v.seed : Number(v.seed);
     if(name && Number.isFinite(seed) && SEEDS.includes(seed)) return { name, seed };
     if(name && TEAM_BY_NAME.get(name)) return ({...TEAM_BY_NAME.get(name)});
@@ -1247,12 +1247,10 @@ function listToSeedArray(seedList){
 
 function bbNormalizeTeamName(name){
   const n = String(name || '').trim();
-  if(n === 'Texas/NC State') return 'Texas';
+  if(n === 'Texas') return 'Texas/NC State';
   return n;
 }
-function teamEq(a,b){
-  return !!a && !!b && a.seed===b.seed && bbNormalizeTeamName(a.name)===bbNormalizeTeamName(b.name);
-}
+function teamEq(a,b){ return !!a && !!b && a.seed===b.seed && bbNormalizeTeamName(a.name)===bbNormalizeTeamName(b.name); }
 function teamInPair(team, pair){ return !!team && !!pair && (teamEq(team, pair[0]) || teamEq(team, pair[1])); }
 
 function buildRoundTeams(regionKey, baseTeams, picks, roundIdx){
@@ -2265,8 +2263,11 @@ async function ensureSavedToAccount(){
     let create;
     try{
       const createBody = { title: desiredTitle, bracket_type: (state.bracket_type || 'bracketology') };
-      if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') createBody.bracket_type = 'second_chance';
-      if (window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') createBody.bracket_type = 'official';
+      if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') {
+        createBody.bracket_type = 'second_chance';
+      } else if (window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') {
+        createBody.bracket_type = 'official';
+      }
       create = await apiPost('/api/brackets', createBody);
     }catch(e){
       // If the API returns 409 for duplicate name, ask again.
@@ -2290,13 +2291,12 @@ async function ensureSavedToAccount(){
       setBracketTitleDisplay(desiredTitle);
 
       // Now save the actual bracket picks to the row.
-      const putBody = {
+      await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, {
         id: newId,
         title: desiredTitle,
         data: state.picks || {},
         bracket_type: (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') ? 'second_chance' : ((window.location.search.includes('official=1') || String(state.bracket_type||'').toLowerCase() === 'official') ? 'official' : (state.bracket_type || 'bracketology'))
-      };
-      await apiPut(`/api/bracket?id=${encodeURIComponent(newId)}`, putBody);
+      });
 
       return newId;
     }
@@ -3910,6 +3910,15 @@ function renderRegion(r, picks, opts={}){
             const basePicks = (opts && opts.picksRef) ? opts.picksRef : state.picks;
             const np = {...basePicks};
             np[wKey(r.key, roundIdx, gIdx)] = team;
+
+            try{
+              const nm = bbNormalizeTeamName(team && team.name);
+              if (sweet16ModeEnabled() && r.key === 'REGION_WEST' && roundIdx === 2 && gIdx === 1 && nm === 'Texas/NC State'){
+                np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
+                np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
+              }
+            }catch(_e){}
+
             pruneInvalidPicks(np);
             if(opts && typeof opts.onUpdate==='function') {
               // Some bracket variants pass their own updater; ensure undo works
@@ -3971,22 +3980,6 @@ function mountBetOnlineRegionPromo(regionName, mount){
     const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
     if(!geo) return;
     if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
-
-    try{
-      const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-      promo.style.setProperty('position', 'absolute', 'important');
-      promo.style.setProperty('top', mobile ? '20px' : '92px', 'important');
-      if(mobile){
-        // move LEFT on mobile by increasing right offset
-        promo.style.setProperty('left', 'auto', 'important');
-        promo.style.setProperty('right', '108px', 'important');
-      }else{
-        // move RIGHT on desktop by increasing left offset
-        promo.style.setProperty('right', 'auto', 'important');
-        promo.style.setProperty('left', '228px', 'important');
-      }
-    }catch(_e){}
-
     geo.appendChild(promo);
   }catch(_e){}
 }
@@ -4036,20 +4029,6 @@ function mountBetOnlineBracketPromo(regionName, mount){
       </a>
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
-
-    try{
-      const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-      promo.style.setProperty('position', 'absolute', 'important');
-      promo.style.setProperty('top', mobile ? '170px' : '122px', 'important');
-      promo.style.setProperty('left', 'auto', 'important');
-      if(mobile){
-        // move LEFT on mobile by increasing right offset
-        promo.style.setProperty('right', '108px', 'important');
-      }else{
-        // move slightly RIGHT on desktop
-        promo.style.setProperty('right', '0px', 'important');
-      }
-    }catch(_e){}
 
     geo.appendChild(promo);
   }catch(_e){}
@@ -5553,57 +5532,3 @@ try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(nudgeBracketPromos, 50); setTimeout(nudgeBracketPromos, 400); });
 })();
 
-
-
-function bbForceHomepagePromoLayout(){
-  try{
-    const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-
-    document.querySelectorAll('.betOnlineRegionPromo').forEach((el)=>{
-      el.style.setProperty('position', 'absolute', 'important');
-      el.style.setProperty('top', mobile ? '20px' : '92px', 'important');
-      if(mobile){
-        el.style.setProperty('left', 'auto', 'important');
-        el.style.setProperty('right', '108px', 'important');
-      }else{
-        el.style.setProperty('right', 'auto', 'important');
-        el.style.setProperty('left', '228px', 'important');
-      }
-    });
-
-    document.querySelectorAll('.betOnlineBracketPromo').forEach((el)=>{
-      el.style.setProperty('position', 'absolute', 'important');
-      el.style.setProperty('top', mobile ? '170px' : '122px', 'important');
-      el.style.setProperty('left', 'auto', 'important');
-      if(mobile){
-        el.style.setProperty('right', '108px', 'important');
-      }else{
-        el.style.setProperty('right', '0px', 'important');
-      }
-    });
-
-    
-    document.querySelectorAll('.betOnlineRegionPromo .betOnlinePrizePoolBtn, .betOnlineBracketPromo .betOnlinePrizePoolBtn').forEach((btn)=>{
-      if(mobile){
-        btn.style.setProperty('position', 'relative', 'important');
-        btn.style.setProperty('top', '8px', 'important');
-        btn.style.setProperty('left', 'auto', 'important');
-        btn.style.setProperty('right', '0', 'important');
-        btn.style.setProperty('transform', 'none', 'important');
-        btn.style.setProperty('display', 'block', 'important');
-        btn.style.setProperty('margin-top', '10px', 'important');
-        btn.style.setProperty('z-index', '1', 'important');
-      }
-    });
-  }catch(_e){}
-}
-window.addEventListener('load', ()=>{
-  setTimeout(bbForceHomepagePromoLayout, 200);
-  setTimeout(bbForceHomepagePromoLayout, 700);
-  setTimeout(bbForceHomepagePromoLayout, 1500);
-});
-window.addEventListener('resize', ()=>setTimeout(bbForceHomepagePromoLayout, 120));
-document.addEventListener('DOMContentLoaded', ()=>{
-  setTimeout(bbForceHomepagePromoLayout, 200);
-  setTimeout(bbForceHomepagePromoLayout, 700);
-});
