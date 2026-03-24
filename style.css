@@ -4833,3 +4833,12 @@ html body .betOnlineBracketPromo{
 @media (max-width:640px){
   .nbaConferenceGrid{ grid-template-columns:1fr; }
 }
+
+
+
+/* FINAL UI HARD FIX */
+.betrRegionPromo{position:absolute; right:10px; top:20px;}
+.betOnlineRegionPromo{right:10px !important;}
+@media(max-width:820px){
+ .betrRegionPromo,.betOnlineRegionPromo{right:60px !important;}
+}

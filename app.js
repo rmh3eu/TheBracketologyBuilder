@@ -823,7 +823,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
     const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = 'Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
+    savedText.textContent = 'To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
@@ -5651,3 +5651,28 @@ function forceNcaaRegionPromoLayout(){
 window.addEventListener('load', ()=>{ setTimeout(forceNcaaRegionPromoLayout, 200); setTimeout(forceNcaaRegionPromoLayout, 900); setTimeout(forceNcaaRegionPromoLayout, 1800); });
 window.addEventListener('resize', ()=>setTimeout(forceNcaaRegionPromoLayout, 150));
 document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(forceNcaaRegionPromoLayout, 200); setTimeout(forceNcaaRegionPromoLayout, 900); });
+
+
+// FORCE_BETR_FIX
+setTimeout(()=>{
+  try{
+    document.querySelectorAll('[data-region-name]').forEach(region=>{
+      const name=region.getAttribute('data-region-name');
+      if(name==='West'||name==='Midwest'){
+        if(!region.querySelector('.betrRegionPromo')){
+          const div=document.createElement('div');
+          div.className='betrRegionPromo';
+          div.innerHTML=`
+            <a class="betrRegionPromoText" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank">
+              Get $200 in Bonus with Sign Up
+            </a>
+            <div class="betrRegionPromoSub">Code BRACKETS</div>
+            <a href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank">
+              <img class="betrRegionPromoLogo" src="/Betr_Horizontal_BP.png"/>
+            </a>`;
+          region.appendChild(div);
+        }
+      }
+    });
+  }catch(e){}
+},500);
