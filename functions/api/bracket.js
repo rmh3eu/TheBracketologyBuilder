@@ -78,19 +78,20 @@ export async function onRequestPut({ request, env }){
   const title = bracket_name;
   // Data is optional for rename-only operations.
   const data = (body && Object.prototype.hasOwnProperty.call(body, 'data')) ? body.data : null;
-  const desired_type_raw = String(body.bracket_type || "").trim().toLowerCase();
-  const bracket_type =
-    (desired_type_raw === 'official') ? 'official' :
-    ((desired_type_raw === 'second_chance' || desired_type_raw === 'secondchance') ? 'second_chance' : String(existing.bracket_type || 'bracketology'));
-  const sport = String(body.sport || existing.sport || 'ncaa').trim().toLowerCase() || 'ncaa';
-  const template_id = String(body.template_id || existing.template_id || (bracket_type === 'second_chance' ? 'ncaa_second_chance_s16' : (bracket_type === 'official' ? 'ncaa_official_full' : 'ncaa_projection_full'))).trim();
-  const layout_type = String(body.layout_type || existing.layout_type || 'single_elim').trim();
 
   if(!id) return json({ ok:false, error:"Missing id." }, 400);
 
   const existing = await env.DB.prepare(
-    "SELECT id,user_id,bracket_type,data_json FROM brackets WHERE id=?"
+    "SELECT id,user_id,bracket_type,data_json,sport,template_id,layout_type FROM brackets WHERE id=?"
   ).bind(id).first();
+
+  const desired_type_raw = String(body.bracket_type || "").trim().toLowerCase();
+  const bracket_type =
+    (desired_type_raw === 'official') ? 'official' :
+    ((desired_type_raw === 'second_chance' || desired_type_raw === 'secondchance') ? 'second_chance' : String((existing && existing.bracket_type) || 'bracketology'));
+  const sport = String(body.sport || ((existing && existing.sport) || 'ncaa')).trim().toLowerCase() || 'ncaa';
+  const template_id = String(body.template_id || ((existing && existing.template_id) || (bracket_type === 'second_chance' ? 'ncaa_second_chance_s16' : (bracket_type === 'official' ? 'ncaa_official_full' : (sport === 'nba' ? 'nba_projection_playin' : 'ncaa_projection_full'))))).trim();
+  const layout_type = String(body.layout_type || ((existing && existing.layout_type) || (sport === 'nba' ? 'nba_playoff' : 'single_elim'))).trim();
 
   if(!existing) return json({ ok:false, error:"Not found." }, 404);
   if(existing.user_id !== user.id) return json({ ok:false, error:"Not authorized." }, 403);
