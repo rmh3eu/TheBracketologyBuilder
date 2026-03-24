@@ -2460,9 +2460,7 @@ async function enterBestWithCurrent(){
   if(!ensureTiebreakerIfChampion(picks)) return;
   const title = 'Best Challenge Entry';
   const bracket_type = state.bracket_type || 'bracketology';
-  const body = { title, data: wrapPicksIfNeeded(picks), bracket_type };
-  if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') body.bracket_type = 'second_chance';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify(body)});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: wrapPicksIfNeeded(picks), bracket_type})});
   const id = d.id;
   await enterChallenge('best','pre', id);
   toast('Entered Best Bracket Challenge!');
@@ -3249,9 +3247,7 @@ async function openWorstStage(stage){
       if(!ensureTiebreakerIfChampion(data)) return;
     }
     const bracket_type = state.bracket_type || 'bracketology';
-    const body = { title, data: wrapPicksIfNeeded(data), bracket_type };
-    if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') body.bracket_type = 'second_chance';
-    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify(body)});
+    const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: wrapPicksIfNeeded(data), bracket_type})});
     await enterChallenge('worst', stage, d.id);
     toast('Entered Worst Challenge!');
     await renderWorstLeaderboard();
@@ -3332,9 +3328,7 @@ async function enterWorstStage1FromCurrent(){
   });
   const title = 'Worst Challenge Stage 1';
   const bracket_type = state.bracket_type || 'bracketology';
-  const body = { title, data: wrapPicksIfNeeded(picks), bracket_type };
-  if (window.location.search.includes('second=1') || String(state.bracket_type||'').toLowerCase() === 'second_chance') body.bracket_type = 'second_chance';
-  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify(body)});
+  const d = await api('/api/brackets', {method:'POST', body: JSON.stringify({title, data: wrapPicksIfNeeded(picks), bracket_type})});
   await enterChallenge('worst','pre', d.id);
   toast('Entered Worst Challenge Stage 1!');
   await renderWorstLeaderboard();
@@ -3965,17 +3959,18 @@ function mountBetOnlineRegionPromo(regionName, mount){
     if(!geo) return;
     if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
 
-    // Initial UI placement; final placement is enforced after render by forceMoveBracketPromos().
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-      promo.style.position = 'absolute';
-      promo.style.top = mobile ? '20px' : '140px';
+      promo.style.setProperty('position', 'absolute', 'important');
+      promo.style.setProperty('top', mobile ? '20px' : '140px', 'important');
       if(mobile){
-        promo.style.right = '40px';
-        promo.style.left = 'auto';
+        // move LEFT on mobile by increasing right offset
+        promo.style.setProperty('left', 'auto', 'important');
+        promo.style.setProperty('right', '96px', 'important');
       }else{
-        promo.style.left = '140px';
-        promo.style.right = 'auto';
+        // move RIGHT on desktop by increasing left offset
+        promo.style.setProperty('right', 'auto', 'important');
+        promo.style.setProperty('left', '118px', 'important');
       }
     }catch(_e){}
 
@@ -4029,13 +4024,18 @@ function mountBetOnlineBracketPromo(regionName, mount){
       <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
     `;
 
-    // Initial UI placement; final placement is enforced after render by forceMoveBracketPromos().
     try{
       const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-      promo.style.position = 'absolute';
-      promo.style.top = mobile ? '170px' : '180px';
-      promo.style.left = 'auto';
-      promo.style.right = '40px';
+      promo.style.setProperty('position', 'absolute', 'important');
+      promo.style.setProperty('top', mobile ? '170px' : '180px', 'important');
+      promo.style.setProperty('left', 'auto', 'important');
+      if(mobile){
+        // move LEFT on mobile by increasing right offset
+        promo.style.setProperty('right', '96px', 'important');
+      }else{
+        // move slightly RIGHT on desktop
+        promo.style.setProperty('right', '18px', 'important');
+      }
     }catch(_e){}
 
     geo.appendChild(promo);
@@ -5542,49 +5542,49 @@ try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
 
 
 
-function forceMoveBracketPromos(){
+function bbForceHomepagePromoLayout(){
   try{
     const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
 
     document.querySelectorAll('.betOnlineRegionPromo').forEach((el)=>{
-      el.style.position = 'absolute';
-      el.style.top = mobile ? '20px' : '140px';
+      el.style.setProperty('position', 'absolute', 'important');
+      el.style.setProperty('top', mobile ? '20px' : '140px', 'important');
       if(mobile){
-        // move LEFT into view on mobile
-        el.style.right = '40px';
-        el.style.left = 'auto';
+        el.style.setProperty('left', 'auto', 'important');
+        el.style.setProperty('right', '96px', 'important');
       }else{
-        // move RIGHT off the selection boxes on desktop
-        el.style.left = '140px';
-        el.style.right = 'auto';
+        el.style.setProperty('right', 'auto', 'important');
+        el.style.setProperty('left', '118px', 'important');
       }
     });
 
     document.querySelectorAll('.betOnlineBracketPromo').forEach((el)=>{
-      el.style.position = 'absolute';
-      el.style.top = mobile ? '170px' : '180px';
-      el.style.left = 'auto';
-      // right-side promo moves right on desktop, left into view on mobile
-      el.style.right = '40px';
+      el.style.setProperty('position', 'absolute', 'important');
+      el.style.setProperty('top', mobile ? '170px' : '180px', 'important');
+      el.style.setProperty('left', 'auto', 'important');
+      if(mobile){
+        el.style.setProperty('right', '96px', 'important');
+      }else{
+        el.style.setProperty('right', '18px', 'important');
+      }
     });
 
     document.querySelectorAll('.betOnlineRegionPromo .betOnlinePrizePoolBtn, .betOnlineBracketPromo .betOnlinePrizePoolBtn').forEach((btn)=>{
       if(mobile){
-        btn.style.left = 'auto';
-        btn.style.right = '0';
-        btn.style.transform = 'none';
+        btn.style.setProperty('left', 'auto', 'important');
+        btn.style.setProperty('right', '0', 'important');
+        btn.style.setProperty('transform', 'none', 'important');
       }
     });
   }catch(_e){}
 }
-
 window.addEventListener('load', ()=>{
-  setTimeout(forceMoveBracketPromos, 300);
-  setTimeout(forceMoveBracketPromos, 800);
-  setTimeout(forceMoveBracketPromos, 1500);
+  setTimeout(bbForceHomepagePromoLayout, 200);
+  setTimeout(bbForceHomepagePromoLayout, 700);
+  setTimeout(bbForceHomepagePromoLayout, 1500);
 });
-window.addEventListener('resize', ()=>setTimeout(forceMoveBracketPromos, 150));
+window.addEventListener('resize', ()=>setTimeout(bbForceHomepagePromoLayout, 120));
 document.addEventListener('DOMContentLoaded', ()=>{
-  setTimeout(forceMoveBracketPromos, 300);
-  setTimeout(forceMoveBracketPromos, 800);
+  setTimeout(bbForceHomepagePromoLayout, 200);
+  setTimeout(bbForceHomepagePromoLayout, 700);
 });

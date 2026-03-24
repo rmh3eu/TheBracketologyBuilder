@@ -156,7 +156,6 @@ function isSecondChanceBracketRecord(b){
   const t = normalizeType(b && b.bracket_type);
   if (t === 'second_chance' || t === 'secondchance' || t.includes('second')) return true;
 
-  // Fallback: detect saved Sweet 16 placeholder pattern used by second-chance brackets.
   try{
     const raw = b && b.data_json ? JSON.parse(b.data_json) : null;
     const picks = raw && raw.picks ? raw.picks : (raw || {});
@@ -166,7 +165,6 @@ function isSecondChanceBracketRecord(b){
       if (typeof v === 'object' && typeof v.name === 'string') return v.name.trim();
       return '';
     };
-
     const expected = {
       'REGION_EAST__R1__G0__winner': 'Duke',
       'REGION_EAST__R1__G1__winner': 'St Johns',
@@ -185,7 +183,6 @@ function isSecondChanceBracketRecord(b){
       'REGION_MIDWEST__R1__G2__winner': 'Tennessee',
       'REGION_MIDWEST__R1__G3__winner': 'Iowa St'
     };
-
     let matches = 0;
     for (const [k, v] of Object.entries(expected)) {
       if (getName(picks[k]) === v) matches += 1;
