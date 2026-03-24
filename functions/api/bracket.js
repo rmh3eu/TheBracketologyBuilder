@@ -72,6 +72,10 @@ export async function onRequestPut({ request, env }){
   const title = bracket_name;
   // Data is optional for rename-only operations.
   const data = (body && Object.prototype.hasOwnProperty.call(body, 'data')) ? body.data : null;
+  const desired_type_raw = String(body.bracket_type || existing.bracket_type || 'bracketology').trim().toLowerCase();
+  const bracket_type =
+    (desired_type_raw === 'official') ? 'official' :
+    ((desired_type_raw === 'second_chance' || desired_type_raw === 'secondchance') ? 'second_chance' : 'bracketology');
 
   if(!id) return json({ ok:false, error:"Missing id." }, 400);
 
