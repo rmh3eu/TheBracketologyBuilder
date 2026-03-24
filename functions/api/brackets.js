@@ -77,7 +77,7 @@ export async function onRequest(context){
 
   if(request.method === 'GET'){
     const rs = await env.DB.prepare(
-      `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at
+      `SELECT id, user_id, title, bracket_name, bracket_type, data_json, created_at, updated_at
          FROM brackets
         WHERE user_id=?
         ORDER BY COALESCE(updated_at, created_at) DESC`
