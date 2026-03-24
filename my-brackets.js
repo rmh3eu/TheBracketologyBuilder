@@ -345,23 +345,19 @@ async function loadPage() {
 
 
     // Split brackets by type
-    const lower = (v) => String(v || '').toLowerCase();
-
+    const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
     const isSecondChanceType = (v) => {
-      const t = String(v || '').toLowerCase().trim().replace(/[-\s]+/g, '_');
+      const t = normalizeType(v);
       return t === 'second_chance' || t === 'secondchance' || t.includes('second');
     };
-    const isOfficialType = (v) => {
-      const t = String(v || '').toLowerCase().trim().replace(/[-\s]+/g, '_');
-      return t === 'official';
-    };
+    const isOfficialType = (v) => normalizeType(v) === 'official';
 
     const proj = [];
     const off = [];
     const sc = [];
 
     for (const b of brackets) {
-      const type = String(b.bracket_type || '');
+      const type = b.bracket_type || '';
       if (isSecondChanceType(type)) {
         sc.push(b);
       } else if (isOfficialType(type)) {

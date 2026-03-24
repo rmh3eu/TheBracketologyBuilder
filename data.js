@@ -45,7 +45,7 @@ const WEST = [
   [8, "Villanova"],
   [9, "Utah St"],
   [10, "Missouri"],
-  [11, "Texas"],
+  [11, "Texas/NC State"],
   [12, "High Point"],
   [13, "Hawaii"],
   [14, "Kennesaw St"],
