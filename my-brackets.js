@@ -347,24 +347,24 @@ async function loadPage() {
     // Split brackets by type
     const lower = (v) => String(v || '').toLowerCase();
 
-    const secondChance = brackets.filter(b => lower(b.bracket_type) === 'second_chance');
-    const official = brackets.filter(b => lower(b.bracket_type) === 'official');
-    const bracketology = brackets.filter(b => {
-      const t = lower(b.bracket_type);
-      // Treat missing/unknown as bracketology for backward compatibility.
-      return t === '' || t === 'bracketology' || (t !== 'official' && t !== 'second_chance');
-    });
+    const isSecondChanceType = (v) => {
+      const t = String(v || '').toLowerCase().trim().replace(/[-\s]+/g, '_');
+      return t === 'second_chance' || t === 'secondchance' || t.includes('second');
+    };
+    const isOfficialType = (v) => {
+      const t = String(v || '').toLowerCase().trim().replace(/[-\s]+/g, '_');
+      return t === 'official';
+    };
 
-    // Always render Bracketology brackets somewhere (never disappear)
     const proj = [];
     const off = [];
     const sc = [];
 
     for (const b of brackets) {
-      const type = String(b.bracket_type || '').toLowerCase();
-      if (type === 'second_chance') {
+      const type = String(b.bracket_type || '');
+      if (isSecondChanceType(type)) {
         sc.push(b);
-      } else if (type === 'official') {
+      } else if (isOfficialType(type)) {
         off.push(b);
       } else {
         proj.push(b);
