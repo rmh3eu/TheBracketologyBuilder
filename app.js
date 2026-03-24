@@ -823,7 +823,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
     const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = 'To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
+    savedText.textContent = 'To Enter: To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
@@ -4571,6 +4571,7 @@ function renderAll(){
       scrollers.push(scroller);
     });
     renderFinalRounds(state.picks);
+  try{ bbForceNcaaRegionAds(); }catch(_e){}
   // Phase 4: update Submit for Featured CTA
   try{ phase4UpdateFeatureCTA(); }catch(_e){}
 
@@ -5676,3 +5677,108 @@ setTimeout(()=>{
     });
   }catch(e){}
 },500);
+
+
+function bbMakeBetOnlineRegionPromo(regionName){
+  const wrap = document.createElement('div');
+  wrap.className = 'betOnlineRegionPromo';
+  wrap.setAttribute('data-region-name', regionName);
+  wrap.innerHTML = `
+    <a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+      Get $250 in Bonus with Sign Up
+    </a>
+    <a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">
+      <img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo">
+    </a>
+    <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>`;
+  return wrap;
+}
+function bbMakeBetrRegionPromo(regionName){
+  const wrap = document.createElement('div');
+  wrap.className = 'betrRegionPromo';
+  wrap.setAttribute('data-region-name', regionName);
+  wrap.innerHTML = `
+    <a class="betrRegionPromoText" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
+      Get $200 in Bonus with Sign Up
+    </a>
+    <div class="betrRegionPromoSub">Code BRACKETS</div>
+    <a class="betrRegionPromoLogoLink" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
+      <img class="betrRegionPromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr logo">
+    </a>
+    <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>`;
+  return wrap;
+}
+function bbApplyRegionPromoStyles(el, regionName){
+  try{
+    if(!el) return;
+    const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+    el.style.setProperty('position','absolute','important');
+    el.style.setProperty('z-index','8','important');
+    el.style.setProperty('display','flex','important');
+    el.style.setProperty('visibility','visible','important');
+    el.style.setProperty('opacity','1','important');
+    el.style.setProperty('flex-direction','column','important');
+    el.style.setProperty('align-items','flex-start','important');
+    if(mobile){
+      // more left into view on mobile
+      el.style.setProperty('top','18px','important');
+      el.style.setProperty('right','118px','important');
+      el.style.setProperty('left','auto','important');
+    }else{
+      // inside region board, to the right and up
+      el.style.setProperty('top','62px','important');
+      el.style.setProperty('left','262px','important');
+      el.style.setProperty('right','auto','important');
+    }
+    const btn = el.querySelector('.betOnlinePrizePoolBtn');
+    if(btn){
+      if(mobile){
+        btn.style.setProperty('position','relative','important');
+        btn.style.setProperty('display','block','important');
+        btn.style.setProperty('top','8px','important');
+        btn.style.setProperty('margin-top','10px','important');
+        btn.style.setProperty('left','auto','important');
+        btn.style.setProperty('right','0','important');
+        btn.style.setProperty('transform','none','important');
+      }else{
+        btn.style.setProperty('margin-top','10px','important');
+      }
+    }
+  }catch(_e){}
+}
+function bbForceNcaaRegionAds(){
+  try{
+    const regions = [
+      { name:'East', type:'bet' },
+      { name:'South', type:'bet' },
+      { name:'West', type:'betr' },
+      { name:'Midwest', type:'betr' },
+    ];
+    regions.forEach(({name, type})=>{
+      const mount = document.getElementById('region-' + name);
+      if(!mount) return;
+      const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo');
+      if(!geo) return;
+      if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
+
+      if(type === 'bet'){
+        let promo = geo.querySelector('.betOnlineRegionPromo') || mount.querySelector('.betOnlineRegionPromo');
+        if(!promo){
+          promo = bbMakeBetOnlineRegionPromo(name);
+          geo.appendChild(promo);
+        }
+        bbApplyRegionPromoStyles(promo, name);
+      } else {
+        let promo = geo.querySelector('.betrRegionPromo') || mount.querySelector('.betrRegionPromo');
+        if(!promo){
+          promo = bbMakeBetrRegionPromo(name);
+          geo.appendChild(promo);
+        }
+        bbApplyRegionPromoStyles(promo, name);
+      }
+    });
+  }catch(_e){}
+}
+window.addEventListener('load', ()=>{ setTimeout(bbForceNcaaRegionAds, 120); setTimeout(bbForceNcaaRegionAds, 500); setTimeout(bbForceNcaaRegionAds, 1200); });
+document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(bbForceNcaaRegionAds, 120); setTimeout(bbForceNcaaRegionAds, 500); });
+window.addEventListener('resize', ()=>setTimeout(bbForceNcaaRegionAds, 120));

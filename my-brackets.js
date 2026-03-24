@@ -206,7 +206,8 @@ function renderBracketSection({ listId, emptyId, items }) {
   for (const b of items) {
     const a = document.createElement('a');
     a.className = 'bracketCard';
-    a.href = `/?id=${encodeURIComponent(b.id)}`;
+    const isNba = String(b.sport || '').toLowerCase() === 'nba' || String(b.template_id || '').toLowerCase().startsWith('nba');
+    a.href = isNba ? `nba.html?id=${encodeURIComponent(b.id)}` : `/?id=${encodeURIComponent(b.id)}`;
 
     const titleRow = document.createElement('div');
     titleRow.className = 'bracketTitleRow';
@@ -267,25 +268,20 @@ function renderBracketSection({ listId, emptyId, items }) {
 
 function reorderSections({ officialLive, sweet16Set }) {
   const main = document.getElementById('myBracketsMain');
+  const secN = document.getElementById('secNBA');
   const secB = document.getElementById('secBracketology');
   const secO = document.getElementById('secOfficial');
   const secS = document.getElementById('secSecondChance');
-  if (!main || !secB || !secO || !secS) return;
+  if (!main || !secB || !secO || !secS || !secN) return;
 
-  // Ordering rules (brackets never disappear; only section order changes):
-  // - Default (no toggles): Bracketology first.
-  // - Official is always above Second Chance.
-  // - When Official is live OR Sweet16 is set, Bracketology moves to the bottom.
   if (!officialLive && !sweet16Set) {
-    // Bracketology, Official, Second Chance
+    main.appendChild(secN);
     main.appendChild(secB);
     main.appendChild(secO);
     main.appendChild(secS);
     return;
   }
-
-  // Either Official or Sweet16 is enabled:
-  // Second Chance, Official, Bracketology
+  main.appendChild(secN);
   main.appendChild(secS);
   main.appendChild(secO);
   main.appendChild(secB);
@@ -389,13 +385,18 @@ async function loadPage() {
 
     // Split brackets by type
     const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
+    const nba = [];
     const proj = [];
     const off = [];
     const sc = [];
 
     for (const b of brackets) {
       const type = normalizeType(b.bracket_type);
-      if (isSecondChanceBracketRecord(b)) {
+      const sport = String(b.sport || '').toLowerCase();
+      const template = String(b.template_id || '').toLowerCase();
+      if (sport === 'nba' || template.startsWith('nba')) {
+        nba.push(b);
+      } else if (isSecondChanceBracketRecord(b)) {
         sc.push(b);
       } else if (type === 'official') {
         off.push(b);
@@ -404,12 +405,14 @@ async function loadPage() {
       }
     }
 
+    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: nba });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: proj });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: off });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: sc });
 
     reorderSections({ officialLive, sweet16Set });
   } catch (e) {
+    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: [] });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: [] });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: [] });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: [] });

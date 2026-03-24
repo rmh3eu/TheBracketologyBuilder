@@ -4842,3 +4842,161 @@ html body .betOnlineBracketPromo{
 @media(max-width:820px){
  .betrRegionPromo,.betOnlineRegionPromo{right:60px !important;}
 }
+
+
+
+/* final combined nba + ncaa patch */
+.siteNav .navLink[href="nba.html"]{ order: 5; }
+.regionGeo,.geo.regionGeo{ overflow-x: visible !important; overflow-y: visible !important; }
+.regionCard,.regionCard .geoCanvas{ overflow: visible !important; }
+
+/* NCAA ad placement: keep inside region boards */
+@media (min-width:821px){
+  .betOnlineRegionPromo,.betrRegionPromo{
+    left:262px !important;
+    right:auto !important;
+    top:62px !important;
+  }
+}
+@media (max-width:820px){
+  .betOnlineRegionPromo,.betrRegionPromo{
+    right:118px !important;
+    left:auto !important;
+    top:18px !important;
+  }
+}
+.betrRegionPromo,.betrBracketPromo{
+  width:170px !important;
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+}
+.betrRegionPromoText,.betrBracketPromoText{
+  display:block !important;
+  width:100% !important;
+  text-decoration:none !important;
+  font-weight:900 !important;
+  line-height:1.12 !important;
+  border-radius:12px !important;
+  padding:8px 10px !important;
+  background:#fff !important;
+  color:#111827 !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.12) !important;
+  font-size:16px !important;
+}
+.betrRegionPromoSub,.betrBracketPromoSub{
+  font-size:12px !important;
+  font-weight:800 !important;
+  color:#111827 !important;
+  background:#fff !important;
+  padding:4px 8px !important;
+  border-radius:999px !important;
+  box-shadow:0 4px 12px rgba(0,0,0,.10) !important;
+}
+.betrRegionPromoLogoLink,.betrBracketPromoLogoWrap{
+  display:block !important;
+  background:#fff !important;
+  border-radius:12px !important;
+  padding:8px 10px !important;
+  box-shadow:0 6px 16px rgba(0,0,0,.12) !important;
+}
+.betrRegionPromoLogo,.betrBracketPromoLogo{ width:120px !important; height:auto !important; }
+.betOnlineRegionPromo .betOnlinePrizePoolBtn,.betrRegionPromo .betOnlinePrizePoolBtn{
+  margin-top:10px !important;
+}
+
+/* nba page */
+.nbaTopBar{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.nbaInteractiveLayout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 300px minmax(0,1fr);
+  gap:18px;
+  align-items:start;
+}
+.nbaConferenceBoard,.nbaFinalsBoard{
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  background:#fff;
+  padding:16px;
+  box-shadow:0 8px 24px rgba(15,23,42,.06);
+}
+.nbaConferenceGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(150px,1fr));
+  gap:12px;
+  align-items:start;
+}
+.nbaConferenceGrid.isMirror{
+  direction:rtl;
+}
+.nbaConferenceGrid.isMirror > *{
+  direction:ltr;
+}
+.nbaRoundColumn{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.nbaRoundTitle{
+  font-weight:900;
+  font-size:14px;
+  margin-bottom:2px;
+}
+.nbaMatchupCard{
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#f8fafc;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.nbaSeriesSelect{
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  padding:8px 10px;
+  background:#fff;
+  font-weight:800;
+}
+.nbaTeamBtn{
+  width:100%;
+  text-align:left;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  padding:10px 12px;
+  background:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.nbaTeamBtn.isWinner{
+  background:#2563eb;
+  color:#fff;
+  border-color:#2563eb;
+}
+.nbaChampionDisplay{
+  margin-top:12px;
+  border-radius:12px;
+  background:#111827;
+  color:#fff;
+  padding:12px;
+  font-weight:900;
+}
+.nbaBetOnlineWrap{
+  margin-top:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:flex-start;
+}
+#secNBA .bracketsGrid{ min-height: 10px; }
+
+@media (max-width:1024px){
+  .nbaInteractiveLayout{ grid-template-columns:1fr; }
+}
+
