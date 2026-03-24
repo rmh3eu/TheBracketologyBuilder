@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Bracket</title>
-  <link rel="stylesheet" href="/style.css?vfix0424j">
+  <link rel="stylesheet" href="/style.css?vfix0424k">
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
   <header class="topbar">
@@ -34,52 +34,196 @@
     <div class="panel">
       <div class="panelHead">
         <h2>NBA Bracket</h2>
-        <div class="subhead">Current projected playoff field with play-in teams.</div>
+        <div class="subhead">Projected playoff field with play-in games and best-of-seven series picks.</div>
       </div>
 
-      <div class="nbaBracketGrid">
-        <section class="nbaConfCard">
-          <h3>Eastern Conference</h3>
-          <div class="nbaSeedRow"><span>1</span><span>Detroit Pistons</span></div>
-          <div class="nbaSeedRow"><span>2</span><span>Boston Celtics</span></div>
-          <div class="nbaSeedRow"><span>3</span><span>New York Knicks</span></div>
-          <div class="nbaSeedRow"><span>4</span><span>Cleveland Cavaliers</span></div>
-          <div class="nbaSeedRow"><span>5</span><span>Toronto Raptors</span></div>
-          <div class="nbaSeedRow"><span>6</span><span>Atlanta Hawks</span></div>
-          <div class="nbaSeedRow"><span>7</span><span>Philadelphia 76ers</span></div>
-          <div class="nbaSeedRow"><span>8</span><span>Orlando Magic</span></div>
-          <div class="nbaPlayInCard">
-            <div class="nbaPlayInTitle">Play-In</div>
-            <div class="nbaSeriesBox">7 Philadelphia 76ers vs 8 Orlando Magic</div>
-            <div class="nbaSeriesBox">9 Miami Heat vs 10 Charlotte Hornets</div>
-          </div>
-        </section>
-
-        <section class="nbaFinalsCard">
-          <h3>NBA Finals</h3>
-          <div class="nbaSeriesBox">East Champion</div>
-          <div class="nbaSeriesBox">West Champion</div>
-          <div class="nbaSeriesBox nbaChampBox">NBA Champion</div>
-        </section>
-
-        <section class="nbaConfCard">
-          <h3>Western Conference</h3>
-          <div class="nbaSeedRow"><span>1</span><span>Oklahoma City Thunder</span></div>
-          <div class="nbaSeedRow"><span>2</span><span>San Antonio Spurs</span></div>
-          <div class="nbaSeedRow"><span>3</span><span>Los Angeles Lakers</span></div>
-          <div class="nbaSeedRow"><span>4</span><span>Denver Nuggets</span></div>
-          <div class="nbaSeedRow"><span>5</span><span>Minnesota Timberwolves</span></div>
-          <div class="nbaSeedRow"><span>6</span><span>Houston Rockets</span></div>
-          <div class="nbaSeedRow"><span>7</span><span>Phoenix Suns</span></div>
-          <div class="nbaSeedRow"><span>8</span><span>LA Clippers</span></div>
-          <div class="nbaPlayInCard">
-            <div class="nbaPlayInTitle">Play-In</div>
-            <div class="nbaSeriesBox">7 Phoenix Suns vs 8 LA Clippers</div>
-            <div class="nbaSeriesBox">9 Portland Trail Blazers vs 10 Golden State Warriors</div>
-          </div>
-        </section>
-      </div>
+      <div id="nbaBracketApp" class="nbaInteractiveApp"></div>
     </div>
   </main>
+
+<script>
+const NBA = {
+  east: {
+    seeds: [
+      {seed:1,name:'Detroit Pistons'},
+      {seed:2,name:'Boston Celtics'},
+      {seed:3,name:'New York Knicks'},
+      {seed:4,name:'Cleveland Cavaliers'},
+      {seed:5,name:'Toronto Raptors'},
+      {seed:6,name:'Atlanta Hawks'},
+      {seed:7,name:'Philadelphia 76ers'},
+      {seed:8,name:'Orlando Magic'},
+      {seed:9,name:'Miami Heat'},
+      {seed:10,name:'Charlotte Hornets'}
+    ]
+  },
+  west: {
+    seeds: [
+      {seed:1,name:'Oklahoma City Thunder'},
+      {seed:2,name:'San Antonio Spurs'},
+      {seed:3,name:'Los Angeles Lakers'},
+      {seed:4,name:'Denver Nuggets'},
+      {seed:5,name:'Minnesota Timberwolves'},
+      {seed:6,name:'Houston Rockets'},
+      {seed:7,name:'Phoenix Suns'},
+      {seed:8,name:'LA Clippers'},
+      {seed:9,name:'Portland Trail Blazers'},
+      {seed:10,name:'Golden State Warriors'}
+    ]
+  }
+};
+
+const state = {
+  east: { play7:null, play8:null, r1:{}, r2:{}, conf:null },
+  west: { play7:null, play8:null, r1:{}, r2:{}, conf:null },
+  finals: null
+};
+
+function teamLabel(t){ return t ? `${t.seed}. ${t.name}` : '—'; }
+function cloneTeam(t){ return t ? {seed:t.seed, name:t.name} : null; }
+
+function getConferenceField(confKey){
+  const seeds = NBA[confKey].seeds;
+  const bySeed = s => seeds.find(x => x.seed === s) || null;
+  const play7 = state[confKey].play7 || bySeed(7);
+  const play8 = state[confKey].play8 || bySeed(8);
+  return {
+    qf: [
+      [bySeed(1), play8],
+      [bySeed(4), bySeed(5)],
+      [bySeed(3), bySeed(6)],
+      [bySeed(2), play7]
+    ],
+    sf: [
+      [state[confKey].r1.a || null, state[confKey].r1.b || null],
+      [state[confKey].r1.c || null, state[confKey].r1.d || null]
+    ],
+    cf: [
+      [state[confKey].r2.a || null, state[confKey].r2.b || null]
+    ]
+  };
+}
+
+function seriesSelect(value, onChange, isPlayIn=false){
+  const wrap = document.createElement('div');
+  wrap.className = 'nbaSeriesSelectWrap';
+  const sel = document.createElement('select');
+  sel.className = 'nbaSeriesSelect';
+  const opts = isPlayIn ? ['1'] : ['4','5','6','7'];
+  const blank = document.createElement('option');
+  blank.value = '';
+  blank.textContent = isPlayIn ? 'Win' : 'Games';
+  sel.appendChild(blank);
+  opts.forEach(v=>{
+    const o = document.createElement('option');
+    o.value = v; o.textContent = isPlayIn ? 'Advance' : v;
+    if(String(value||'')===v) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', ()=>onChange(sel.value));
+  wrap.appendChild(sel);
+  return wrap;
+}
+
+function matchupCard(teamA, teamB, currentWinner, currentGames, onPick, isPlayIn=false){
+  const card = document.createElement('div');
+  card.className = 'nbaMatchupCard';
+  card.appendChild(seriesSelect(currentGames, (val)=>{ card.dataset.games = val; }, isPlayIn));
+
+  [teamA, teamB].forEach((team)=>{
+    const btn = document.createElement('button');
+    btn.className = 'nbaTeamBtn' + ((currentWinner && team && currentWinner.name===team.name) ? ' isWinner' : '');
+    btn.type = 'button';
+    btn.textContent = teamLabel(team);
+    if(!team) btn.disabled = true;
+    btn.addEventListener('click', ()=>{
+      const games = card.querySelector('select').value;
+      if(!games) return;
+      onPick(cloneTeam(team), Number(games));
+    });
+    card.appendChild(btn);
+  });
+  return card;
+}
+
+function renderConference(confKey, title){
+  const field = getConferenceField(confKey);
+  const box = document.createElement('section');
+  box.className = 'nbaConferenceBoard';
+  box.innerHTML = `<h3>${title}</h3>`;
+
+  const playInWrap = document.createElement('div');
+  playInWrap.className = 'nbaRoundColumn';
+  playInWrap.innerHTML = `<div class="nbaRoundTitle">Play-In</div>`;
+  const s7 = NBA[confKey].seeds.find(x=>x.seed===7);
+  const s8 = NBA[confKey].seeds.find(x=>x.seed===8);
+  const s9 = NBA[confKey].seeds.find(x=>x.seed===9);
+  const s10 = NBA[confKey].seeds.find(x=>x.seed===10);
+
+  playInWrap.appendChild(matchupCard(s7,s8,state[confKey].play7,null,(winner)=>{
+    state[confKey].play7 = winner;
+    renderNBA();
+  }, true));
+  playInWrap.appendChild(matchupCard(s9,s10,state[confKey].play8,null,(winner)=>{
+    state[confKey].play8 = winner;
+    renderNBA();
+  }, true));
+
+  const r1 = document.createElement('div');
+  r1.className = 'nbaRoundColumn';
+  r1.innerHTML = `<div class="nbaRoundTitle">Round 1</div>`;
+  const qf = field.qf;
+  r1.appendChild(matchupCard(qf[0][0], qf[0][1], state[confKey].r1.a && state[confKey].r1.a.team, state[confKey].r1.a && state[confKey].r1.a.games, (winner,games)=>{ state[confKey].r1.a = {team:winner,games}; renderNBA(); }));
+  r1.appendChild(matchupCard(qf[1][0], qf[1][1], state[confKey].r1.b && state[confKey].r1.b.team, state[confKey].r1.b && state[confKey].r1.b.games, (winner,games)=>{ state[confKey].r1.b = {team:winner,games}; renderNBA(); }));
+  r1.appendChild(matchupCard(qf[2][0], qf[2][1], state[confKey].r1.c && state[confKey].r1.c.team, state[confKey].r1.c && state[confKey].r1.c.games, (winner,games)=>{ state[confKey].r1.c = {team:winner,games}; renderNBA(); }));
+  r1.appendChild(matchupCard(qf[3][0], qf[3][1], state[confKey].r1.d && state[confKey].r1.d.team, state[confKey].r1.d && state[confKey].r1.d.games, (winner,games)=>{ state[confKey].r1.d = {team:winner,games}; renderNBA(); }));
+
+  const r2 = document.createElement('div');
+  r2.className = 'nbaRoundColumn';
+  r2.innerHTML = `<div class="nbaRoundTitle">Conference Semis</div>`;
+  const sf = field.sf;
+  r2.appendChild(matchupCard(sf[0][0] && sf[0][0].team || sf[0][0], sf[0][1] && sf[0][1].team || sf[0][1], state[confKey].r2.a && state[confKey].r2.a.team, state[confKey].r2.a && state[confKey].r2.a.games, (winner,games)=>{ state[confKey].r2.a = {team:winner,games}; renderNBA(); }));
+  r2.appendChild(matchupCard(sf[1][0] && sf[1][0].team || sf[1][0], sf[1][1] && sf[1][1].team || sf[1][1], state[confKey].r2.b && state[confKey].r2.b.team, state[confKey].r2.b && state[confKey].r2.b.games, (winner,games)=>{ state[confKey].r2.b = {team:winner,games}; renderNBA(); }));
+
+  const r3 = document.createElement('div');
+  r3.className = 'nbaRoundColumn';
+  r3.innerHTML = `<div class="nbaRoundTitle">Conference Finals</div>`;
+  const cfA = state[confKey].r2.a ? state[confKey].r2.a.team : null;
+  const cfB = state[confKey].r2.b ? state[confKey].r2.b.team : null;
+  r3.appendChild(matchupCard(cfA, cfB, state[confKey].conf && state[confKey].conf.team, state[confKey].conf && state[confKey].conf.games, (winner,games)=>{ state[confKey].conf = {team:winner,games}; renderNBA(); }));
+
+  const grid = document.createElement('div');
+  grid.className = 'nbaConferenceGrid';
+  grid.append(playInWrap, r1, r2, r3);
+  box.appendChild(grid);
+  return box;
+}
+
+function renderFinals(){
+  const box = document.createElement('section');
+  box.className = 'nbaFinalsBoard';
+  box.innerHTML = `<h3>NBA Finals</h3>`;
+  const eastChamp = state.east.conf ? state.east.conf.team : null;
+  const westChamp = state.west.conf ? state.west.conf.team : null;
+  box.appendChild(matchupCard(eastChamp, westChamp, state.finals && state.finals.team, state.finals && state.finals.games, (winner,games)=>{ state.finals = {team:winner,games}; renderNBA(); }));
+  const champ = document.createElement('div');
+  champ.className = 'nbaChampionDisplay';
+  champ.textContent = state.finals && state.finals.team ? `Champion: ${state.finals.team.name} in ${state.finals.games}` : 'Champion';
+  box.appendChild(champ);
+  return box;
+}
+
+function renderNBA(){
+  const app = document.getElementById('nbaBracketApp');
+  app.innerHTML = '';
+  const layout = document.createElement('div');
+  layout.className = 'nbaInteractiveLayout';
+  layout.appendChild(renderConference('east','Eastern Conference'));
+  layout.appendChild(renderFinals());
+  layout.appendChild(renderConference('west','Western Conference'));
+  app.appendChild(layout);
+}
+renderNBA();
+</script>
 </body>
 </html>

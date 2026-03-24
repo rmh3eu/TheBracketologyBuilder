@@ -4706,28 +4706,20 @@ html body .betOnlineBracketPromo{
 
 
 
-
-/* 2026-04-24 focused NCAA ad + NBA teams patch */
-.regionGeo,
-.geo.regionGeo{
-  overflow-x: visible !important;
-  overflow-y: visible !important;
-  -webkit-overflow-scrolling: auto !important;
-}
-.regionCard,
-.regionCard .geoCanvas{
+/* final targeted NCAA promo layout override */
+.regionGeo, .geo.regionGeo, .regionCard, .regionCard .geoCanvas{
   overflow: visible !important;
 }
-
+.betrRegionPromo, .betOnlineRegionPromo, .betOnlineBracketPromo{
+  z-index: 9 !important;
+}
 .betrRegionPromo{
   display:flex !important;
-  flex-direction:column !important;
-  align-items:flex-start !important;
-  gap:8px !important;
-  width:170px !important;
-  z-index:7 !important;
   visibility:visible !important;
   opacity:1 !important;
+  flex-direction:column !important;
+  gap:8px !important;
+  width:170px !important;
 }
 .betrRegionPromoText{
   display:block !important;
@@ -4758,78 +4750,86 @@ html body .betOnlineBracketPromo{
   padding:8px 10px !important;
   box-shadow:0 6px 16px rgba(0,0,0,.12) !important;
 }
-.betrRegionPromoLogo{
-  display:block !important;
-  width:120px !important;
-  height:auto !important;
-}
+.betrRegionPromoLogo{ display:block !important; width:120px !important; height:auto !important; }
 
 @media (min-width:821px){
-  .betOnlineRegionPromo,
-  .betrRegionPromo{
-    left:250px !important;
-    right:auto !important;
-    top:78px !important;
-  }
+  .betOnlineRegionPromo, .betrRegionPromo{ left:300px !important; top:62px !important; right:auto !important; }
+  .betOnlineBracketPromo{ right:-18px !important; top:96px !important; left:auto !important; }
 }
 @media (max-width:820px){
-  .betOnlineRegionPromo,
-  .betrRegionPromo{
-    right:120px !important;
-    left:auto !important;
-    top:20px !important;
-  }
-  .betOnlineRegionPromo .betOnlinePrizePoolBtn,
-  .betrRegionPromo .betOnlinePrizePoolBtn{
-    position:relative !important;
-    display:block !important;
-    top:8px !important;
-    margin-top:10px !important;
-    left:auto !important;
-    right:0 !important;
-    transform:none !important;
-    z-index:1 !important;
-  }
+  .betOnlineRegionPromo, .betrRegionPromo{ right:86px !important; left:auto !important; top:18px !important; }
+  .betOnlineBracketPromo{ right:86px !important; left:auto !important; top:152px !important; }
 }
 
-/* NBA page */
-.nbaBracketGrid{
+
+/* interactive NBA bracket */
+.nbaInteractiveLayout{
   display:grid;
   grid-template-columns:minmax(0,1fr) 260px minmax(0,1fr);
   gap:18px;
   align-items:start;
 }
-.nbaConfCard,
-.nbaFinalsCard,
-.nbaPlayInCard{
+.nbaConferenceBoard,
+.nbaFinalsBoard{
   border:1px solid #e5e7eb;
   border-radius:16px;
   background:#fff;
   padding:16px;
   box-shadow:0 8px 24px rgba(15,23,42,.06);
 }
-.nbaSeedRow,
-.nbaSeriesBox{
-  display:flex;
+.nbaConferenceGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:12px;
-  align-items:center;
+}
+.nbaRoundColumn{ display:flex; flex-direction:column; gap:12px; }
+.nbaRoundTitle{ font-weight:900; margin-bottom:4px; }
+.nbaMatchupCard{
+  border:1px solid #d1d5db;
+  border-radius:14px;
+  background:#f9fafb;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.nbaTeamBtn{
+  width:100%;
+  text-align:left;
   padding:10px 12px;
-  margin-top:8px;
   border-radius:12px;
+  border:1px solid #cbd5e1;
   background:#111827;
   color:#fff;
   font-weight:800;
+  cursor:pointer;
 }
-.nbaPlayInTitle{
-  font-weight:900;
-  margin-bottom:8px;
-}
-.nbaChampBox{
+.nbaTeamBtn.isWinner{
   background:#2563eb;
+  border-color:#2563eb;
+}
+.nbaSeriesSelectWrap{ display:flex; justify-content:flex-end; }
+.nbaSeriesSelect{
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:6px 8px;
+  font-weight:700;
+}
+.nbaChampionDisplay{
+  margin-top:14px;
+  padding:12px;
+  border-radius:14px;
+  background:#2563eb;
+  color:#fff;
+  font-weight:900;
+  text-align:center;
+}
+@media (max-width:1100px){
+  .nbaInteractiveLayout{ grid-template-columns:1fr; }
 }
 @media (max-width:900px){
-  .nbaBracketGrid{
-    grid-template-columns:1fr;
-  }
+  .nbaConferenceGrid{ grid-template-columns:1fr 1fr; }
 }
-
+@media (max-width:640px){
+  .nbaConferenceGrid{ grid-template-columns:1fr; }
+}

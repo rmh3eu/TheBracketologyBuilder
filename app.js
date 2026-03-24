@@ -1579,6 +1579,12 @@ function pruneInvalidPicks(picks){
       for(let g=0; g<games.length; g++){
         const k = wKey(r.key, round, g);
         const w = picks[k];
+        // Special-case: keep West Sweet 16 Texas/NC State alive so it renders into Elite 8.
+        try{
+          if(sweet16ModeEnabled() && r.key==='REGION_WEST' && round===2 && g===1 && w && bbNormalizeTeamName(w.name)==='Texas/NC State'){
+            continue;
+          }
+        }catch(_e){}
         if(w && !teamInPair(w, games[g])) delete picks[k];
       }
     }
@@ -3959,29 +3965,18 @@ function renderRegion(r, picks, opts={}){
             }
             if((opts && opts.readOnly) || state.readOnly) return;
             const basePicks = (opts && opts.picksRef) ? opts.picksRef : state.picks;
-            let np = {...basePicks};
+            const np = {...basePicks};
             np[wKey(r.key, roundIdx, gIdx)] = team;
 
-            if(sweet16ModeEnabled()){
-              np = ensurePlaceholderToSweet16(np);
-            }
-
-            let forceTexasWest = false;
             try{
               const nm = bbNormalizeTeamName(team && team.name);
               if (sweet16ModeEnabled() && r.key === 'REGION_WEST' && roundIdx === 2 && gIdx === 1 && nm === 'Texas/NC State'){
-                forceTexasWest = true;
                 np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
                 np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
               }
             }catch(_e){}
 
             pruneInvalidPicks(np);
-
-            if(forceTexasWest){
-              np['REGION_WEST__R1__G2__winner'] = { seed: 11, name: 'Texas/NC State' };
-              np['REGION_WEST__R2__G1__winner'] = { seed: 11, name: 'Texas/NC State' };
-            }
             if(opts && typeof opts.onUpdate==='function') {
               // Some bracket variants pass their own updater; ensure undo works
               // by pushing through commitPicks when they update the main state.
@@ -4055,46 +4050,6 @@ function maybeRevealBetOnlineRegionPromo(){
 }
 
 
-
-
-
-function maybeRevealBetrPromos(){
-  try{
-    const promos = document.querySelectorAll('.betrRegionPromo');
-    if(!promos || !promos.length) return;
-    promos.forEach((promo)=> promo.classList.add('isVisible'));
-  }catch(_e){}
-}
-
-function mountBetrRegionPromo(regionName, mount){
-  try{
-    if(!mount) return;
-    if(regionName !== 'West' && regionName !== 'Midwest') return;
-    if(mount.querySelector('.betrRegionPromo')) return;
-
-    const isBracketLikePage = !!(document.querySelector('#region-East') || document.querySelector('#region-West') || document.querySelector('.page-bracket') || document.querySelector('#bracketPageTitle'));
-    if(!isBracketLikePage) return;
-
-    const promo = document.createElement('div');
-    promo.className = 'betrRegionPromo';
-    promo.setAttribute('data-region-name', regionName);
-    promo.innerHTML = `
-      <a class="betrRegionPromoText" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">
-        Get $200 in Bonus with Sign Up
-      </a>
-      <div class="betrRegionPromoSub">Code BRACKETS</div>
-      <a class="betrRegionPromoLogoLink" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer" aria-label="Get $200 in Bonus with Sign Up">
-        <img class="betrRegionPromoLogo" src="/Betr_Horizontal_BP.png" alt="Betr logo">
-      </a>
-      <a class="betOnlinePrizePoolBtn" href="/prizes.html" aria-label="See Prize Pool">See Prize Pool</a>
-    `;
-
-    const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo') || mount;
-    if(!geo) return;
-    if(getComputedStyle(geo).position === 'static') geo.style.position = 'relative';
-    geo.appendChild(promo);
-  }catch(_e){}
-}
 
 function mountBetOnlineBracketPromo(regionName, mount){
   try{
@@ -5635,3 +5590,64 @@ try { window.venmoFeatureInfoModal = venmoFeatureInfoModal; } catch(e) {}
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(nudgeBracketPromos, 50); setTimeout(nudgeBracketPromos, 400); });
 })();
 
+
+
+function forceNcaaRegionPromoLayout(){
+  try{
+    const mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+
+    document.querySelectorAll('.betOnlineRegionPromo').forEach((el)=>{
+      el.style.setProperty('position','absolute','important');
+      if(mobile){
+        el.style.setProperty('right','86px','important');
+        el.style.setProperty('left','auto','important');
+        el.style.setProperty('top','18px','important');
+      }else{
+        el.style.setProperty('left','300px','important');
+        el.style.setProperty('right','auto','important');
+        el.style.setProperty('top','62px','important');
+      }
+    });
+
+    document.querySelectorAll('.betrRegionPromo').forEach((el)=>{
+      el.style.setProperty('position','absolute','important');
+      if(mobile){
+        el.style.setProperty('right','86px','important');
+        el.style.setProperty('left','auto','important');
+        el.style.setProperty('top','18px','important');
+      }else{
+        el.style.setProperty('left','300px','important');
+        el.style.setProperty('right','auto','important');
+        el.style.setProperty('top','62px','important');
+      }
+    });
+
+    document.querySelectorAll('.betOnlineBracketPromo').forEach((el)=>{
+      el.style.setProperty('position','absolute','important');
+      if(mobile){
+        el.style.setProperty('right','86px','important');
+        el.style.setProperty('left','auto','important');
+        el.style.setProperty('top','152px','important');
+      }else{
+        el.style.setProperty('right','-18px','important');
+        el.style.setProperty('left','auto','important');
+        el.style.setProperty('top','96px','important');
+      }
+    });
+
+    document.querySelectorAll('.betOnlineRegionPromo .betOnlinePrizePoolBtn, .betrRegionPromo .betOnlinePrizePoolBtn').forEach((btn)=>{
+      if(mobile){
+        btn.style.setProperty('position','relative','important');
+        btn.style.setProperty('display','block','important');
+        btn.style.setProperty('top','8px','important');
+        btn.style.setProperty('margin-top','10px','important');
+        btn.style.setProperty('left','auto','important');
+        btn.style.setProperty('right','0','important');
+        btn.style.setProperty('transform','none','important');
+      }
+    });
+  }catch(_e){}
+}
+window.addEventListener('load', ()=>{ setTimeout(forceNcaaRegionPromoLayout, 200); setTimeout(forceNcaaRegionPromoLayout, 900); setTimeout(forceNcaaRegionPromoLayout, 1800); });
+window.addEventListener('resize', ()=>setTimeout(forceNcaaRegionPromoLayout, 150));
+document.addEventListener('DOMContentLoaded', ()=>{ setTimeout(forceNcaaRegionPromoLayout, 200); setTimeout(forceNcaaRegionPromoLayout, 900); });
