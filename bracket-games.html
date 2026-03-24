@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bracket Games</title>
+  <link rel="stylesheet" href="/style.css?vfix_games1">
+</head>
+<body class="page-challenge-standalone page-challenge-clean-header">
+<header class="topbar">
+  <div class="brandWrap">
+    <div class="brandRow">
+      <div class="brand">Bracketology Builder</div>
+      <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+    </div>
+    <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+  </div>
+  <div class="actions"></div>
+</header>
+
+<div class="stickyNav">
+  <nav aria-label="Primary" class="siteNav">
+    <a class="navLink" href="/">Home</a>
+    <a class="navLink" href="my-brackets.html">My Brackets</a>
+    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+    <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+    <a class="navLink" href="nba.html">NBA Bracket</a>
+    <a class="navLink active" href="bracket-games.html">Bracket Games</a>
+    <a class="navLink" href="/#featured">Featured Brackets</a>
+    <a class="navLink" href="/#upcoming">Upcoming Events</a>
+  </nav>
+</div>
+
+<main class="wrap">
+  <div class="panel">
+    <div class="panelHead">
+      <h2>Bracket Games</h2>
+      <div class="subhead">Pick who you think is taller. Reveal the answers at the end.</div>
+    </div>
+
+    <div class="gamesTopBar">
+      <button id="newGameBtn" class="btn primary" type="button">New Game</button>
+      <button id="revealBtn" class="btn" type="button">Reveal Answers</button>
+      <span id="scoreText" class="tinyMuted"></span>
+    </div>
+
+    <div id="gameBracket" class="gamesBracket"></div>
+  </div>
+</main>
+
+<script>
+const PLAYERS = [
+  { name: "LeBron James", feet: 6, inches: 9 },
+  { name: "Kevin Durant", feet: 6, inches: 10 },
+  { name: "Stephen Curry", feet: 6, inches: 2 },
+  { name: "Giannis Antetokounmpo", feet: 6, inches: 11 },
+  { name: "Jayson Tatum", feet: 6, inches: 8 },
+  { name: "Luka Doncic", feet: 6, inches: 7 },
+  { name: "Joel Embiid", feet: 7, inches: 0 },
+  { name: "Nikola Jokic", feet: 6, inches: 11 },
+  { name: "Devin Booker", feet: 6, inches: 6 },
+  { name: "Jimmy Butler", feet: 6, inches: 7 },
+  { name: "Anthony Edwards", feet: 6, inches: 4 },
+  { name: "Ja Morant", feet: 6, inches: 2 },
+  { name: "Kawhi Leonard", feet: 6, inches: 7 },
+  { name: "Paul George", feet: 6, inches: 8 },
+  { name: "Damian Lillard", feet: 6, inches: 2 },
+  { name: "Zion Williamson", feet: 6, inches: 6 },
+  { name: "Anthony Davis", feet: 6, inches: 10 },
+  { name: "Victor Wembanyama", feet: 7, inches: 4 },
+  { name: "Tyrese Haliburton", feet: 6, inches: 5 },
+  { name: "Kyrie Irving", feet: 6, inches: 2 },
+  { name: "Shai Gilgeous-Alexander", feet: 6, inches: 6 },
+  { name: "Jalen Brunson", feet: 6, inches: 2 },
+  { name: "Karl-Anthony Towns", feet: 7, inches: 0 },
+  { name: "Donovan Mitchell", feet: 6, inches: 3 }
+];
+
+const state = {
+  players: [],
+  picks: { r1: {}, r2: {}, r3: {}, champ: null },
+  reveal: false
+};
+
+function shuffle(arr){
+  const copy = [...arr];
+  for(let i = copy.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+function samplePlayers(){
+  return shuffle(PLAYERS).slice(0, 16);
+}
+function heightToInches(p){
+  return (p.feet * 12) + p.inches;
+}
+function heightLabel(p){
+  return `${p.feet}'${p.inches}"`;
+}
+function getWinner(a, b){
+  if(!a) return b || null;
+  if(!b) return a || null;
+  return heightToInches(a) >= heightToInches(b) ? a : b;
+}
+function samePlayer(a, b){
+  return !!a && !!b && a.name === b.name;
+}
+function clearDownstream(fromRound){
+  if(fromRound <= 1){
+    state.picks.r2 = {};
+    state.picks.r3 = {};
+    state.picks.champ = null;
+  } else if(fromRound === 2){
+    state.picks.r3 = {};
+    state.picks.champ = null;
+  } else if(fromRound === 3){
+    state.picks.champ = null;
+  }
+}
+function roundOnePlayers(){
+  return state.players;
+}
+function roundTwoPlayers(){
+  const out = [];
+  for(let i=0;i<8;i++){
+    out.push(state.picks.r1[i] || null);
+  }
+  return out;
+}
+function finalFourPlayers(){
+  const out = [];
+  for(let i=0;i<4;i++){
+    out.push(state.picks.r2[i] || null);
+  }
+  return out;
+}
+function championshipPlayers(){
+  return [state.picks.r3[0] || null, state.picks.r3[1] || null];
+}
+function setPick(roundKey, index, player){
+  state.picks[roundKey][index] = player;
+  if(roundKey === 'r1') clearDownstream(1);
+  else if(roundKey === 'r2') clearDownstream(2);
+  else if(roundKey === 'r3') clearDownstream(3);
+  renderGame();
+}
+function setChampion(player){
+  state.picks.champ = player;
+  renderGame();
+}
+function matchupCard(a, b, currentWinner, onPick){
+  const card = document.createElement('div');
+  card.className = 'gameMatchupCard';
+  [a, b].forEach((player)=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'gamePlayerBtn' + (samePlayer(player, currentWinner) ? ' isWinner' : '');
+    btn.textContent = player ? player.name : '—';
+    if(!player){
+      btn.disabled = true;
+    } else {
+      btn.addEventListener('click', ()=>onPick(player));
+    }
+    if(state.reveal && player){
+      const meta = document.createElement('div');
+      meta.className = 'gameRevealMeta';
+      const actualWinner = getWinner(a,b);
+      meta.textContent = heightLabel(player) + (samePlayer(player, actualWinner) ? ' ✓' : '');
+      btn.appendChild(meta);
+    }
+    card.appendChild(btn);
+  });
+  return card;
+}
+function renderRound(title, players, winnersNeeded, currentMap, onPick){
+  const col = document.createElement('div');
+  col.className = 'gameRoundColumn';
+  const head = document.createElement('div');
+  head.className = 'gameRoundTitle';
+  head.textContent = title;
+  col.appendChild(head);
+
+  for(let i=0;i<winnersNeeded;i++){
+    const a = players[i*2] || null;
+    const b = players[i*2 + 1] || null;
+    col.appendChild(matchupCard(a, b, currentMap[i] || null, (player)=>onPick(i, player)));
+  }
+  return col;
+}
+function renderChampionBox(){
+  const box = document.createElement('div');
+  box.className = 'gameChampionBox';
+  const title = document.createElement('div');
+  title.className = 'gameRoundTitle';
+  title.textContent = 'Champion';
+  box.appendChild(title);
+
+  const finalPair = championshipPlayers();
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'gamePlayerBtn' + (state.picks.champ ? ' isWinner' : '');
+  btn.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
+  if(finalPair[0] || finalPair[1]){
+    btn.addEventListener('click', ()=>{});
+  } else {
+    btn.disabled = true;
+  }
+  if(state.reveal && state.picks.champ){
+    const meta = document.createElement('div');
+    meta.className = 'gameRevealMeta';
+    const actual = getWinner(finalPair[0], finalPair[1]);
+    meta.textContent = heightLabel(state.picks.champ) + (samePlayer(state.picks.champ, actual) ? ' ✓' : '');
+    btn.appendChild(meta);
+  }
+  box.appendChild(btn);
+
+  const pairWrap = document.createElement('div');
+  pairWrap.className = 'gameChampChoices';
+  finalPair.forEach(player=>{
+    const choice = document.createElement('button');
+    choice.type = 'button';
+    choice.className = 'gamePlayerBtn gameChampionPick' + (samePlayer(player, state.picks.champ) ? ' isWinner' : '');
+    choice.textContent = player ? player.name : '—';
+    if(!player) choice.disabled = true;
+    else choice.addEventListener('click', ()=>setChampion(player));
+    if(state.reveal && player){
+      const meta = document.createElement('div');
+      meta.className = 'gameRevealMeta';
+      const actual = getWinner(finalPair[0], finalPair[1]);
+      meta.textContent = heightLabel(player) + (samePlayer(player, actual) ? ' ✓' : '');
+      choice.appendChild(meta);
+    }
+    pairWrap.appendChild(choice);
+  });
+  box.appendChild(pairWrap);
+  return box;
+}
+function calculateScore(){
+  let correct = 0;
+  let total = 0;
+
+  const r1 = roundOnePlayers();
+  for(let i=0;i<8;i++){
+    const actual = getWinner(r1[i*2], r1[i*2+1]);
+    if(state.picks.r1[i]) total++;
+    if(samePlayer(state.picks.r1[i], actual)) correct++;
+  }
+  const r2 = roundTwoPlayers();
+  for(let i=0;i<4;i++){
+    const actual = getWinner(r2[i*2], r2[i*2+1]);
+    if(state.picks.r2[i]) total++;
+    if(samePlayer(state.picks.r2[i], actual)) correct++;
+  }
+  const r3 = finalFourPlayers();
+  for(let i=0;i<2;i++){
+    const actual = getWinner(r3[i*2], r3[i*2+1]);
+    if(state.picks.r3[i]) total++;
+    if(samePlayer(state.picks.r3[i], actual)) correct++;
+  }
+  const finalPair = championshipPlayers();
+  const actualChamp = getWinner(finalPair[0], finalPair[1]);
+  if(state.picks.champ) total++;
+  if(samePlayer(state.picks.champ, actualChamp)) correct++;
+  return { correct, total };
+}
+function renderGame(){
+  const mount = document.getElementById('gameBracket');
+  mount.innerHTML = '';
+
+  const layout = document.createElement('div');
+  layout.className = 'gamesBracketLayout';
+
+  layout.appendChild(renderRound('Round 1', roundOnePlayers(), 8, state.picks.r1, (i, player)=>setPick('r1', i, player)));
+  layout.appendChild(renderRound('Quarterfinals', roundTwoPlayers(), 4, state.picks.r2, (i, player)=>setPick('r2', i, player)));
+  layout.appendChild(renderRound('Semifinals', finalFourPlayers(), 2, state.picks.r3, (i, player)=>setPick('r3', i, player)));
+  layout.appendChild(renderChampionBox());
+
+  mount.appendChild(layout);
+
+  const scoreEl = document.getElementById('scoreText');
+  if(state.reveal){
+    const s = calculateScore();
+    scoreEl.textContent = `Score: ${s.correct} / ${s.total}`;
+  } else {
+    scoreEl.textContent = '';
+  }
+}
+function newGame(){
+  state.players = samplePlayers();
+  state.picks = { r1: {}, r2: {}, r3: {}, champ: null };
+  state.reveal = false;
+  renderGame();
+}
+document.getElementById('newGameBtn').addEventListener('click', newGame);
+document.getElementById('revealBtn').addEventListener('click', ()=>{
+  state.reveal = true;
+  renderGame();
+});
+newGame();
+</script>
+</body>
+</html>

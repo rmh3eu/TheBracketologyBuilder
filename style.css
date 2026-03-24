@@ -5113,10 +5113,78 @@ body, main, .wrap, .content{
 
 
 
-/* small desktop NCAA promo nudge upward */
-@media (min-width: 821px){
-  .betOnlineRegionPromo,
-  .betrRegionPromo{
-    top: 0px !important;
+/* Bracket Games */
+.gamesTopBar{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.gamesBracketLayout{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:14px;
+  align-items:start;
+}
+.gameRoundColumn,
+.gameChampionBox{
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  background:#fff;
+  padding:14px;
+  box-shadow:0 8px 24px rgba(15,23,42,.06);
+}
+.gameRoundTitle{
+  font-weight:900;
+  margin-bottom:10px;
+}
+.gameMatchupCard{
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#f8fafc;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:10px;
+}
+.gamePlayerBtn{
+  width:100%;
+  text-align:left;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  padding:10px 12px;
+  background:#fff;
+  font-weight:800;
+  cursor:pointer;
+  position:relative;
+}
+.gamePlayerBtn.isWinner{
+  background:#2563eb;
+  color:#fff;
+  border-color:#2563eb;
+}
+.gameRevealMeta{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-top:4px;
+  opacity:0.95;
+}
+.gameChampChoices{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:10px;
+}
+@media (max-width: 1024px){
+  .gamesBracketLayout{
+    grid-template-columns:1fr 1fr;
+  }
+}
+@media (max-width: 700px){
+  .gamesBracketLayout{
+    grid-template-columns:1fr;
   }
 }
