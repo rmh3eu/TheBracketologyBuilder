@@ -4,7 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Bracket</title>
-  <link rel="stylesheet" href="/style.css?vfix0424nba3">
+  <link rel="stylesheet" href="/style.css?vfix_nba_ui_final">
+  <style>
+    .nbaPageWrap{display:block}
+    .nbaTopBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .nbaPlayInTop{margin-bottom:18px}
+    .nbaPlayInBoards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+    .nbaPlayInSection,.nbaConferenceBoard,.nbaFinalsBoard{
+      border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:16px;
+      box-shadow:0 8px 24px rgba(15,23,42,.06)
+    }
+    .nbaInteractiveLayout{display:grid;grid-template-columns:minmax(0,1fr) 210px minmax(0,1fr);gap:18px;align-items:start}
+    .nbaConferenceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .nbaConferenceGrid.isMirror{direction:rtl}
+    .nbaConferenceGrid.isMirror>*{direction:ltr}
+    .nbaRoundColumn{display:flex;flex-direction:column;gap:10px}
+    .nbaRoundTitle{font-weight:900;font-size:14px;margin-bottom:2px;color:#111827}
+    .nbaMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px}
+    .nbaSeriesSelect{border:1px solid #d1d5db;border-radius:10px;padding:8px 10px;background:#fff;color:#111827;font-weight:800}
+    .nbaTeamBtn{display:block;width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;min-height:44px}
+    .nbaTeamBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
+    .nbaChampionDisplay{margin-top:12px;border-radius:12px;background:#111827;color:#fff;padding:12px;font-weight:900}
+    .nbaBetOnlineWrap{margin-top:14px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+    @media (max-width:1024px){
+      .nbaPlayInBoards{grid-template-columns:1fr}
+      .nbaInteractiveLayout{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
 <header class="topbar">
@@ -30,7 +56,7 @@
   </nav>
 </div>
 
-<main class="wrap">
+<main class="wrap nbaPageWrap">
   <div class="panel">
     <div class="panelHead">
       <h2>NBA Bracket</h2>
@@ -61,14 +87,12 @@ const NBA = {
     {seed:9,name:"Portland Trail Blazers"},{seed:10,name:"Golden State Warriors"}
   ]}
 };
-
 const state = {
   bracketId: null,
   east: { play7: null, play8: null, r1: {}, r2: {}, conf: null },
   west: { play7: null, play8: null, r1: {}, r2: {}, conf: null },
   finals: null
 };
-
 function params(){ return new URLSearchParams(window.location.search); }
 async function api(path, opts){
   opts = opts || {};
@@ -124,8 +148,7 @@ function seriesSelect(current, onChange){
   sel.appendChild(blank);
   ['4','5','6','7'].forEach(v => {
     const o = document.createElement('option');
-    o.value = v;
-    o.textContent = v;
+    o.value = v; o.textContent = v;
     if(String(current || '') === v) o.selected = true;
     sel.appendChild(o);
   });
@@ -262,10 +285,6 @@ function renderFinals(){
   champ.className = 'nbaChampionDisplay';
   champ.textContent = (state.finals && state.finals.team) ? ('Champion: ' + state.finals.team.name + ' in ' + state.finals.games) : 'Champion';
   box.appendChild(champ);
-  const ad = document.createElement('div');
-  ad.className = 'nbaBetOnlineWrap';
-  ad.innerHTML = '<a class="betOnlineRegionPromoText" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer" data-sportsbook="1">Get $250 in Bonus with Sign Up</a><a class="betOnlineRegionPromoLogoLink" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer"><img class="betOnlineRegionPromoLogo" src="/betonline-logo.jpeg" alt="BetOnline logo"></a>';
-  box.appendChild(ad);
   return box;
 }
 
