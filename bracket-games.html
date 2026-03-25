@@ -58,7 +58,7 @@
       </div>
 
       <div class="gamesTopBar">
-        <span class="gameModeTag">NBA Height Game</span>
+        <select id="modeSelect" class="gameModeTag" style="border:0;appearance:auto;background:#eff6ff;color:#1d4ed8;"><option value="height">NBA Height Game</option><option value="age">NBA Age Game</option><option value="points">NBA Career Points Game</option></select>
         <button id="newGameBtn" class="btn primary" type="button">Replay With New Players</button>
         <button id="revealBtn" class="btn" type="button">Reveal Answers</button>
         <span id="scoreText" class="tinyMuted"></span>
@@ -68,54 +68,77 @@
     </div>
   </main>
 
+
 <script>
 const PLAYER_POOL = [
-  { name:"LeBron James", feet:6, inches:9 },
-  { name:"Kevin Durant", feet:6, inches:11 },
-  { name:"Stephen Curry", feet:6, inches:2 },
-  { name:"Giannis Antetokounmpo", feet:6, inches:11 },
-  { name:"Jayson Tatum", feet:6, inches:8 },
-  { name:"Luka Doncic", feet:6, inches:7 },
-  { name:"Joel Embiid", feet:7, inches:0 },
-  { name:"Nikola Jokic", feet:6, inches:11 },
-  { name:"Devin Booker", feet:6, inches:6 },
-  { name:"Jimmy Butler", feet:6, inches:7 },
-  { name:"Anthony Edwards", feet:6, inches:4 },
-  { name:"Ja Morant", feet:6, inches:2 },
-  { name:"Kawhi Leonard", feet:6, inches:7 },
-  { name:"Paul George", feet:6, inches:8 },
-  { name:"Damian Lillard", feet:6, inches:2 },
-  { name:"Zion Williamson", feet:6, inches:6 },
-  { name:"Anthony Davis", feet:6, inches:10 },
-  { name:"Victor Wembanyama", feet:7, inches:4 },
-  { name:"Tyrese Haliburton", feet:6, inches:5 },
-  { name:"Kyrie Irving", feet:6, inches:2 },
-  { name:"Shai Gilgeous-Alexander", feet:6, inches:6 },
-  { name:"Jalen Brunson", feet:6, inches:2 },
-  { name:"Karl-Anthony Towns", feet:7, inches:0 },
-  { name:"Donovan Mitchell", feet:6, inches:3 },
-  { name:"Jaylen Brown", feet:6, inches:6 },
-  { name:"Trae Young", feet:6, inches:1 },
-  { name:"Paolo Banchero", feet:6, inches:10 },
-  { name:"Chet Holmgren", feet:7, inches:1 },
-  { name:"Tyrese Maxey", feet:6, inches:2 },
-  { name:"De'Aaron Fox", feet:6, inches:3 },
-  { name:"Bam Adebayo", feet:6, inches:9 },
-  { name:"Jamal Murray", feet:6, inches:4 },
-  { name:"Brandon Ingram", feet:6, inches:8 },
-  { name:"Mikal Bridges", feet:6, inches:6 },
-  { name:"Darius Garland", feet:6, inches:1 },
-  { name:"Pascal Siakam", feet:6, inches:8 },
-  { name:"Jrue Holiday", feet:6, inches:4 },
-  { name:"LaMelo Ball", feet:6, inches:7 },
-  { name:"Domantas Sabonis", feet:6, inches:10 },
-  { name:"Alperen Sengun", feet:6, inches:11 }
+  { name:"LeBron James", feet:6, inches:9, age:40, points:40474 },
+  { name:"Kevin Durant", feet:6, inches:11, age:36, points:28924 },
+  { name:"Stephen Curry", feet:6, inches:2, age:37, points:24866 },
+  { name:"Giannis Antetokounmpo", feet:6, inches:11, age:30, points:19735 },
+  { name:"Jayson Tatum", feet:6, inches:8, age:27, points:13216 },
+  { name:"Luka Doncic", feet:6, inches:7, age:26, points:12439 },
+  { name:"Joel Embiid", feet:7, inches:0, age:31, points:12000 },
+  { name:"Nikola Jokic", feet:6, inches:11, age:30, points:15485 },
+  { name:"Devin Booker", feet:6, inches:6, age:28, points:15597 },
+  { name:"Jimmy Butler", feet:6, inches:7, age:35, points:13148 },
+  { name:"Anthony Edwards", feet:6, inches:4, age:23, points:6590 },
+  { name:"Ja Morant", feet:6, inches:2, age:25, points:5523 },
+  { name:"Kawhi Leonard", feet:6, inches:7, age:33, points:14014 },
+  { name:"Paul George", feet:6, inches:8, age:34, points:18303 },
+  { name:"Damian Lillard", feet:6, inches:2, age:34, points:22398 },
+  { name:"Zion Williamson", feet:6, inches:6, age:24, points:4752 },
+  { name:"Anthony Davis", feet:6, inches:10, age:32, points:18301 },
+  { name:"Victor Wembanyama", feet:7, inches:4, age:21, points:3162 },
+  { name:"Tyrese Haliburton", feet:6, inches:5, age:25, points:6354 },
+  { name:"Kyrie Irving", feet:6, inches:2, age:33, points:18149 },
+  { name:"Shai Gilgeous-Alexander", feet:6, inches:6, age:26, points:9635 },
+  { name:"Jalen Brunson", feet:6, inches:2, age:28, points:9098 },
+  { name:"Karl-Anthony Towns", feet:7, inches:0, age:29, points:14156 },
+  { name:"Donovan Mitchell", feet:6, inches:3, age:28, points:13013 },
+  { name:"Jaylen Brown", feet:6, inches:6, age:28, points:11944 },
+  { name:"Trae Young", feet:6, inches:1, age:26, points:11495 },
+  { name:"Paolo Banchero", feet:6, inches:10, age:22, points:4393 },
+  { name:"Chet Holmgren", feet:7, inches:1, age:23, points:1425 },
+  { name:"Tyrese Maxey", feet:6, inches:2, age:24, points:5531 },
+  { name:"De'Aaron Fox", feet:6, inches:3, age:27, points:11750 },
+  { name:"Bam Adebayo", feet:6, inches:9, age:27, points:9341 },
+  { name:"Jamal Murray", feet:6, inches:4, age:28, points:8657 },
+  { name:"Brandon Ingram", feet:6, inches:8, age:27, points:9732 },
+  { name:"Mikal Bridges", feet:6, inches:6, age:28, points:7806 },
+  { name:"Darius Garland", feet:6, inches:1, age:25, points:6389 },
+  { name:"Pascal Siakam", feet:6, inches:8, age:31, points:12361 },
+  { name:"Jrue Holiday", feet:6, inches:4, age:34, points:16007 },
+  { name:"LaMelo Ball", feet:6, inches:7, age:23, points:4331 },
+  { name:"Domantas Sabonis", feet:6, inches:10, age:29, points:9788 },
+  { name:"Alperen Sengun", feet:6, inches:11, age:22, points:3858 }
 ];
+
+const MODES = {
+  height: {
+    label: 'NBA Height Game',
+    subhead: 'Pick who you think is taller. Reveal the answers when you’re done.',
+    compare: (a,b) => totalInches(a) >= totalInches(b) ? a : b,
+    reveal: p => `${p.feet}'${p.inches}"`,
+  },
+  age: {
+    label: 'NBA Age Game',
+    subhead: 'Pick who you think is older. Reveal the answers when you’re done.',
+    compare: (a,b) => a.age >= b.age ? a : b,
+    reveal: p => `${p.age} years old`,
+  },
+  points: {
+    label: 'NBA Career Points Game',
+    subhead: 'Pick who you think has more career points. Reveal the answers when you’re done.',
+    compare: (a,b) => a.points >= b.points ? a : b,
+    reveal: p => `${Number(p.points).toLocaleString()} points`,
+  }
+};
 
 const state = {
   players: [],
   picks: { r1: {}, r2: {}, r3: {}, champ: null },
-  reveal: false
+  reveal: false,
+  mode: 'height'
 };
 
 function shuffle(arr){
@@ -126,48 +149,26 @@ function shuffle(arr){
   }
   return copy;
 }
-function samplePlayers(){
-  return shuffle(PLAYER_POOL).slice(0, 16);
-}
-function heightToInches(p){
-  return (p.feet * 12) + p.inches;
-}
-function heightLabel(p){
-  return `${p.feet}'${p.inches}"`;
-}
+function samplePlayers(){ return shuffle(PLAYER_POOL).slice(0, 16); }
+function totalInches(p){ return (p.feet * 12) + p.inches; }
+function samePlayer(a, b){ return !!a && !!b && a.name === b.name; }
 function getWinner(a, b){
   if(!a) return b || null;
   if(!b) return a || null;
-  return heightToInches(a) >= heightToInches(b) ? a : b;
+  return MODES[state.mode].compare(a,b);
 }
-function samePlayer(a, b){
-  return !!a && !!b && a.name === b.name;
+function revealLabel(player){
+  return player ? MODES[state.mode].reveal(player) : '';
 }
 function clearDownstream(fromRound){
-  if(fromRound <= 1){
-    state.picks.r2 = {};
-    state.picks.r3 = {};
-    state.picks.champ = null;
-  } else if(fromRound === 2){
-    state.picks.r3 = {};
-    state.picks.champ = null;
-  } else if(fromRound === 3){
-    state.picks.champ = null;
-  }
+  if(fromRound <= 1){ state.picks.r2 = {}; state.picks.r3 = {}; state.picks.champ = null; }
+  else if(fromRound === 2){ state.picks.r3 = {}; state.picks.champ = null; }
+  else if(fromRound === 3){ state.picks.champ = null; }
 }
 function roundOnePlayers(){ return state.players; }
-function roundTwoPlayers(){
-  const out = [];
-  for(let i=0;i<8;i++) out.push(state.picks.r1[i] || null);
-  return out;
-}
-function finalFourPlayers(){
-  const out = [];
-  for(let i=0;i<4;i++) out.push(state.picks.r2[i] || null);
-  return out;
-}
+function roundTwoPlayers(){ const out=[]; for(let i=0;i<8;i++) out.push(state.picks.r1[i] || null); return out; }
+function finalFourPlayers(){ const out=[]; for(let i=0;i<4;i++) out.push(state.picks.r2[i] || null); return out; }
 function championshipPlayers(){ return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
-
 function setPick(roundKey, index, player){
   state.picks[roundKey][index] = player;
   if(roundKey === 'r1') clearDownstream(1);
@@ -175,50 +176,32 @@ function setPick(roundKey, index, player){
   else if(roundKey === 'r3') clearDownstream(3);
   renderGame();
 }
-function setChampion(player){
-  state.picks.champ = player;
-  renderGame();
-}
+function setChampion(player){ state.picks.champ = player; renderGame(); }
 
 function decorateReveal(btn, player, actualWinner){
   if(!state.reveal || !player) return;
-
   const meta = document.createElement('div');
   meta.className = 'gameRevealMeta';
-
-  // only show X on wrong user pick
-  if(btn.classList.contains('isWinner')){
-    if(!samePlayer(player, actualWinner)){
-      meta.textContent = '✗';
-      btn.classList.add('isIncorrect');
-    }
-  }
-
-  btn.appendChild(meta);
-} else {
+  if(btn.classList.contains('isWinner') && !samePlayer(player, actualWinner)){
+    meta.textContent = '✗ ' + revealLabel(player);
     btn.classList.add('isIncorrect');
-    note.textContent = btn.classList.contains('isWinner')
-      ? 'Your pick was wrong'
-      : 'Not the correct answer';
+  } else {
+    meta.textContent = revealLabel(player);
   }
-  btn.appendChild(note);
+  btn.appendChild(meta);
 }
 
 function matchupCard(a, b, currentWinner, onPick){
   const card = document.createElement('div');
   card.className = 'gameMatchupCard';
   const actualWinner = getWinner(a,b);
-
   [a, b].forEach((player)=>{
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'gamePlayerBtn' + (samePlayer(player, currentWinner) ? ' isWinner' : '');
     btn.textContent = player ? player.name : '—';
-    if(!player){
-      btn.disabled = true;
-    } else {
-      btn.addEventListener('click', ()=>onPick(player));
-    }
+    if(!player) btn.disabled = true;
+    else btn.addEventListener('click', ()=>onPick(player));
     decorateReveal(btn, player, actualWinner);
     card.appendChild(btn);
   });
@@ -232,7 +215,6 @@ function renderRound(title, players, winnersNeeded, currentMap, onPick){
   head.className = 'gameRoundTitle';
   head.textContent = title;
   col.appendChild(head);
-
   for(let i=0;i<winnersNeeded;i++){
     const a = players[i*2] || null;
     const b = players[i*2 + 1] || null;
@@ -256,7 +238,7 @@ function renderChampionBox(){
   champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
   if(state.reveal && state.picks.champ){
     const actual = getWinner(finalPair[0], finalPair[1]);
-    champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
+    champ.textContent = state.picks.champ.name + (samePlayer(state.picks.champ, actual) ? '' : ' ✗') + ' • ' + revealLabel(state.picks.champ);
   }
   box.appendChild(champ);
 
@@ -278,30 +260,25 @@ function renderChampionBox(){
 }
 
 function calculateScore(){
-  let correct = 0;
-  let total = 0;
-
+  let correct = 0, total = 0;
   const r1 = roundOnePlayers();
   for(let i=0;i<8;i++){
     const actual = getWinner(r1[i*2], r1[i*2+1]);
     if(state.picks.r1[i]) total++;
     if(samePlayer(state.picks.r1[i], actual)) correct++;
   }
-
   const r2 = roundTwoPlayers();
   for(let i=0;i<4;i++){
     const actual = getWinner(r2[i*2], r2[i*2+1]);
     if(state.picks.r2[i]) total++;
     if(samePlayer(state.picks.r2[i], actual)) correct++;
   }
-
   const r3 = finalFourPlayers();
   for(let i=0;i<2;i++){
     const actual = getWinner(r3[i*2], r3[i*2+1]);
     if(state.picks.r3[i]) total++;
     if(samePlayer(state.picks.r3[i], actual)) correct++;
   }
-
   const finalPair = championshipPlayers();
   const actualChamp = getWinner(finalPair[0], finalPair[1]);
   if(state.picks.champ) total++;
@@ -310,25 +287,21 @@ function calculateScore(){
 }
 
 function renderGame(){
+  document.querySelector('.gameModeTag').textContent = MODES[state.mode].label;
+  document.querySelector('.subhead').textContent = MODES[state.mode].subhead;
+
   const mount = document.getElementById('gameBracket');
   mount.innerHTML = '';
   const layout = document.createElement('div');
   layout.className = 'gamesBracketLayout';
-
   layout.appendChild(renderRound('Round 1', roundOnePlayers(), 8, state.picks.r1, (i, player)=>setPick('r1', i, player)));
   layout.appendChild(renderRound('Quarterfinals', roundTwoPlayers(), 4, state.picks.r2, (i, player)=>setPick('r2', i, player)));
   layout.appendChild(renderRound('Semifinals', finalFourPlayers(), 2, state.picks.r3, (i, player)=>setPick('r3', i, player)));
   layout.appendChild(renderChampionBox());
-
   mount.appendChild(layout);
 
   const scoreEl = document.getElementById('scoreText');
-  if(state.reveal){
-    const s = calculateScore();
-    scoreEl.textContent = `Score: ${s.correct} / ${s.total}`;
-  } else {
-    scoreEl.textContent = '';
-  }
+  scoreEl.textContent = state.reveal ? `Score: ${calculateScore().correct} / ${calculateScore().total}` : '';
 }
 
 function newGame(){
@@ -337,12 +310,15 @@ function newGame(){
   state.reveal = false;
   renderGame();
 }
-document.getElementById('newGameBtn').addEventListener('click', newGame);
-document.getElementById('revealBtn').addEventListener('click', ()=>{
-  state.reveal = true;
-  renderGame();
+
+document.getElementById('modeSelect').addEventListener('change', (e)=>{
+  state.mode = e.target.value;
+  newGame();
 });
+document.getElementById('newGameBtn').addEventListener('click', newGame);
+document.getElementById('revealBtn').addEventListener('click', ()=>{ state.reveal = true; renderGame(); });
 newGame();
 </script>
+
 </body>
 </html>
