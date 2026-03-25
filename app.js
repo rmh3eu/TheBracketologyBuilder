@@ -823,7 +823,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
     const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = 'To Enter: To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
+    savedText.textContent = 'To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
