@@ -15,6 +15,9 @@
     .gamePlayerBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
     .gamePlayerBtn.isCorrect{outline:3px solid #10b981}
     .gamePlayerBtn.isIncorrect{outline:3px solid #ef4444}
+    .gamePlayerBtn .gameResultNote{display:block;font-size:12px;font-weight:900;margin-top:4px}
+    .gamePlayerBtn.isCorrect .gameResultNote{color:#065f46}
+    .gamePlayerBtn.isIncorrect .gameResultNote{color:#991b1b}
     .gameRevealMeta{display:block;font-size:12px;font-weight:700;margin-top:4px;opacity:0.95}
     .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
     .gameModeTag{display:inline-block;padding:6px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:12px}
@@ -179,12 +182,26 @@ function setChampion(player){
 
 function decorateReveal(btn, player, actualWinner){
   if(!state.reveal || !player) return;
+
   const meta = document.createElement('div');
   meta.className = 'gameRevealMeta';
-  meta.textContent = heightLabel(player) + (samePlayer(player, actualWinner) ? ' ✓' : '');
+
+  // only show X on wrong user pick
+  if(btn.classList.contains('isWinner')){
+    if(!samePlayer(player, actualWinner)){
+      meta.textContent = '✗';
+      btn.classList.add('isIncorrect');
+    }
+  }
+
   btn.appendChild(meta);
-  if(samePlayer(player, actualWinner)) btn.classList.add('isCorrect');
-  else btn.classList.add('isIncorrect');
+} else {
+    btn.classList.add('isIncorrect');
+    note.textContent = btn.classList.contains('isWinner')
+      ? 'Your pick was wrong'
+      : 'Not the correct answer';
+  }
+  btn.appendChild(note);
 }
 
 function matchupCard(a, b, currentWinner, onPick){
@@ -239,7 +256,7 @@ function renderChampionBox(){
   champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
   if(state.reveal && state.picks.champ){
     const actual = getWinner(finalPair[0], finalPair[1]);
-    champ.textContent = state.picks.champ.name + ' ' + heightLabel(state.picks.champ) + (samePlayer(state.picks.champ, actual) ? ' ✓' : '');
+    champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
   }
   box.appendChild(champ);
 
