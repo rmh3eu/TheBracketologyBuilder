@@ -1,0 +1,12 @@
+SECOND CHANCE EMAIL URLS
+
+Test:
+  /api/send-second-chance?mode=test&to=you@example.com
+
+Suggested live batches:
+  /api/send-second-chance?offset=0&limit=25
+  /api/send-second-chance?offset=25&limit=50
+  /api/send-second-chance?offset=75&limit=50
+
+Optional:
+  Add &delayMs=700 (or another number) to control spacing between sends.
