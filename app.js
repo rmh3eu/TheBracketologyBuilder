@@ -5780,3 +5780,27 @@ function bbRestorePageVerticalScroll(){
 window.addEventListener('load', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
 document.addEventListener('DOMContentLoaded', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
 window.addEventListener('resize', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
+
+
+function bbEaseMobileVerticalScroll(){
+  try{
+    document.documentElement.style.overflowX = 'hidden';
+    document.documentElement.style.overflowY = 'auto';
+    document.body.style.overflowX = 'hidden';
+    document.body.style.overflowY = 'auto';
+    const els = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo, .regionGeo, .geoCanvas'));
+    els.forEach((el)=>{
+      try{
+        el.style.overscrollBehaviorX = 'contain';
+        el.style.overscrollBehaviorY = 'auto';
+        el.style.webkitOverflowScrolling = 'touch';
+        el.style.touchAction = 'pan-x pan-y';
+      }catch(_e){}
+    });
+  }catch(_e){}
+}
+window.addEventListener('load', ()=>setTimeout(bbEaseMobileVerticalScroll, 80));
+document.addEventListener('DOMContentLoaded', ()=>setTimeout(bbEaseMobileVerticalScroll, 80));
+window.addEventListener('resize', ()=>setTimeout(bbEaseMobileVerticalScroll, 80));
+document.addEventListener('touchend', ()=>setTimeout(bbEaseMobileVerticalScroll, 30), {passive:true});
+
