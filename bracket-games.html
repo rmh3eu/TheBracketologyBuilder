@@ -4,24 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bracket Games</title>
-  <link rel="stylesheet" href="/style.css?vbg1">
+  <link rel="stylesheet" href="/style.css?vbgfix2">
   <style>
     .gamesTopBar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .gameTopBtn,.gamePicker{
+      padding:14px 20px;border-radius:999px;border:1px solid #d1d5db;background:#fff;color:#111827;
+      font-size:16px;font-weight:800;min-height:52px
+    }
+    .gameTopBtn.primary{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+    .gamePicker{min-width:220px}
     .gamesBracketLayout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
     .gameRoundColumn,.gameChampionBox{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
     .gameRoundTitle{font-weight:900;margin-bottom:10px;color:#111827}
     .gameMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
     .gamePlayerBtn{width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;position:relative}
     .gamePlayerBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
-    .gamePlayerBtn .gameMark{display:block;font-size:14px;font-weight:900;margin-top:4px}
-    .gamePlayerBtn.isCorrect{outline:3px solid #10b981}
     .gamePlayerBtn.isIncorrect{outline:3px solid #ef4444}
-    .gamePlayerBtn .gameResultNote{display:block;font-size:12px;font-weight:900;margin-top:4px}
-    .gamePlayerBtn.isCorrect .gameResultNote{color:#065f46}
-    .gamePlayerBtn.isIncorrect .gameResultNote{color:#991b1b}
     .gameRevealMeta{display:block;font-size:12px;font-weight:700;margin-top:4px;opacity:0.95}
+    .gameMark{display:block;font-size:14px;font-weight:900;margin-top:4px}
     .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-    .gameModeTag{display:inline-block;padding:12px 16px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:14px;min-width:230px;height:52px;border:1px solid #bfdbfe}
     @media (max-width:1024px){.gamesBracketLayout{grid-template-columns:1fr 1fr;}}
     @media (max-width:700px){.gamesBracketLayout{grid-template-columns:1fr;}}
   </style>
@@ -55,20 +56,24 @@
     <div class="panel">
       <div class="panelHead">
         <h2>Bracket Games</h2>
-        <div class="subhead">Pick who you think is taller. Reveal the answers when you’re done.</div>
+        <div id="gameSubhead" class="subhead">Pick who you think is taller. Reveal the answers when you’re done.</div>
       </div>
 
       <div class="gamesTopBar">
-        <select id="modeSelect" class="gameModeTag"><option value="height">NBA Height Game</option><option value="age">NBA Age Game</option><option value="points">NBA Career Points Game</option></select>
-        <button id="newGameBtn" class="btn primary" type="button" style="padding:14px 20px;font-size:16px;">Replay With New Players</button>
-        <button id="revealBtn" class="btn" type="button" style="padding:14px 20px;font-size:16px;">Reveal Answers</button>
+        <button id="currentGameBtn" class="gameTopBtn primary" type="button">The Height Game</button>
+        <button id="newGameBtn" class="gameTopBtn" type="button">Replay With New Players</button>
+        <button id="revealBtn" class="gameTopBtn" type="button">Reveal Answers</button>
+        <select id="modeSelect" class="gamePicker">
+          <option value="height">Pick Another Game</option>
+          <option value="age">The Age Game</option>
+          <option value="points">The Career Points Game</option>
+        </select>
         <span id="scoreText" class="tinyMuted"></span>
       </div>
 
       <div id="gameBracket"></div>
     </div>
   </main>
-
 
 <script>
 const PLAYER_POOL = [
@@ -116,36 +121,24 @@ const PLAYER_POOL = [
 
 const MODES = {
   height: {
-    label: 'NBA Height Game',
+    title: 'The Height Game',
     subhead: 'Pick who you think is taller. Reveal the answers when you’re done.',
-    compare: (a,b) => totalInches(a) > totalInches(b) ? a : b,
-    reveal: p => `${p.feet}'${p.inches}"`,
+    compareValue: (p) => (p.feet * 12) + p.inches,
+    reveal: (p) => `${p.feet}'${p.inches}"`
   },
   age: {
-    label: 'NBA Age Game',
+    title: 'The Age Game',
     subhead: 'Pick who you think is older. Reveal the answers when you’re done.',
-    compare: (a,b) => a.age > b.age ? a : b,
-    reveal: p => `${p.age} years old`,
+    compareValue: (p) => p.age,
+    reveal: (p) => `${p.age} years old`
   },
   points: {
-    label: 'NBA Career Points Game',
+    title: 'The Career Points Game',
     subhead: 'Pick who you think has more career points. Reveal the answers when you’re done.',
-    compare: (a,b) => a.points > b.points ? a : b,
-    reveal: p => `${Number(p.points).toLocaleString()} points`,
+    compareValue: (p) => p.points,
+    reveal: (p) => `${Number(p.points).toLocaleString()} points`
   }
 };
-
-function compareResult(a,b){
-  if(!a && !b) return { winner:null, tied:false };
-  if(!a) return { winner:b || null, tied:false };
-  if(!b) return { winner:a || null, tied:false };
-  const ab = MODES[state.mode].compare(a,b);
-  const ba = MODES[state.mode].compare(b,a);
-  if(ab && ba && ab.name === a.name && ba.name === b.name){
-    return { winner:null, tied:true };
-  }
-  return { winner:ab, tied:false };
-}
 
 const state = {
   players: [],
@@ -163,14 +156,18 @@ function shuffle(arr){
   return copy;
 }
 function samplePlayers(){ return shuffle(PLAYER_POOL).slice(0, 16); }
-function totalInches(p){ return (p.feet * 12) + p.inches; }
 function samePlayer(a, b){ return !!a && !!b && a.name === b.name; }
-function getWinner(a, b){
-  return compareResult(a,b).winner;
+function compareResult(a, b){
+  if(!a && !b) return { winner:null, tied:false };
+  if(!a) return { winner:b || null, tied:false };
+  if(!b) return { winner:a || null, tied:false };
+  const av = MODES[state.mode].compareValue(a);
+  const bv = MODES[state.mode].compareValue(b);
+  if(av === bv) return { winner:null, tied:true };
+  return { winner: av > bv ? a : b, tied:false };
 }
-function revealLabel(player){
-  return player ? MODES[state.mode].reveal(player) : '';
-}
+function getWinner(a,b){ return compareResult(a,b).winner; }
+function revealLabel(player){ return player ? MODES[state.mode].reveal(player) : ''; }
 function clearDownstream(fromRound){
   if(fromRound <= 1){ state.picks.r2 = {}; state.picks.r3 = {}; state.picks.champ = null; }
   else if(fromRound === 2){ state.picks.r3 = {}; state.picks.champ = null; }
@@ -193,31 +190,20 @@ function decorateReveal(btn, player, actualWinner, tied){
   if(!state.reveal || !player) return;
   const meta = document.createElement('div');
   meta.className = 'gameRevealMeta';
-  meta.textContent = revealLabel(player);
-  btn.appendChild(meta);
+  let text = revealLabel(player);
 
   const picked = btn.classList.contains('isWinner');
-  const mark = document.createElement('div');
-  mark.className = 'gameMark';
-
   if(tied){
-    if(picked){
-      mark.textContent = '✓';
-      btn.classList.add('isCorrect');
-      btn.appendChild(mark);
+    if(picked) text = '✓ ' + text;
+  } else {
+    if(picked && samePlayer(player, actualWinner)) text = '✓ ' + text;
+    else if(picked && !samePlayer(player, actualWinner)){
+      text = '✗ ' + text;
+      btn.classList.add('isIncorrect');
     }
-    return;
   }
-
-  if(picked && samePlayer(player, actualWinner)){
-    mark.textContent = '✓';
-    btn.classList.add('isCorrect');
-    btn.appendChild(mark);
-  } else if(picked && !samePlayer(player, actualWinner)){
-    mark.textContent = '✗';
-    btn.classList.add('isIncorrect');
-    btn.appendChild(mark);
-  }
+  meta.textContent = text;
+  btn.appendChild(meta);
 }
 
 function matchupCard(a, b, currentWinner, onPick){
@@ -226,6 +212,7 @@ function matchupCard(a, b, currentWinner, onPick){
   const result = compareResult(a,b);
   const actualWinner = result.winner;
   const tied = result.tied;
+
   [a, b].forEach((player)=>{
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -269,15 +256,13 @@ function renderChampionBox(){
   champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
   if(state.reveal && state.picks.champ){
     const result = compareResult(finalPair[0], finalPair[1]);
-    const actual = result.winner;
-    const tied = result.tied;
-    champ.textContent = state.picks.champ.name + ((tied || samePlayer(state.picks.champ, actual)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ);
+    champ.textContent = state.picks.champ.name + ((result.tied || samePlayer(state.picks.champ, result.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ);
   }
   box.appendChild(champ);
 
   const pairWrap = document.createElement('div');
   pairWrap.className = 'gameChampChoices';
-  const actual = getWinner(finalPair[0], finalPair[1]);
+  const result = compareResult(finalPair[0], finalPair[1]);
   finalPair.forEach(player=>{
     const choice = document.createElement('button');
     choice.type = 'button';
@@ -285,7 +270,7 @@ function renderChampionBox(){
     choice.textContent = player ? player.name : '—';
     if(!player) choice.disabled = true;
     else choice.addEventListener('click', ()=>setChampion(player));
-    decorateReveal(choice, player, actual, tied);
+    decorateReveal(choice, player, result.winner, result.tied);
     pairWrap.appendChild(choice);
   });
   box.appendChild(pairWrap);
@@ -320,8 +305,8 @@ function calculateScore(){
 }
 
 function renderGame(){
-  document.querySelector('.gameModeTag').textContent = MODES[state.mode].label;
-  document.querySelector('.subhead').textContent = MODES[state.mode].subhead;
+  document.getElementById('currentGameBtn').textContent = MODES[state.mode].title;
+  document.getElementById('gameSubhead').textContent = MODES[state.mode].subhead;
 
   const mount = document.getElementById('gameBracket');
   mount.innerHTML = '';
@@ -332,9 +317,7 @@ function renderGame(){
   layout.appendChild(renderRound('Semifinals', finalFourPlayers(), 2, state.picks.r3, (i, player)=>setPick('r3', i, player)));
   layout.appendChild(renderChampionBox());
   mount.appendChild(layout);
-
-  const scoreEl = document.getElementById('scoreText');
-  scoreEl.textContent = state.reveal ? `Score: ${calculateScore().correct} / ${calculateScore().total}` : '';
+  document.getElementById('scoreText').textContent = state.reveal ? `Score: ${calculateScore().correct} / ${calculateScore().total}` : '';
 }
 
 function newGame(){
@@ -345,13 +328,18 @@ function newGame(){
 }
 
 document.getElementById('modeSelect').addEventListener('change', (e)=>{
-  state.mode = e.target.value;
-  newGame();
+  const val = e.target.value;
+  if(val === 'height' || val === 'age' || val === 'points'){
+    state.mode = val;
+    newGame();
+    e.target.value = 'height';
+  }
 });
 document.getElementById('newGameBtn').addEventListener('click', newGame);
 document.getElementById('revealBtn').addEventListener('click', ()=>{ state.reveal = true; renderGame(); });
+
+state.mode = 'height';
 newGame();
 </script>
-
 </body>
 </html>
