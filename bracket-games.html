@@ -24,9 +24,12 @@
     .gameMark{display:block;font-size:14px;font-weight:900;margin-top:4px}
     .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
     @media (max-width:1024px){.gamesBracketLayout{grid-template-columns:1fr 1fr;}}
-    @media (max-width:700px){.gamesBracketLayout{grid-template-columns:1fr;} .mobileRevealWrap{display:block !important; margin-top:12px;} }
-    .mobileRevealWrap{display:none}
-    .mobileRevealBtn{width:100%;padding:14px 20px;font-size:16px}
+    .gameBottomRevealWrap{display:none}
+    .gameBottomRevealBtn{width:100%;padding:14px 20px;font-size:16px}
+    @media (max-width:700px){
+      .gamesBracketLayout{grid-template-columns:1fr;}
+      .gameBottomRevealWrap{display:block;margin-top:12px}
+    }
   </style>
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
@@ -48,8 +51,6 @@
       <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
       <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
       <a class="navLink" href="nba.html">NBA Bracket</a>
-      <a class="navLink" href="bracket-games.html">Bracket Games</a>
-      <a class="navLink" href="tickets.html">Tickets</a>
       <a class="navLink active" href="bracket-games.html">Bracket Games</a>
       <a class="navLink" href="tickets.html">Tickets</a>
       <a class="navLink" href="/#featured">Featured Brackets</a>
@@ -79,7 +80,6 @@
       </div>
 
       <div id="gameBracket"></div>
-      <div id="mobileRevealMount" class="mobileRevealWrap"></div>
     </div>
   </main>
 
@@ -240,7 +240,17 @@ function renderChampionBox(){
   const pairWrap=document.createElement('div'); pairWrap.className='gameChampChoices';
   const result=compareResult(finalPair[0],finalPair[1]);
   finalPair.forEach(player=>{ const choice=document.createElement('button'); choice.type='button'; choice.className='gamePlayerBtn'+(samePlayer(player,state.picks.champ)?' isWinner':''); choice.textContent=player?player.name:'—'; if(!player) choice.disabled=true; else choice.addEventListener('click',()=>setChampion(player)); decorateReveal(choice, player, result.winner, result.tied); pairWrap.appendChild(choice); });
-  box.appendChild(pairWrap); return box;
+  box.appendChild(pairWrap);
+  const bottomRevealWrap=document.createElement('div');
+  bottomRevealWrap.className='gameBottomRevealWrap';
+  const bottomRevealBtn=document.createElement('button');
+  bottomRevealBtn.type='button';
+  bottomRevealBtn.className='btn gameBottomRevealBtn';
+  bottomRevealBtn.textContent='Reveal Answers';
+  bottomRevealBtn.addEventListener('click', ()=>{ state.reveal=true; renderGame(); });
+  bottomRevealWrap.appendChild(bottomRevealBtn);
+  box.appendChild(bottomRevealWrap);
+  return box;
 }
 function calculateScore(){
   let correct=0,total=0;
@@ -250,20 +260,7 @@ function calculateScore(){
   const fp=championshipPlayers(); const result=compareResult(fp[0],fp[1]); if(state.picks.champ) total++; if(state.picks.champ && (result.tied || samePlayer(state.picks.champ, result.winner))) correct++;
   return {correct,total};
 }
-function renderMobileRevealButton(){
-  const mount = document.getElementById('mobileRevealMount');
-  if(!mount) return;
-  mount.innerHTML = '';
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.id = 'mobileRevealBtn';
-  btn.className = 'btn mobileRevealBtn';
-  btn.textContent = 'Reveal Answers';
-  btn.addEventListener('click', ()=>{ state.reveal = true; renderGame(); });
-  mount.appendChild(btn);
-}
-
-$1
+function renderGame(){
   document.getElementById('currentGameBtn').textContent = MODES[state.mode].title;
   document.getElementById('gameSubhead').textContent = MODES[state.mode].subhead;
   const mount=document.getElementById('gameBracket'); mount.innerHTML='';
