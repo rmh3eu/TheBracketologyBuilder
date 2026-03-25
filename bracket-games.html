@@ -4,76 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bracket Games</title>
-  <link rel="stylesheet" href="/style.css?vfix_games1">
+  <link rel="stylesheet" href="/style.css?vbg1">
+  <style>
+    .gamesTopBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .gamesBracketLayout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+    .gameRoundColumn,.gameChampionBox{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .gameRoundTitle{font-weight:900;margin-bottom:10px;color:#111827}
+    .gameMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+    .gamePlayerBtn{width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;position:relative}
+    .gamePlayerBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
+    .gamePlayerBtn.isCorrect{outline:3px solid #10b981}
+    .gamePlayerBtn.isIncorrect{outline:3px solid #ef4444}
+    .gameRevealMeta{display:block;font-size:12px;font-weight:700;margin-top:4px;opacity:0.95}
+    .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .gameModeTag{display:inline-block;padding:6px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:12px}
+    @media (max-width:1024px){.gamesBracketLayout{grid-template-columns:1fr 1fr;}}
+    @media (max-width:700px){.gamesBracketLayout{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
-<header class="topbar">
-  <div class="brandWrap">
-    <div class="brandRow">
-      <div class="brand">Bracketology Builder</div>
-      <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
     </div>
-    <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    <div class="actions"></div>
+  </header>
+
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" href="/">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="nba.html">NBA Bracket</a>
+      <a class="navLink active" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+    </nav>
   </div>
-  <div class="actions"></div>
-</header>
 
-<div class="stickyNav">
-  <nav aria-label="Primary" class="siteNav">
-    <a class="navLink" href="/">Home</a>
-    <a class="navLink" href="my-brackets.html">My Brackets</a>
-    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
-    <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
-    <a class="navLink" href="nba.html">NBA Bracket</a>
-    <a class="navLink active" href="bracket-games.html">Bracket Games</a>
-    <a class="navLink" href="/#featured">Featured Brackets</a>
-    <a class="navLink" href="/#upcoming">Upcoming Events</a>
-  </nav>
-</div>
+  <main class="wrap">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Bracket Games</h2>
+        <div class="subhead">Pick who you think is taller. Reveal the answers when you’re done.</div>
+      </div>
 
-<main class="wrap">
-  <div class="panel">
-    <div class="panelHead">
-      <h2>Bracket Games</h2>
-      <div class="subhead">Pick who you think is taller. Reveal the answers at the end.</div>
+      <div class="gamesTopBar">
+        <span class="gameModeTag">NBA Height Game</span>
+        <button id="newGameBtn" class="btn primary" type="button">Replay With New Players</button>
+        <button id="revealBtn" class="btn" type="button">Reveal Answers</button>
+        <span id="scoreText" class="tinyMuted"></span>
+      </div>
+
+      <div id="gameBracket"></div>
     </div>
-
-    <div class="gamesTopBar">
-      <button id="newGameBtn" class="btn primary" type="button">New Game</button>
-      <button id="revealBtn" class="btn" type="button">Reveal Answers</button>
-      <span id="scoreText" class="tinyMuted"></span>
-    </div>
-
-    <div id="gameBracket" class="gamesBracket"></div>
-  </div>
-</main>
+  </main>
 
 <script>
-const PLAYERS = [
-  { name: "LeBron James", feet: 6, inches: 9 },
-  { name: "Kevin Durant", feet: 6, inches: 10 },
-  { name: "Stephen Curry", feet: 6, inches: 2 },
-  { name: "Giannis Antetokounmpo", feet: 6, inches: 11 },
-  { name: "Jayson Tatum", feet: 6, inches: 8 },
-  { name: "Luka Doncic", feet: 6, inches: 7 },
-  { name: "Joel Embiid", feet: 7, inches: 0 },
-  { name: "Nikola Jokic", feet: 6, inches: 11 },
-  { name: "Devin Booker", feet: 6, inches: 6 },
-  { name: "Jimmy Butler", feet: 6, inches: 7 },
-  { name: "Anthony Edwards", feet: 6, inches: 4 },
-  { name: "Ja Morant", feet: 6, inches: 2 },
-  { name: "Kawhi Leonard", feet: 6, inches: 7 },
-  { name: "Paul George", feet: 6, inches: 8 },
-  { name: "Damian Lillard", feet: 6, inches: 2 },
-  { name: "Zion Williamson", feet: 6, inches: 6 },
-  { name: "Anthony Davis", feet: 6, inches: 10 },
-  { name: "Victor Wembanyama", feet: 7, inches: 4 },
-  { name: "Tyrese Haliburton", feet: 6, inches: 5 },
-  { name: "Kyrie Irving", feet: 6, inches: 2 },
-  { name: "Shai Gilgeous-Alexander", feet: 6, inches: 6 },
-  { name: "Jalen Brunson", feet: 6, inches: 2 },
-  { name: "Karl-Anthony Towns", feet: 7, inches: 0 },
-  { name: "Donovan Mitchell", feet: 6, inches: 3 }
+const PLAYER_POOL = [
+  { name:"LeBron James", feet:6, inches:9 },
+  { name:"Kevin Durant", feet:6, inches:11 },
+  { name:"Stephen Curry", feet:6, inches:2 },
+  { name:"Giannis Antetokounmpo", feet:6, inches:11 },
+  { name:"Jayson Tatum", feet:6, inches:8 },
+  { name:"Luka Doncic", feet:6, inches:7 },
+  { name:"Joel Embiid", feet:7, inches:0 },
+  { name:"Nikola Jokic", feet:6, inches:11 },
+  { name:"Devin Booker", feet:6, inches:6 },
+  { name:"Jimmy Butler", feet:6, inches:7 },
+  { name:"Anthony Edwards", feet:6, inches:4 },
+  { name:"Ja Morant", feet:6, inches:2 },
+  { name:"Kawhi Leonard", feet:6, inches:7 },
+  { name:"Paul George", feet:6, inches:8 },
+  { name:"Damian Lillard", feet:6, inches:2 },
+  { name:"Zion Williamson", feet:6, inches:6 },
+  { name:"Anthony Davis", feet:6, inches:10 },
+  { name:"Victor Wembanyama", feet:7, inches:4 },
+  { name:"Tyrese Haliburton", feet:6, inches:5 },
+  { name:"Kyrie Irving", feet:6, inches:2 },
+  { name:"Shai Gilgeous-Alexander", feet:6, inches:6 },
+  { name:"Jalen Brunson", feet:6, inches:2 },
+  { name:"Karl-Anthony Towns", feet:7, inches:0 },
+  { name:"Donovan Mitchell", feet:6, inches:3 },
+  { name:"Jaylen Brown", feet:6, inches:6 },
+  { name:"Trae Young", feet:6, inches:1 },
+  { name:"Paolo Banchero", feet:6, inches:10 },
+  { name:"Chet Holmgren", feet:7, inches:1 },
+  { name:"Tyrese Maxey", feet:6, inches:2 },
+  { name:"De'Aaron Fox", feet:6, inches:3 },
+  { name:"Bam Adebayo", feet:6, inches:9 },
+  { name:"Jamal Murray", feet:6, inches:4 },
+  { name:"Brandon Ingram", feet:6, inches:8 },
+  { name:"Mikal Bridges", feet:6, inches:6 },
+  { name:"Darius Garland", feet:6, inches:1 },
+  { name:"Pascal Siakam", feet:6, inches:8 },
+  { name:"Jrue Holiday", feet:6, inches:4 },
+  { name:"LaMelo Ball", feet:6, inches:7 },
+  { name:"Domantas Sabonis", feet:6, inches:10 },
+  { name:"Alperen Sengun", feet:6, inches:11 }
 ];
 
 const state = {
@@ -91,7 +124,7 @@ function shuffle(arr){
   return copy;
 }
 function samplePlayers(){
-  return shuffle(PLAYERS).slice(0, 16);
+  return shuffle(PLAYER_POOL).slice(0, 16);
 }
 function heightToInches(p){
   return (p.feet * 12) + p.inches;
@@ -119,26 +152,19 @@ function clearDownstream(fromRound){
     state.picks.champ = null;
   }
 }
-function roundOnePlayers(){
-  return state.players;
-}
+function roundOnePlayers(){ return state.players; }
 function roundTwoPlayers(){
   const out = [];
-  for(let i=0;i<8;i++){
-    out.push(state.picks.r1[i] || null);
-  }
+  for(let i=0;i<8;i++) out.push(state.picks.r1[i] || null);
   return out;
 }
 function finalFourPlayers(){
   const out = [];
-  for(let i=0;i<4;i++){
-    out.push(state.picks.r2[i] || null);
-  }
+  for(let i=0;i<4;i++) out.push(state.picks.r2[i] || null);
   return out;
 }
-function championshipPlayers(){
-  return [state.picks.r3[0] || null, state.picks.r3[1] || null];
-}
+function championshipPlayers(){ return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
+
 function setPick(roundKey, index, player){
   state.picks[roundKey][index] = player;
   if(roundKey === 'r1') clearDownstream(1);
@@ -150,9 +176,22 @@ function setChampion(player){
   state.picks.champ = player;
   renderGame();
 }
+
+function decorateReveal(btn, player, actualWinner){
+  if(!state.reveal || !player) return;
+  const meta = document.createElement('div');
+  meta.className = 'gameRevealMeta';
+  meta.textContent = heightLabel(player) + (samePlayer(player, actualWinner) ? ' ✓' : '');
+  btn.appendChild(meta);
+  if(samePlayer(player, actualWinner)) btn.classList.add('isCorrect');
+  else btn.classList.add('isIncorrect');
+}
+
 function matchupCard(a, b, currentWinner, onPick){
   const card = document.createElement('div');
   card.className = 'gameMatchupCard';
+  const actualWinner = getWinner(a,b);
+
   [a, b].forEach((player)=>{
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -163,17 +202,12 @@ function matchupCard(a, b, currentWinner, onPick){
     } else {
       btn.addEventListener('click', ()=>onPick(player));
     }
-    if(state.reveal && player){
-      const meta = document.createElement('div');
-      meta.className = 'gameRevealMeta';
-      const actualWinner = getWinner(a,b);
-      meta.textContent = heightLabel(player) + (samePlayer(player, actualWinner) ? ' ✓' : '');
-      btn.appendChild(meta);
-    }
+    decorateReveal(btn, player, actualWinner);
     card.appendChild(btn);
   });
   return card;
 }
+
 function renderRound(title, players, winnersNeeded, currentMap, onPick){
   const col = document.createElement('div');
   col.className = 'gameRoundColumn';
@@ -189,6 +223,7 @@ function renderRound(title, players, winnersNeeded, currentMap, onPick){
   }
   return col;
 }
+
 function renderChampionBox(){
   const box = document.createElement('div');
   box.className = 'gameChampionBox';
@@ -198,45 +233,33 @@ function renderChampionBox(){
   box.appendChild(title);
 
   const finalPair = championshipPlayers();
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'gamePlayerBtn' + (state.picks.champ ? ' isWinner' : '');
-  btn.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
-  if(finalPair[0] || finalPair[1]){
-    btn.addEventListener('click', ()=>{});
-  } else {
-    btn.disabled = true;
-  }
+  const champ = document.createElement('div');
+  champ.className = 'gameChampionDisplay';
+  champ.style.cssText = 'margin-bottom:10px;padding:12px;border-radius:12px;background:#111827;color:#fff;font-weight:900;';
+  champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
   if(state.reveal && state.picks.champ){
-    const meta = document.createElement('div');
-    meta.className = 'gameRevealMeta';
     const actual = getWinner(finalPair[0], finalPair[1]);
-    meta.textContent = heightLabel(state.picks.champ) + (samePlayer(state.picks.champ, actual) ? ' ✓' : '');
-    btn.appendChild(meta);
+    champ.textContent = state.picks.champ.name + ' ' + heightLabel(state.picks.champ) + (samePlayer(state.picks.champ, actual) ? ' ✓' : '');
   }
-  box.appendChild(btn);
+  box.appendChild(champ);
 
   const pairWrap = document.createElement('div');
   pairWrap.className = 'gameChampChoices';
+  const actual = getWinner(finalPair[0], finalPair[1]);
   finalPair.forEach(player=>{
     const choice = document.createElement('button');
     choice.type = 'button';
-    choice.className = 'gamePlayerBtn gameChampionPick' + (samePlayer(player, state.picks.champ) ? ' isWinner' : '');
+    choice.className = 'gamePlayerBtn' + (samePlayer(player, state.picks.champ) ? ' isWinner' : '');
     choice.textContent = player ? player.name : '—';
     if(!player) choice.disabled = true;
     else choice.addEventListener('click', ()=>setChampion(player));
-    if(state.reveal && player){
-      const meta = document.createElement('div');
-      meta.className = 'gameRevealMeta';
-      const actual = getWinner(finalPair[0], finalPair[1]);
-      meta.textContent = heightLabel(player) + (samePlayer(player, actual) ? ' ✓' : '');
-      choice.appendChild(meta);
-    }
+    decorateReveal(choice, player, actual);
     pairWrap.appendChild(choice);
   });
   box.appendChild(pairWrap);
   return box;
 }
+
 function calculateScore(){
   let correct = 0;
   let total = 0;
@@ -247,28 +270,31 @@ function calculateScore(){
     if(state.picks.r1[i]) total++;
     if(samePlayer(state.picks.r1[i], actual)) correct++;
   }
+
   const r2 = roundTwoPlayers();
   for(let i=0;i<4;i++){
     const actual = getWinner(r2[i*2], r2[i*2+1]);
     if(state.picks.r2[i]) total++;
     if(samePlayer(state.picks.r2[i], actual)) correct++;
   }
+
   const r3 = finalFourPlayers();
   for(let i=0;i<2;i++){
     const actual = getWinner(r3[i*2], r3[i*2+1]);
     if(state.picks.r3[i]) total++;
     if(samePlayer(state.picks.r3[i], actual)) correct++;
   }
+
   const finalPair = championshipPlayers();
   const actualChamp = getWinner(finalPair[0], finalPair[1]);
   if(state.picks.champ) total++;
   if(samePlayer(state.picks.champ, actualChamp)) correct++;
   return { correct, total };
 }
+
 function renderGame(){
   const mount = document.getElementById('gameBracket');
   mount.innerHTML = '';
-
   const layout = document.createElement('div');
   layout.className = 'gamesBracketLayout';
 
@@ -287,6 +313,7 @@ function renderGame(){
     scoreEl.textContent = '';
   }
 }
+
 function newGame(){
   state.players = samplePlayers();
   state.picks = { r1: {}, r2: {}, r3: {}, champ: null };

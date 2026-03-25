@@ -823,7 +823,7 @@ async function betOnlinePromoModal(){
     close.addEventListener('click', (e)=>{ e.stopPropagation(); overlay.remove(); resolve('closed'); });
 
     const savedText = el('div','betOnlinePromoSavedText');
-    savedText.textContent = 'To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
+    savedText.textContent = 'To Enter: To Enter: Go to a Challenge Page and Click Go to Second Chance then Enter Your Bracket';
 
     const titleLink = document.createElement('a');
     titleLink.className = 'betOnlinePromoTitleLink';
@@ -4524,7 +4524,16 @@ function renderAll(){
   if(phase==='full'){
     // Mobile: render a single unified bracket (no per-region boxes, no auto-shift)
     // Mobile: render the standard full bracket (with horizontal scroll via CSS).
-    // Mobile: do not persist horizontal region scroll positions.
+// Preserve mobile scroll positions across re-render (prevents jitter).
+    if(isMobile()){
+      const scs = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
+      scs.forEach(s=>{
+        const key = s.dataset.region || '';
+        if(key) state.ui.regionScrollLeft[key] = s.scrollLeft || 0;
+      });
+      const ff = document.querySelector('#ffScroller');
+      if(ff) state.ui.regionScrollLeft['Final Four'] = ff.scrollLeft || 0;
+    }
 
     // Regions (full pre-selection)
     const scrollers = [];
@@ -4564,6 +4573,43 @@ function renderAll(){
   try{ bbForceNcaaRegionAds(); }catch(_e){}
   // Phase 4: update Submit for Featured CTA
   try{ phase4UpdateFeatureCTA(); }catch(_e){}
+
+    // Restore scroll positions after re-render.
+    if(isMobile()){
+      const scs2 = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
+      scs2.forEach(s=>{
+        const key = s.dataset.region || '';
+        if(!key) return;
+        const saved = state.ui.regionScrollLeft[key];
+        if(saved!==undefined && saved!==null) s.scrollLeft = saved;
+      });
+      const ff2 = document.querySelector('#ffScroller');
+      if(ff2){
+        const saved = state.ui.regionScrollLeft['Final Four'];
+        if(saved!==undefined && saved!==null) ff2.scrollLeft = saved;
+      }
+      /* Keep only horizontal in-region scroll restoration.
+         Do NOT force page vertical scroll on mobile; it blocks natural up/down browsing. */
+      try{
+        setTimeout(()=>{
+          try{
+            const scs3 = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo'));
+            scs3.forEach(s=>{
+              const key = s.dataset.region || '';
+              if(!key) return;
+              const saved = state.ui.regionScrollLeft[key];
+              if(saved!==undefined && saved!==null) s.scrollLeft = saved;
+            });
+            const ff3 = document.querySelector('#ffScroller');
+            if(ff3){
+              const saved = state.ui.regionScrollLeft['Final Four'];
+              if(saved!==undefined && saved!==null) ff3.scrollLeft = saved;
+            }
+          }catch(_e){}
+        }, 0);
+      }catch(_e){}
+    }
+
 
   }else{
     // Clear full bracket mounts
@@ -5734,25 +5780,3 @@ function bbRestorePageVerticalScroll(){
 window.addEventListener('load', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
 document.addEventListener('DOMContentLoaded', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
 window.addEventListener('resize', ()=>setTimeout(bbRestorePageVerticalScroll, 50));
-
-
-function bbNormalizeNcaaMobileScrollFeel(){
-  try{
-    document.documentElement.style.overflowX = 'hidden';
-    document.documentElement.style.overflowY = 'auto';
-    document.body.style.overflowX = 'hidden';
-    document.body.style.overflowY = 'auto';
-    const regions = Array.from(document.querySelectorAll('.geo.regionGeo, .geo.mobileUnifiedGeo, .regionGeo'));
-    regions.forEach((el)=>{
-      try{
-        el.style.touchAction = 'auto';
-        el.style.webkitOverflowScrolling = 'touch';
-        el.style.overscrollBehaviorX = 'contain';
-        el.style.overscrollBehaviorY = 'auto';
-      }catch(_e){}
-    });
-  }catch(_e){}
-}
-window.addEventListener('load', ()=>setTimeout(bbNormalizeNcaaMobileScrollFeel, 80));
-document.addEventListener('DOMContentLoaded', ()=>setTimeout(bbNormalizeNcaaMobileScrollFeel, 80));
-window.addEventListener('resize', ()=>setTimeout(bbNormalizeNcaaMobileScrollFeel, 80));
