@@ -46,7 +46,10 @@
       <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
       <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
       <a class="navLink" href="nba.html">NBA Bracket</a>
+      <a class="navLink" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
       <a class="navLink active" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
       <a class="navLink" href="/#featured">Featured Brackets</a>
       <a class="navLink" href="/#upcoming">Upcoming Events</a>
     </nav>
@@ -64,9 +67,11 @@
         <button id="newGameBtn" class="gameTopBtn" type="button">Replay With New Players</button>
         <button id="revealBtn" class="gameTopBtn" type="button">Reveal Answers</button>
         <select id="modeSelect" class="gamePicker">
-          <option value="height">Pick Another Game</option>
+          <option value="">Pick Another Game</option>
+          <option value="height">The Height Game</option>
           <option value="age">The Age Game</option>
           <option value="points">The Career Points Game</option>
+          <option value="alltime">The All Time Points Game</option>
         </select>
         <span id="scoreText" class="tinyMuted"></span>
       </div>
@@ -74,6 +79,7 @@
       <div id="gameBracket"></div>
     </div>
   </main>
+
 
 <script>
 const PLAYER_POOL = [
@@ -118,25 +124,36 @@ const PLAYER_POOL = [
   { name:"Domantas Sabonis", feet:6, inches:10, age:29, points:9788 },
   { name:"Alperen Sengun", feet:6, inches:11, age:22, points:3858 }
 ];
+const ALLTIME_POOL = [{ name:"LeBron James", alltime_points:43253 },{ name:"Kareem Abdul-Jabbar", alltime_points:38387 },{ name:"Karl Malone", alltime_points:36928 },{ name:"Kobe Bryant", alltime_points:33643 },{ name:"Kevin Durant", alltime_points:32334 },{ name:"Michael Jordan", alltime_points:32292 },{ name:"Dirk Nowitzki", alltime_points:31560 },{ name:"Wilt Chamberlain", alltime_points:31419 },{ name:"James Harden", alltime_points:29160 },{ name:"Shaquille O'Neal", alltime_points:28596 },{ name:"Carmelo Anthony", alltime_points:28289 },{ name:"Moses Malone", alltime_points:27409 },{ name:"Elvin Hayes", alltime_points:27313 },{ name:"Russell Westbrook", alltime_points:27176 },{ name:"Hakeem Olajuwon", alltime_points:26946 },{ name:"Oscar Robertson", alltime_points:26710 },{ name:"Dominique Wilkins", alltime_points:26668 },{ name:"DeMar DeRozan", alltime_points:26605 },{ name:"Tim Duncan", alltime_points:26496 },{ name:"Stephen Curry", alltime_points:26447 },{ name:"Paul Pierce", alltime_points:26397 },{ name:"John Havlicek", alltime_points:26395 },{ name:"Kevin Garnett", alltime_points:26071 },{ name:"Vince Carter", alltime_points:25728 },{ name:"Alex English", alltime_points:25613 },{ name:"Reggie Miller", alltime_points:25279 },{ name:"Jerry West", alltime_points:25192 },{ name:"Patrick Ewing", alltime_points:24815 },{ name:"Ray Allen", alltime_points:24505 },{ name:"Allen Iverson", alltime_points:24368 },{ name:"Charles Barkley", alltime_points:23757 },{ name:"Robert Parish", alltime_points:23334 },{ name:"Adrian Dantley", alltime_points:23177 },{ name:"Dwyane Wade", alltime_points:23165 },{ name:"Elgin Baylor", alltime_points:23149 },{ name:"Chris Paul", alltime_points:23058 },{ name:"Damian Lillard", alltime_points:22598 },{ name:"Clyde Drexler", alltime_points:22195 },{ name:"Gary Payton", alltime_points:21813 },{ name:"Larry Bird", alltime_points:21791 }];
 
 const MODES = {
   height: {
     title: 'The Height Game',
     subhead: 'Pick who you think is taller. Reveal the answers when you’re done.',
     compareValue: (p) => (p.feet * 12) + p.inches,
-    reveal: (p) => `${p.feet}'${p.inches}"`
+    reveal: (p) => `${p.feet}'${p.inches}"`,
+    pool: () => PLAYER_POOL
   },
   age: {
     title: 'The Age Game',
     subhead: 'Pick who you think is older. Reveal the answers when you’re done.',
     compareValue: (p) => p.age,
-    reveal: (p) => `${p.age} years old`
+    reveal: (p) => `${p.age} years old`,
+    pool: () => PLAYER_POOL
   },
   points: {
     title: 'The Career Points Game',
-    subhead: 'Pick who you think has more career points. Reveal the answers when you’re done.',
+    subhead: 'Pick who you think has more current career points. Reveal the answers when you’re done.',
     compareValue: (p) => p.points,
-    reveal: (p) => `${Number(p.points).toLocaleString()} points`
+    reveal: (p) => `${Number(p.points).toLocaleString()} points`,
+    pool: () => PLAYER_POOL
+  },
+  alltime: {
+    title: 'The All Time Points Game',
+    subhead: 'Pick who you think has more all time NBA regular-season points. Reveal the answers when you’re done.',
+    compareValue: (p) => p.alltime_points,
+    reveal: (p) => `${Number(p.alltime_points).toLocaleString()} all time points`,
+    pool: () => ALLTIME_POOL
   }
 };
 
@@ -149,25 +166,20 @@ const state = {
 
 function shuffle(arr){
   const copy = [...arr];
-  for(let i = copy.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
+  for(let i = copy.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; }
   return copy;
 }
-function samplePlayers(){ return shuffle(PLAYER_POOL).slice(0, 16); }
-function samePlayer(a, b){ return !!a && !!b && a.name === b.name; }
-function compareResult(a, b){
-  if(!a && !b) return { winner:null, tied:false };
-  if(!a) return { winner:b || null, tied:false };
-  if(!b) return { winner:a || null, tied:false };
-  const av = MODES[state.mode].compareValue(a);
-  const bv = MODES[state.mode].compareValue(b);
-  if(av === bv) return { winner:null, tied:true };
-  return { winner: av > bv ? a : b, tied:false };
+function samplePlayers(){ return shuffle(MODES[state.mode].pool()).slice(0, 16); }
+function samePlayer(a,b){ return !!a && !!b && a.name===b.name; }
+function compareResult(a,b){
+  if(!a && !b) return {winner:null,tied:false};
+  if(!a) return {winner:b||null,tied:false};
+  if(!b) return {winner:a||null,tied:false};
+  const av = MODES[state.mode].compareValue(a), bv = MODES[state.mode].compareValue(b);
+  if(av === bv) return {winner:null,tied:true};
+  return {winner: av > bv ? a : b, tied:false};
 }
-function getWinner(a,b){ return compareResult(a,b).winner; }
-function revealLabel(player){ return player ? MODES[state.mode].reveal(player) : ''; }
+function revealLabel(p){ return p ? MODES[state.mode].reveal(p) : ''; }
 function clearDownstream(fromRound){
   if(fromRound <= 1){ state.picks.r2 = {}; state.picks.r3 = {}; state.picks.champ = null; }
   else if(fromRound === 2){ state.picks.r3 = {}; state.picks.champ = null; }
@@ -179,167 +191,80 @@ function finalFourPlayers(){ const out=[]; for(let i=0;i<4;i++) out.push(state.p
 function championshipPlayers(){ return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
 function setPick(roundKey, index, player){
   state.picks[roundKey][index] = player;
-  if(roundKey === 'r1') clearDownstream(1);
-  else if(roundKey === 'r2') clearDownstream(2);
-  else if(roundKey === 'r3') clearDownstream(3);
+  if(roundKey === 'r1') clearDownstream(1); else if(roundKey === 'r2') clearDownstream(2); else if(roundKey === 'r3') clearDownstream(3);
   renderGame();
 }
 function setChampion(player){ state.picks.champ = player; renderGame(); }
 
 function decorateReveal(btn, player, actualWinner, tied){
   if(!state.reveal || !player) return;
-  const meta = document.createElement('div');
-  meta.className = 'gameRevealMeta';
+  const meta=document.createElement('div'); meta.className='gameRevealMeta';
   let text = revealLabel(player);
-
   const picked = btn.classList.contains('isWinner');
-  if(tied){
-    if(picked) text = '✓ ' + text;
-  } else {
+  if(tied){ if(picked) text = '✓ ' + text; }
+  else {
     if(picked && samePlayer(player, actualWinner)) text = '✓ ' + text;
-    else if(picked && !samePlayer(player, actualWinner)){
-      text = '✗ ' + text;
-      btn.classList.add('isIncorrect');
-    }
+    else if(picked && !samePlayer(player, actualWinner)){ text = '✗ ' + text; btn.classList.add('isIncorrect'); }
   }
-  meta.textContent = text;
-  btn.appendChild(meta);
+  meta.textContent = text; btn.appendChild(meta);
 }
 
-function matchupCard(a, b, currentWinner, onPick){
-  const card = document.createElement('div');
-  card.className = 'gameMatchupCard';
-  const result = compareResult(a,b);
-  const actualWinner = result.winner;
-  const tied = result.tied;
-
-  [a, b].forEach((player)=>{
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'gamePlayerBtn' + (samePlayer(player, currentWinner) ? ' isWinner' : '');
-    btn.textContent = player ? player.name : '—';
-    if(!player) btn.disabled = true;
-    else btn.addEventListener('click', ()=>onPick(player));
-    decorateReveal(btn, player, actualWinner, tied);
+function matchupCard(a,b,currentWinner,onPick){
+  const card=document.createElement('div'); card.className='gameMatchupCard';
+  const result=compareResult(a,b);
+  [a,b].forEach(player=>{
+    const btn=document.createElement('button'); btn.type='button'; btn.className='gamePlayerBtn'+(samePlayer(player,currentWinner)?' isWinner':''); btn.textContent=player?player.name:'—';
+    if(!player) btn.disabled=true; else btn.addEventListener('click',()=>onPick(player));
+    decorateReveal(btn, player, result.winner, result.tied);
     card.appendChild(btn);
   });
   return card;
 }
-
 function renderRound(title, players, winnersNeeded, currentMap, onPick){
-  const col = document.createElement('div');
-  col.className = 'gameRoundColumn';
-  const head = document.createElement('div');
-  head.className = 'gameRoundTitle';
-  head.textContent = title;
-  col.appendChild(head);
-  for(let i=0;i<winnersNeeded;i++){
-    const a = players[i*2] || null;
-    const b = players[i*2 + 1] || null;
-    col.appendChild(matchupCard(a, b, currentMap[i] || null, (player)=>onPick(i, player)));
-  }
+  const col=document.createElement('div'); col.className='gameRoundColumn';
+  const head=document.createElement('div'); head.className='gameRoundTitle'; head.textContent=title; col.appendChild(head);
+  for(let i=0;i<winnersNeeded;i++){ const a=players[i*2]||null, b=players[i*2+1]||null; col.appendChild(matchupCard(a,b,currentMap[i]||null,p=>onPick(i,p))); }
   return col;
 }
-
 function renderChampionBox(){
-  const box = document.createElement('div');
-  box.className = 'gameChampionBox';
-  const title = document.createElement('div');
-  title.className = 'gameRoundTitle';
-  title.textContent = 'Champion';
-  box.appendChild(title);
-
-  const finalPair = championshipPlayers();
-  const champ = document.createElement('div');
-  champ.className = 'gameChampionDisplay';
-  champ.style.cssText = 'margin-bottom:10px;padding:12px;border-radius:12px;background:#111827;color:#fff;font-weight:900;';
-  champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
-  if(state.reveal && state.picks.champ){
-    const result = compareResult(finalPair[0], finalPair[1]);
-    champ.textContent = state.picks.champ.name + ((result.tied || samePlayer(state.picks.champ, result.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ);
-  }
+  const box=document.createElement('div'); box.className='gameChampionBox';
+  const title=document.createElement('div'); title.className='gameRoundTitle'; title.textContent='Champion'; box.appendChild(title);
+  const finalPair=championshipPlayers();
+  const champ=document.createElement('div'); champ.className='gameChampionDisplay'; champ.style.cssText='margin-bottom:10px;padding:12px;border-radius:12px;background:#111827;color:#fff;font-weight:900;';
+  champ.textContent=state.picks.champ ? state.picks.champ.name : 'Pick Champion';
+  if(state.reveal && state.picks.champ){ const result=compareResult(finalPair[0],finalPair[1]); champ.textContent=state.picks.champ.name + ((result.tied || samePlayer(state.picks.champ,result.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ); }
   box.appendChild(champ);
-
-  const pairWrap = document.createElement('div');
-  pairWrap.className = 'gameChampChoices';
-  const result = compareResult(finalPair[0], finalPair[1]);
-  finalPair.forEach(player=>{
-    const choice = document.createElement('button');
-    choice.type = 'button';
-    choice.className = 'gamePlayerBtn' + (samePlayer(player, state.picks.champ) ? ' isWinner' : '');
-    choice.textContent = player ? player.name : '—';
-    if(!player) choice.disabled = true;
-    else choice.addEventListener('click', ()=>setChampion(player));
-    decorateReveal(choice, player, result.winner, result.tied);
-    pairWrap.appendChild(choice);
-  });
-  box.appendChild(pairWrap);
-  return box;
+  const pairWrap=document.createElement('div'); pairWrap.className='gameChampChoices';
+  const result=compareResult(finalPair[0],finalPair[1]);
+  finalPair.forEach(player=>{ const choice=document.createElement('button'); choice.type='button'; choice.className='gamePlayerBtn'+(samePlayer(player,state.picks.champ)?' isWinner':''); choice.textContent=player?player.name:'—'; if(!player) choice.disabled=true; else choice.addEventListener('click',()=>setChampion(player)); decorateReveal(choice, player, result.winner, result.tied); pairWrap.appendChild(choice); });
+  box.appendChild(pairWrap); return box;
 }
-
 function calculateScore(){
-  let correct = 0, total = 0;
-  const r1 = roundOnePlayers();
-  for(let i=0;i<8;i++){
-    const result = compareResult(r1[i*2], r1[i*2+1]);
-    if(state.picks.r1[i]) total++;
-    if(state.picks.r1[i] && (result.tied || samePlayer(state.picks.r1[i], result.winner))) correct++;
-  }
-  const r2 = roundTwoPlayers();
-  for(let i=0;i<4;i++){
-    const result = compareResult(r2[i*2], r2[i*2+1]);
-    if(state.picks.r2[i]) total++;
-    if(state.picks.r2[i] && (result.tied || samePlayer(state.picks.r2[i], result.winner))) correct++;
-  }
-  const r3 = finalFourPlayers();
-  for(let i=0;i<2;i++){
-    const result = compareResult(r3[i*2], r3[i*2+1]);
-    if(state.picks.r3[i]) total++;
-    if(state.picks.r3[i] && (result.tied || samePlayer(state.picks.r3[i], result.winner))) correct++;
-  }
-  const finalPair = championshipPlayers();
-  const result = compareResult(finalPair[0], finalPair[1]);
-  if(state.picks.champ) total++;
-  if(state.picks.champ && (result.tied || samePlayer(state.picks.champ, result.winner))) correct++;
-  return { correct, total };
+  let correct=0,total=0;
+  const r1=roundOnePlayers(); for(let i=0;i<8;i++){ const result=compareResult(r1[i*2],r1[i*2+1]); if(state.picks.r1[i]) total++; if(state.picks.r1[i] && (result.tied || samePlayer(state.picks.r1[i], result.winner))) correct++; }
+  const r2=roundTwoPlayers(); for(let i=0;i<4;i++){ const result=compareResult(r2[i*2],r2[i*2+1]); if(state.picks.r2[i]) total++; if(state.picks.r2[i] && (result.tied || samePlayer(state.picks.r2[i], result.winner))) correct++; }
+  const r3=finalFourPlayers(); for(let i=0;i<2;i++){ const result=compareResult(r3[i*2],r3[i*2+1]); if(state.picks.r3[i]) total++; if(state.picks.r3[i] && (result.tied || samePlayer(state.picks.r3[i], result.winner))) correct++; }
+  const fp=championshipPlayers(); const result=compareResult(fp[0],fp[1]); if(state.picks.champ) total++; if(state.picks.champ && (result.tied || samePlayer(state.picks.champ, result.winner))) correct++;
+  return {correct,total};
 }
-
 function renderGame(){
   document.getElementById('currentGameBtn').textContent = MODES[state.mode].title;
   document.getElementById('gameSubhead').textContent = MODES[state.mode].subhead;
-
-  const mount = document.getElementById('gameBracket');
-  mount.innerHTML = '';
-  const layout = document.createElement('div');
-  layout.className = 'gamesBracketLayout';
-  layout.appendChild(renderRound('Round 1', roundOnePlayers(), 8, state.picks.r1, (i, player)=>setPick('r1', i, player)));
-  layout.appendChild(renderRound('Quarterfinals', roundTwoPlayers(), 4, state.picks.r2, (i, player)=>setPick('r2', i, player)));
-  layout.appendChild(renderRound('Semifinals', finalFourPlayers(), 2, state.picks.r3, (i, player)=>setPick('r3', i, player)));
+  const mount=document.getElementById('gameBracket'); mount.innerHTML='';
+  const layout=document.createElement('div'); layout.className='gamesBracketLayout';
+  layout.appendChild(renderRound('Round 1',roundOnePlayers(),8,state.picks.r1,(i,p)=>setPick('r1',i,p)));
+  layout.appendChild(renderRound('Quarterfinals',roundTwoPlayers(),4,state.picks.r2,(i,p)=>setPick('r2',i,p)));
+  layout.appendChild(renderRound('Semifinals',finalFourPlayers(),2,state.picks.r3,(i,p)=>setPick('r3',i,p)));
   layout.appendChild(renderChampionBox());
   mount.appendChild(layout);
-  document.getElementById('scoreText').textContent = state.reveal ? `Score: ${calculateScore().correct} / ${calculateScore().total}` : '';
+  const s=calculateScore(); document.getElementById('scoreText').textContent = state.reveal ? `Score: ${s.correct} / ${s.total}` : '';
 }
-
-function newGame(){
-  state.players = samplePlayers();
-  state.picks = { r1: {}, r2: {}, r3: {}, champ: null };
-  state.reveal = false;
-  renderGame();
-}
-
-document.getElementById('modeSelect').addEventListener('change', (e)=>{
-  const val = e.target.value;
-  if(val === 'height' || val === 'age' || val === 'points'){
-    state.mode = val;
-    newGame();
-    e.target.value = 'height';
-  }
-});
+function newGame(){ state.players=samplePlayers(); state.picks={r1:{},r2:{},r3:{},champ:null}; state.reveal=false; renderGame(); }
+document.getElementById('modeSelect').addEventListener('change', e=>{ const val=e.target.value; if(MODES[val]){ state.mode=val; newGame(); } e.target.value=''; });
 document.getElementById('newGameBtn').addEventListener('click', newGame);
-document.getElementById('revealBtn').addEventListener('click', ()=>{ state.reveal = true; renderGame(); });
-
-state.mode = 'height';
-newGame();
+document.getElementById('revealBtn').addEventListener('click', ()=>{ state.reveal=true; renderGame(); });
+state.mode='height'; newGame();
 </script>
+
 </body>
 </html>
