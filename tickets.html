@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tickets</title>
+  <link rel="stylesheet" href="/style.css?vtk1">
+  <style>
+    .ticketsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .ticketCard{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .ticketGame{font-size:24px;font-weight:900;margin-bottom:6px;color:#111827}
+    .ticketMeta{color:#6b7280;margin-bottom:12px}
+    .ticketRows{display:grid;gap:10px}
+    .ticketRow{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;background:#f8fafc;gap:12px}
+    .ticketPrice{font-size:20px;font-weight:900;color:#111827}
+    .ticketBtn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800}
+    .ticketBtn.stubhub{background:#2563eb;color:#fff}
+    .ticketBtn.gametime{background:#111827;color:#fff}
+    .ticketHint{margin-top:18px;font-size:13px;color:#6b7280}
+    @media(max-width:900px){.ticketsGrid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body class="page-challenge-standalone page-challenge-clean-header">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" href="/">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="nba.html">NBA Bracket</a>
+      <a class="navLink" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink active" href="tickets.html">Tickets</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+    </nav>
+  </div>
+
+  <main class="wrap">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Ticket Comparison</h2>
+        <div class="subhead">A simple ticket comparison page you can expand over time.</div>
+      </div>
+
+      <div class="ticketsGrid" id="ticketsGrid"></div>
+      <div class="ticketHint">These links are set up as placeholders in the page code right now. Replace the StubHub and Gametime URLs with your real affiliate links whenever you’re ready.</div>
+    </div>
+  </main>
+
+<script>
+const TICKET_GAMES = [
+  {
+    game: 'Knicks vs Celtics',
+    when: 'Tonight • Madison Square Garden',
+    stubhubPrice: '$145',
+    gametimePrice: '$132',
+    stubhubUrl: '#',
+    gametimeUrl: '#'
+  },
+  {
+    game: 'Lakers vs Nuggets',
+    when: 'Tomorrow • Crypto.com Arena',
+    stubhubPrice: '$168',
+    gametimePrice: '$154',
+    stubhubUrl: '#',
+    gametimeUrl: '#'
+  },
+  {
+    game: 'Eagles vs Cowboys',
+    when: 'Next Home Game • Lincoln Financial Field',
+    stubhubPrice: '$289',
+    gametimePrice: '$274',
+    stubhubUrl: '#',
+    gametimeUrl: '#'
+  },
+  {
+    game: 'Phillies vs Braves',
+    when: 'This Weekend • Citizens Bank Park',
+    stubhubPrice: '$58',
+    gametimePrice: '$52',
+    stubhubUrl: '#',
+    gametimeUrl: '#'
+  }
+];
+
+const grid = document.getElementById('ticketsGrid');
+TICKET_GAMES.forEach(item => {
+  const card = document.createElement('div');
+  card.className = 'ticketCard';
+  card.innerHTML = `
+    <div class="ticketGame">${item.game}</div>
+    <div class="ticketMeta">${item.when}</div>
+    <div class="ticketRows">
+      <div class="ticketRow">
+        <div>
+          <div style="font-weight:900;">StubHub</div>
+          <div class="ticketPrice">${item.stubhubPrice}</div>
+        </div>
+        <a class="ticketBtn stubhub" href="${item.stubhubUrl}" target="_blank" rel="noopener noreferrer">View StubHub</a>
+      </div>
+      <div class="ticketRow">
+        <div>
+          <div style="font-weight:900;">Gametime</div>
+          <div class="ticketPrice">${item.gametimePrice}</div>
+        </div>
+        <a class="ticketBtn gametime" href="${item.gametimeUrl}" target="_blank" rel="noopener noreferrer">View Gametime</a>
+      </div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
