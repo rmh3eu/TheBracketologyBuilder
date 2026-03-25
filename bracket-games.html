@@ -6,13 +6,14 @@
   <title>Bracket Games</title>
   <link rel="stylesheet" href="/style.css?vbg1">
   <style>
-    .gamesTopBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+    .gamesTopBar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
     .gamesBracketLayout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
     .gameRoundColumn,.gameChampionBox{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
     .gameRoundTitle{font-weight:900;margin-bottom:10px;color:#111827}
     .gameMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
     .gamePlayerBtn{width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;position:relative}
     .gamePlayerBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
+    .gamePlayerBtn .gameMark{display:block;font-size:14px;font-weight:900;margin-top:4px}
     .gamePlayerBtn.isCorrect{outline:3px solid #10b981}
     .gamePlayerBtn.isIncorrect{outline:3px solid #ef4444}
     .gamePlayerBtn .gameResultNote{display:block;font-size:12px;font-weight:900;margin-top:4px}
@@ -20,7 +21,7 @@
     .gamePlayerBtn.isIncorrect .gameResultNote{color:#991b1b}
     .gameRevealMeta{display:block;font-size:12px;font-weight:700;margin-top:4px;opacity:0.95}
     .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-    .gameModeTag{display:inline-block;padding:6px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:12px}
+    .gameModeTag{display:inline-block;padding:12px 16px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-weight:800;font-size:14px;min-width:230px;height:52px;border:1px solid #bfdbfe}
     @media (max-width:1024px){.gamesBracketLayout{grid-template-columns:1fr 1fr;}}
     @media (max-width:700px){.gamesBracketLayout{grid-template-columns:1fr;}}
   </style>
@@ -58,9 +59,9 @@
       </div>
 
       <div class="gamesTopBar">
-        <select id="modeSelect" class="gameModeTag" style="border:0;appearance:auto;background:#eff6ff;color:#1d4ed8;"><option value="height">NBA Height Game</option><option value="age">NBA Age Game</option><option value="points">NBA Career Points Game</option></select>
-        <button id="newGameBtn" class="btn primary" type="button">Replay With New Players</button>
-        <button id="revealBtn" class="btn" type="button">Reveal Answers</button>
+        <select id="modeSelect" class="gameModeTag"><option value="height">NBA Height Game</option><option value="age">NBA Age Game</option><option value="points">NBA Career Points Game</option></select>
+        <button id="newGameBtn" class="btn primary" type="button" style="padding:14px 20px;font-size:16px;">Replay With New Players</button>
+        <button id="revealBtn" class="btn" type="button" style="padding:14px 20px;font-size:16px;">Reveal Answers</button>
         <span id="scoreText" class="tinyMuted"></span>
       </div>
 
@@ -117,22 +118,34 @@ const MODES = {
   height: {
     label: 'NBA Height Game',
     subhead: 'Pick who you think is taller. Reveal the answers when you’re done.',
-    compare: (a,b) => totalInches(a) >= totalInches(b) ? a : b,
+    compare: (a,b) => totalInches(a) > totalInches(b) ? a : b,
     reveal: p => `${p.feet}'${p.inches}"`,
   },
   age: {
     label: 'NBA Age Game',
     subhead: 'Pick who you think is older. Reveal the answers when you’re done.',
-    compare: (a,b) => a.age >= b.age ? a : b,
+    compare: (a,b) => a.age > b.age ? a : b,
     reveal: p => `${p.age} years old`,
   },
   points: {
     label: 'NBA Career Points Game',
     subhead: 'Pick who you think has more career points. Reveal the answers when you’re done.',
-    compare: (a,b) => a.points >= b.points ? a : b,
+    compare: (a,b) => a.points > b.points ? a : b,
     reveal: p => `${Number(p.points).toLocaleString()} points`,
   }
 };
+
+function compareResult(a,b){
+  if(!a && !b) return { winner:null, tied:false };
+  if(!a) return { winner:b || null, tied:false };
+  if(!b) return { winner:a || null, tied:false };
+  const ab = MODES[state.mode].compare(a,b);
+  const ba = MODES[state.mode].compare(b,a);
+  if(ab && ba && ab.name === a.name && ba.name === b.name){
+    return { winner:null, tied:true };
+  }
+  return { winner:ab, tied:false };
+}
 
 const state = {
   players: [],
@@ -153,9 +166,7 @@ function samplePlayers(){ return shuffle(PLAYER_POOL).slice(0, 16); }
 function totalInches(p){ return (p.feet * 12) + p.inches; }
 function samePlayer(a, b){ return !!a && !!b && a.name === b.name; }
 function getWinner(a, b){
-  if(!a) return b || null;
-  if(!b) return a || null;
-  return MODES[state.mode].compare(a,b);
+  return compareResult(a,b).winner;
 }
 function revealLabel(player){
   return player ? MODES[state.mode].reveal(player) : '';
@@ -178,23 +189,43 @@ function setPick(roundKey, index, player){
 }
 function setChampion(player){ state.picks.champ = player; renderGame(); }
 
-function decorateReveal(btn, player, actualWinner){
+function decorateReveal(btn, player, actualWinner, tied){
   if(!state.reveal || !player) return;
   const meta = document.createElement('div');
   meta.className = 'gameRevealMeta';
-  if(btn.classList.contains('isWinner') && !samePlayer(player, actualWinner)){
-    meta.textContent = '✗ ' + revealLabel(player);
-    btn.classList.add('isIncorrect');
-  } else {
-    meta.textContent = revealLabel(player);
-  }
+  meta.textContent = revealLabel(player);
   btn.appendChild(meta);
+
+  const picked = btn.classList.contains('isWinner');
+  const mark = document.createElement('div');
+  mark.className = 'gameMark';
+
+  if(tied){
+    if(picked){
+      mark.textContent = '✓';
+      btn.classList.add('isCorrect');
+      btn.appendChild(mark);
+    }
+    return;
+  }
+
+  if(picked && samePlayer(player, actualWinner)){
+    mark.textContent = '✓';
+    btn.classList.add('isCorrect');
+    btn.appendChild(mark);
+  } else if(picked && !samePlayer(player, actualWinner)){
+    mark.textContent = '✗';
+    btn.classList.add('isIncorrect');
+    btn.appendChild(mark);
+  }
 }
 
 function matchupCard(a, b, currentWinner, onPick){
   const card = document.createElement('div');
   card.className = 'gameMatchupCard';
-  const actualWinner = getWinner(a,b);
+  const result = compareResult(a,b);
+  const actualWinner = result.winner;
+  const tied = result.tied;
   [a, b].forEach((player)=>{
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -202,7 +233,7 @@ function matchupCard(a, b, currentWinner, onPick){
     btn.textContent = player ? player.name : '—';
     if(!player) btn.disabled = true;
     else btn.addEventListener('click', ()=>onPick(player));
-    decorateReveal(btn, player, actualWinner);
+    decorateReveal(btn, player, actualWinner, tied);
     card.appendChild(btn);
   });
   return card;
@@ -237,8 +268,10 @@ function renderChampionBox(){
   champ.style.cssText = 'margin-bottom:10px;padding:12px;border-radius:12px;background:#111827;color:#fff;font-weight:900;';
   champ.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion';
   if(state.reveal && state.picks.champ){
-    const actual = getWinner(finalPair[0], finalPair[1]);
-    champ.textContent = state.picks.champ.name + (samePlayer(state.picks.champ, actual) ? '' : ' ✗') + ' • ' + revealLabel(state.picks.champ);
+    const result = compareResult(finalPair[0], finalPair[1]);
+    const actual = result.winner;
+    const tied = result.tied;
+    champ.textContent = state.picks.champ.name + ((tied || samePlayer(state.picks.champ, actual)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ);
   }
   box.appendChild(champ);
 
@@ -252,7 +285,7 @@ function renderChampionBox(){
     choice.textContent = player ? player.name : '—';
     if(!player) choice.disabled = true;
     else choice.addEventListener('click', ()=>setChampion(player));
-    decorateReveal(choice, player, actual);
+    decorateReveal(choice, player, actual, tied);
     pairWrap.appendChild(choice);
   });
   box.appendChild(pairWrap);
@@ -263,26 +296,26 @@ function calculateScore(){
   let correct = 0, total = 0;
   const r1 = roundOnePlayers();
   for(let i=0;i<8;i++){
-    const actual = getWinner(r1[i*2], r1[i*2+1]);
+    const result = compareResult(r1[i*2], r1[i*2+1]);
     if(state.picks.r1[i]) total++;
-    if(samePlayer(state.picks.r1[i], actual)) correct++;
+    if(state.picks.r1[i] && (result.tied || samePlayer(state.picks.r1[i], result.winner))) correct++;
   }
   const r2 = roundTwoPlayers();
   for(let i=0;i<4;i++){
-    const actual = getWinner(r2[i*2], r2[i*2+1]);
+    const result = compareResult(r2[i*2], r2[i*2+1]);
     if(state.picks.r2[i]) total++;
-    if(samePlayer(state.picks.r2[i], actual)) correct++;
+    if(state.picks.r2[i] && (result.tied || samePlayer(state.picks.r2[i], result.winner))) correct++;
   }
   const r3 = finalFourPlayers();
   for(let i=0;i<2;i++){
-    const actual = getWinner(r3[i*2], r3[i*2+1]);
+    const result = compareResult(r3[i*2], r3[i*2+1]);
     if(state.picks.r3[i]) total++;
-    if(samePlayer(state.picks.r3[i], actual)) correct++;
+    if(state.picks.r3[i] && (result.tied || samePlayer(state.picks.r3[i], result.winner))) correct++;
   }
   const finalPair = championshipPlayers();
-  const actualChamp = getWinner(finalPair[0], finalPair[1]);
+  const result = compareResult(finalPair[0], finalPair[1]);
   if(state.picks.champ) total++;
-  if(samePlayer(state.picks.champ, actualChamp)) correct++;
+  if(state.picks.champ && (result.tied || samePlayer(state.picks.champ, result.winner))) correct++;
   return { correct, total };
 }
 
