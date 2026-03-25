@@ -4,20 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tickets</title>
-  <link rel="stylesheet" href="/style.css?vtk1">
+  <link rel="stylesheet" href="/style.css?vtk2">
   <style>
-    .ticketsGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .ticketsIntro{margin-bottom:18px}
+    .ticketsUpdate{font-weight:800;color:#111827;margin-bottom:6px}
+    .ticketsSub{color:#6b7280}
+    .ticketsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
     .ticketCard{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:18px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
     .ticketGame{font-size:24px;font-weight:900;margin-bottom:6px;color:#111827}
     .ticketMeta{color:#6b7280;margin-bottom:12px}
     .ticketRows{display:grid;gap:10px}
     .ticketRow{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;background:#f8fafc;gap:12px}
+    .ticketLabel{font-weight:900;color:#111827}
     .ticketPrice{font-size:20px;font-weight:900;color:#111827}
-    .ticketBtn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800}
-    .ticketBtn.stubhub{background:#2563eb;color:#fff}
+    .ticketBtn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;white-space:nowrap}
     .ticketBtn.gametime{background:#111827;color:#fff}
+    .ticketBtn.tickpick{background:#2563eb;color:#fff}
+    .ticketBtn.stubhub{background:#fff;color:#111827;border:1px solid #d1d5db}
     .ticketHint{margin-top:18px;font-size:13px;color:#6b7280}
-    @media(max-width:900px){.ticketsGrid{grid-template-columns:1fr}}
+    @media(max-width:1100px){.ticketsGrid{grid-template-columns:1fr}}
   </style>
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header">
@@ -50,47 +55,49 @@
     <div class="panel">
       <div class="panelHead">
         <h2>Ticket Comparison</h2>
-        <div class="subhead">A simple ticket comparison page you can expand over time.</div>
+      </div>
+
+      <div class="ticketsIntro">
+        <div class="ticketsUpdate">Prices last updated: March 25, 2026</div>
+        <div class="ticketsSub">Compare current ticket prices across platforms.</div>
       </div>
 
       <div class="ticketsGrid" id="ticketsGrid"></div>
-      <div class="ticketHint">These links are set up as placeholders in the page code right now. Replace the StubHub and Gametime URLs with your real affiliate links whenever you’re ready.</div>
+      <div class="ticketHint">Gametime and TickPick buttons use your affiliate links. StubHub is included as a comparison option.</div>
     </div>
   </main>
 
 <script>
 const TICKET_GAMES = [
   {
-    game: 'Knicks vs Celtics',
-    when: 'Tonight • Madison Square Garden',
-    stubhubPrice: '$145',
-    gametimePrice: '$132',
-    stubhubUrl: '#',
-    gametimeUrl: '#'
+    game: 'NCAA Tournament',
+    when: 'College Basketball',
+    gametimePrice: 'Check price',
+    tickpickPrice: 'Check price',
+    stubhubPrice: 'Check price',
+    gametimeUrl: 'https://gametime.hnyj8s.net/bkOWjv',
+    tickpickUrl: 'https://tickpick.dgrk2e.net/5k5XKn',
+    stubhubUrl: 'https://www.stubhub.com/'
   },
   {
-    game: 'Lakers vs Nuggets',
-    when: 'Tomorrow • Crypto.com Arena',
-    stubhubPrice: '$168',
-    gametimePrice: '$154',
-    stubhubUrl: '#',
-    gametimeUrl: '#'
+    game: 'NBA Tickets',
+    when: 'All Teams',
+    gametimePrice: 'Check price',
+    tickpickPrice: 'Check price',
+    stubhubPrice: 'Check price',
+    gametimeUrl: 'https://gametime.hnyj8s.net/OYe6zA',
+    tickpickUrl: 'https://tickpick.dgrk2e.net/gROvJ5',
+    stubhubUrl: 'https://www.stubhub.com/nba-tickets/grouping/121/'
   },
   {
-    game: 'Eagles vs Cowboys',
-    when: 'Next Home Game • Lincoln Financial Field',
-    stubhubPrice: '$289',
-    gametimePrice: '$274',
-    stubhubUrl: '#',
-    gametimeUrl: '#'
-  },
-  {
-    game: 'Phillies vs Braves',
-    when: 'This Weekend • Citizens Bank Park',
-    stubhubPrice: '$58',
-    gametimePrice: '$52',
-    stubhubUrl: '#',
-    gametimeUrl: '#'
+    game: 'MLB Tickets',
+    when: 'All Teams',
+    gametimePrice: 'Check price',
+    tickpickPrice: 'Check price',
+    stubhubPrice: 'Check price',
+    gametimeUrl: 'https://gametime.hnyj8s.net/vDPoWA',
+    tickpickUrl: 'https://tickpick.dgrk2e.net/zzx6Rm',
+    stubhubUrl: 'https://www.stubhub.com/mlb-tickets/grouping/81/'
   }
 ];
 
@@ -104,17 +111,24 @@ TICKET_GAMES.forEach(item => {
     <div class="ticketRows">
       <div class="ticketRow">
         <div>
-          <div style="font-weight:900;">StubHub</div>
-          <div class="ticketPrice">${item.stubhubPrice}</div>
-        </div>
-        <a class="ticketBtn stubhub" href="${item.stubhubUrl}" target="_blank" rel="noopener noreferrer">View StubHub</a>
-      </div>
-      <div class="ticketRow">
-        <div>
-          <div style="font-weight:900;">Gametime</div>
+          <div class="ticketLabel">Gametime</div>
           <div class="ticketPrice">${item.gametimePrice}</div>
         </div>
         <a class="ticketBtn gametime" href="${item.gametimeUrl}" target="_blank" rel="noopener noreferrer">View Gametime</a>
+      </div>
+      <div class="ticketRow">
+        <div>
+          <div class="ticketLabel">TickPick</div>
+          <div class="ticketPrice">${item.tickpickPrice}</div>
+        </div>
+        <a class="ticketBtn tickpick" href="${item.tickpickUrl}" target="_blank" rel="noopener noreferrer">View TickPick</a>
+      </div>
+      <div class="ticketRow">
+        <div>
+          <div class="ticketLabel">StubHub</div>
+          <div class="ticketPrice">${item.stubhubPrice}</div>
+        </div>
+        <a class="ticketBtn stubhub" href="${item.stubhubUrl}" target="_blank" rel="noopener noreferrer">View StubHub</a>
       </div>
     </div>
   `;
