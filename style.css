@@ -5120,26 +5120,3 @@ body, main, .wrap, .content{
     top: 0px !important;
   }
 }
-
-
-
-/* Mobile NCAA scroll feel hardening */
-html, body{
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  height: auto !important;
-  min-height: 100% !important;
-}
-@media (max-width: 820px){
-  .geo.regionGeo,
-  .geo.mobileUnifiedGeo,
-  .regionGeo{
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: auto !important;
-    overscroll-behavior-x: contain !important;
-    overscroll-behavior-y: auto !important;
-  }
-}
-
