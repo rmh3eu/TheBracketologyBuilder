@@ -42,7 +42,7 @@
     <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
     <a class="navLink active" href="nba.html">NBA Bracket</a>
     <a class="navLink" href="bracket-games.html">Bracket Games</a>
-    <a class="navLink" href="tickets.html">Tickets</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
     <a class="navLink" href="/#featured">Featured Brackets</a>
     <a class="navLink" href="/#upcoming">Upcoming Events</a>
   </nav>
@@ -192,6 +192,7 @@ function renderFinals(){
   const champ=document.createElement('div'); champ.className='nbaChampionDisplay';
   champ.textContent = state.finals && state.finals.team ? `Champion: ${state.finals.team.name} in ${state.finals.games}` : 'Champion';
   box.appendChild(champ);
+  const cta=document.createElement('div'); cta.style.marginTop='12px'; cta.innerHTML='<a href="/tickets.html" class="btn primary">Get NBA Finals Tickets</a>'; box.appendChild(cta);
   return box;
 }
 
