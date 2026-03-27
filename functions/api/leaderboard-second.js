@@ -28,18 +28,20 @@ async function ensureTables(env){
 }
 function teamEq(a,b){ return a && b && a.seed===b.seed && a.name===b.name; }
 function gameGroupFromId(id){
-  const m = id.match(/^(SOUTH|EAST|WEST|MIDWEST)__R(\d)__G(\d+)$/);
+  const norm = String(id || '').replace(/^REGION_/, '');
+  const m = norm.match(/^(SOUTH|EAST|WEST|MIDWEST)__R(\d)__G(\d+)$/);
   if(m){
     const r = Number(m[2]);
     if(r===2 || r===3) return "sc";
   }
-  if(id.startsWith("FF__G") || id==="FINAL") return "sc";
+  if(norm.startsWith("FF__G") || norm==="FINAL") return "sc";
   return null;
 }
 function pickForGame(picks, id){
-  if(id.startsWith("FF__G")) return picks[id + "__winner"] || null;
-  if(id==="FINAL") return picks["FINAL__winner"] || null;
-  return picks[id + "__winner"] || null;
+  const norm = String(id || '').replace(/^REGION_/, '');
+  if(norm.startsWith("FF__G")) return picks[norm + "__winner"] || picks[id + "__winner"] || null;
+  if(norm==="FINAL") return picks["FINAL__winner"] || null;
+  return picks[norm + "__winner"] || picks[id + "__winner"] || null;
 }
 function championPick(picks){ return picks["CHAMPION"] || null; }
 function tieBreaker(picks){
@@ -96,7 +98,7 @@ export async function onRequestGet({ request, env }){
 
   const rows = entries.map(e=>{
     const b = bmap.get(e.bracket_id);
-    const picks = b?.data || {};
+    const picks = (b?.data?.picks) ? b.data.picks : (b?.data || {});
     let x = 0;
     for(const g of finalized){
       const pick = pickForGame(picks, g.id);
