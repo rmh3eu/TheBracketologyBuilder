@@ -1,1 +1,3 @@
-Leaderboard values in this build are generated from the uploaded workbook 'Leaderboard Data Entry.xlsx' (Option A).\n
+Leaderboard values in this build are generated from the uploaded workbook 'Leaderboard_Data_Entry_UPDATED_52_GAMES.xlsx'.
+Only the main Best/Worst leaderboards are overridden statically here.
+Second Chance leaderboards remain DB/results-driven.
