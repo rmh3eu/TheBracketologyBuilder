@@ -150,49 +150,6 @@ function setAuthUI(me) {
   if (logoutBtn) logoutBtn.style.display = loggedIn ? '' : 'none';
 }
 
-
-function isSecondChanceBracketRecord(b){
-  const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
-  const t = normalizeType(b && b.bracket_type);
-  if (t === 'second_chance' || t === 'secondchance') return true;
-
-  try{
-    const raw = b && b.data_json ? JSON.parse(b.data_json) : null;
-    const picks = raw && raw.picks ? raw.picks : (raw || {});
-    const getName = (v) => {
-      if (!v) return '';
-      if (typeof v === 'string') return v.trim();
-      if (typeof v === 'object' && typeof v.name === 'string') return v.name.trim();
-      return '';
-    };
-    const expected = {
-      'REGION_EAST__R1__G0__winner': 'Duke',
-      'REGION_EAST__R1__G1__winner': 'St Johns',
-      'REGION_EAST__R1__G2__winner': 'Michigan St',
-      'REGION_EAST__R1__G3__winner': 'UConn',
-      'REGION_SOUTH__R1__G0__winner': 'Iowa',
-      'REGION_SOUTH__R1__G1__winner': 'Nebraska',
-      'REGION_SOUTH__R1__G2__winner': 'Illinois',
-      'REGION_SOUTH__R1__G3__winner': 'Houston',
-      'REGION_WEST__R1__G0__winner': 'Arizona',
-      'REGION_WEST__R1__G1__winner': 'Arkansas',
-      'REGION_WEST__R1__G2__winner': 'Texas/NC State',
-      'REGION_WEST__R1__G3__winner': 'Purdue',
-      'REGION_MIDWEST__R1__G0__winner': 'Michigan',
-      'REGION_MIDWEST__R1__G1__winner': 'Alabama',
-      'REGION_MIDWEST__R1__G2__winner': 'Tennessee',
-      'REGION_MIDWEST__R1__G3__winner': 'Iowa St'
-    };
-    let matches = 0;
-    for (const [k, v] of Object.entries(expected)) {
-      if (getName(picks[k]) === v) matches += 1;
-    }
-    return matches >= 16;
-  }catch(_e){
-    return false;
-  }
-}
-
 function renderBracketSection({ listId, emptyId, items }) {
   const grid = document.getElementById(listId);
   const empty = document.getElementById(emptyId);
@@ -206,8 +163,7 @@ function renderBracketSection({ listId, emptyId, items }) {
   for (const b of items) {
     const a = document.createElement('a');
     a.className = 'bracketCard';
-    const isNba = String(b.sport || '').toLowerCase() === 'nba' || String(b.template_id || '').toLowerCase().startsWith('nba');
-    a.href = isNba ? `nba.html?id=${encodeURIComponent(b.id)}` : `/?id=${encodeURIComponent(b.id)}`;
+    a.href = `/?id=${encodeURIComponent(b.id)}`;
 
     const titleRow = document.createElement('div');
     titleRow.className = 'bracketTitleRow';
@@ -268,19 +224,26 @@ function renderBracketSection({ listId, emptyId, items }) {
 
 function reorderSections({ officialLive, sweet16Set }) {
   const main = document.getElementById('myBracketsMain');
-  const secN = document.getElementById('secNBA');
   const secB = document.getElementById('secBracketology');
   const secO = document.getElementById('secOfficial');
   const secS = document.getElementById('secSecondChance');
-  if (!main || !secB || !secO || !secS || !secN) return;
+  if (!main || !secB || !secO || !secS) return;
 
-  main.appendChild(secN);
-  main.appendChild(secS);
+  // Ordering rules (brackets never disappear; only section order changes):
+  // - Default (no toggles): Bracketology first.
+  // - Official is always above Second Chance.
+  // - When Official is live OR Sweet16 is set, Bracketology moves to the bottom.
   if (!officialLive && !sweet16Set) {
+    // Bracketology, Official, Second Chance
     main.appendChild(secB);
     main.appendChild(secO);
+    main.appendChild(secS);
     return;
   }
+
+  // Either Official or Sweet16 is enabled:
+  // Second Chance, Official, Bracketology
+  main.appendChild(secS);
   main.appendChild(secO);
   main.appendChild(secB);
 }
@@ -382,19 +345,24 @@ async function loadPage() {
 
 
     // Split brackets by type
-    const normalizeType = (v) => String(v || '').toLowerCase().trim().replace(/[\s-]+/g, '_');
-    const nba = [];
+    const lower = (v) => String(v || '').toLowerCase();
+
+    const secondChance = brackets.filter(b => lower(b.bracket_type) === 'second_chance');
+    const official = brackets.filter(b => lower(b.bracket_type) === 'official');
+    const bracketology = brackets.filter(b => {
+      const t = lower(b.bracket_type);
+      // Treat missing/unknown as bracketology for backward compatibility.
+      return t === '' || t === 'bracketology' || (t !== 'official' && t !== 'second_chance');
+    });
+
+    // Always render Bracketology brackets somewhere (never disappear)
     const proj = [];
     const off = [];
     const sc = [];
 
     for (const b of brackets) {
-      const type = normalizeType(b.bracket_type);
-      const sport = String(b.sport || '').toLowerCase();
-      const template = String(b.template_id || '').toLowerCase();
-      if (sport === 'nba' || template.startsWith('nba')) {
-        nba.push(b);
-      } else if (isSecondChanceBracketRecord(b)) {
+      const type = String(b.bracket_type || '').toLowerCase();
+      if (type === 'second_chance') {
         sc.push(b);
       } else if (type === 'official') {
         off.push(b);
@@ -403,14 +371,12 @@ async function loadPage() {
       }
     }
 
-    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: nba });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: proj });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: off });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: sc });
 
     reorderSections({ officialLive, sweet16Set });
   } catch (e) {
-    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: [] });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: [] });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: [] });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: [] });
