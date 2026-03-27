@@ -26,8 +26,14 @@ async function ensureTables(env){
   try{ await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_challenge ON challenge_entries(challenge, stage, user_id)").run(); }catch(_e){}
 }
 
+function normalizeTeamName(name){
+  const n = String(name || "").trim();
+  if(n === "Texas") return "Texas/NC State";
+  return n;
+}
+
 function teamEq(a,b){
-  return !!a && !!b && a.seed===b.seed && a.name===b.name;
+  return !!a && !!b && a.seed===b.seed && normalizeTeamName(a.name)===normalizeTeamName(b.name);
 }
 
 function normalizeGameId(id){
