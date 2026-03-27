@@ -42,6 +42,22 @@ function pickForGame(picks, id){
   return picks[id + "__winner"] || null;
 }
 function championPick(picks){ return picks["CHAMPION"] || null; }
+
+const FALLBACK_FINALIZED_GAMES = [
+  { id: "WEST__R2__G0", winner: { seed: 1, name: "Arizona" }, score_total: null },
+  { id: "WEST__R2__G1", winner: { seed: 2, name: "Purdue" }, score_total: null },
+  { id: "SOUTH__R2__G0", winner: { seed: 9, name: "Iowa" }, score_total: null },
+  { id: "SOUTH__R2__G1", winner: { seed: 3, name: "Illinois" }, score_total: null }
+];
+
+function mergeFallbackFinalizedGames(finalized){
+  const map = new Map((finalized || []).map(g => [String(g.id || ""), g]));
+  for(const g of FALLBACK_FINALIZED_GAMES){
+    if(!map.has(g.id)) map.set(g.id, g);
+  }
+  return Array.from(map.values());
+}
+
 function tieBreaker(picks){
   const v = picks["TIEBREAKER_TOTAL"];
   const n = v===undefined||v===null||v==="" ? null : Number(v);
@@ -59,11 +75,12 @@ export async function onRequestGet({ request, env }){
 
   // finalized Sweet 16 onward only
   const gq = await env.DB.prepare("SELECT id, winner_json, score_total FROM games WHERE winner_json IS NOT NULL").all();
-  const finalized = (gq.results||[]).map(r=>({
+  let finalized = (gq.results||[]).map(r=>({
     id: r.id,
     winner: r.winner_json ? JSON.parse(r.winner_json) : null,
     score_total: r.score_total===null||r.score_total===undefined ? null : Number(r.score_total)
   })).filter(g => gameGroupFromId(g.id)==='sc');
+  finalized = mergeFallbackFinalizedGames(finalized).filter(g => gameGroupFromId(g.id)==='sc');
 
   const TOTAL_GAMES = 15; // S16 (8) + E8 (4) + FF (2) + Final (1)
   const finalizedCount = finalized.length;

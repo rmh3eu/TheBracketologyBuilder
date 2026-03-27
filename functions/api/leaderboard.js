@@ -69,6 +69,22 @@ function pickForGame(picks, id){
 }
 
 function championPick(picks){ return picks["CHAMPION"] || null; }
+
+const FALLBACK_FINALIZED_GAMES = [
+  { id: "WEST__R2__G0", winner: { seed: 1, name: "Arizona" }, score_total: null },
+  { id: "WEST__R2__G1", winner: { seed: 2, name: "Purdue" }, score_total: null },
+  { id: "SOUTH__R2__G0", winner: { seed: 9, name: "Iowa" }, score_total: null },
+  { id: "SOUTH__R2__G1", winner: { seed: 3, name: "Illinois" }, score_total: null }
+];
+
+function mergeFallbackFinalizedGames(finalized){
+  const map = new Map((finalized || []).map(g => [String(g.id || ""), g]));
+  for(const g of FALLBACK_FINALIZED_GAMES){
+    if(!map.has(g.id)) map.set(g.id, g);
+  }
+  return Array.from(map.values());
+}
+
 function tieBreaker(picks){
   const v = picks["TIEBREAKER_TOTAL"];
   const n = v===undefined||v===null||v==="" ? null : Number(v);
@@ -100,13 +116,15 @@ export async function onRequestGet({ request, env }){
 
   // Load finalized games
   const gq = await env.DB.prepare("SELECT id, winner_json, score_total FROM games WHERE winner_json IS NOT NULL").all();
-  const finalized = (gq.results||[]).map(r=>({
+  let finalized = (gq.results||[]).map(r=>({
     id: r.id,
     winner: r.winner_json ? JSON.parse(r.winner_json) : null,
     score_total: r.score_total===null||r.score_total===undefined ? null : Number(r.score_total)
   }));
 
   // NCAA tournament main bracket (no play-in): 63 games total
+  finalized = mergeFallbackFinalizedGames(finalized);
+
   const TOTAL_GAMES = 63;
   const finalizedCount = finalized.filter(g=>gameGroupFromId(g.id)!==null).length;
   const remainingGames = Math.max(0, TOTAL_GAMES - finalizedCount);
@@ -124,7 +142,7 @@ export async function onRequestGet({ request, env }){
 
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
   // This keeps leaderboard scoring completely outside bracket logic.
-  if(!groupId && stage === 'pre'){
+  if(false && !groupId && stage === 'pre'){
     let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
     // Exclude brackets created before official bracket release from the original challenges.
     const cutoffIso = "2026-03-15T23:00:00.000Z";
@@ -214,11 +232,11 @@ export async function onRequestGet({ request, env }){
         title: b?.title || "Bracket",
         // Each correct pick is worth 10 points.
         score,
-        x: score,
-        y: totalGames * 10,
+        x: correct,
+        y: finalizedCount,
         total_possible: score + (remainingGames * 10),
-        // pct remains based on correctness rate, not points.
-        pct: totalGames ? (correct/totalGames) : 0,
+        // pct is based on correctness rate so far.
+        pct: finalizedCount ? (correct/finalizedCount) : 0,
         champion: champ,
         tiebreaker: tb,
         tiebreaker_diff: diff
@@ -310,10 +328,10 @@ export async function onRequestGet({ request, env }){
       bracket_id: e.bracket_id,
       title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
       score,
-      x: score,
-      y: overallTotal,
+      x: Math.round(score / 10),
+      y: finalizedCount,
       total_possible,
-      pct: overallTotal ? (score/overallTotal) : 0,
+      pct: finalizedCount ? ((score / 10) / finalizedCount) : 0,
       stage1: stageScores.pre,
       stage2: stageScores.r16,
       stage3: stageScores.f4,
