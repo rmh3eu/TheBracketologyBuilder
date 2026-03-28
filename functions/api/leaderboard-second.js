@@ -1,5 +1,5 @@
+import { SECOND_CHANCE_META, SECOND_CHANCE_RESULTS } from "./_leaderboard_second_static.js";
 import { json, ensureUserSchema, ensureGamesSchema, requireUser } from "./_util.js";
-import { SECOND_CHANCE_BEST, SECOND_CHANCE_WORST, SECOND_CHANCE_META } from "./_leaderboard_second_static.js";
 
 async function ensureTables(env){
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS games (
@@ -69,47 +69,23 @@ function tieBreaker(picks){
   return Number.isFinite(n) ? n : null;
 }
 
-const FALLBACK_FINALIZED_GAMES = [
-  { id: "REGION_WEST__R2__G0", winner: { seed: 1, name: "Arizona" }, score_total: null },
-  { id: "REGION_WEST__R2__G1", winner: { seed: 2, name: "Purdue" }, score_total: null },
-  { id: "REGION_SOUTH__R2__G0", winner: { seed: 9, name: "Iowa" }, score_total: null },
-  { id: "REGION_SOUTH__R2__G1", winner: { seed: 3, name: "Illinois" }, score_total: null }
-];
-
-function mergeFallbackFinalizedGames(finalized){
+function mergeSheetFinalizedGames(finalized){
   const map = new Map();
   for(const g of finalized || []){
     map.set(normalizeGameId(g.id), g);
   }
-  for(const g of FALLBACK_FINALIZED_GAMES){
+  for(const g of (SECOND_CHANCE_RESULTS || [])){
     const key = normalizeGameId(g.id);
-    if(!map.has(key)) map.set(key, g);
+    if(!map.has(key)){
+      map.set(key, {
+        id: g.id,
+        winner: { name: g.winner, seed: null },
+        loser: g.loser ? { name: g.loser, seed: null } : null,
+        score_total: null
+      });
+    }
   }
   return Array.from(map.values());
-}
-
-function staticRowsReady(rows){
-  return Array.isArray(rows) && rows.length > 0 && rows.some(r => Number(r?.y || 0) > 0 || Number(r?.score || 0) > 0);
-}
-
-function buildStaticSecondChanceRows(challenge){
-  const source = challenge === "best" ? SECOND_CHANCE_BEST : SECOND_CHANCE_WORST;
-  const gamesPlayed = Number(SECOND_CHANCE_META?.games_played || 0);
-  return (Array.isArray(source) ? source : []).map((row, idx) => ({
-    rank: Number(row?.rank || (idx + 1)),
-    user_id: row?.user_id ?? null,
-    display_name: row?.display_name || row?.title || 'Bracket',
-    bracket_id: row?.bracket_id || '',
-    title: row?.title || row?.display_name || 'Bracket',
-    score: Number(row?.score || 0),
-    x: Number(row?.x || 0),
-    y: Number(row?.y || gamesPlayed),
-    total_possible: Number(row?.total_possible || 0),
-    pct: Number(row?.pct || 0),
-    champion: row?.champion || '',
-    tiebreaker: row?.tiebreaker ?? null,
-    tiebreaker_diff: row?.tiebreaker_diff ?? null
-  }));
 }
 
 export async function onRequestGet({ request, env }){
@@ -121,17 +97,6 @@ export async function onRequestGet({ request, env }){
   const challenge = (url.searchParams.get("challenge")||"best").toLowerCase();
   if(!["best","worst"].includes(challenge)) return json({ok:false, error:"Invalid challenge."}, 400);
 
-  const staticSource = challenge === "best" ? SECOND_CHANCE_BEST : SECOND_CHANCE_WORST;
-  if(staticRowsReady(staticSource)) {
-    return json({
-      ok:true,
-      leaderboard: buildStaticSecondChanceRows(challenge),
-      me_user_id: null,
-      total_games: 15,
-      finalized_games: Number(SECOND_CHANCE_META?.games_played || 0)
-    });
-  }
-
   const gq = await env.DB.prepare("SELECT id, winner_json, score_total FROM games WHERE winner_json IS NOT NULL").all();
   let finalized = (gq.results||[]).map(r=>({
     id: r.id,
@@ -139,10 +104,10 @@ export async function onRequestGet({ request, env }){
     score_total: r.score_total===null||r.score_total===undefined ? null : Number(r.score_total)
   })).filter(g => gameGroupFromId(g.id)==="sc");
 
-  finalized = mergeFallbackFinalizedGames(finalized);
+  finalized = mergeSheetFinalizedGames(finalized);
 
   const TOTAL_GAMES = 15;
-  const finalizedCount = finalized.length;
+  const finalizedCount = Number(SECOND_CHANCE_META?.games_played || finalized.length || 0);
   const remainingGames = Math.max(0, TOTAL_GAMES - finalizedCount);
   const finalRow = finalized.find(g => normalizeGameId(g.id) === "FINAL");
   const actualFinalTotal = finalRow && Number.isFinite(finalRow.score_total) ? finalRow.score_total : null;
@@ -187,7 +152,12 @@ export async function onRequestGet({ request, env }){
       if(challenge==="best"){
         if(teamEq(pick, g.winner)) x += 1;
       } else {
-        if(!teamEq(pick, g.winner)) x += 1;
+        const loserName = g?.loser?.name || g?.loser || null;
+        if(loserName){
+          if(normalizeTeamName(pick?.name) === normalizeTeamName(loserName)) x += 1;
+        } else if(!teamEq(pick, g.winner)) {
+          x += 1;
+        }
       }
     }
 
