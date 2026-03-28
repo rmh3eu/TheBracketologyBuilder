@@ -55,12 +55,11 @@ async function loadAdminBracketsView(reset = true){
     rows.forEach(r=>{
       const tr = document.createElement('tr');
       const href = `/?id=${encodeURIComponent(r.id)}&readonly=1`;
-      tr.innerHTML = `<td>${String(r.title || 'Untitled Bracket')}<div class="muted" style="margin-top:4px;font-size:12px;word-break:break-all">${String(r.id || '')}</div></td><td class="muted">${String(r.user_email || ('User #' + (r.user_id || '')))}</td><td>${String(r.bracket_type || 'bracketology')}</td><td class="muted">${r.updated_at ? new Date(r.updated_at).toLocaleString() : ''}</td><td><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn ghost smallBtn" href="${href}" target="_blank" rel="noopener">Open</a><button class="btn smallBtn" type="button" data-edit-bracket-id="${String(r.id || '')}">Edit Picks</button></div></td>`;
+      tr.innerHTML = `<td>${String(r.title || 'Untitled Bracket')}</td><td class="muted">${String(r.user_email || ('User #' + (r.user_id || '')))}</td><td>${String(r.bracket_type || 'bracketology')}</td><td class="muted">${r.updated_at ? new Date(r.updated_at).toLocaleString() : ''}</td><td><a class="btn ghost smallBtn" href="${href}" target="_blank" rel="noopener">Open</a> <button class="btn ghost smallBtn" type="button" data-edit-id="${String(r.id || '')}">Edit Picks</button></td>`;
       body.appendChild(tr);
-      const editBtn = tr.querySelector('[data-edit-bracket-id]');
-      if(editBtn){
-        editBtn.addEventListener('click', ()=>loadBracketForEdit(String(r.id || '')));
-      }
+    });
+    body.querySelectorAll('[data-edit-id]').forEach(btn=>{
+      btn.addEventListener('click', ()=>loadBracketIntoEditor(btn.getAttribute('data-edit-id')));
     });
 
     __adminBracketsOffset += rows.length;
@@ -86,61 +85,45 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   }
   if(gate) gate.style.display = 'none';
   if(panel) panel.style.display = '';
+  const loadBtn = document.getElementById('adminBracketLoadBtn');
+  const saveBtn = document.getElementById('adminBracketSaveBtn');
+  const input = document.getElementById('adminBracketIdInput');
+  if(loadBtn) loadBtn.addEventListener('click', ()=>loadBracketIntoEditor((input?.value || '').trim()));
+  if(saveBtn) saveBtn.addEventListener('click', saveBracketEditor);
+  if(input) input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') loadBracketIntoEditor((input?.value || '').trim()); });
   if(more) more.addEventListener('click', ()=>loadAdminBracketsView(false));
-  const loadBtn = document.getElementById('adminPicksLoadBtn');
-  const saveBtn = document.getElementById('adminPicksSaveBtn');
-  const idInput = document.getElementById('adminBracketIdInput');
-  if(loadBtn) loadBtn.addEventListener('click', ()=>loadBracketForEdit(idInput ? idInput.value : ''));
-  if(saveBtn) saveBtn.addEventListener('click', saveBracketPicks);
-  if(idInput) idInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); loadBracketForEdit(idInput.value); } });
   await loadAdminBracketsView(true);
 });
 
 
-async function loadBracketForEdit(id){
-  const input = document.getElementById('adminBracketIdInput');
-  const area = document.getElementById('adminPicksTextarea');
-  const meta = document.getElementById('adminPicksEditorMeta');
-  const status = document.getElementById('adminPicksEditorStatus');
-  const panel = document.getElementById('adminPicksEditorPanel');
-  if(input) input.value = id || '';
-  if(status) status.textContent = 'Loading picks…';
+async function loadBracketIntoEditor(bracketId){
+  const status = document.getElementById('adminBracketEditorStatus');
+  const meta = document.getElementById('adminBracketEditorMeta');
+  const ta = document.getElementById('adminBracketPicksTextarea');
+  const panel = document.getElementById('adminBracketEditorPanel');
+  if(!bracketId){ if(status) status.textContent = 'Enter a bracket ID first.'; return; }
   if(panel) panel.style.display = '';
+  if(status) status.textContent = 'Loading bracket…';
   try{
-    const d = await api(`/api/admin/bracket-picks?id=${encodeURIComponent(id)}`, { method:'GET' });
-    const b = d && d.bracket ? d.bracket : null;
-    if(!b) throw new Error('Bracket not found.');
-    if(meta) meta.textContent = `${b.title || 'Untitled Bracket'} • ${b.user_email || ('User #' + (b.user_id || ''))} • ${b.bracket_type || 'bracketology'}`;
-    if(area) area.value = JSON.stringify(b.picks || {}, null, 2);
+    const d = await api(`/api/admin/brackets?id=${encodeURIComponent(bracketId)}`, { method:'GET' });
+    const b = d?.bracket;
+    const picks = b?.picks || {};
+    if(ta) ta.value = JSON.stringify(picks, null, 2);
+    if(meta) meta.textContent = `${b?.title || 'Untitled'} • ${b?.user_email || ''} • ${b?.bracket_type || 'bracketology'}`;
+    const input = document.getElementById('adminBracketIdInput');
+    if(input) input.value = b?.id || bracketId;
     if(status) status.textContent = 'Loaded.';
-  }catch(e){
-    if(meta) meta.textContent = '';
-    if(area) area.value = '';
-    if(status) status.textContent = e.message || 'Could not load picks.';
-  }
+  }catch(e){ if(status) status.textContent = e.message || 'Could not load bracket.'; }
 }
 
-async function saveBracketPicks(){
+async function saveBracketEditor(){
   const input = document.getElementById('adminBracketIdInput');
-  const area = document.getElementById('adminPicksTextarea');
-  const status = document.getElementById('adminPicksEditorStatus');
-  const id = input ? String(input.value || '').trim() : '';
-  if(!id){
-    if(status) status.textContent = 'Enter a bracket ID first.';
-    return;
-  }
-  let picks = {};
-  try{ picks = JSON.parse(area && area.value ? area.value : '{}'); }
-  catch(_e){
-    if(status) status.textContent = 'Picks JSON is not valid.';
-    return;
-  }
-  if(status) status.textContent = 'Saving picks…';
-  try{
-    await api('/api/admin/bracket-picks', { method:'POST', body:{ id, picks } });
-    if(status) status.textContent = 'Picks saved.';
-    await loadBracketForEdit(id);
-  }catch(e){
-    if(status) status.textContent = e.message || 'Could not save picks.';
-  }
+  const ta = document.getElementById('adminBracketPicksTextarea');
+  const status = document.getElementById('adminBracketEditorStatus');
+  const bracketId = (input?.value || '').trim();
+  if(!bracketId){ if(status) status.textContent = 'Enter a bracket ID first.'; return; }
+  let picks;
+  try{ picks = JSON.parse(ta?.value || '{}'); }catch(e){ if(status) status.textContent = 'Picks JSON is invalid.'; return; }
+  if(status) status.textContent = 'Saving…';
+  try{ await api('/api/admin/brackets', { method:'POST', body:{ id: bracketId, picks } }); if(status) status.textContent = 'Picks saved.'; }catch(e){ if(status) status.textContent = e.message || 'Could not save picks.'; }
 }
