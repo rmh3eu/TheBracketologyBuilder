@@ -34,7 +34,13 @@ function normalizeTeamName(name){
 }
 
 function teamEq(a,b){
-  return !!a && !!b && a.seed===b.seed && normalizeTeamName(a.name)===normalizeTeamName(b.name);
+  if(!a || !b) return false;
+  const sameName = normalizeTeamName(a.name) === normalizeTeamName(b.name);
+  if(!sameName) return false;
+  const aSeed = a.seed===undefined || a.seed===null ? null : Number(a.seed);
+  const bSeed = b.seed===undefined || b.seed===null ? null : Number(b.seed);
+  if(aSeed===null || bSeed===null || Number.isNaN(aSeed) || Number.isNaN(bSeed)) return sameName;
+  return aSeed===bSeed;
 }
 
 function normalizeGameId(id){
