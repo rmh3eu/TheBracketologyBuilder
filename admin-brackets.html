@@ -39,10 +39,25 @@
 
     <section class="panel" id="adminAllBracketsPanel" style="display:none;">
       <div class="panelHead"><h2 style="margin:0;">All Brackets</h2></div>
+      <div class="adminPicksNote muted" style="margin-bottom:12px;">Admin Picks Editor only updates picks. It does not change the bracket owner, challenge entry, or frozen base snapshot.</div>
       <div id="adminBracketsMount"></div>
       <div id="adminBracketsStatus" class="muted" style="margin-top:10px;"></div>
       <div style="margin-top:10px;">
         <button id="adminBracketsMore" class="btn" type="button">Load More</button>
+      </div>
+    </section>
+
+    <section class="panel" id="adminPicksEditorPanel" style="display:none;">
+      <div class="panelHead"><h2 style="margin:0;">Admin Picks Editor</h2></div>
+      <div id="adminPicksEditorMeta" class="muted" style="margin-bottom:10px;"></div>
+      <label class="smallLabel" for="adminBracketIdInput">Bracket ID</label>
+      <input id="adminBracketIdInput" class="input" type="text" placeholder="Bracket ID">
+      <label class="smallLabel" for="adminPicksTextarea" style="margin-top:12px; display:block;">Picks JSON</label>
+      <textarea id="adminPicksTextarea" class="adminPicksTextarea" spellcheck="false" placeholder='{"SOUTH__R2__G0__winner":{"seed":1,"name":"Duke"}}'></textarea>
+      <div id="adminPicksEditorStatus" class="muted" style="margin-top:10px;"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button id="adminPicksLoadBtn" class="btn" type="button">Load Picks</button>
+        <button id="adminPicksSaveBtn" class="btn primary" type="button">Save Picks</button>
       </div>
     </section>
   </main>
