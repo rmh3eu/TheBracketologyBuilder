@@ -4504,3 +4504,21 @@ body .betOnlineRegionPromo{
   }
 }
 
+
+
+.adminPicksTextarea{
+  width:100%;
+  min-height:320px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.28);
+  color:inherit;
+  font:13px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  resize:vertical;
+}
+.adminPicksTextarea:focus{
+  outline:none;
+  border-color:rgba(96,165,250,.75);
+  box-shadow:0 0 0 3px rgba(59,130,246,.18);
+}
