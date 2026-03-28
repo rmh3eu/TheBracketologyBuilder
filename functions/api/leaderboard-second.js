@@ -1,4 +1,5 @@
 import { json, ensureUserSchema, ensureGamesSchema, requireUser } from "./_util.js";
+import { SECOND_CHANCE_BEST, SECOND_CHANCE_WORST, SECOND_CHANCE_META } from "./_leaderboard_second_static.js";
 
 async function ensureTables(env){
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS games (
@@ -87,6 +88,30 @@ function mergeFallbackFinalizedGames(finalized){
   return Array.from(map.values());
 }
 
+function staticRowsReady(rows){
+  return Array.isArray(rows) && rows.length > 0 && rows.some(r => Number(r?.y || 0) > 0 || Number(r?.score || 0) > 0);
+}
+
+function buildStaticSecondChanceRows(challenge){
+  const source = challenge === "best" ? SECOND_CHANCE_BEST : SECOND_CHANCE_WORST;
+  const gamesPlayed = Number(SECOND_CHANCE_META?.games_played || 0);
+  return (Array.isArray(source) ? source : []).map((row, idx) => ({
+    rank: Number(row?.rank || (idx + 1)),
+    user_id: row?.user_id ?? null,
+    display_name: row?.display_name || row?.title || 'Bracket',
+    bracket_id: row?.bracket_id || '',
+    title: row?.title || row?.display_name || 'Bracket',
+    score: Number(row?.score || 0),
+    x: Number(row?.x || 0),
+    y: Number(row?.y || gamesPlayed),
+    total_possible: Number(row?.total_possible || 0),
+    pct: Number(row?.pct || 0),
+    champion: row?.champion || '',
+    tiebreaker: row?.tiebreaker ?? null,
+    tiebreaker_diff: row?.tiebreaker_diff ?? null
+  }));
+}
+
 export async function onRequestGet({ request, env }){
   await ensureTables(env);
   await ensureUserSchema(env);
@@ -95,6 +120,17 @@ export async function onRequestGet({ request, env }){
   const url = new URL(request.url);
   const challenge = (url.searchParams.get("challenge")||"best").toLowerCase();
   if(!["best","worst"].includes(challenge)) return json({ok:false, error:"Invalid challenge."}, 400);
+
+  const staticSource = challenge === "best" ? SECOND_CHANCE_BEST : SECOND_CHANCE_WORST;
+  if(staticRowsReady(staticSource)) {
+    return json({
+      ok:true,
+      leaderboard: buildStaticSecondChanceRows(challenge),
+      me_user_id: null,
+      total_games: 15,
+      finalized_games: Number(SECOND_CHANCE_META?.games_played || 0)
+    });
+  }
 
   const gq = await env.DB.prepare("SELECT id, winner_json, score_total FROM games WHERE winner_json IS NOT NULL").all();
   let finalized = (gq.results||[]).map(r=>({
