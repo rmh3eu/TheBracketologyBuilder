@@ -1,0 +1,1 @@
+Bracket Games nav moved to first position on updated pages. bracket-games.html upgraded with mobile-first NBA + NFL game cards (8 total modes), colorful UI, and built-in NFL data seeds for play/reveal. Patch only updates changed files.
