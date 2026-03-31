@@ -2497,7 +2497,8 @@ function leaderboardPctText(x, y){
   return ((xn / yn) * 100).toFixed(1) + '%';
 }
 
-function lbTableBest(rows){
+
+function lbTableBest(rows, showEmail=false){
   const wrap = el('div','lbTableWrap');
   const t = el('table','lbTable');
   const rankCounts = new Map();
@@ -2506,6 +2507,7 @@ function lbTableBest(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
+    ${showEmail ? '<th>Email</th>' : ''}
     <th>Score</th>
     <th>x/y</th>
     <th>%</th>
@@ -2528,10 +2530,12 @@ function lbTableBest(rows){
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
     const userCell = escapeHtml(displayName) + ' 😇';
+    const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
+      ${emailCell}
       <td class="lbScore">${r.score}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
@@ -2544,7 +2548,7 @@ function lbTableBest(rows){
   return wrap;
 }
 
-function lbTableWorst(rows){
+function lbTableWorst(rows, showEmail=false){
   const wrap = el('div','lbTableWrap');
   const t = el('table','lbTable');
   const rankCounts = new Map();
@@ -2553,6 +2557,7 @@ function lbTableWorst(rows){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
+    ${showEmail ? '<th>Email</th>' : ''}
     <th>Score</th>
     <th>x/y</th>
     <th>%</th>
@@ -2577,10 +2582,12 @@ function lbTableWorst(rows){
     const userCell = meId && r.user_id === meId
       ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
       : `${escapeHtml(displayName)} 😈`;
+    const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
       <td class="lbUser">${userCell}</td>
+      ${emailCell}
       <td class="lbScore">${r.score}</td>
       <td class="lbPct"><span class="lbX">${xVal}</span><span class="lbSlash">/${yVal}</span></td>
       <td class="lbPct">${pct}</td>
@@ -2644,7 +2651,7 @@ async function renderWorstLeaderboard(){
   try{
     const d = await api('/api/leaderboard?challenge=worst', {method:'GET'});
     mount.innerHTML='';
-    mount.appendChild(lbTableWorst(d.leaderboard||[]));
+    mount.appendChild(lbTableWorst(d.leaderboard||[], !!d.is_admin));
   }catch(e){
     mount.innerHTML = 'Could not load leaderboard.';
   }
@@ -2896,7 +2903,7 @@ async function renderLeaderboardsForCurrentGroups(){
       const d = await api(url, {method:'GET'});
       bestMount.innerHTML='';
       bestMount.appendChild(renderLbMeta('best', d.group, bestGroup));
-      bestMount.appendChild(lbTableBest(d.leaderboard||[]));
+      bestMount.appendChild(lbTableBest(d.leaderboard||[], !!d.is_admin));
     }
   }catch{}
   try{
@@ -2907,7 +2914,7 @@ async function renderLeaderboardsForCurrentGroups(){
       const d = await api(url, {method:'GET'});
       worstMount.innerHTML='';
       worstMount.appendChild(renderLbMeta('worst', d.group, worstGroup));
-      worstMount.appendChild(lbTableWorst(d.leaderboard||[]));
+      worstMount.appendChild(lbTableWorst(d.leaderboard||[], !!d.is_admin));
     }
   }catch{}
 }

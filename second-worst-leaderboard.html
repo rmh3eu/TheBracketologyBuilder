@@ -78,14 +78,16 @@
       mount.innerHTML = '<div class="muted">Loading leaderboard…</div>';
       try {
         const d = await api('/api/leaderboard-second?challenge=worst', {method:'GET'});
+        const showEmail = !!d.is_admin;
+        const yLabel = Number(d.finalized_games || 0);
         const table = document.createElement('table');
         table.className = 'lbTable';
-        table.innerHTML = `<thead><tr><th>Rank</th><th>User</th><th>Score</th><th>x/4</th><th>%</th><th>Champion</th></tr></thead><tbody></tbody>`;
+        table.innerHTML = `<thead><tr><th>Rank</th><th>User</th>${showEmail ? '<th>Email</th>' : ''}<th>Score</th><th>x/${yLabel || 0}</th><th>%</th><th>Champion</th></tr></thead><tbody></tbody>`;
         const tbody = table.querySelector('tbody');
         (d.leaderboard || []).forEach(r => {
           const pct = (r.y && Number(r.y) > 0) ? ((Number(r.x || 0) / Number(r.y)) * 100).toFixed(1) + '%' : '—';
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${scEscape(r.rank)}</td><td>${scEscape(r.title || r.display_name || 'Bracket')}</td><td>${scEscape(r.score || 0)}</td><td>${scEscape(r.x || 0)}/${scEscape(r.y || 0)}</td><td>${pct}</td><td>${scEscape(r.champion || '—')}</td>`;
+          tr.innerHTML = `<td>${scEscape(r.rank)}</td><td>${scEscape(r.title || r.display_name || 'Bracket')}</td>${showEmail ? `<td>${scEscape(r.email || '—')}</td>` : ''}<td>${scEscape(r.score || 0)}</td><td>${scEscape(r.x || 0)}/${scEscape(r.y || 0)}</td><td>${pct}</td><td>${scEscape(r.champion || '—')}</td>`;
           tbody.appendChild(tr);
         });
         mount.innerHTML = '';
@@ -94,7 +96,10 @@
         mount.innerHTML = '<div class="muted">Could not load leaderboard.</div>';
       }
     }
-    document.addEventListener('DOMContentLoaded', renderLeaderboard);
+    document.addEventListener('DOMContentLoaded', async () => {
+      try{ if (typeof loadMe === 'function') await loadMe(); }catch(_e){}
+      renderLeaderboard();
+    });
   </script>
 </body>
 </html>
