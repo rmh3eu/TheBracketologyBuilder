@@ -1,5 +1,5 @@
 import { STATIC_BEST_LEADERBOARD, STATIC_WORST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
-import { json, ensureUserSchema, ensureGamesSchema, requireUser } from "./_util.js";
+import { json, ensureUserSchema, ensureGamesSchema, requireUser, isAdmin } from "./_util.js";
 
 async function ensureTables(env){
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS games (
@@ -117,10 +117,15 @@ export async function onRequestGet({ request, env }){
 
   // Optional viewer identity (for highlighting the viewer's row client-side)
   let me_user_id = null;
+  let viewerIsAdmin = false;
   try{
     const me = await requireUser({request, env});
     me_user_id = me?.id ?? null;
-  }catch{ me_user_id = null; }
+    viewerIsAdmin = await isAdmin(env, me);
+  }catch{
+    me_user_id = null;
+    viewerIsAdmin = false;
+  }
 
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
   // This keeps leaderboard scoring completely outside bracket logic.
@@ -149,11 +154,21 @@ export async function onRequestGet({ request, env }){
         return { ...r, rank };
       });
     }
+    if(viewerIsAdmin && staticRows.length){
+      const userIds = [...new Set(staticRows.map(r => Number(r.user_id)).filter(n => Number.isFinite(n)))];
+      if(userIds.length){
+        const placeholders = userIds.map(() => "?").join(",");
+        const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...userIds).all().catch(()=>({results:[]}));
+        const emailByUserId = new Map((uq.results||[]).map(row => [Number(row.id), String(row.email || "")]));
+        staticRows = staticRows.map(r => ({ ...r, email: emailByUserId.get(Number(r.user_id)) || "" }));
+      }
+    }
     return json({
       ok:true,
       leaderboard: staticRows,
       group,
       me_user_id,
+      is_admin: viewerIsAdmin,
       total_games: 63,
       finalized_games: Number(STATIC_LEADERBOARD_META?.games_played || 0)
     });
@@ -182,7 +197,7 @@ export async function onRequestGet({ request, env }){
       seenBestBracketIds.add(key);
       return true;
     });
-    if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
+    if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id, is_admin: viewerIsAdmin});
 
     const ids = entries.map(e=>e.bracket_id);
     const placeholders = ids.map(()=>'?').join(',');
@@ -212,6 +227,7 @@ export async function onRequestGet({ request, env }){
         display_name: (e.bracket_title || (e.email ? e.email.split('@')[0] : 'Bracket')),
         bracket_id: e.bracket_id,
         title: b?.title || "Bracket",
+        email: viewerIsAdmin ? String(e.email || "") : "",
         // Each correct pick is worth 10 points.
         score,
         x: score,
@@ -272,7 +288,7 @@ export async function onRequestGet({ request, env }){
     seenWorstBracketIds.add(key);
     return true;
   });
-  if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id});
+  if(entries.length===0) return json({ok:true, leaderboard: [], group, me_user_id, is_admin: viewerIsAdmin});
 
   const allIds = entries.map(e=>e.bracket_id).filter(Boolean);
   const placeholders = allIds.map(()=>'?').join(',');
@@ -309,6 +325,7 @@ export async function onRequestGet({ request, env }){
       display_name: (e.bracket_title || (e.email ? e.email.split('@')[0] : 'Bracket')),
       bracket_id: e.bracket_id,
       title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
+      email: viewerIsAdmin ? String(e.email || '') : '',
       score,
       x: score,
       y: overallTotal,
@@ -324,7 +341,7 @@ export async function onRequestGet({ request, env }){
   }
 
   if(!rows.length){
-    return json({ok:true, leaderboard: [], totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
+    return json({ok:true, leaderboard: [], totals_by_stage: totals, group, me_user_id, is_admin: viewerIsAdmin, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
   }
 
   rows.sort((a,b)=>{
@@ -347,5 +364,5 @@ export async function onRequestGet({ request, env }){
     return { rank, ...row };
   });
 
-  return json({ok:true, leaderboard: out, totals_by_stage: totals, group, me_user_id, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
+  return json({ok:true, leaderboard: out, totals_by_stage: totals, group, me_user_id, is_admin: viewerIsAdmin, total_games: TOTAL_GAMES, finalized_games: finalizedCount});
 }
