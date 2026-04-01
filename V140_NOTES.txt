@@ -1,0 +1,5 @@
+V140 PATCH
+- Removed the extra favored-team explanatory note from Guess the Lines
+- Updated Betr copy to: Use code BRACKETS for $200 and button text to: Sign up with code BRACKETS for $200 in bonus bets
+- Updated BetOnline button text to: Sign up now for $250 in bonus bets
+- Kept affiliate links pointed to the existing site affiliate URLs used elsewhere in the project

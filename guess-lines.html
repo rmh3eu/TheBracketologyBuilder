@@ -102,20 +102,19 @@ function renderLines(){
         <div class="bookRow">
           <div>
             <div class="bookName">Betr</div>
-            <div class="bookSub">Sign up with code BRACKETS</div>
+            <div class="bookSub">Use code BRACKETS for $200</div>
           </div>
           <div class="bookLine">${item.betr}</div>
-          <a class="bookLink" href="${BETR_URL}" target="_blank" rel="noopener noreferrer">Go to Betr</a>
+          <a class="bookLink" href="${BETR_URL}" target="_blank" rel="noopener noreferrer">Sign up with code BRACKETS for $200 in bonus bets</a>
         </div>
         <div class="bookRow">
           <div>
             <div class="bookName">BetOnline</div>
-            <div class="bookSub">See the line and offers</div>
+            <div class="bookSub">&nbsp;</div>
           </div>
           <div class="bookLine">${item.betonline}</div>
-          <a class="bookLink secondary" href="${BETONLINE_URL}" target="_blank" rel="noopener noreferrer">Go to BetOnline</a>
+          <a class="bookLink secondary" href="${BETONLINE_URL}" target="_blank" rel="noopener noreferrer">Sign up now for $250 in bonus bets</a>
         </div>
-        <div class="lineNote">The favored team is included directly in the revealed line so it reads like -2.5 Seahawks.</div>
       </div>`;
     card.querySelector('.guessBtn').addEventListener('click',()=>card.querySelector('.revealBox').classList.add('show'));
     grid.appendChild(card);
