@@ -163,8 +163,7 @@ function renderBracketSection({ listId, emptyId, items }) {
   for (const b of items) {
     const a = document.createElement('a');
     a.className = 'bracketCard';
-    const isNba = String(b.sport || '').toLowerCase() === 'nba';
-    a.href = isNba ? `nba.html?id=${encodeURIComponent(b.id)}` : `ncaamb-bracket.html?id=${encodeURIComponent(b.id)}`;
+    a.href = `/?id=${encodeURIComponent(b.id)}`;
 
     const titleRow = document.createElement('div');
     titleRow.className = 'bracketTitleRow';
@@ -348,17 +347,22 @@ async function loadPage() {
     // Split brackets by type
     const lower = (v) => String(v || '').toLowerCase();
 
+    const secondChance = brackets.filter(b => lower(b.bracket_type) === 'second_chance');
+    const official = brackets.filter(b => lower(b.bracket_type) === 'official');
+    const bracketology = brackets.filter(b => {
+      const t = lower(b.bracket_type);
+      // Treat missing/unknown as bracketology for backward compatibility.
+      return t === '' || t === 'bracketology' || (t !== 'official' && t !== 'second_chance');
+    });
+
+    // Always render Bracketology brackets somewhere (never disappear)
     const proj = [];
     const off = [];
     const sc = [];
-    const nba = [];
 
     for (const b of brackets) {
       const type = String(b.bracket_type || '').toLowerCase();
-      const sport = String(b.sport || '').toLowerCase();
-      if (sport === 'nba' || type === 'nba') {
-        nba.push(b);
-      } else if (type === 'second_chance') {
+      if (type === 'second_chance') {
         sc.push(b);
       } else if (type === 'official') {
         off.push(b);
@@ -367,14 +371,12 @@ async function loadPage() {
       }
     }
 
-    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: nba });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: proj });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: off });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: sc });
 
     reorderSections({ officialLive, sweet16Set });
   } catch (e) {
-    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: [] });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: [] });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: [] });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: [] });

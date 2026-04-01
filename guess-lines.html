@@ -4,35 +4,55 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Guess the Lines</title>
-  <link rel="stylesheet" href="/style.css?v_guess_lines_v139">
+  <link rel="stylesheet" href="/style.css?v_guess_lines_v146">
   <style>
-    body.page-lines{background:radial-gradient(circle at top,#1e293b 0%,#0f172a 58%,#020617 100%);}
-    .linesWrap{max-width:1160px;margin:0 auto;padding:18px 14px 28px}
-    .linesHero{background:linear-gradient(135deg,#111827,#1f2937);color:#fff;border-radius:24px;border:1px solid rgba(255,255,255,.1);padding:18px;box-shadow:0 18px 48px rgba(0,0,0,.28);margin-bottom:14px}
-    .linesHero h1{margin:0;font-size:32px}
-    .linesHero p{margin:8px 0 0;color:#cbd5e1;font-weight:700}
-    .linesSectionTitle{margin:0 0 14px;color:#fff;font-size:28px;font-weight:900}
-    .lineGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .lineCard{background:#fff;border-radius:20px;border:1px solid rgba(148,163,184,.22);padding:16px;box-shadow:0 12px 32px rgba(15,23,42,.18)}
-    .lineSport{display:inline-flex;padding:7px 10px;border-radius:999px;background:#eef2ff;color:#312e81;font-size:12px;font-weight:900}
-    .lineMatchup{font-size:24px;font-weight:900;color:#111827;margin-top:12px;line-height:1.05}
-    .lineMeta{margin-top:6px;color:#6b7280;font-weight:700}
-    .guessLabel{display:block;margin-top:14px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
-    .guessRow{display:flex;gap:8px;margin-top:8px}
-    .guessInput{flex:1;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;font-size:18px;font-weight:900}
-    .guessBtn{border:none;border-radius:12px;padding:12px 14px;background:#111827;color:#fff;font-weight:900;cursor:pointer}
-    .revealBox{display:none;margin-top:14px;padding:14px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
-    .revealBox.show{display:block}
-    .bookRow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e2e8f0}
-    .bookRow:last-child{border-bottom:none;padding-bottom:0}
-    .bookName{font-weight:900;color:#111827}
-    .bookLine{font-size:20px;font-weight:900;color:#111827}
-    .bookSub{font-size:12px;color:#6b7280;font-weight:700}
-    .bookLink{display:inline-flex;padding:10px 12px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none;font-weight:900;white-space:nowrap}
-    .bookLink.secondary{background:#111827}
-    .lineNote{margin-top:10px;font-size:12px;color:#6b7280;font-weight:700}
-    @media(max-width:980px){.lineGrid{grid-template-columns:1fr}}
-    @media(max-width:700px){.linesWrap{padding:12px 10px 24px}.linesHero{padding:14px;border-radius:20px}.linesHero h1{font-size:28px}.lineMatchup{font-size:22px}.guessRow{flex-direction:column}.guessBtn{width:100%}.bookRow{flex-direction:column;align-items:flex-start}}
+    body.page-lines{background:radial-gradient(circle at top,#1e293b 0%,#0f172a 58%,#020617 100%)}
+    .gl-wrap,.gl-wrap *{box-sizing:border-box}
+    .gl-wrap{max-width:1180px;margin:0 auto;padding:18px 14px 28px}
+    .gl-hero{background:linear-gradient(135deg,#08132b,#102a59);color:#fff;border-radius:24px;border:1px solid rgba(255,255,255,.12);padding:18px;box-shadow:0 18px 48px rgba(0,0,0,.28);margin-bottom:14px}
+    .gl-hero h1{margin:0;font-size:34px;line-height:1}
+    .gl-hero p{margin:10px 0 0;color:#dbeafe;font-weight:800;max-width:820px}
+    .gl-pillRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    .gl-pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);font-size:12px;font-weight:900}
+    .gl-title{margin:0 0 14px;color:#fff;font-size:28px;font-weight:900}
+    .gl-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .gl-card{background:#fff;border-radius:20px;border:1px solid rgba(148,163,184,.22);padding:16px;box-shadow:0 12px 32px rgba(15,23,42,.18)}
+    .gl-card.locked{background:linear-gradient(135deg,#0b1434,#11265a);border-color:rgba(255,255,255,.08);color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:250px}
+    .gl-sport{display:inline-flex;padding:7px 10px;border-radius:999px;background:#eef2ff;color:#312e81;font-size:12px;font-weight:900}
+    .gl-card.locked .gl-sport{background:rgba(255,255,255,.12);color:#fff}
+    .gl-matchup{font-size:24px;font-weight:900;color:#111827;margin-top:12px;line-height:1.05}
+    .gl-card.locked .gl-matchup{color:#fff}
+    .gl-meta{margin-top:6px;color:#6b7280;font-weight:700}
+    .gl-card.locked .gl-meta{color:#cbd5e1}
+    .gl-label{display:block;margin-top:14px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
+    .gl-row{display:flex;gap:8px;margin-top:8px}
+    .gl-input{flex:1;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;font-size:18px;font-weight:900}
+    .gl-btn{border:none;border-radius:12px;padding:12px 14px;background:#111827;color:#fff;font-weight:900;cursor:pointer}
+    .gl-reveal{display:none;margin-top:14px;padding:14px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
+    .gl-reveal.show{display:block}
+    .gl-bookRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #e2e8f0}
+    .gl-bookRow:last-child{border-bottom:none;padding-bottom:0}
+    .gl-bookName{font-weight:900;color:#111827}
+    .gl-bookLine{font-size:20px;font-weight:900;color:#111827;white-space:nowrap}
+    .gl-bookSub{font-size:12px;color:#6b7280;font-weight:700;margin-top:2px}
+    .gl-bookLink{display:inline-flex;padding:10px 12px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none;font-weight:900;white-space:nowrap}
+    .gl-bookLink.secondary{background:#111827}
+    .gl-lockCopy{margin-top:10px;color:#dbeafe;font-weight:800;line-height:1.45}
+    .gl-lockBtn{margin-top:16px;display:inline-flex;justify-content:center;align-items:center;border:none;border-radius:999px;padding:12px 18px;background:#22c55e;color:#052e16;font-weight:900;cursor:pointer;text-decoration:none}
+    .gl-subList{margin:12px 0 0 18px;padding:0;color:#dbeafe;font-weight:800}
+    .gl-subList li{margin:8px 0}
+    .gl-modal{position:fixed;inset:0;background:rgba(2,6,23,.72);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}
+    .gl-modal.show{display:flex}
+    .gl-modalCard{width:min(520px,100%);background:linear-gradient(135deg,#0b1434,#11265a);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,.45);padding:20px}
+    .gl-modalTitle{font-size:28px;font-weight:900;line-height:1.05;margin:0 0 10px}
+    .gl-modalText{color:#dbeafe;font-weight:800;margin:0 0 14px}
+    .gl-modalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .gl-modalActions a,.gl-modalActions button{appearance:none;border:none;border-radius:999px;padding:13px 18px;font-weight:900;font-size:15px;cursor:pointer;text-decoration:none}
+    .gl-modalPrimary{background:#22c55e;color:#052e16}
+    .gl-modalGhost{background:#fff;color:#111827}
+    .gl-subNote{margin-top:12px;color:#cbd5e1;font-size:12px;font-weight:700}
+    @media(max-width:980px){.gl-grid{grid-template-columns:1fr}.gl-bookRow{grid-template-columns:1fr auto}.gl-bookRow a{grid-column:1/-1;justify-self:start}}
+    @media(max-width:700px){.gl-wrap{padding:12px 10px 24px}.gl-hero{padding:14px;border-radius:20px}.gl-hero h1{font-size:28px}.gl-matchup{font-size:22px}.gl-row{flex-direction:column}.gl-btn{width:100%}}
   </style>
 </head>
 <body class="page-challenge-standalone page-challenge-clean-header page-lines">
@@ -49,79 +69,140 @@
 
   <div class="stickyNav">
     <nav aria-label="Primary" class="siteNav">
-    <a class="navLink" href="nba.html">NBA Bracket</a>
-    <a class="navLink" href="bracket-games.html">Bracket Games</a>
-    <a class="navLink active" href="guess-lines.html">Guess the Lines</a>
-    <a class="navLink" href="tickets.html">Tickets</a>
-    <a class="navLink" href="my-brackets.html">My Brackets</a>
-    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
-    <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
-    <a class="navLink" href="/#featured">Featured Brackets</a>
-    <a class="navLink" href="/#upcoming">Upcoming Events</a>
-    <a class="navLink" href="ncaamb-bracket.html">NCAAMB Bracket</a>
-  </nav>
+      <a class="navLink" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink active" href="guess-lines.html">Guess the Lines</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
+      <a class="navLink" href="/">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="nba.html">NBA Bracket</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+    </nav>
   </div>
 
-  <main class="linesWrap">
-    <section class="linesHero">
+  <main class="gl-wrap">
+    <section class="gl-hero">
       <h1>Guess the Lines</h1>
       <p>Start with early NFL Week 1 games that are still fun to guess well in advance. Type in the spread with the favored team, submit, and reveal Betr and BetOnline side by side.</p>
+      <div class="gl-pillRow">
+        <span class="gl-pill">🏈 NFL Week 1 Games</span>
+        <span class="gl-pill">Quick reveals</span>
+        <span class="gl-pill">More matchups with the full pass</span>
+      </div>
     </section>
-    <h2 class="linesSectionTitle">NFL Week 1 Games</h2>
-    <section class="lineGrid" id="lineGrid"></section>
+    <h2 class="gl-title">NFL Week 1 Games</h2>
+    <section class="gl-grid" id="lineGrid"></section>
   </main>
+
+  <div class="gl-modal" id="subscribeModal" aria-hidden="true">
+    <div class="gl-modalCard">
+      <h2 class="gl-modalTitle">Unlock The Full Pass</h2>
+      <p class="gl-modalText">Upgrade for $5.99/month and unlock more ways to play.</p>
+      <ul class="gl-subList">
+        <li>Access to all games</li>
+        <li>Unlimited player refresh within each game</li>
+        <li>Create unlimited brackets</li>
+        <li>Access to the full suite of Guess the Lines</li>
+      </ul>
+      <div class="gl-modalActions">
+        <a class="gl-modalPrimary" href="https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1" target="_blank" rel="noopener noreferrer">Unlock for $5.99/month</a>
+        <button class="gl-modalGhost" id="closeSubscribeModal" type="button">Keep browsing</button>
+      </div>
+      <div class="gl-subNote">BracketologyBuilder on Venmo</div>
+    </div>
+  </div>
 
 <script>
 const BETR_URL = 'https://engagebetr.onelink.me/auSX/BRACKETS';
 const BETONLINE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
-const LINE_GAMES = [
+const MANUAL_SUB_KEY = 'bb_games_subscribed';
+const isSubscribed = localStorage.getItem(MANUAL_SUB_KEY) === '1';
+const FREE_LINE_GAMES = [
   {sport:'NFL', emoji:'🏈', matchup:'Seahawks vs Cardinals', when:'NFL Week 1 • Early look', betr:'-2.5 Seahawks', betonline:'-2.0 Seahawks'},
   {sport:'NFL', emoji:'🏈', matchup:'Cowboys vs Giants', when:'NFL Week 1 • Early look', betr:'-3.5 Cowboys', betonline:'-3.0 Cowboys'},
   {sport:'NFL', emoji:'🏈', matchup:'Packers vs Bears', when:'NFL Week 1 • Early look', betr:'-2.5 Packers', betonline:'-2.5 Packers'},
-  {sport:'NFL', emoji:'🏈', matchup:'Ravens vs Browns', when:'NFL Week 1 • Early look', betr:'-4.5 Ravens', betonline:'-4.0 Ravens'},
-  {sport:'NFL', emoji:'🏈', matchup:'Bills vs Dolphins', when:'NFL Week 1 • Early look', betr:'-3.0 Bills', betonline:'-2.5 Bills'},
-  {sport:'NFL', emoji:'🏈', matchup:'49ers vs Rams', when:'NFL Week 1 • Early look', betr:'-3.5 49ers', betonline:'-3.0 49ers'}
+  {sport:'NFL', emoji:'🏈', matchup:'Ravens vs Browns', when:'NFL Week 1 • Early look', betr:'-4.5 Ravens', betonline:'-4.0 Ravens'}
+];
+const EXTRA_LINE_GAMES = [
+  {sport:'NFL', emoji:'🏈', matchup:'Bills vs Dolphins', when:'NFL Week 1 • Full pass', betr:'-3.0 Bills', betonline:'-2.5 Bills'},
+  {sport:'NFL', emoji:'🏈', matchup:'49ers vs Rams', when:'NFL Week 1 • Full pass', betr:'-3.5 49ers', betonline:'-3.0 49ers'},
+  {sport:'NFL', emoji:'🏈', matchup:'Chiefs vs Broncos', when:'NFL Week 1 • Full pass', betr:'-5.5 Chiefs', betonline:'-5.0 Chiefs'},
+  {sport:'NFL', emoji:'🏈', matchup:'Lions vs Vikings', when:'NFL Week 1 • Full pass', betr:'-2.5 Lions', betonline:'-2.0 Lions'},
+  {sport:'NFL', emoji:'🏈', matchup:'Eagles vs Commanders', when:'NFL Week 1 • Full pass', betr:'-4.5 Eagles', betonline:'-4.0 Eagles'},
+  {sport:'NFL', emoji:'🏈', matchup:'Texans vs Colts', when:'NFL Week 1 • Full pass', betr:'-2.5 Texans', betonline:'-2.0 Texans'},
+  {sport:'NFL', emoji:'🏈', matchup:'Jets vs Patriots', when:'NFL Week 1 • Full pass', betr:'-1.5 Jets', betonline:'-1.0 Jets'},
+  {sport:'NFL', emoji:'🏈', matchup:'Chargers vs Raiders', when:'NFL Week 1 • Full pass', betr:'-3.5 Chargers', betonline:'-3.0 Chargers'},
+  {sport:'NFL', emoji:'🏈', matchup:'Falcons vs Saints', when:'NFL Week 1 • Full pass', betr:'-2.5 Falcons', betonline:'-2.0 Falcons'},
+  {sport:'NFL', emoji:'🏈', matchup:'Bengals vs Steelers', when:'NFL Week 1 • Full pass', betr:'-3.5 Bengals', betonline:'-3.0 Bengals'},
+  {sport:'NFL', emoji:'🏈', matchup:'Buccaneers vs Panthers', when:'NFL Week 1 • Full pass', betr:'-3.0 Buccaneers', betonline:'-2.5 Buccaneers'},
+  {sport:'NFL', emoji:'🏈', matchup:'Jaguars vs Titans', when:'NFL Week 1 • Full pass', betr:'-2.5 Jaguars', betonline:'-2.0 Jaguars'}
 ];
 const grid = document.getElementById('lineGrid');
-
+const subscribeModal = document.getElementById('subscribeModal');
+const closeSubscribeModal = document.getElementById('closeSubscribeModal');
+function openSubscribeModal(){ subscribeModal.classList.add('show'); subscribeModal.setAttribute('aria-hidden','false'); }
+function closeSubscribe(){ subscribeModal.classList.remove('show'); subscribeModal.setAttribute('aria-hidden','true'); }
+function createPlayableCard(item, idx){
+  const card=document.createElement('div');
+  card.className='gl-card';
+  card.innerHTML = `
+    <div class="gl-sport">${item.emoji} ${item.sport}</div>
+    <div class="gl-matchup">${item.matchup}</div>
+    <div class="gl-meta">${item.when}</div>
+    <label class="gl-label" for="guess-${idx}">Your guess</label>
+    <div class="gl-row">
+      <input id="guess-${idx}" class="gl-input" placeholder="Example: -2.5 Seahawks" />
+      <button class="gl-btn" type="button">Submit Guess</button>
+    </div>
+    <div class="gl-reveal">
+      <div class="gl-bookRow">
+        <div>
+          <div class="gl-bookName">Betr</div>
+          <div class="gl-bookSub">Use code BRACKETS for $200</div>
+          <div class="gl-bookSub">Sign up with code BRACKETS for $200 in bonus bets</div>
+        </div>
+        <div class="gl-bookLine">${item.betr}</div>
+        <a class="gl-bookLink" href="${BETR_URL}" target="_blank" rel="noopener noreferrer">Play on Betr</a>
+      </div>
+      <div class="gl-bookRow">
+        <div>
+          <div class="gl-bookName">BetOnline</div>
+          <div class="gl-bookSub">Sign up now for $250 in bonus bets</div>
+        </div>
+        <div class="gl-bookLine">${item.betonline}</div>
+        <a class="gl-bookLink secondary" href="${BETONLINE_URL}" target="_blank" rel="noopener noreferrer">Play on BetOnline</a>
+      </div>
+    </div>`;
+  card.querySelector('.gl-btn').addEventListener('click',()=>card.querySelector('.gl-reveal').classList.add('show'));
+  return card;
+}
+function createLockedCard(item){
+  const card=document.createElement('div');
+  card.className='gl-card locked';
+  card.innerHTML = `
+    <div>
+      <div class="gl-sport">🔒 Full Pass</div>
+      <div class="gl-matchup">${item.matchup}</div>
+      <div class="gl-meta">${item.when}</div>
+      <div class="gl-lockCopy">Unlock the rest of the NFL Week 1 board plus more game modes and deeper Guess the Lines access.</div>
+    </div>
+    <button class="gl-lockBtn" type="button">Unlock this matchup</button>`;
+  card.querySelector('.gl-lockBtn').addEventListener('click', openSubscribeModal);
+  return card;
+}
 function renderLines(){
   grid.innerHTML='';
-  LINE_GAMES.forEach((item,idx)=>{
-    const card=document.createElement('div');
-    card.className='lineCard';
-    card.innerHTML = `
-      <div class="lineSport">${item.emoji} ${item.sport}</div>
-      <div class="lineMatchup">${item.matchup}</div>
-      <div class="lineMeta">${item.when}</div>
-      <label class="guessLabel" for="guess-${idx}">Your guess</label>
-      <div class="guessRow">
-        <input id="guess-${idx}" class="guessInput" placeholder="Example: -2.5 Seahawks" />
-        <button class="guessBtn" type="button">Submit Guess</button>
-      </div>
-      <div class="revealBox" id="reveal-${idx}">
-        <div class="bookRow">
-          <div>
-            <div class="bookName">Betr</div>
-            <div class="bookSub">Use code BRACKETS for $200</div>
-          </div>
-          <div class="bookLine">${item.betr}</div>
-          <a class="bookLink" href="${BETR_URL}" target="_blank" rel="noopener noreferrer">Play on Betr</a>
-          <div class="bookSub">Sign up with code BRACKETS for $200 in bonus bets</div>
-        </div>
-        <div class="bookRow">
-          <div>
-            <div class="bookName">BetOnline</div>
-            <div class="bookSub">&nbsp;</div>
-          </div>
-          <div class="bookLine">${item.betonline}</div>
-          <a class="bookLink secondary" href="${BETONLINE_URL}" target="_blank" rel="noopener noreferrer">Play on BetOnline</a>
-          <div class="bookSub">Sign up now for $250 in bonus bets</div>
-        </div>
-      </div>`;
-    card.querySelector('.guessBtn').addEventListener('click',()=>card.querySelector('.revealBox').classList.add('show'));
-    grid.appendChild(card);
-  });
+  FREE_LINE_GAMES.forEach((item,idx)=>grid.appendChild(createPlayableCard(item, idx)));
+  if(isSubscribed){
+    EXTRA_LINE_GAMES.forEach((item,idx)=>grid.appendChild(createPlayableCard(item, idx + FREE_LINE_GAMES.length)));
+  } else {
+    EXTRA_LINE_GAMES.forEach(item=>grid.appendChild(createLockedCard(item)));
+  }
 }
+closeSubscribeModal?.addEventListener('click', closeSubscribe);
+subscribeModal?.addEventListener('click', (e)=>{ if(e.target === subscribeModal) closeSubscribe(); });
 renderLines();
 </script>
 </body>

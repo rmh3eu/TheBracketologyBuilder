@@ -4,59 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Bracket</title>
-  <link rel="stylesheet" href="/style.css?v_nba_home_v149">
+  <link rel="stylesheet" href="/style.css?v_mobile_scroll_fix1">
   <style>
-    :root{--nbaDark:#0b1228;--nbaDark2:#172554;--nbaAccent:#2563eb;--nbaAccent2:#7c3aed;--nbaLight:#eff6ff;--line:#dbe3f0;--ink:#111827;--muted:#64748b}
-    body.page-nba-home{background:radial-gradient(circle at top,#172554 0%,#0f172a 55%,#020617 100%)}
-    .nbaHomeWrap{max-width:1360px;margin:0 auto;padding:14px 12px 28px}
-    .nbaHero{background:linear-gradient(135deg,rgba(6,14,36,.96),rgba(23,37,84,.94));border:1px solid rgba(255,255,255,.09);box-shadow:0 18px 44px rgba(0,0,0,.28);border-radius:26px;padding:16px;color:#fff}
-    .nbaHeroTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-    .nbaHeroTitle{margin:0;font-size:34px;line-height:1}
-    .nbaHeroSub{margin:8px 0 0;color:#dbeafe;font-weight:800;max-width:820px}
-    .nbaHeroRight{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .nbaChip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:900;white-space:nowrap}
-    .nbaSaveBar{margin-top:14px;display:grid;grid-template-columns:minmax(220px,340px) auto 1fr;gap:10px;align-items:center;background:#fff;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:12px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
-    .nbaSaveBar .input{min-height:46px}
-    .nbaSaveMsg{font-size:13px;color:#64748b;font-weight:800}
-    .nbaPromoGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:14px}
-    .nbaPromoCard{background:#fff;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:14px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
-    .nbaPromoEyebrow{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
-    .nbaPromoTitle{margin:6px 0 0;font-size:24px;font-weight:900;color:#111827}
-    .nbaPromoText{margin:8px 0 0;color:#475569;font-weight:700}
-    .nbaPromoBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .nbaPromoBtns .btn{min-height:42px}
-    .nbaBoardWrap{margin-top:14px}
+    .nbaTopBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
     .nbaPlayInBoards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:18px}
-    .nbaPlayInSection,.nbaConferenceBoard,.nbaFinalsBoard{border:1px solid rgba(148,163,184,.18);border-radius:20px;background:#fff;padding:14px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
-    .nbaPlayInSection h3,.nbaConferenceBoard h3,.nbaFinalsBoard h3{margin:0 0 10px;color:#111827;font-size:22px}
-    .nbaInteractiveLayout{display:grid;grid-template-columns:minmax(0,1fr) 280px minmax(0,1fr);gap:16px;align-items:start}
+    .nbaPlayInSection,.nbaConferenceBoard,.nbaFinalsBoard{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .nbaInteractiveLayout{display:grid;grid-template-columns:minmax(0,1fr) 230px minmax(0,1fr);gap:18px;align-items:start}
     .nbaConferenceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .nbaConferenceGrid.isMirror{direction:rtl}.nbaConferenceGrid.isMirror>*{direction:ltr}
+    .nbaConferenceGrid.isMirror{direction:rtl} .nbaConferenceGrid.isMirror>*{direction:ltr}
     .nbaRoundColumn{display:flex;flex-direction:column;gap:10px}
-    .nbaRoundTitle{font-weight:900;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;color:#000;font-weight:900}
-    .nbaMatchupCard{border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px}
-    .nbaSeriesSelect{border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;background:#fff;color:#111827;font-weight:800}
-    .nbaTeamBtn{display:block;width:100%;text-align:left;border:1px solid #dbe3f0;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;min-height:46px}
-    .nbaTeamBtn.isWinner{background:linear-gradient(135deg,var(--nbaAccent),var(--nbaAccent2));color:#fff;border-color:transparent}
-    .nbaChampionDisplay{margin-top:12px;border-radius:16px;background:linear-gradient(135deg,var(--nbaAccent),var(--nbaAccent2));color:#fff;padding:14px;font-weight:900;min-height:76px;display:flex;align-items:center}
-    .nbaFinalsLinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .nbaModalOverlay{position:fixed;inset:0;background:rgba(2,6,23,.72);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}
-    .nbaModalOverlay.isOpen{display:flex}
-    .nbaModalCard{width:min(520px,100%);background:linear-gradient(135deg,#0b1434,#11265a);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,.45);padding:20px}
-    .nbaModalTitle{font-size:28px;font-weight:900;line-height:1.05;margin:0 0 10px}
-    .nbaModalText{color:#dbeafe;font-weight:800;margin:0 0 14px}
-    .nbaModalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    .nbaModalActions a,.nbaModalActions button{appearance:none;border:none;border-radius:999px;padding:13px 18px;font-weight:900;font-size:15px;cursor:pointer;text-decoration:none}
-    .nbaModalPrimary{background:#22c55e;color:#052e16}
-    .nbaModalGhost{background:#fff;color:#111827}
-    .nbaModalInput{width:100%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);border-radius:14px;padding:14px 16px;color:#fff;font-size:16px;font-weight:800;margin-top:10px;box-sizing:border-box}
-    .nbaModalInput::placeholder{color:#cbd5e1}
-    .nbaSubNote{margin-top:10px;color:#cbd5e1;font-size:12px;font-weight:700}
-    @media(max-width:1180px){.nbaInteractiveLayout{grid-template-columns:1fr}.nbaPromoGrid,.nbaPlayInBoards{grid-template-columns:1fr}.nbaFinalsBoard{order:-1}}
-    @media(max-width:860px){.nbaHomeWrap{padding:10px 10px 22px}.nbaHero{padding:14px;border-radius:20px}.nbaHeroTitle{font-size:30px}.nbaSaveBar{grid-template-columns:1fr}.nbaPromoTitle{font-size:22px}.nbaConferenceGrid{grid-template-columns:1fr}.nbaPlayInSection h3,.nbaConferenceBoard h3,.nbaFinalsBoard h3{font-size:20px}}
+    .nbaRoundTitle{font-weight:900;font-size:14px;margin-bottom:2px;color:#111827}
+    .nbaMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px}
+    .nbaSeriesSelect{border:1px solid #d1d5db;border-radius:10px;padding:8px 10px;background:#fff;color:#111827;font-weight:800}
+    .nbaTeamBtn{display:block;width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;min-height:44px}
+    .nbaTeamBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
+    .nbaChampionDisplay{margin-top:12px;border-radius:12px;background:#111827;color:#fff;padding:12px;font-weight:900}
+    @media(max-width:1024px){.nbaPlayInBoards{grid-template-columns:1fr} .nbaInteractiveLayout{grid-template-columns:1fr}}
   </style>
 </head>
-<body class="page-challenge-standalone page-challenge-clean-header page-nba-home">
+<body class="page-challenge-standalone page-challenge-clean-header">
 <header class="topbar">
   <div class="brandWrap">
     <div class="brandRow">
@@ -70,135 +36,59 @@
 
 <div class="stickyNav">
   <nav aria-label="Primary" class="siteNav">
-    <a class="navLink" href="bracket-games.html">Bracket Games</a>
-    <a class="navLink" href="guess-lines.html">Guess the Lines</a>
-    <a class="navLink" href="tickets.html">Tickets</a>
-    <a class="navLink active" href="/">NBA Bracket</a>
+    <a class="navLink" href="/">Home</a>
     <a class="navLink" href="my-brackets.html">My Brackets</a>
     <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
     <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+    <a class="navLink active" href="nba.html">NBA Bracket</a>
+    <a class="navLink" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
     <a class="navLink" href="/#featured">Featured Brackets</a>
     <a class="navLink" href="/#upcoming">Upcoming Events</a>
-    <a class="navLink" href="ncaamb-bracket.html">NCAAMB Bracket</a>
   </nav>
 </div>
 
-<main class="nbaHomeWrap">
-  <section class="nbaHero">
-    <div class="nbaHeroTop">
-      <div>
-        <h1 class="nbaHeroTitle">NBA Bracket</h1>
-        <p class="nbaHeroSub">Pick every play-in game, every playoff series winner, and the NBA champion. You can pick the team first and lock in series length before you save.</p>
-      </div>
-      <div class="nbaHeroRight">
-        <span class="nbaChip">🏀 Play-In + Playoffs</span>
-        <span class="nbaChip">🔥 2 free saves</span>
-      </div>
+<main class="wrap">
+  <div class="panel">
+    <div class="panelHead">
+      <h2>NBA Bracket</h2>
+      <div class="subhead">Projected playoff field with play-in games and best-of-7 series picks.</div>
     </div>
 
-    <div class="nbaSaveBar">
-      <input id="nbaBracketTitle" class="input" placeholder="Name My Bracket" />
+    <div class="nbaTopBar">
+      <input id="nbaBracketTitle" class="input" value="NBA Bracket" />
       <button id="nbaSaveBtn" class="btn primary" type="button">Save NBA Bracket</button>
-      <span id="nbaSaveMsg" class="nbaSaveMsg"></span>
+      <span id="nbaSaveMsg" class="tinyMuted"></span>
     </div>
 
-    <div class="nbaPromoGrid">
-      <div class="nbaPromoCard">
-        <div class="nbaPromoEyebrow">NBA partner deals</div>
-        <div class="nbaPromoTitle">Bet on your champion off-site</div>
-        <div class="nbaPromoText">Use these sportsbook offers after you lock in your Finals pick.</div>
-        <div class="nbaPromoBtns">
-          <a class="btn primary" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener">Betr</a>
-          <a class="btn" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener">BetOnline</a>
-        </div>
-      </div>
-      <div class="nbaPromoCard">
-        <div class="nbaPromoEyebrow">NBA extras</div>
-        <div class="nbaPromoTitle">More ways to play</div>
-        <div class="nbaPromoText">Jump into Bracket Games or compare early lines while your NBA bracket is still taking shape.</div>
-        <div class="nbaPromoBtns">
-          <a class="btn" href="bracket-games.html">Play Bracket Games</a>
-          <a class="btn" href="guess-lines.html">Guess the Lines</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="nbaBoardWrap">
     <div id="nbaPlayInTop"></div>
     <div id="nbaBracketApp"></div>
-  </section>
+  </div>
 </main>
 
-<div id="nbaInfoModal" class="nbaModalOverlay" aria-hidden="true">
-  <div class="nbaModalCard">
-    <div id="nbaInfoTitle" class="nbaModalTitle">NBA Bracket</div>
-    <p id="nbaInfoText" class="nbaModalText"></p>
-    <div class="nbaModalActions">
-      <button type="button" class="nbaModalGhost" onclick="closeInfoModal()">OK</button>
-    </div>
-  </div>
-</div>
-
-<div id="nbaAuthModal" class="nbaModalOverlay" aria-hidden="true">
-  <div class="nbaModalCard">
-    <div class="nbaModalTitle">Save Your NBA Bracket</div>
-    <p class="nbaModalText">Sign in or create an account to save this bracket to My Brackets.</p>
-    <input id="nbaAuthEmail" class="nbaModalInput" type="email" placeholder="Email" />
-    <input id="nbaAuthPassword" class="nbaModalInput" type="password" placeholder="Password" />
-    <div id="nbaAuthMsg" class="nbaSubNote"></div>
-    <div class="nbaModalActions">
-      <button type="button" class="nbaModalPrimary" onclick="submitNBAAuth('login')">Sign In</button>
-      <button type="button" class="nbaModalGhost" onclick="submitNBAAuth('register')">Sign Up</button>
-      <button type="button" class="nbaModalGhost" onclick="closeAuthModal()">Not now</button>
-    </div>
-  </div>
-</div>
-
-<div id="nbaSubModal" class="nbaModalOverlay" aria-hidden="true">
-  <div class="nbaModalCard">
-    <div class="nbaModalTitle">Unlock Unlimited NBA Brackets</div>
-    <p class="nbaModalText">Your first 2 NBA brackets are free. Unlock unlimited NBA bracket saves for $5.99/month.</p>
-    <div class="nbaModalActions">
-      <a class="nbaModalPrimary" href="https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1" target="_blank" rel="noopener">Unlock for $5.99/month</a>
-      <button type="button" class="nbaModalGhost" onclick="closeSubModal()">Not now</button>
-    </div>
-    <div class="nbaSubNote">Already paid? Sign in again and try saving.</div>
-  </div>
-</div>
-
 <script>
-const BETR_URL = 'https://engagebetr.onelink.me/auSX/BRACKETS';
-const BETONLINE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
 const NBA = {
-  east: { seeds: [{seed:1,name:"Detroit Pistons"},{seed:2,name:"Boston Celtics"},{seed:3,name:"New York Knicks"},{seed:4,name:"Cleveland Cavaliers"},{seed:5,name:"Atlanta Hawks"},{seed:6,name:"Toronto Raptors"},{seed:7,name:"Philadelphia 76ers"},{seed:8,name:"Orlando Magic"},{seed:9,name:"Miami Heat"},{seed:10,name:"Charlotte Hornets"}] },
+  east: { seeds: [{seed:1,name:"Detroit Pistons"},{seed:3,name:"New York Knicks"},{seed:2,name:"Boston Celtics"},{seed:4,name:"Cleveland Cavaliers"},{seed:5,name:"Toronto Raptors"},{seed:6,name:"Atlanta Hawks"},{seed:7,name:"Philadelphia 76ers"},{seed:8,name:"Orlando Magic"},{seed:9,name:"Charlotte Hornets"},{seed:10,name:"Miami Heat"}] },
   west: { seeds: [{seed:1,name:"Oklahoma City Thunder"},{seed:3,name:"Los Angeles Lakers"},{seed:2,name:"San Antonio Spurs"},{seed:4,name:"Denver Nuggets"},{seed:5,name:"Minnesota Timberwolves"},{seed:6,name:"Houston Rockets"},{seed:7,name:"Phoenix Suns"},{seed:8,name:"LA Clippers"},{seed:9,name:"Portland Trail Blazers"},{seed:10,name:"Golden State Warriors"}] }
 };
 const state = {
   bracketId:null,
-  me:null,
-  pendingSave:false,
   east:{ play7:null, play8:null, r1:{}, r2:{}, conf:null },
   west:{ play7:null, play8:null, r1:{}, r2:{}, conf:null },
   finals:null
 };
 function params(){return new URLSearchParams(window.location.search);}
 async function api(path, opts={}){
-  const headers = Object.assign({'Content-Type':'application/json'}, opts.headers || {});
   const res = await fetch(path, {
-    method: opts.method || 'GET', headers,
-    body: Object.prototype.hasOwnProperty.call(opts,'body') ? (typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body)) : undefined,
-    credentials:'same-origin'
+    method: opts.method || 'GET',
+    headers: Object.assign({'Content-Type':'application/json'}, opts.headers || {}),
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    credentials: 'same-origin'
   });
   const text = await res.text();
   let data = null;
-  try{data = text ? JSON.parse(text) : null;}catch(_e){data = text;}
-  if(!res.ok){
-    const err = new Error((data && (data.message || data.error)) || res.statusText || 'Request failed');
-    err.status = res.status;
-    err.data = data;
-    throw err;
-  }
+  try{data = text ? JSON.parse(text) : null;}catch(e){data = text;}
+  if(!res.ok) throw new Error((data && data.error) || res.statusText || 'Request failed');
   return data;
 }
 function getBySeed(conf, seed){ return NBA[conf].seeds.find(x => x.seed === seed) || null; }
@@ -206,11 +96,7 @@ function cloneTeam(t){ return t ? {seed:t.seed,name:t.name} : null; }
 function sameTeam(a,b){ return !!a && !!b && a.seed===b.seed && a.name===b.name; }
 function winnerOf(o){ return o && o.team ? o.team : null; }
 function teamLabel(t){ return t ? `${t.seed}. ${t.name}` : '—'; }
-function setSaveMsg(text){ document.getElementById('nbaSaveMsg').textContent = text || ''; }
-async function refreshMe(){
-  try{ const d = await api('/api/me'); state.me = d && d.user ? d.user : null; }catch(_e){ state.me = null; }
-  return state.me;
-}
+
 function getConferenceField(conf){
   const play7 = state[conf].play7 || getBySeed(conf,7);
   const play8 = state[conf].play8 || getBySeed(conf,8);
@@ -228,12 +114,13 @@ function getConferenceField(conf){
     cf: [[winnerOf(state[conf].r2.a), winnerOf(state[conf].r2.b)]]
   };
 }
+
 function seriesSelect(current, onChange){
   const sel=document.createElement('select');
   sel.className='nbaSeriesSelect';
   const blank=document.createElement('option'); blank.value=''; blank.textContent='Games'; sel.appendChild(blank);
   ['4','5','6','7'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; if(String(current||'')===v) o.selected=true; sel.appendChild(o); });
-  sel.addEventListener('change',()=>onChange(sel.value ? Number(sel.value) : null));
+  sel.addEventListener('change',()=>onChange(sel.value));
   return sel;
 }
 function teamButton(team, currentWinner, onPick){
@@ -245,11 +132,12 @@ function teamButton(team, currentWinner, onPick){
   else btn.addEventListener('click',()=>onPick(team));
   return btn;
 }
-function matchupCard(teamA, teamB, currentWinner, currentGames, onPick, onGamesChange){
+function matchupCard(teamA, teamB, currentWinner, currentGames, onPick){
   const card=document.createElement('div'); card.className='nbaMatchupCard';
-  card.appendChild(seriesSelect(currentGames, onGamesChange));
-  card.appendChild(teamButton(teamA, currentWinner, team=>onPick(cloneTeam(team))));
-  card.appendChild(teamButton(teamB, currentWinner, team=>onPick(cloneTeam(team))));
+  let games = currentGames ? String(currentGames) : '';
+  card.appendChild(seriesSelect(games, v=>games=v));
+  card.appendChild(teamButton(teamA, currentWinner, team=>{ if(!games) return; onPick(cloneTeam(team), Number(games)); }));
+  card.appendChild(teamButton(teamB, currentWinner, team=>{ if(!games) return; onPick(cloneTeam(team), Number(games)); }));
   return card;
 }
 function playInCard(teamA, teamB, currentWinner, onPick){
@@ -259,123 +147,76 @@ function playInCard(teamA, teamB, currentWinner, onPick){
   card.appendChild(teamButton(teamB, currentWinner, team=>onPick(cloneTeam(team))));
   return card;
 }
+
 function renderPlayInTop(){
   const wrap=document.getElementById('nbaPlayInTop');
   wrap.innerHTML='';
   const board=document.createElement('div'); board.className='nbaPlayInBoards';
+
   const eastBox=document.createElement('section'); eastBox.className='nbaPlayInSection'; eastBox.innerHTML='<h3>Eastern Conference Play-In</h3>';
   eastBox.appendChild(playInCard(getBySeed('east',7),getBySeed('east',8),state.east.play7,w=>{state.east.play7=w; state.east.r1.d=null; state.east.r2.b=null; state.east.conf=null; state.finals=null; renderNBA();}));
   eastBox.appendChild(playInCard(getBySeed('east',9),getBySeed('east',10),state.east.play8,w=>{state.east.play8=w; state.east.r1.a=null; state.east.r2.a=null; state.east.conf=null; state.finals=null; renderNBA();}));
+
   const westBox=document.createElement('section'); westBox.className='nbaPlayInSection'; westBox.innerHTML='<h3>Western Conference Play-In</h3>';
   westBox.appendChild(playInCard(getBySeed('west',7),getBySeed('west',8),state.west.play7,w=>{state.west.play7=w; state.west.r1.d=null; state.west.r2.b=null; state.west.conf=null; state.finals=null; renderNBA();}));
   westBox.appendChild(playInCard(getBySeed('west',9),getBySeed('west',10),state.west.play8,w=>{state.west.play8=w; state.west.r1.a=null; state.west.r2.a=null; state.west.conf=null; state.finals=null; renderNBA();}));
+
   board.appendChild(eastBox); board.appendChild(westBox); wrap.appendChild(board);
 }
+
 function renderConference(conf, title, mirror){
   const field=getConferenceField(conf);
   const board=document.createElement('section'); board.className='nbaConferenceBoard'; board.innerHTML=`<h3>${title}</h3>`;
   const r1=document.createElement('div'); r1.className='nbaRoundColumn'; r1.innerHTML='<div class="nbaRoundTitle">Round 1</div>';
-  r1.appendChild(matchupCard(field.r1[0][0],field.r1[0][1],winnerOf(state[conf].r1.a),state[conf].r1.a && state[conf].r1.a.games,(winner)=>{state[conf].r1.a={team:winner,games:(state[conf].r1.a && state[conf].r1.a.games) ?? null}; state[conf].r2.a=null; state[conf].conf=null; state.finals=null; renderNBA();},games=>{state[conf].r1.a={team:winnerOf(state[conf].r1.a),games}; renderNBA();}));
-  r1.appendChild(matchupCard(field.r1[1][0],field.r1[1][1],winnerOf(state[conf].r1.b),state[conf].r1.b && state[conf].r1.b.games,(winner)=>{state[conf].r1.b={team:winner,games:(state[conf].r1.b && state[conf].r1.b.games) ?? null}; state[conf].r2.a=null; state[conf].conf=null; state.finals=null; renderNBA();},games=>{state[conf].r1.b={team:winnerOf(state[conf].r1.b),games}; renderNBA();}));
-  r1.appendChild(matchupCard(field.r1[2][0],field.r1[2][1],winnerOf(state[conf].r1.c),state[conf].r1.c && state[conf].r1.c.games,(winner)=>{state[conf].r1.c={team:winner,games:(state[conf].r1.c && state[conf].r1.c.games) ?? null}; state[conf].r2.b=null; state[conf].conf=null; state.finals=null; renderNBA();},games=>{state[conf].r1.c={team:winnerOf(state[conf].r1.c),games}; renderNBA();}));
-  r1.appendChild(matchupCard(field.r1[3][0],field.r1[3][1],winnerOf(state[conf].r1.d),state[conf].r1.d && state[conf].r1.d.games,(winner)=>{state[conf].r1.d={team:winner,games:(state[conf].r1.d && state[conf].r1.d.games) ?? null}; state[conf].r2.b=null; state[conf].conf=null; state.finals=null; renderNBA();},games=>{state[conf].r1.d={team:winnerOf(state[conf].r1.d),games}; renderNBA();}));
+  r1.appendChild(matchupCard(field.r1[0][0],field.r1[0][1],winnerOf(state[conf].r1.a),state[conf].r1.a && state[conf].r1.a.games,(winner,games)=>{state[conf].r1.a={team:winner,games}; state[conf].r2.a=null; state[conf].conf=null; state.finals=null; renderNBA();}));
+  r1.appendChild(matchupCard(field.r1[1][0],field.r1[1][1],winnerOf(state[conf].r1.b),state[conf].r1.b && state[conf].r1.b.games,(winner,games)=>{state[conf].r1.b={team:winner,games}; state[conf].r2.a=null; state[conf].conf=null; state.finals=null; renderNBA();}));
+  r1.appendChild(matchupCard(field.r1[2][0],field.r1[2][1],winnerOf(state[conf].r1.c),state[conf].r1.c && state[conf].r1.c.games,(winner,games)=>{state[conf].r1.c={team:winner,games}; state[conf].r2.b=null; state[conf].conf=null; state.finals=null; renderNBA();}));
+  r1.appendChild(matchupCard(field.r1[3][0],field.r1[3][1],winnerOf(state[conf].r1.d),state[conf].r1.d && state[conf].r1.d.games,(winner,games)=>{state[conf].r1.d={team:winner,games}; state[conf].r2.b=null; state[conf].conf=null; state.finals=null; renderNBA();}));
+
   const r2=document.createElement('div'); r2.className='nbaRoundColumn'; r2.innerHTML='<div class="nbaRoundTitle">Conference Semis</div>';
-  r2.appendChild(matchupCard(field.r2[0][0],field.r2[0][1],winnerOf(state[conf].r2.a),state[conf].r2.a && state[conf].r2.a.games,(winner)=>{state[conf].r2.a={team:winner,games:(state[conf].r2.a && state[conf].r2.a.games) ?? null}; state[conf].conf=null; state.finals=null; renderNBA();},games=>{state[conf].r2.a={team:winnerOf(state[conf].r2.a),games}; renderNBA();}));
-  r2.appendChild(matchupCard(field.r2[1][0],field.r2[1][1],winnerOf(state[conf].r2.b),state[conf].r2.b && state[conf].r2.b.games,(winner)=>{state[conf].r2.b={team:winner,games:(state[conf].r2.b && state[conf].r2.b.games) ?? null}; state[conf].conf=null; state.finals=null; renderNBA();},games=>{state[conf].r2.b={team:winnerOf(state[conf].r2.b),games}; renderNBA();}));
+  r2.appendChild(matchupCard(field.r2[0][0],field.r2[0][1],winnerOf(state[conf].r2.a),state[conf].r2.a && state[conf].r2.a.games,(winner,games)=>{state[conf].r2.a={team:winner,games}; state[conf].conf=null; state.finals=null; renderNBA();}));
+  r2.appendChild(matchupCard(field.r2[1][0],field.r2[1][1],winnerOf(state[conf].r2.b),state[conf].r2.b && state[conf].r2.b.games,(winner,games)=>{state[conf].r2.b={team:winner,games}; state[conf].conf=null; state.finals=null; renderNBA();}));
+
   const cf=document.createElement('div'); cf.className='nbaRoundColumn'; cf.innerHTML='<div class="nbaRoundTitle">Conference Finals</div>';
-  cf.appendChild(matchupCard(field.cf[0][0],field.cf[0][1],winnerOf(state[conf].conf),state[conf].conf && state[conf].conf.games,(winner)=>{state[conf].conf={team:winner,games:(state[conf].conf && state[conf].conf.games) ?? null}; state.finals=null; renderNBA();},games=>{state[conf].conf={team:winnerOf(state[conf].conf),games}; renderNBA();}));
+  cf.appendChild(matchupCard(field.cf[0][0],field.cf[0][1],winnerOf(state[conf].conf),state[conf].conf && state[conf].conf.games,(winner,games)=>{state[conf].conf={team:winner,games}; state.finals=null; renderNBA();}));
+
   const grid=document.createElement('div'); grid.className='nbaConferenceGrid'+(mirror?' isMirror':'');
-  if(mirror){grid.appendChild(cf); grid.appendChild(r2); grid.appendChild(r1);} else {grid.appendChild(r1); grid.appendChild(r2); grid.appendChild(cf);} board.appendChild(grid); return board;
+  if(mirror){grid.appendChild(cf); grid.appendChild(r2); grid.appendChild(r1);} else {grid.appendChild(r1); grid.appendChild(r2); grid.appendChild(cf);}
+  board.appendChild(grid);
+  return board;
 }
+
 function renderFinals(){
   const box=document.createElement('section'); box.className='nbaFinalsBoard'; box.innerHTML='<h3>NBA Finals</h3>';
-  box.appendChild(matchupCard(winnerOf(state.east.conf),winnerOf(state.west.conf),winnerOf(state.finals),state.finals && state.finals.games,(winner)=>{state.finals={team:winner,games:(state.finals && state.finals.games) ?? null}; renderNBA();},games=>{state.finals={team:winnerOf(state.finals),games}; renderNBA();}));
+  box.appendChild(matchupCard(winnerOf(state.east.conf),winnerOf(state.west.conf),winnerOf(state.finals),state.finals && state.finals.games,(winner,games)=>{state.finals={team:winner,games}; renderNBA();}));
   const champ=document.createElement('div'); champ.className='nbaChampionDisplay';
-  champ.textContent = state.finals && state.finals.team ? (state.finals.games ? `Champion: ${state.finals.team.name} in ${state.finals.games}` : `Champion: ${state.finals.team.name}`) : 'Champion';
+  champ.textContent = state.finals && state.finals.team ? `Champion: ${state.finals.team.name} in ${state.finals.games}` : 'Champion';
   box.appendChild(champ);
-  const saveBtnBottom=document.createElement('button');
-  saveBtnBottom.type='button';
-  saveBtnBottom.id='nbaSaveBtnBottom';
-  saveBtnBottom.className='btn primary';
-  saveBtnBottom.textContent='Save NBA Bracket';
-  saveBtnBottom.style.marginTop='12px';
-  saveBtnBottom.addEventListener('click', saveNBA);
-  box.appendChild(saveBtnBottom);
-  const links=document.createElement('div'); links.className='nbaFinalsLinks';
-  links.innerHTML=`<a class="btn primary" href="${BETR_URL}" target="_blank" rel="noopener">Betr</a><a class="btn" href="${BETONLINE_URL}" target="_blank" rel="noopener">BetOnline</a>`;
-  box.appendChild(links);
+  const cta=document.createElement('div'); cta.style.marginTop='12px'; cta.innerHTML='<a href="/tickets.html" class="btn primary">Get NBA Finals Tickets</a>'; box.appendChild(cta);
   return box;
 }
-function renderNBA(){
-  renderPlayInTop();
-  const app=document.getElementById('nbaBracketApp');
-  app.innerHTML='';
-  const layout=document.createElement('div'); layout.className='nbaInteractiveLayout';
-  layout.appendChild(renderConference('east','Eastern Conference',false));
-  layout.appendChild(renderFinals());
-  layout.appendChild(renderConference('west','Western Conference',true));
-  app.appendChild(layout);
-}
+
 function serializeState(){ return {sport:'nba', template_id:'nba_projection_playin', layout_type:'nba_playoff', picks:{east:state.east, west:state.west, finals:state.finals}}; }
 function applyLoaded(data){ const src=data && data.picks ? data.picks : data; if(!src) return; state.east=src.east||state.east; state.west=src.west||state.west; state.finals=src.finals||state.finals; }
-async function loadExisting(){ const id=params().get('id'); if(!id) return; try{ const d=await api('/api/bracket?id='+encodeURIComponent(id)); const b=d && d.bracket ? d.bracket : null; if(!b) return; state.bracketId=b.id; document.getElementById('nbaBracketTitle').value=b.title || ''; applyLoaded(b.data || {}); }catch(_e){} }
-function openInfoModal(title, text){ document.getElementById('nbaInfoTitle').textContent=title; document.getElementById('nbaInfoText').textContent=text; const modal=document.getElementById('nbaInfoModal'); modal.classList.add('isOpen'); modal.setAttribute('aria-hidden','false'); }
-function closeInfoModal(){ const modal=document.getElementById('nbaInfoModal'); modal.classList.remove('isOpen'); modal.setAttribute('aria-hidden','true'); }
-function openAuthModal(){ const modal=document.getElementById('nbaAuthModal'); modal.classList.add('isOpen'); modal.setAttribute('aria-hidden','false'); document.getElementById('nbaAuthMsg').textContent=''; }
-function closeAuthModal(){ const modal=document.getElementById('nbaAuthModal'); modal.classList.remove('isOpen'); modal.setAttribute('aria-hidden','true'); }
-function openSubModal(){ const modal=document.getElementById('nbaSubModal'); modal.classList.add('isOpen'); modal.setAttribute('aria-hidden','false'); }
-function closeSubModal(){ const modal=document.getElementById('nbaSubModal'); modal.classList.remove('isOpen'); modal.setAttribute('aria-hidden','true'); }
-function allSeriesHaveGames(){
-  const required=[state.east.r1.a,state.east.r1.b,state.east.r1.c,state.east.r1.d,state.west.r1.a,state.west.r1.b,state.west.r1.c,state.west.r1.d,state.east.r2.a,state.east.r2.b,state.west.r2.a,state.west.r2.b,state.east.conf,state.west.conf,state.finals];
-  return required.every(s => s && [4,5,6,7].includes(Number(s.games)) && s.team);
-}
-function getBracketTitle(){ return String(document.getElementById('nbaBracketTitle').value || '').trim(); }
-async function submitNBAAuth(mode){
-  const email = String(document.getElementById('nbaAuthEmail').value || '').trim();
-  const password = String(document.getElementById('nbaAuthPassword').value || '');
-  const msg = document.getElementById('nbaAuthMsg');
-  msg.textContent='';
-  if(!email || !password){ msg.textContent='Enter your email and password.'; return; }
-  try{
-    if(mode === 'register'){
-      await api('/api/register',{ method:'POST', body:{ email, password } });
-    }
-    await api('/api/login',{ method:'POST', body:{ email, password } });
-    await refreshMe();
-    closeAuthModal();
-    if(state.pendingSave) await saveNBA();
-  }catch(e){ msg.textContent=(e && e.message) ? e.message : 'Could not sign in.'; }
-}
+async function loadExisting(){ const id=params().get('id'); if(!id) return; try{ const d=await api('/api/bracket?id='+encodeURIComponent(id)); const b=d && d.bracket ? d.bracket : null; if(!b) return; state.bracketId=b.id; document.getElementById('nbaBracketTitle').value=b.title || 'NBA Bracket'; applyLoaded(b.data || {}); }catch(_e){} }
 async function saveNBA(){
-  const title=getBracketTitle();
-  state.pendingSave = false;
-  setSaveMsg('');
-  if(!title){ openInfoModal('NBA Bracket','Name Your Bracket Before Saving'); return; }
-  if(!allSeriesHaveGames()){ openInfoModal('NBA Bracket','Make Sure you Have Selected the Number of Games for Each Series'); return; }
-  const me = state.me || await refreshMe();
-  if(!me){ state.pendingSave = true; openAuthModal(); return; }
-  setSaveMsg('Saving...');
+  const msg=document.getElementById('nbaSaveMsg');
+  const title=(document.getElementById('nbaBracketTitle').value || 'NBA Bracket').trim() || 'NBA Bracket';
+  msg.textContent='Saving...';
+  try{ await api('/api/me'); }catch(_e){ msg.textContent='Please log in to save.'; return; }
   try{
-    const payload={ title, bracket_type:'bracketology', sport:'nba', template_id:'nba_projection_playin', layout_type:'nba_playoff', data:serializeState() };
     if(!state.bracketId){
-      const created=await api('/api/brackets',{method:'POST',body:payload});
+      const created=await api('/api/brackets',{method:'POST',body:{title, bracket_type:'bracketology', sport:'nba', template_id:'nba_projection_playin', layout_type:'nba_playoff', data:serializeState()}});
       state.bracketId=created.id;
       const u=new URL(window.location.href); u.searchParams.set('id', state.bracketId); history.replaceState(null,'',u.toString());
     }
-    await api('/api/bracket?id='+encodeURIComponent(state.bracketId),{method:'PUT',body:{ id:state.bracketId, ...payload }});
-    setSaveMsg('Saved to My Brackets.');
-    window.location.href='my-brackets.html';
-  }catch(e){
-    if(e && e.status === 402){ openSubModal(); setSaveMsg(''); return; }
-    setSaveMsg((e && e.message) ? e.message : 'Could not save.');
-  }
+    await api('/api/bracket?id='+encodeURIComponent(state.bracketId),{method:'PUT',body:{id:state.bracketId,title, bracket_type:'bracketology', sport:'nba', template_id:'nba_projection_playin', layout_type:'nba_playoff', data:serializeState()}});
+    msg.textContent='Saved to My Brackets.';
+  }catch(e){ msg.textContent=(e && e.message) ? e.message : 'Could not save.'; }
 }
+function renderNBA(){ renderPlayInTop(); const app=document.getElementById('nbaBracketApp'); app.innerHTML=''; const layout=document.createElement('div'); layout.className='nbaInteractiveLayout'; layout.appendChild(renderConference('east','Eastern Conference',false)); layout.appendChild(renderFinals()); layout.appendChild(renderConference('west','Western Conference',true)); app.appendChild(layout); }
 document.getElementById('nbaSaveBtn').addEventListener('click', saveNBA);
-document.addEventListener('click', function(e){ if(e.target && e.target.id==='nbaSaveBtnBottom'){ saveNBA(); } });
-document.getElementById('nbaInfoModal').addEventListener('click', e=>{ if(e.target.id==='nbaInfoModal') closeInfoModal(); });
-document.getElementById('nbaAuthModal').addEventListener('click', e=>{ if(e.target.id==='nbaAuthModal') closeAuthModal(); });
-document.getElementById('nbaSubModal').addEventListener('click', e=>{ if(e.target.id==='nbaSubModal') closeSubModal(); });
-refreshMe().then(()=>loadExisting()).then(()=>renderNBA());
+loadExisting().then(()=>renderNBA());
 </script>
 </body>
 </html>

@@ -81,7 +81,7 @@
     .bgx-modalActions a,.bgx-modalActions button{appearance:none;border:none;border-radius:999px;padding:13px 18px;font-weight:900;font-size:15px;cursor:pointer;text-decoration:none}
     .bgx-modalPrimary{background:#22c55e;color:#052e16}
     .bgx-modalGhost{background:#fff;color:#111827}
-    .bgx-subNote{margin-top:10px;color:#cbd5e1;font-size:12px;font-weight:700}
+    .bgx-subList{margin:10px 0 0 18px;padding:0;color:#dbeafe;font-weight:800}.bgx-subList li{margin:8px 0}.bgx-subNote{margin-top:12px;color:#cbd5e1;font-size:12px;font-weight:700}
 
   </style>
 </head>
@@ -99,17 +99,17 @@
 
   <div class="stickyNav">
     <nav aria-label="Primary" class="siteNav">
-    <a class="navLink" href="nba.html">NBA Bracket</a>
-    <a class="navLink active" href="bracket-games.html">Bracket Games</a>
-    <a class="navLink" href="guess-lines.html">Guess the Lines</a>
-    <a class="navLink" href="tickets.html">Tickets</a>
-    <a class="navLink" href="my-brackets.html">My Brackets</a>
-    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
-    <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
-    <a class="navLink" href="/#featured">Featured Brackets</a>
-    <a class="navLink" href="/#upcoming">Upcoming Events</a>
-    <a class="navLink" href="ncaamb-bracket.html">NCAAMB Bracket</a>
-  </nav>
+      <a class="navLink active" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink" href="guess-lines.html">Guess the Lines</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
+      <a class="navLink" href="/">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="nba.html">NBA Bracket</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+    </nav>
   </div>
 
   <main class="bgx-wrap">
@@ -410,13 +410,19 @@ subscribeModal?.addEventListener('click', (e)=>{ if(e.target === subscribeModal)
 
   <div class="bgx-modal" id="subscribeModal" aria-hidden="true">
     <div class="bgx-modalCard">
-      <h2 class="bgx-modalTitle">Unlock All Games</h2>
-      <p class="bgx-modalText">Play every game mode and unlock unlimited replays with new matchups.</p>
+      <h2 class="bgx-modalTitle">Unlock The Full Pass</h2>
+      <p class="bgx-modalText">Upgrade for $5.99/month and unlock more ways to play.</p>
+      <ul class="bgx-subList">
+        <li>Access to all games</li>
+        <li>Unlimited player refresh within each game</li>
+        <li>Create unlimited brackets</li>
+        <li>Access to the full suite of Guess the Lines</li>
+      </ul>
       <div class="bgx-modalActions">
-        <a class="bgx-modalPrimary" href="https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1" target="_blank" rel="noopener noreferrer">$5.99/month on Venmo</a>
+        <a class="bgx-modalPrimary" href="https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1" target="_blank" rel="noopener noreferrer">Unlock for $5.99/month</a>
         <button class="bgx-modalGhost" id="closeSubscribeModal" type="button">Keep browsing</button>
       </div>
-      <div class="bgx-subNote">Use BracketologyBuilder on Venmo</div>
+      <div class="bgx-subNote">BracketologyBuilder on Venmo</div>
     </div>
   </div>
 
