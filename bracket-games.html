@@ -4,76 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bracket Games</title>
-  <link rel="stylesheet" href="/style.css?v_games_home_v137">
+  <link rel="stylesheet" href="/style.css?v_mobile_scroll_fix1">
   <style>
-    :root{--bg1:#071129;--bg2:#0f1e46;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#dbe3f0;--nba:#7c3aed;--nfl:#16a34a;--mlb:#2563eb;--chip:#e8edf7}
-    body.page-games{background:radial-gradient(circle at top,#12255c 0%,#08132b 52%,#020617 100%);}
-    .bgx-wrap,.bgx-wrap *{box-sizing:border-box}
-    .bgx-wrap{max-width:1240px;margin:0 auto;padding:14px 12px 28px}
-    .bgx-hero{background:linear-gradient(135deg,rgba(6,14,36,.94),rgba(15,30,70,.92));border:1px solid rgba(255,255,255,.11);box-shadow:0 18px 44px rgba(0,0,0,.28);border-radius:24px;padding:16px;color:#fff}
-    .bgx-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-    .bgx-title{margin:0;font-size:34px;line-height:1}
-    .bgx-sub{margin:8px 0 0;color:#d8e4ff;font-weight:800;max-width:700px}
-    .bgx-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:900;white-space:nowrap}
-    .bgx-controls{margin-top:14px;background:#fff;border:1px solid rgba(148,163,184,.2);border-radius:18px;box-shadow:0 12px 30px rgba(15,23,42,.16);padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
-    .bgx-left{min-width:0;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
-    .bgx-label{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin-bottom:6px}
-    .bgx-row{display:flex;flex-wrap:wrap;gap:8px}
-    .bgx-pill,.bgx-btn{appearance:none;border:none;cursor:pointer;border-radius:999px;padding:10px 14px;min-height:42px;font-weight:900;line-height:1;background:var(--chip);color:var(--ink);font-size:15px}
-    .bgx-pill.active{color:#fff;box-shadow:0 8px 18px rgba(15,23,42,.18)}
-    .bgx-pill[data-sport="nba"].active{background:var(--nba)}
-    .bgx-pill[data-sport="nfl"].active{background:var(--nfl)}
-    .bgx-pill[data-sport="mlb"].active{background:var(--mlb)}
-    .bgx-pill.active[data-role="mode"]{background:#111827}
-    .bgx-right{display:flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-    .bgx-score{padding:10px 12px;border-radius:999px;background:#eef2ff;color:#111827;font-weight:900;white-space:nowrap}
-    .bgx-btn{background:#0b1534;color:#fff}
-    .bgx-btn.ghost{background:#fff;color:#111827;border:1px solid #cbd5e1}
-    .bgx-main{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr);gap:14px;margin-top:14px;align-items:start}
-    .bgx-boardPanel,.bgx-side{background:#fff;border:1px solid rgba(148,163,184,.2);border-radius:20px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
-    .bgx-boardPanel{padding:12px}
-    .bgx-side{padding:14px;background:linear-gradient(135deg,#0b1434,#11265a);color:#fff}
-    .bgx-sideTitle{font-size:28px;font-weight:900;line-height:1.02;margin:0}
-    .bgx-sideText{margin:10px 0 0;color:#dbeafe;font-weight:800}
-    .bgx-sideMeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-    .bgx-sideMeta span{display:inline-flex;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.1);font-size:12px;font-weight:900}
-    .bgx-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-    .bgx-col{min-width:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:10px}
-    .bgx-round{font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#475569;margin-bottom:8px}
-    .bgx-match{background:#fff;border:1px solid #dbe3f0;border-radius:14px;padding:8px;margin-bottom:8px}
-    .bgx-pick{display:block;width:100%;border:1px solid #dbe3f0;background:#fff;border-radius:12px;padding:12px 10px;text-align:left;font-weight:900;color:#111827;cursor:pointer;min-height:58px}
-    .bgx-pick+.bgx-pick{margin-top:8px}
-    .bgx-pick.selected{background:#111827;color:#fff;border-color:#111827}
-    .bgx-pick.incorrect{box-shadow:inset 0 0 0 3px #ef4444}
-    .bgx-pickMeta{display:block;margin-top:4px;font-size:12px;font-weight:800;opacity:.92;color:inherit}
-    .bgx-champTop{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border-radius:14px;padding:14px;font-weight:900;min-height:88px;display:flex;align-items:center;margin-bottom:10px}
-    @media (max-width:1100px){.bgx-main{grid-template-columns:1fr}.bgx-side{order:-1}.bgx-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:760px){
-      .bgx-wrap{padding:10px 10px 22px}
-      .bgx-hero{padding:14px;border-radius:20px}
-      .bgx-top{flex-direction:column;align-items:flex-start}
-      .bgx-title{font-size:30px}
-      .bgx-controls{grid-template-columns:1fr;gap:10px}
-      .bgx-left{grid-template-columns:1fr;gap:10px}
-      .bgx-right{justify-content:stretch}
-      .bgx-right .bgx-btn{flex:1}
-      .bgx-score{width:100%;text-align:center}
-      .bgx-pill,.bgx-btn{min-height:44px;padding:10px 12px}
-      .bgx-main{margin-top:12px;gap:12px}
-      .bgx-boardPanel,.bgx-side{padding:10px}
-      .bgx-sideTitle{font-size:24px}
-      .bgx-board{grid-template-columns:1fr 1fr;gap:8px}
-      .bgx-col{padding:8px}
-      .bgx-match{padding:7px}
-      .bgx-pick{min-height:54px;padding:10px 8px;font-size:14px}
-      .bgx-champTop{min-height:80px;padding:12px}
+    .gamesTopBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .gameTopBtn,.gamePicker,.gamesUpgradeBtn{
+      padding:14px 18px;border-radius:999px;border:1px solid #d1d5db;background:#fff;color:#111827;
+      font-size:16px;font-weight:800;min-height:52px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
     }
-    @media (max-width:480px){
-      .bgx-board{grid-template-columns:1fr}
+    .gameTopBtn.primary{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+    .gamePicker{min-width:220px}
+    .gamesStatusCard{border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .gamesStatusTitle{font-weight:900;color:#111827}
+    .gamesStatusCopy{font-size:14px;color:#4b5563;margin-top:4px}
+    .gamesUpgradeBtn{background:#111827;color:#fff;border-color:#111827}
+    .gamesUpgradeBtn.secondary{background:#fff;color:#111827;border-color:#d1d5db}
+    .gamesLockNote{font-size:13px;color:#6b7280;font-weight:700}
+    .gamesBracketLayout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+    .gameRoundColumn,.gameChampionBox{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .gameRoundTitle{font-weight:900;margin-bottom:10px;color:#111827}
+    .gameMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+    .gamePlayerBtn{width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;position:relative}
+    .gamePlayerBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
+    .gamePlayerBtn.isIncorrect{outline:3px solid #ef4444}
+    .gameRevealMeta{display:block;font-size:12px;font-weight:700;margin-top:4px;opacity:0.95}
+    .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .gamesHidden{display:none !important}
+    .gamesLockedOption{color:#6b7280}
+    @media (max-width:1024px){.gamesBracketLayout{grid-template-columns:1fr 1fr;}}
+    .gameBottomRevealWrap{display:none}
+    .gameBottomRevealBtn{width:100%;padding:14px 20px;font-size:16px}
+    @media (max-width:700px){
+      .gamesBracketLayout{grid-template-columns:1fr;}
+      .gameBottomRevealWrap{display:block;margin-top:12px}
+      .gamesStatusCard{align-items:flex-start}
+      .gamePicker{min-width:100%}
+      .gameTopBtn,.gamesUpgradeBtn{width:100%}
     }
   </style>
 </head>
-<body class="page-challenge-standalone page-challenge-clean-header page-games">
+<body class="page-challenge-standalone page-challenge-clean-header">
   <header class="topbar">
     <div class="brandWrap">
       <div class="brandRow">
@@ -87,231 +56,210 @@
 
   <div class="stickyNav">
     <nav aria-label="Primary" class="siteNav">
-      <a class="navLink active" href="bracket-games.html">Bracket Games</a>
-      <a class="navLink" href="guess-lines.html">Guess the Lines</a>
-      <a class="navLink" href="tickets.html">Tickets</a>
-      <a class="navLink" href="home.html">Home</a>
+      <a class="navLink" href="/">Home</a>
       <a class="navLink" href="my-brackets.html">My Brackets</a>
       <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
       <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
       <a class="navLink" href="nba.html">NBA Bracket</a>
-      <a class="navLink" href="home.html#featured">Featured Brackets</a>
-      <a class="navLink" href="home.html#upcoming">Upcoming Events</a>
+      <a class="navLink active" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
+      <a class="navLink" href="/#featured">Featured Brackets</a>
+      <a class="navLink" href="/#upcoming">Upcoming Events</a>
     </nav>
   </div>
 
-  <main class="bgx-wrap">
-    <section class="bgx-hero">
-      <div class="bgx-top">
+  <main class="wrap">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Bracket Games</h2>
+        <div id="gameSubhead" class="subhead">Pick who you think is taller. Reveal the answers when you’re done.</div>
+      </div>
+
+      <div class="gamesStatusCard" id="gamesStatusCard">
         <div>
-          <h1 class="bgx-title">Bracket Games</h1>
-          <p class="bgx-sub">Pick a sport and game type then scroll down and click on the athlete you think should advance in each head to head matchup in each round.</p>
+          <div class="gamesStatusTitle" id="gamesStatusTitle">Free plan: 1 playable game</div>
+          <div class="gamesStatusCopy" id="gamesStatusCopy">The Height Game is free. Unlock every Bracket Games mode for $5.99/month.</div>
+          <div class="gamesLockNote" id="gamesLockNote">Locked on free: Age, Career Points, and All Time Points.</div>
         </div>
-        <div class="bgx-badge">🔥 Mobile First • Fast Replays • More Sports</div>
-      </div>
-
-      <div class="bgx-controls">
-        <div class="bgx-left">
-          <div>
-            <div class="bgx-label">Sport</div>
-            <div class="bgx-row" id="sportRow"></div>
-          </div>
-          <div>
-            <div class="bgx-label">Game</div>
-            <div class="bgx-row" id="modeRow"></div>
-          </div>
-        </div>
-        <div class="bgx-right">
-          <div class="bgx-score" id="scoreText">0 picks locked</div>
-          <button class="bgx-btn ghost" id="newGameBtn" type="button">New Matchup</button>
-          <button class="bgx-btn" id="revealBtn" type="button">Reveal Answers</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a id="gamesUpgradeBtn" class="gamesUpgradeBtn" href="tickets.html">Unlock all games for $5.99/month</a>
         </div>
       </div>
 
-      <div class="bgx-main">
-        <div class="bgx-boardPanel">
-          <div id="gameBoard" class="bgx-board"></div>
-        </div>
-        <aside class="bgx-side">
-          <h2 class="bgx-sideTitle" id="promoTitle">NBA Height</h2>
-          <p class="bgx-sideText" id="promoText">Pick who is taller, then reveal the answers when you are ready.</p>
-          <div class="bgx-sideMeta">
-            <span id="sportMeta">🏀 NBA</span>
-            <span id="roundMeta">4 rounds</span>
-            <span id="formatMeta">Bracket style</span>
-          </div>
-        </aside>
+      <div class="gamesTopBar">
+        <button id="currentGameBtn" class="gameTopBtn primary" type="button">The Height Game</button>
+        <button id="newGameBtn" class="gameTopBtn" type="button">Replay With New Players</button>
+        <button id="revealBtn" class="gameTopBtn" type="button">Reveal Answers</button>
+        <select id="modeSelect" class="gamePicker">
+          <option value="">Pick Another Game</option>
+          <option value="height">The Height Game</option>
+          <option value="age">🔒 The Age Game</option>
+          <option value="points">🔒 The Career Points Game</option>
+          <option value="alltime">🔒 The All Time Points Game</option>
+        </select>
+        <span id="scoreText" class="tinyMuted"></span>
       </div>
-    </section>
+
+      <div id="gameBracket"></div>
+    </div>
   </main>
 
+
 <script>
-const NBA_PLAYERS = [{"name":"LeBron James","feet":6,"inches":9,"age":40,"points":40474},{"name":"Kevin Durant","feet":6,"inches":11,"age":36,"points":28924},{"name":"Stephen Curry","feet":6,"inches":2,"age":37,"points":24866},{"name":"Giannis Antetokounmpo","feet":6,"inches":11,"age":30,"points":19735},{"name":"Jayson Tatum","feet":6,"inches":8,"age":27,"points":13216},{"name":"Luka Doncic","feet":6,"inches":7,"age":26,"points":12439},{"name":"Joel Embiid","feet":7,"inches":0,"age":31,"points":12000},{"name":"Nikola Jokic","feet":6,"inches":11,"age":30,"points":15485},{"name":"Devin Booker","feet":6,"inches":6,"age":28,"points":15597},{"name":"Jimmy Butler","feet":6,"inches":7,"age":35,"points":13148},{"name":"Anthony Edwards","feet":6,"inches":4,"age":23,"points":6590},{"name":"Ja Morant","feet":6,"inches":2,"age":25,"points":5523},{"name":"Kawhi Leonard","feet":6,"inches":7,"age":33,"points":14014},{"name":"Paul George","feet":6,"inches":8,"age":34,"points":18303},{"name":"Damian Lillard","feet":6,"inches":2,"age":34,"points":22398},{"name":"Zion Williamson","feet":6,"inches":6,"age":24,"points":4752},{"name":"Anthony Davis","feet":6,"inches":10,"age":32,"points":18632},{"name":"Shai Gilgeous-Alexander","feet":6,"inches":6,"age":26,"points":8776},{"name":"Chet Holmgren","feet":7,"inches":1,"age":22,"points":1020},{"name":"Trae Young","feet":6,"inches":1,"age":26,"points":9426},{"name":"Donovan Mitchell","feet":6,"inches":3,"age":28,"points":12134},{"name":"Jalen Brunson","feet":6,"inches":2,"age":28,"points":9341},{"name":"Jamal Murray","feet":6,"inches":4,"age":28,"points":8657}];
-const NBA_ALLTIME = [{"name":"LeBron James","alltime_points":43253},{"name":"Kareem Abdul-Jabbar","alltime_points":38387},{"name":"Karl Malone","alltime_points":36928},{"name":"Kobe Bryant","alltime_points":33643},{"name":"Kevin Durant","alltime_points":32334},{"name":"Michael Jordan","alltime_points":32292},{"name":"Dirk Nowitzki","alltime_points":31560},{"name":"Wilt Chamberlain","alltime_points":31419},{"name":"James Harden","alltime_points":29160},{"name":"Shaquille O'Neal","alltime_points":28596},{"name":"Carmelo Anthony","alltime_points":28289},{"name":"Moses Malone","alltime_points":27409},{"name":"Elvin Hayes","alltime_points":27313},{"name":"Russell Westbrook","alltime_points":27176},{"name":"Hakeem Olajuwon","alltime_points":26946},{"name":"Oscar Robertson","alltime_points":26710}];
-const NFL_PLAYERS = [{"name":"Patrick Mahomes","feet":6,"inches":2,"age":30,"touchdowns":245},{"name":"Josh Allen","feet":6,"inches":5,"age":29,"touchdowns":213},{"name":"Lamar Jackson","feet":6,"inches":2,"age":28,"touchdowns":166},{"name":"Joe Burrow","feet":6,"inches":4,"age":28,"touchdowns":140},{"name":"Justin Herbert","feet":6,"inches":6,"age":27,"touchdowns":137},{"name":"Jalen Hurts","feet":6,"inches":1,"age":27,"touchdowns":109},{"name":"Dak Prescott","feet":6,"inches":2,"age":31,"touchdowns":213},{"name":"Matthew Stafford","feet":6,"inches":3,"age":37,"touchdowns":377},{"name":"Aaron Rodgers","feet":6,"inches":2,"age":41,"touchdowns":503},{"name":"Russell Wilson","feet":5,"inches":11,"age":36,"touchdowns":350},{"name":"Tua Tagovailoa","feet":6,"inches":1,"age":27,"touchdowns":100},{"name":"Brock Purdy","feet":6,"inches":1,"age":25,"touchdowns":64},{"name":"C.J. Stroud","feet":6,"inches":3,"age":23,"touchdowns":43},{"name":"Caleb Williams","feet":6,"inches":1,"age":23,"touchdowns":20},{"name":"Jayden Daniels","feet":6,"inches":4,"age":24,"touchdowns":31},{"name":"Baker Mayfield","feet":6,"inches":1,"age":30,"touchdowns":170}];
-const NFL_ALLTIME = [{"name":"Tom Brady","alltime_passing_yards":89214},{"name":"Drew Brees","alltime_passing_yards":80358},{"name":"Peyton Manning","alltime_passing_yards":71940},{"name":"Brett Favre","alltime_passing_yards":71838},{"name":"Ben Roethlisberger","alltime_passing_yards":64088},{"name":"Philip Rivers","alltime_passing_yards":63440},{"name":"Matt Ryan","alltime_passing_yards":62792},{"name":"Dan Marino","alltime_passing_yards":61361},{"name":"Aaron Rodgers","alltime_passing_yards":62652},{"name":"Matthew Stafford","alltime_passing_yards":59209},{"name":"Eli Manning","alltime_passing_yards":57023},{"name":"John Elway","alltime_passing_yards":51475}];
-const MLB_PLAYERS = [{"name":"Aaron Judge","feet":6,"inches":7,"age":33,"home_runs":315},{"name":"Shohei Ohtani","feet":6,"inches":4,"age":31,"home_runs":225},{"name":"Bryce Harper","feet":6,"inches":3,"age":32,"home_runs":336},{"name":"Mike Trout","feet":6,"inches":2,"age":34,"home_runs":387},{"name":"Mookie Betts","feet":5,"inches":9,"age":32,"home_runs":271},{"name":"Kyle Schwarber","feet":6,"inches":0,"age":33,"home_runs":305},{"name":"Pete Alonso","feet":6,"inches":3,"age":30,"home_runs":245},{"name":"Giancarlo Stanton","feet":6,"inches":6,"age":35,"home_runs":429},{"name":"Juan Soto","feet":6,"inches":2,"age":26,"home_runs":201},{"name":"Manny Machado","feet":6,"inches":3,"age":33,"home_runs":351},{"name":"Freddie Freeman","feet":6,"inches":5,"age":35,"home_runs":349},{"name":"Jose Ramirez","feet":5,"inches":9,"age":32,"home_runs":260},{"name":"Ronald Acuna Jr.","feet":6,"inches":0,"age":27,"home_runs":165},{"name":"Fernando Tatis Jr.","feet":6,"inches":3,"age":26,"home_runs":133},{"name":"Vladimir Guerrero Jr.","feet":6,"inches":2,"age":26,"home_runs":170},{"name":"Francisco Lindor","feet":5,"inches":11,"age":31,"home_runs":250}];
-const MLB_ALLTIME = [{"name":"Barry Bonds","alltime_home_runs":762},{"name":"Hank Aaron","alltime_home_runs":755},{"name":"Babe Ruth","alltime_home_runs":714},{"name":"Albert Pujols","alltime_home_runs":703},{"name":"Alex Rodriguez","alltime_home_runs":696},{"name":"Willie Mays","alltime_home_runs":660},{"name":"Ken Griffey Jr.","alltime_home_runs":630},{"name":"Jim Thome","alltime_home_runs":612},{"name":"Sammy Sosa","alltime_home_runs":609},{"name":"Frank Robinson","alltime_home_runs":586},{"name":"Mark McGwire","alltime_home_runs":583},{"name":"Harmon Killebrew","alltime_home_runs":573}];
-
-const SPORTS = {
-  nba:{label:'🏀 NBA',modes:[
-    {id:'height',label:'Height',title:'NBA Height',prompt:'Pick who is taller.',compare:p=>(p.feet*12)+p.inches,reveal:p=>`${p.feet}'${p.inches}"`,pool:()=>NBA_PLAYERS},
-    {id:'age',label:'Age',title:'NBA Age',prompt:'Pick who is older.',compare:p=>p.age,reveal:p=>`${p.age} years old`,pool:()=>NBA_PLAYERS},
-    {id:'points',label:'Career Points',title:'NBA Career Points',prompt:'Pick who has more current career points.',compare:p=>p.points,reveal:p=>`${Number(p.points).toLocaleString()} points`,pool:()=>NBA_PLAYERS},
-    {id:'alltime',label:'All Time Points',title:'NBA All Time Points',prompt:'Pick who has more all-time NBA regular-season points.',compare:p=>p.alltime_points,reveal:p=>`${Number(p.alltime_points).toLocaleString()} all-time points`,pool:()=>NBA_ALLTIME}
-  ]},
-  nfl:{label:'🏈 NFL',modes:[
-    {id:'height',label:'Height',title:'NFL Height',prompt:'Pick who is taller.',compare:p=>(p.feet*12)+p.inches,reveal:p=>`${p.feet}'${p.inches}"`,pool:()=>NFL_PLAYERS},
-    {id:'age',label:'Age',title:'NFL Age',prompt:'Pick who is older.',compare:p=>p.age,reveal:p=>`${p.age} years old`,pool:()=>NFL_PLAYERS},
-    {id:'td',label:'Career TD',title:'NFL Career TD',prompt:'Pick who has more career passing touchdowns.',compare:p=>p.touchdowns,reveal:p=>`${Number(p.touchdowns).toLocaleString()} passing TD`,pool:()=>NFL_PLAYERS},
-    {id:'alltime',label:'All Time Pass Yds',title:'NFL All Time Passing Yards',prompt:'Pick who has more all-time passing yards.',compare:p=>p.alltime_passing_yards,reveal:p=>`${Number(p.alltime_passing_yards).toLocaleString()} pass yds`,pool:()=>NFL_ALLTIME}
-  ]},
-  mlb:{label:'⚾ MLB',modes:[
-    {id:'height',label:'Height',title:'MLB Height',prompt:'Pick who is taller.',compare:p=>(p.feet*12)+p.inches,reveal:p=>`${p.feet}'${p.inches}"`,pool:()=>MLB_PLAYERS},
-    {id:'age',label:'Age',title:'MLB Age',prompt:'Pick who is older.',compare:p=>p.age,reveal:p=>`${p.age} years old`,pool:()=>MLB_PLAYERS},
-    {id:'hr',label:'Career HR',title:'MLB Career Home Runs',prompt:'Pick who has more career home runs.',compare:p=>p.home_runs,reveal:p=>`${Number(p.home_runs).toLocaleString()} HR`,pool:()=>MLB_PLAYERS},
-    {id:'alltime',label:'All Time HR',title:'MLB All Time Home Runs',prompt:'Pick who has more all-time home runs.',compare:p=>p.alltime_home_runs,reveal:p=>`${Number(p.alltime_home_runs).toLocaleString()} all-time HR`,pool:()=>MLB_ALLTIME}
-  ]}
+const PLAYER_POOL = [
+  { name:"LeBron James", feet:6, inches:9, age:40, points:40474 },
+  { name:"Kevin Durant", feet:6, inches:11, age:36, points:28924 },
+  { name:"Stephen Curry", feet:6, inches:2, age:37, points:24866 },
+  { name:"Giannis Antetokounmpo", feet:6, inches:11, age:30, points:19735 },
+  { name:"Jayson Tatum", feet:6, inches:8, age:27, points:13216 },
+  { name:"Luka Doncic", feet:6, inches:7, age:26, points:12439 },
+  { name:"Joel Embiid", feet:7, inches:0, age:31, points:12000 },
+  { name:"Nikola Jokic", feet:6, inches:11, age:30, points:15485 },
+  { name:"Devin Booker", feet:6, inches:6, age:28, points:15597 },
+  { name:"Jimmy Butler", feet:6, inches:7, age:35, points:13148 },
+  { name:"Anthony Edwards", feet:6, inches:4, age:23, points:6590 },
+  { name:"Ja Morant", feet:6, inches:2, age:25, points:5523 },
+  { name:"Kawhi Leonard", feet:6, inches:7, age:33, points:14014 },
+  { name:"Paul George", feet:6, inches:8, age:34, points:18303 },
+  { name:"Damian Lillard", feet:6, inches:2, age:34, points:22398 },
+  { name:"Zion Williamson", feet:6, inches:6, age:24, points:4752 },
+  { name:"Anthony Davis", feet:6, inches:10, age:32, points:18301 },
+  { name:"Victor Wembanyama", feet:7, inches:4, age:21, points:3162 },
+  { name:"Tyrese Haliburton", feet:6, inches:5, age:25, points:6354 },
+  { name:"Kyrie Irving", feet:6, inches:2, age:33, points:18149 },
+  { name:"Shai Gilgeous-Alexander", feet:6, inches:6, age:26, points:9635 },
+  { name:"Jalen Brunson", feet:6, inches:2, age:28, points:9098 },
+  { name:"Karl-Anthony Towns", feet:7, inches:0, age:29, points:14156 },
+  { name:"Donovan Mitchell", feet:6, inches:3, age:28, points:13013 },
+  { name:"Jaylen Brown", feet:6, inches:6, age:28, points:11944 },
+  { name:"Trae Young", feet:6, inches:1, age:26, points:11495 },
+  { name:"Paolo Banchero", feet:6, inches:10, age:22, points:4393 },
+  { name:"Chet Holmgren", feet:7, inches:1, age:23, points:1425 },
+  { name:"Tyrese Maxey", feet:6, inches:2, age:24, points:5531 },
+  { name:"De'Aaron Fox", feet:6, inches:3, age:27, points:11750 },
+  { name:"Bam Adebayo", feet:6, inches:9, age:27, points:9341 },
+  { name:"Jamal Murray", feet:6, inches:4, age:28, points:8657 },
+  { name:"Brandon Ingram", feet:6, inches:8, age:27, points:9732 },
+  { name:"Mikal Bridges", feet:6, inches:6, age:28, points:7806 },
+  { name:"Darius Garland", feet:6, inches:1, age:25, points:6389 },
+  { name:"Pascal Siakam", feet:6, inches:8, age:31, points:12361 },
+  { name:"Jrue Holiday", feet:6, inches:4, age:34, points:16007 },
+  { name:"LaMelo Ball", feet:6, inches:7, age:23, points:4331 },
+  { name:"Domantas Sabonis", feet:6, inches:10, age:29, points:9788 },
+  { name:"Alperen Sengun", feet:6, inches:11, age:22, points:3858 }
+];
+const ALLTIME_POOL = [{ name:"LeBron James", alltime_points:43253 },{ name:"Kareem Abdul-Jabbar", alltime_points:38387 },{ name:"Karl Malone", alltime_points:36928 },{ name:"Kobe Bryant", alltime_points:33643 },{ name:"Kevin Durant", alltime_points:32334 },{ name:"Michael Jordan", alltime_points:32292 },{ name:"Dirk Nowitzki", alltime_points:31560 },{ name:"Wilt Chamberlain", alltime_points:31419 },{ name:"James Harden", alltime_points:29160 },{ name:"Shaquille O'Neal", alltime_points:28596 },{ name:"Carmelo Anthony", alltime_points:28289 },{ name:"Moses Malone", alltime_points:27409 },{ name:"Elvin Hayes", alltime_points:27313 },{ name:"Russell Westbrook", alltime_points:27176 },{ name:"Hakeem Olajuwon", alltime_points:26946 },{ name:"Oscar Robertson", alltime_points:26710 },{ name:"Dominique Wilkins", alltime_points:26668 },{ name:"DeMar DeRozan", alltime_points:26605 },{ name:"Tim Duncan", alltime_points:26496 },{ name:"Stephen Curry", alltime_points:26447 },{ name:"Paul Pierce", alltime_points:26397 },{ name:"John Havlicek", alltime_points:26395 },{ name:"Kevin Garnett", alltime_points:26071 },{ name:"Vince Carter", alltime_points:25728 },{ name:"Alex English", alltime_points:25613 },{ name:"Reggie Miller", alltime_points:25279 },{ name:"Jerry West", alltime_points:25192 },{ name:"Patrick Ewing", alltime_points:24815 },{ name:"Ray Allen", alltime_points:24505 },{ name:"Allen Iverson", alltime_points:24368 },{ name:"Charles Barkley", alltime_points:23757 },{ name:"Robert Parish", alltime_points:23334 },{ name:"Adrian Dantley", alltime_points:23177 },{ name:"Dwyane Wade", alltime_points:23165 },{ name:"Elgin Baylor", alltime_points:23149 },{ name:"Chris Paul", alltime_points:23058 },{ name:"Damian Lillard", alltime_points:22598 },{ name:"Clyde Drexler", alltime_points:22195 },{ name:"Gary Payton", alltime_points:21813 },{ name:"Larry Bird", alltime_points:21791 }];
+const FREE_MODE = 'height';
+const LOCKED_MODES = ['age','points','alltime'];
+const MODES = {
+  height: { title:'The Height Game', subhead:'Pick who you think is taller. Reveal the answers when you’re done.', compareValue:(p)=>(p.feet*12)+p.inches, reveal:(p)=>`${p.feet}'${p.inches}"`, pool:()=>PLAYER_POOL },
+  age: { title:'The Age Game', subhead:'Subscribers unlock this full game. Pick who you think is older. Reveal the answers when you’re done.', compareValue:(p)=>p.age, reveal:(p)=>`${p.age} years old`, pool:()=>PLAYER_POOL },
+  points: { title:'The Career Points Game', subhead:'Subscribers unlock this full game. Pick who you think has more current career points. Reveal the answers when you’re done.', compareValue:(p)=>p.points, reveal:(p)=>`${Number(p.points).toLocaleString()} points`, pool:()=>PLAYER_POOL },
+  alltime: { title:'The All Time Points Game', subhead:'Subscribers unlock this full game. Pick who you think has more all time NBA regular-season points. Reveal the answers when you’re done.', compareValue:(p)=>p.alltime_points, reveal:(p)=>`${Number(p.alltime_points).toLocaleString()} all time points`, pool:()=>ALLTIME_POOL }
 };
-
-const state = { sport:'nba', mode:'height', players:[], picks:{r1:{},r2:{},r3:{},champ:null}, reveal:false };
-const sportRow = document.getElementById('sportRow');
-const modeRow = document.getElementById('modeRow');
-const board = document.getElementById('gameBoard');
-const scoreText = document.getElementById('scoreText');
-const promoTitle = document.getElementById('promoTitle');
-const promoText = document.getElementById('promoText');
-const sportMeta = document.getElementById('sportMeta');
-
-document.getElementById('newGameBtn').addEventListener('click', ()=>newGame());
-document.getElementById('revealBtn').addEventListener('click', ()=>{ state.reveal = true; render(); });
-
-function shuffle(list){ const arr=list.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+const state = {
+  players: [],
+  picks: { r1: {}, r2: {}, r3: {}, champ: null },
+  reveal: false,
+  mode: FREE_MODE,
+  sub: { loaded:false, active:false, price:'5.99', checkoutUrl:'tickets.html', loggedIn:false, email:'' }
+};
+function shuffle(arr){ const copy=[...arr]; for(let i=copy.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]]; } return copy; }
+function samplePlayers(){ return shuffle(MODES[state.mode].pool()).slice(0,16); }
 function samePlayer(a,b){ return !!a && !!b && a.name===b.name; }
-function currentModeObj(){ return SPORTS[state.sport].modes.find(m=>m.id===state.mode); }
-function newGame(){ state.players = shuffle(currentModeObj().pool()).slice(0,8); state.picks = {r1:{},r2:{},r3:{},champ:null}; state.reveal = false; render(); }
-function compareResult(a,b){ if(!a || !b) return {winner:null,tied:false}; const mode=currentModeObj(); const av=mode.compare(a), bv=mode.compare(b); if(av===bv) return {winner:null,tied:true}; return {winner: av > bv ? a : b, tied:false}; }
-function revealLabel(player){ return currentModeObj().reveal(player); }
-function getActualProgression(){
-  const r1Players = state.players.slice(0,8);
-  const r1 = [];
-  for(let i=0;i<4;i++) r1.push(compareResult(r1Players[i*2]||null, r1Players[i*2+1]||null));
-  const r2Players = r1.map(x=>x.winner||null);
-  const r2 = [];
-  for(let i=0;i<2;i++) r2.push(compareResult(r2Players[i*2]||null, r2Players[i*2+1]||null));
-  const r3Players = r2.map(x=>x.winner||null);
-  const r3 = [compareResult(r3Players[0]||null, r3Players[1]||null)];
-  return {
-    r1,
-    r2,
-    r3,
-    champ: r3[0]
-  };
+function canAccessMode(mode){ return mode === FREE_MODE || state.sub.active; }
+function compareResult(a,b){
+  if(!a && !b) return {winner:null,tied:false};
+  if(!a) return {winner:b||null,tied:false};
+  if(!b) return {winner:a||null,tied:false};
+  const av = MODES[state.mode].compareValue(a), bv = MODES[state.mode].compareValue(b);
+  if(av === bv) return {winner:null,tied:true};
+  return {winner: av > bv ? a : b, tied:false};
 }
-function championCountsAsCorrect(){
-  const championPick = state.picks.r3[0] || null;
-  if(!championPick) return false;
-  const mode = currentModeObj();
-  const values = state.players.map(player => mode.compare(player));
-  const highest = Math.max(...values);
-  return mode.compare(championPick) === highest;
-}
-function getScore(){
-  const actual = getActualProgression();
-  let correct = 0;
-  const total = 7;
-  for(let i=0;i<4;i++) if(state.picks.r1[i] && (actual.r1[i].tied || samePlayer(state.picks.r1[i], actual.r1[i].winner))) correct++;
-  for(let i=0;i<2;i++) if(state.picks.r2[i] && (actual.r2[i].tied || samePlayer(state.picks.r2[i], actual.r2[i].winner))) correct++;
-  if(state.picks.r3[0] && championCountsAsCorrect()) correct++;
-  return {correct,total};
-}
-function clearDownstream(level){ if(level<=1){ state.picks.r2={}; state.picks.r3={}; state.picks.champ=null; } else if(level===2){ state.picks.r3={}; state.picks.champ=null; } else if(level===3){ state.picks.champ=null; } }
-function setPick(round,index,player){ state.picks[round][index]=player; clearDownstream(round==='r1'?1:round==='r2'?2:3); render(); }
-function setChampion(player){ state.picks.champ=player; render(); }
-function renderPills(){
-  sportRow.innerHTML='';
-  Object.entries(SPORTS).forEach(([key,val])=>{
-    const btn=document.createElement('button');
-    btn.className='bgx-pill'+(state.sport===key?' active':'');
-    btn.dataset.sport=key;
-    btn.textContent=val.label;
-    btn.type='button';
-    btn.addEventListener('click',()=>{ state.sport=key; state.mode=SPORTS[key].modes[0].id; newGame(); });
-    sportRow.appendChild(btn);
-  });
-  modeRow.innerHTML='';
-  SPORTS[state.sport].modes.forEach(mode=>{
-    const btn=document.createElement('button');
-    btn.className='bgx-pill'+(state.mode===mode.id?' active':'');
-    btn.dataset.role='mode';
-    btn.textContent=mode.label;
-    btn.type='button';
-    btn.addEventListener('click',()=>{ state.mode=mode.id; newGame(); });
-    modeRow.appendChild(btn);
-  });
-}
-function decorate(btn, player, currentWinner, actual){
-  if(samePlayer(player,currentWinner)) btn.classList.add('selected');
-  if(!state.reveal || !player) return;
-  const meta=document.createElement('span');
-  meta.className='bgx-pickMeta';
-  if(actual.tied){
-    meta.textContent = samePlayer(player,currentWinner) ? '✓ ' + revealLabel(player) : revealLabel(player);
-  } else if(samePlayer(player,currentWinner) && samePlayer(player, actual.winner)){
-    meta.textContent = '✓ ' + revealLabel(player);
-  } else if(samePlayer(player,currentWinner) && !samePlayer(player, actual.winner)){
-    btn.classList.add('incorrect');
-    meta.textContent = '✗ ' + revealLabel(player);
+function revealLabel(p){ return p ? MODES[state.mode].reveal(p) : ''; }
+function clearDownstream(fromRound){ if(fromRound <= 1){ state.picks.r2 = {}; state.picks.r3 = {}; state.picks.champ = null; } else if(fromRound === 2){ state.picks.r3 = {}; state.picks.champ = null; } else if(fromRound === 3){ state.picks.champ = null; } }
+function roundOnePlayers(){ return state.players; }
+function roundTwoPlayers(){ const out=[]; for(let i=0;i<8;i++) out.push(state.picks.r1[i] || null); return out; }
+function finalFourPlayers(){ const out=[]; for(let i=0;i<4;i++) out.push(state.picks.r2[i] || null); return out; }
+function championshipPlayers(){ return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
+function setPick(roundKey, index, player){ state.picks[roundKey][index] = player; if(roundKey === 'r1') clearDownstream(1); else if(roundKey === 'r2') clearDownstream(2); else if(roundKey === 'r3') clearDownstream(3); renderGame(); }
+function setChampion(player){ state.picks.champ = player; renderGame(); }
+function decorateReveal(btn, player, actualWinner, tied){ if(!state.reveal || !player) return; const meta=document.createElement('div'); meta.className='gameRevealMeta'; let text = revealLabel(player); const picked = btn.classList.contains('isWinner'); if(tied){ if(picked) text = '✓ ' + text; } else { if(picked && samePlayer(player, actualWinner)) text = '✓ ' + text; else if(picked && !samePlayer(player, actualWinner)){ text = '✗ ' + text; btn.classList.add('isIncorrect'); } } meta.textContent = text; btn.appendChild(meta); }
+function matchupCard(a,b,currentWinner,onPick){ const card=document.createElement('div'); card.className='gameMatchupCard'; const result=compareResult(a,b); [a,b].forEach(player=>{ const btn=document.createElement('button'); btn.type='button'; btn.className='gamePlayerBtn'+(samePlayer(player,currentWinner)?' isWinner':''); btn.textContent=player?player.name:'—'; if(!player) btn.disabled=true; else btn.addEventListener('click',()=>onPick(player)); decorateReveal(btn, player, result.winner, result.tied); card.appendChild(btn); }); return card; }
+function renderRound(title, players, winnersNeeded, currentMap, onPick){ const col=document.createElement('div'); col.className='gameRoundColumn'; const head=document.createElement('div'); head.className='gameRoundTitle'; head.textContent=title; col.appendChild(head); for(let i=0;i<winnersNeeded;i++){ const a=players[i*2]||null, b=players[i*2+1]||null; col.appendChild(matchupCard(a,b,currentMap[i]||null,p=>onPick(i,p))); } return col; }
+function renderChampionBox(){ const box=document.createElement('div'); box.className='gameChampionBox'; const title=document.createElement('div'); title.className='gameRoundTitle'; title.textContent='Champion'; box.appendChild(title); const finalPair=championshipPlayers(); const champ=document.createElement('div'); champ.className='gameChampionDisplay'; champ.style.cssText='margin-bottom:10px;padding:12px;border-radius:12px;background:#111827;color:#fff;font-weight:900;'; champ.textContent=state.picks.champ ? state.picks.champ.name : 'Pick Champion'; if(state.reveal && state.picks.champ){ const result=compareResult(finalPair[0],finalPair[1]); champ.textContent=state.picks.champ.name + ((result.tied || samePlayer(state.picks.champ,result.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ); } box.appendChild(champ); const pairWrap=document.createElement('div'); pairWrap.className='gameChampChoices'; const result=compareResult(finalPair[0],finalPair[1]); finalPair.forEach(player=>{ const choice=document.createElement('button'); choice.type='button'; choice.className='gamePlayerBtn'+(samePlayer(player,state.picks.champ)?' isWinner':''); choice.textContent=player?player.name:'—'; if(!player) choice.disabled=true; else choice.addEventListener('click',()=>setChampion(player)); decorateReveal(choice, player, result.winner, result.tied); pairWrap.appendChild(choice); }); box.appendChild(pairWrap); const bottomRevealWrap=document.createElement('div'); bottomRevealWrap.className='gameBottomRevealWrap'; const bottomRevealBtn=document.createElement('button'); bottomRevealBtn.type='button'; bottomRevealBtn.className='btn gameBottomRevealBtn'; bottomRevealBtn.textContent='Reveal Answers'; bottomRevealBtn.addEventListener('click', ()=>{ state.reveal=true; renderGame(); }); bottomRevealWrap.appendChild(bottomRevealBtn); box.appendChild(bottomRevealWrap); return box; }
+function calculateScore(){ let correct=0,total=0; const r1=roundOnePlayers(); for(let i=0;i<8;i++){ const result=compareResult(r1[i*2],r1[i*2+1]); if(state.picks.r1[i]) total++; if(state.picks.r1[i] && (result.tied || samePlayer(state.picks.r1[i], result.winner))) correct++; } const r2=roundTwoPlayers(); for(let i=0;i<4;i++){ const result=compareResult(r2[i*2],r2[i*2+1]); if(state.picks.r2[i]) total++; if(state.picks.r2[i] && (result.tied || samePlayer(state.picks.r2[i], result.winner))) correct++; } const r3=finalFourPlayers(); for(let i=0;i<2;i++){ const result=compareResult(r3[i*2],r3[i*2+1]); if(state.picks.r3[i]) total++; if(state.picks.r3[i] && (result.tied || samePlayer(state.picks.r3[i], result.winner))) correct++; } const fp=championshipPlayers(); const result=compareResult(fp[0],fp[1]); if(state.picks.champ) total++; if(state.picks.champ && (result.tied || samePlayer(state.picks.champ, result.winner))) correct++; return {correct,total}; }
+function renderSubscriptionUi(){
+  const titleEl=document.getElementById('gamesStatusTitle');
+  const copyEl=document.getElementById('gamesStatusCopy');
+  const lockEl=document.getElementById('gamesLockNote');
+  const btnEl=document.getElementById('gamesUpgradeBtn');
+  btnEl.href = state.sub.checkoutUrl || 'tickets.html';
+  if(state.sub.active){
+    titleEl.textContent = 'Games subscriber active';
+    copyEl.textContent = 'All Bracket Games modes are unlocked on your account.';
+    lockEl.textContent = state.sub.subEndsAt ? `Renews after ${new Date(state.sub.subEndsAt).toLocaleDateString()}` : 'All current and future game modes are open.';
+    btnEl.textContent = 'Manage subscription';
+  } else if(state.sub.loggedIn){
+    titleEl.textContent = 'Free plan: 1 playable game';
+    copyEl.textContent = `You are on the free plan. Unlock every Bracket Games mode for $${state.sub.price}/month.`;
+    lockEl.textContent = 'Locked on free: Age, Career Points, and All Time Points.';
+    btnEl.textContent = `Unlock all games for $${state.sub.price}/month`;
   } else {
-    meta.textContent = revealLabel(player);
+    titleEl.textContent = 'Free plan: 1 playable game';
+    copyEl.textContent = `Play The Height Game free. Sign in and subscribe for $${state.sub.price}/month to unlock every Bracket Games mode.`;
+    lockEl.textContent = 'Locked on free: Age, Career Points, and All Time Points.';
+    btnEl.textContent = 'Sign in / unlock all games';
   }
-  if(!samePlayer(player,currentWinner) && samePlayer(player, actual.winner)) meta.textContent = 'Answer: ' + revealLabel(player);
-  btn.appendChild(meta);
-}
-function matchupCard(a,b,currentWinner,onPick){
-  const card=document.createElement('div');
-  card.className='bgx-match';
-  [a,b].forEach(player=>{
-    const btn=document.createElement('button');
-    btn.type='button';
-    btn.className='bgx-pick';
-    btn.textContent=player ? player.name : '—';
-    if(!player) btn.disabled=true; else btn.addEventListener('click',()=>onPick(player));
-    decorate(btn,player,currentWinner,compareResult(a,b));
-    card.appendChild(btn);
+  Array.from(document.querySelectorAll('#modeSelect option')).forEach(opt=>{
+    if(!opt.value) return;
+    opt.disabled = !canAccessMode(opt.value);
   });
-  return card;
 }
-function roundPlayers(level){ if(level===1) return state.players; if(level===2) return Array.from({length:8}, (_,i)=> state.picks.r1[i] || null); if(level===3) return Array.from({length:4}, (_,i)=> state.picks.r2[i] || null); return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
-function renderRound(title, players, count, currentMap, roundKey){ const col=document.createElement('div'); col.className='bgx-col'; col.innerHTML=`<div class="bgx-round">${title}</div>`; for(let i=0;i<count;i++) col.appendChild(matchupCard(players[i*2]||null, players[i*2+1]||null, currentMap[i]||null, p=>setPick(roundKey,i,p))); return col; }
-function renderChampion(){
-  const col=document.createElement('div');
-  col.className='bgx-col';
-  col.innerHTML='<div class="bgx-round">Champion</div>';
-  const top=document.createElement('div');
-  top.className='bgx-champTop';
-  const actual = getActualProgression().champ;
-  const championPick = state.picks.r3[0] || null;
-  if(championPick){
-    top.textContent = championPick.name;
-  } else {
-    top.textContent = 'Champion appears here after your Final pick';
-  }
-  if(state.reveal && championPick){
-    top.textContent = championPick.name + (championCountsAsCorrect() ? ' ✓' : ' ✗') + ' • ' + revealLabel(championPick);
-  }
-  col.appendChild(top);
-  if(state.reveal && actual.winner){
-    const note=document.createElement('div');
-    note.className='bgx-match';
-    note.innerHTML = '<div class="bgx-pickMeta" style="margin-top:0">Top value in this bracket: <strong>' + actual.winner.name + '</strong> • ' + revealLabel(actual.winner) + '</div>';
-    col.appendChild(note);
-  }
-  return col;
+function handleLockedMode(mode){
+  state.mode = FREE_MODE;
+  renderSubscriptionUi();
+  document.getElementById('scoreText').textContent = `Subscribers only: ${MODES[mode].title} is locked on the free plan.`;
+  renderGame();
 }
-function updatePromo(){ const mode=currentModeObj(); promoTitle.textContent=mode.title; promoText.textContent=mode.prompt + ' Then tap reveal when you are ready.'; sportMeta.textContent=SPORTS[state.sport].label; const totalPicked = Object.keys(state.picks.r1).length + Object.keys(state.picks.r2).length + Object.keys(state.picks.r3).length; if(state.reveal){ const score=getScore(); scoreText.textContent=`${score.correct}/${score.total} correct`; } else { scoreText.textContent=`${totalPicked} picks locked`; } }
-function render(){ renderPills(); updatePromo(); board.innerHTML=''; const actual=getActualProgression(); board.appendChild(renderRound('Round 1', roundPlayers(1), 4, state.picks.r1, 'r1')); board.appendChild(renderRound('Semifinals', roundPlayers(2), 2, state.picks.r2, 'r2')); board.appendChild(renderRound('Final', roundPlayers(3), 1, state.picks.r3, 'r3')); board.appendChild(renderChampion()); }
-newGame();
+function renderGame(){
+  renderSubscriptionUi();
+  document.getElementById('currentGameBtn').textContent = MODES[state.mode].title;
+  document.getElementById('gameSubhead').textContent = MODES[state.mode].subhead;
+  const mount=document.getElementById('gameBracket'); mount.innerHTML='';
+  const layout=document.createElement('div'); layout.className='gamesBracketLayout';
+  layout.appendChild(renderRound('Round 1',roundOnePlayers(),8,state.picks.r1,(i,p)=>setPick('r1',i,p)));
+  layout.appendChild(renderRound('Quarterfinals',roundTwoPlayers(),4,state.picks.r2,(i,p)=>setPick('r2',i,p)));
+  layout.appendChild(renderRound('Semifinals',finalFourPlayers(),2,state.picks.r3,(i,p)=>setPick('r3',i,p)));
+  layout.appendChild(renderChampionBox());
+  mount.appendChild(layout);
+  const s=calculateScore(); if(state.reveal){ document.getElementById('scoreText').textContent = `Score: ${s.correct} / ${s.total}`; }
+}
+function newGame(){ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); state.players=samplePlayers(); state.picks={r1:{},r2:{},r3:{},champ:null}; state.reveal=false; renderGame(); }
+async function loadSubscription(){
+  try{
+    const res = await fetch('/api/games-subscription', { headers:{ accept:'application/json' } });
+    const data = await res.json();
+    state.sub = {
+      loaded:true,
+      active: !!data?.subscription?.active,
+      price: String(data?.monthly_price || '5.99'),
+      checkoutUrl: data?.checkout_url || 'tickets.html',
+      loggedIn: !!data?.user,
+      email: data?.user?.email || '',
+      subEndsAt: data?.subscription?.ends_at || null
+    };
+  }catch(_){
+    state.sub = { loaded:true, active:false, price:'5.99', checkoutUrl:'tickets.html', loggedIn:false, email:'', subEndsAt:null };
+  }
+  renderSubscriptionUi();
+}
+document.getElementById('modeSelect').addEventListener('change', e=>{ const val=e.target.value; e.target.value=''; if(!MODES[val]) return; if(!canAccessMode(val)) return handleLockedMode(val); state.mode=val; newGame(); });
+document.getElementById('newGameBtn').addEventListener('click', ()=>{ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); newGame(); });
+document.getElementById('revealBtn').addEventListener('click', ()=>{ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); state.reveal=true; renderGame(); });
+document.getElementById('currentGameBtn').addEventListener('click', ()=>{ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); });
+state.mode=FREE_MODE; newGame(); loadSubscription();
 </script>
+
 </body>
 </html>

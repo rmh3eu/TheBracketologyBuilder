@@ -1,0 +1,18 @@
+V142 Bracket Games subscription gate patch
+
+Included changes:
+- Bracket Games free tier now allows only The Height Game.
+- Added user subscription schema fields:
+  games_subscription_status
+  games_subscription_started_at
+  games_subscription_ends_at
+- /api/me now exposes games subscription info.
+- New /api/games-subscription endpoint:
+  GET returns current subscription status + checkout URL + monthly price.
+  POST allows admin-only manual activation/deactivation by email.
+- Bracket Games page now shows free vs subscriber state and locks Age / Career Points / All Time Points for non-subscribers.
+
+Important:
+- Checkout button uses env.GAMES_SUBSCRIPTION_CHECKOUT_URL when configured.
+- If that env var is not set yet, the button falls back to /tickets.html.
+- This patch sets up the gate + account fields + admin/manual activation foundation.
