@@ -1,0 +1,13 @@
+V147 NBA SERIES SELECTION UX PATCH
+
+Changes:
+- NBA teams can now advance before selecting 4/5/6/7 games.
+- Series-length selection is now only enforced at save time.
+- Save button now shows this popup if any non-play-in series is missing a games value:
+  Make Sure you Have Selected the Number of Games for Each Series
+- Existing selected games values are preserved when winners are changed.
+- Champion text no longer shows "in null" when finals games have not been selected yet.
+
+Included files:
+- nba.html
+- V147_NOTES.txt
