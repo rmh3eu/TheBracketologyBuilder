@@ -1,0 +1,24 @@
+V152 STRIPE NOTES
+
+This zip replaces the Venmo subscription destination with Stripe Checkout for BracketologyBuilder Plus.
+
+Included:
+- /functions/api/create-checkout-session.js
+- /functions/api/stripe-complete.js
+- /subscription-success.html
+- updated bracket-games.html
+- updated guess-lines.html
+- updated functions/api/games-subscription.js
+
+Required Cloudflare environment variables:
+- STRIPE_SECRET_KEY = your Stripe test or live secret key
+- STRIPE_PRICE_ID = price_1THVwSRLL3yuhoRUfdZCX0dz
+- BASE_URL = your site origin, for example https://bracketologybuilder.com
+
+Current activation flow:
+- user clicks Unlock for $5.99/month
+- site creates a Stripe Checkout session
+- Stripe sends the user back to /subscription-success.html with the session_id
+- the success page calls /api/stripe-complete to mark the signed-in user active
+
+This version does not yet add a Stripe webhook. Unlock finalization happens on the return page after checkout.

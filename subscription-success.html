@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscription Success</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#1e293b 0%,#0f172a 58%,#020617 100%);font-family:Inter,Arial,sans-serif;color:#fff;padding:18px}
+    .card{width:min(560px,100%);background:linear-gradient(135deg,#08132b,#102a59);border:1px solid rgba(255,255,255,.12);border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,.45);padding:24px}
+    h1{margin:0 0 10px;font-size:34px;line-height:1.02}
+    p{margin:0 0 12px;color:#dbeafe;font-weight:700;line-height:1.5}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:14px 18px;font-weight:900;text-decoration:none;cursor:pointer}
+    .primary{background:#22c55e;color:#052e16}
+    .ghost{background:#fff;color:#111827}
+    .status{margin-top:16px;padding:14px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-weight:800}
+    .muted{color:#cbd5e1;font-size:13px;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>You're almost in.</h1>
+    <p>Finish the return step and your full pass will unlock on this account.</p>
+    <div class="status" id="statusBox">Checking your subscription…</div>
+    <div class="actions">
+      <a class="btn primary" href="/bracket-games.html">Go to Bracket Games</a>
+      <a class="btn ghost" href="/guess-lines.html">Go to Guess the Lines</a>
+    </div>
+    <p class="muted">If you just completed checkout, this should only take a moment.</p>
+  </div>
+  <script>
+    (async function(){
+      const box = document.getElementById('statusBox');
+      const url = new URL(window.location.href);
+      const sessionId = url.searchParams.get('session_id');
+      if(!sessionId){
+        box.textContent = 'Missing Stripe session. Sign in and try the unlock flow again.';
+        return;
+      }
+      try{
+        const res = await fetch('/api/stripe-complete?session_id=' + encodeURIComponent(sessionId), { credentials:'same-origin' });
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok || !data.ok){
+          if(data && data.error === 'signin_required'){
+            box.textContent = 'Sign in on the same account you used before checkout, then reopen this page.';
+            return;
+          }
+          box.textContent = 'Your checkout was received, but the unlock could not be confirmed yet. Refresh this page in a few seconds.';
+          return;
+        }
+        box.textContent = 'Full pass unlocked. You now have access to all games and the full Guess the Lines board.';
+      } catch (e) {
+        box.textContent = 'Your checkout was received, but the unlock could not be confirmed yet. Refresh this page in a few seconds.';
+      }
+    })();
+  </script>
+</body>
+</html>
