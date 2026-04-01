@@ -208,13 +208,21 @@ function getActualProgression(){
     champ: r3[0]
   };
 }
+function championCountsAsCorrect(){
+  const championPick = state.picks.r3[0] || null;
+  if(!championPick) return false;
+  const mode = currentModeObj();
+  const values = state.players.map(player => mode.compare(player));
+  const highest = Math.max(...values);
+  return mode.compare(championPick) === highest;
+}
 function getScore(){
   const actual = getActualProgression();
   let correct = 0;
   const total = 7;
-  for(let i=0;i<4;i++) if(state.picks.r1[i] && samePlayer(state.picks.r1[i], actual.r1[i].winner)) correct++;
-  for(let i=0;i<2;i++) if(state.picks.r2[i] && samePlayer(state.picks.r2[i], actual.r2[i].winner)) correct++;
-  if(state.picks.r3[0] && samePlayer(state.picks.r3[0], actual.r3[0].winner)) correct++;
+  for(let i=0;i<4;i++) if(state.picks.r1[i] && (actual.r1[i].tied || samePlayer(state.picks.r1[i], actual.r1[i].winner))) correct++;
+  for(let i=0;i<2;i++) if(state.picks.r2[i] && (actual.r2[i].tied || samePlayer(state.picks.r2[i], actual.r2[i].winner))) correct++;
+  if(state.picks.r3[0] && championCountsAsCorrect()) correct++;
   return {correct,total};
 }
 function clearDownstream(level){ if(level<=1){ state.picks.r2={}; state.picks.r3={}; state.picks.champ=null; } else if(level===2){ state.picks.r3={}; state.picks.champ=null; } else if(level===3){ state.picks.champ=null; } }
@@ -290,13 +298,13 @@ function renderChampion(){
     top.textContent = 'Champion appears here after your Final pick';
   }
   if(state.reveal && championPick){
-    top.textContent = championPick.name + ((actual.tied || samePlayer(championPick, actual.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(championPick);
+    top.textContent = championPick.name + (championCountsAsCorrect() ? ' ✓' : ' ✗') + ' • ' + revealLabel(championPick);
   }
   col.appendChild(top);
   if(state.reveal && actual.winner){
     const note=document.createElement('div');
     note.className='bgx-match';
-    note.innerHTML = '<div class="bgx-pickMeta" style="margin-top:0">Actual champion for this bracket: <strong>' + actual.winner.name + '</strong> • ' + revealLabel(actual.winner) + '</div>';
+    note.innerHTML = '<div class="bgx-pickMeta" style="margin-top:0">Top value in this bracket: <strong>' + actual.winner.name + '</strong> • ' + revealLabel(actual.winner) + '</div>';
     col.appendChild(note);
   }
   return col;

@@ -1,0 +1,13 @@
+V139 PATCH
+
+Included files:
+- bracket-games.html
+- guess-lines.html
+
+Changes:
+- Champion now counts as correct when the user's final pick is tied for the top value in that 8-player bracket (height, age, points, HR, etc.).
+- Reveal screen champion checkmark uses the same tied-for-top rule.
+- Round scoring still shows out of 7 total picks.
+- Guess the Lines is simplified to NFL Week 1 Games only for now.
+- Guess input and reveal now include the favored team in the line text, for example: -2.5 Seahawks.
+- Betr reveal keeps the sign up with code BRACKETS wording.
