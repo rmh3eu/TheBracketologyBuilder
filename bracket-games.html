@@ -105,7 +105,7 @@
       <div class="bgx-top">
         <div>
           <h1 class="bgx-title">Bracket Games</h1>
-          <p class="bgx-sub">Quick mobile-first sports games with cleaner spacing, better visibility, and faster replay.</p>
+          <p class="bgx-sub">Pick a sport and game type then scroll down and click on the athlete you think should advance in each head to head matchup in each round.</p>
         </div>
         <div class="bgx-badge">🔥 Mobile First • Fast Replays • More Sports</div>
       </div>
@@ -192,6 +192,31 @@ function currentModeObj(){ return SPORTS[state.sport].modes.find(m=>m.id===state
 function newGame(){ state.players = shuffle(currentModeObj().pool()).slice(0,8); state.picks = {r1:{},r2:{},r3:{},champ:null}; state.reveal = false; render(); }
 function compareResult(a,b){ if(!a || !b) return {winner:null,tied:false}; const mode=currentModeObj(); const av=mode.compare(a), bv=mode.compare(b); if(av===bv) return {winner:null,tied:true}; return {winner: av > bv ? a : b, tied:false}; }
 function revealLabel(player){ return currentModeObj().reveal(player); }
+function getActualProgression(){
+  const r1Players = state.players.slice(0,8);
+  const r1 = [];
+  for(let i=0;i<4;i++) r1.push(compareResult(r1Players[i*2]||null, r1Players[i*2+1]||null));
+  const r2Players = r1.map(x=>x.winner||null);
+  const r2 = [];
+  for(let i=0;i<2;i++) r2.push(compareResult(r2Players[i*2]||null, r2Players[i*2+1]||null));
+  const r3Players = r2.map(x=>x.winner||null);
+  const r3 = [compareResult(r3Players[0]||null, r3Players[1]||null)];
+  return {
+    r1,
+    r2,
+    r3,
+    champ: r3[0]
+  };
+}
+function getScore(){
+  const actual = getActualProgression();
+  let correct = 0;
+  const total = 7;
+  for(let i=0;i<4;i++) if(state.picks.r1[i] && samePlayer(state.picks.r1[i], actual.r1[i].winner)) correct++;
+  for(let i=0;i<2;i++) if(state.picks.r2[i] && samePlayer(state.picks.r2[i], actual.r2[i].winner)) correct++;
+  if(state.picks.r3[0] && samePlayer(state.picks.r3[0], actual.r3[0].winner)) correct++;
+  return {correct,total};
+}
 function clearDownstream(level){ if(level<=1){ state.picks.r2={}; state.picks.r3={}; state.picks.champ=null; } else if(level===2){ state.picks.r3={}; state.picks.champ=null; } else if(level===3){ state.picks.champ=null; } }
 function setPick(round,index,player){ state.picks[round][index]=player; clearDownstream(round==='r1'?1:round==='r2'?2:3); render(); }
 function setChampion(player){ state.picks.champ=player; render(); }
@@ -232,6 +257,7 @@ function decorate(btn, player, currentWinner, actual){
   } else {
     meta.textContent = revealLabel(player);
   }
+  if(!samePlayer(player,currentWinner) && samePlayer(player, actual.winner)) meta.textContent = 'Answer: ' + revealLabel(player);
   btn.appendChild(meta);
 }
 function matchupCard(a,b,currentWinner,onPick){
@@ -250,9 +276,33 @@ function matchupCard(a,b,currentWinner,onPick){
 }
 function roundPlayers(level){ if(level===1) return state.players; if(level===2) return Array.from({length:8}, (_,i)=> state.picks.r1[i] || null); if(level===3) return Array.from({length:4}, (_,i)=> state.picks.r2[i] || null); return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
 function renderRound(title, players, count, currentMap, roundKey){ const col=document.createElement('div'); col.className='bgx-col'; col.innerHTML=`<div class="bgx-round">${title}</div>`; for(let i=0;i<count;i++) col.appendChild(matchupCard(players[i*2]||null, players[i*2+1]||null, currentMap[i]||null, p=>setPick(roundKey,i,p))); return col; }
-function renderChampion(){ const col=document.createElement('div'); col.className='bgx-col'; col.innerHTML='<div class="bgx-round">Champion</div>'; const top=document.createElement('div'); top.className='bgx-champTop'; top.textContent = state.picks.champ ? state.picks.champ.name : 'Pick Champion'; const finals=roundPlayers(4); if(state.reveal && state.picks.champ){ const actual=compareResult(finals[0], finals[1]); top.textContent = state.picks.champ.name + ((actual.tied || samePlayer(state.picks.champ, actual.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ); } col.appendChild(top); finals.forEach(player=>{ const btn=document.createElement('button'); btn.type='button'; btn.className='bgx-pick' + (samePlayer(player,state.picks.champ)?' selected':''); btn.textContent = player ? player.name : '—'; if(!player) btn.disabled=true; else btn.addEventListener('click',()=>setChampion(player)); if(player && state.reveal){ const meta=document.createElement('span'); meta.className='bgx-pickMeta'; meta.textContent = revealLabel(player); btn.appendChild(meta); } col.appendChild(btn); }); return col; }
-function updatePromo(){ const mode=currentModeObj(); promoTitle.textContent=mode.title; promoText.textContent=mode.prompt + ' Then tap reveal when you are ready.'; sportMeta.textContent=SPORTS[state.sport].label; const totalPicked = Object.keys(state.picks.r1).length + Object.keys(state.picks.r2).length + Object.keys(state.picks.r3).length + (state.picks.champ?1:0); scoreText.textContent=`${totalPicked} picks locked`; }
-function render(){ renderPills(); updatePromo(); board.innerHTML=''; board.appendChild(renderRound('Round 1', roundPlayers(1), 4, state.picks.r1, 'r1')); board.appendChild(renderRound('Semifinals', roundPlayers(2), 2, state.picks.r2, 'r2')); board.appendChild(renderRound('Final', roundPlayers(3), 1, state.picks.r3, 'r3')); board.appendChild(renderChampion()); }
+function renderChampion(){
+  const col=document.createElement('div');
+  col.className='bgx-col';
+  col.innerHTML='<div class="bgx-round">Champion</div>';
+  const top=document.createElement('div');
+  top.className='bgx-champTop';
+  const actual = getActualProgression().champ;
+  const championPick = state.picks.r3[0] || null;
+  if(championPick){
+    top.textContent = championPick.name;
+  } else {
+    top.textContent = 'Champion appears here after your Final pick';
+  }
+  if(state.reveal && championPick){
+    top.textContent = championPick.name + ((actual.tied || samePlayer(championPick, actual.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(championPick);
+  }
+  col.appendChild(top);
+  if(state.reveal && actual.winner){
+    const note=document.createElement('div');
+    note.className='bgx-match';
+    note.innerHTML = '<div class="bgx-pickMeta" style="margin-top:0">Actual champion for this bracket: <strong>' + actual.winner.name + '</strong> • ' + revealLabel(actual.winner) + '</div>';
+    col.appendChild(note);
+  }
+  return col;
+}
+function updatePromo(){ const mode=currentModeObj(); promoTitle.textContent=mode.title; promoText.textContent=mode.prompt + ' Then tap reveal when you are ready.'; sportMeta.textContent=SPORTS[state.sport].label; const totalPicked = Object.keys(state.picks.r1).length + Object.keys(state.picks.r2).length + Object.keys(state.picks.r3).length; if(state.reveal){ const score=getScore(); scoreText.textContent=`${score.correct}/${score.total} correct`; } else { scoreText.textContent=`${totalPicked} picks locked`; } }
+function render(){ renderPills(); updatePromo(); board.innerHTML=''; const actual=getActualProgression(); board.appendChild(renderRound('Round 1', roundPlayers(1), 4, state.picks.r1, 'r1')); board.appendChild(renderRound('Semifinals', roundPlayers(2), 2, state.picks.r2, 'r2')); board.appendChild(renderRound('Final', roundPlayers(3), 1, state.picks.r3, 'r3')); board.appendChild(renderChampion()); }
 newGame();
 </script>
 </body>

@@ -1,0 +1,17 @@
+V138 Bracket Games scoring + champion cleanup patch
+
+Changes in this patch:
+- Replaced the Bracket Games subtitle text with:
+  "Pick a sport and game type then scroll down and click on the athlete you think should advance in each head to head matchup in each round."
+- Removed the extra champion picker boxes below the champion area
+- Champion now follows the user's Final pick instead of showing extra duplicate choice boxes
+- Reveal now shows score as correct/total
+- Champion reveal correctness now uses the actual best athlete from the original 8-player bracket for the selected game type
+  - tallest for Height
+  - oldest for Age
+  - highest stat for the stat mode selected
+- Added an "Actual champion for this bracket" note after reveal
+
+Files included:
+- bracket-games.html
+- V138_NOTES.txt
