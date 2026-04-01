@@ -1,0 +1,5 @@
+V148 patch
+- NBA team advancement no longer depends on series length selection
+- clicking a team in Round 1, Conference Semis, Conference Finals, or NBA Finals advances that team immediately
+- series length is still required at Save time and triggers the existing popup if missing
+- existing selected games values are preserved when winners change
