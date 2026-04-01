@@ -1,0 +1,14 @@
+V137 PATCH NOTES
+
+This patch replaces bracket-games.html with a cleaned-up layout that avoids the overlap and styling collisions from the previous version.
+
+What changed:
+- renamed all bracket games CSS classes to unique bgx-* classes so the main site bracket CSS no longer overrides the game layout
+- rebuilt the board and controls layout to keep the page cleaner on desktop and mobile
+- moved the game board into its own white panel and the explanation into a separate right-side panel
+- kept NBA, NFL, and MLB game modes intact
+- kept Bracket Games / Guess the Lines / Tickets nav structure intact
+
+Files included:
+- bracket-games.html
+- V137_NOTES.txt
