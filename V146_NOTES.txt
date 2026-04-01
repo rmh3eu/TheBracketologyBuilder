@@ -1,0 +1,3 @@
+V146
+- Fixed champion display so final pick stays selected and renders in the Champion card.
+- Fixed locked game buttons so they open the subscription popup reliably.

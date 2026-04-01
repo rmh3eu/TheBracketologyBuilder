@@ -195,6 +195,8 @@ const POOLS = {
 };
 
 const state = { sport:'nba', mode:'height', players:[], picks:{r1:{},r2:{},r3:{}}, reveal:false, replaysUsed:0, subscribed:false };
+function getSubscribeModal(){ return document.getElementById('subscribeModal'); }
+function getCloseSubscribeBtn(){ return document.getElementById('closeSubscribeModal'); }
 const sportRow = document.getElementById('sportRow');
 const modeRow = document.getElementById('modeRow');
 const newGameBtn = document.getElementById('newGameBtn');
@@ -206,8 +208,6 @@ const promoText = document.getElementById('promoText');
 const sportMeta = document.getElementById('sportMeta');
 const roundMeta = document.getElementById('roundMeta');
 const formatMeta = document.getElementById('formatMeta');
-const subscribeModal = document.getElementById('subscribeModal');
-const closeSubscribeModal = document.getElementById('closeSubscribeModal');
 
 function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
 function currentModeObj(){ return SPORTS[state.sport].modes.find(m=>m.id===state.mode); }
@@ -220,8 +220,8 @@ function compareResult(a,b){
   if(av===bv) return {winner:null,tied:true};
   return {winner: av > bv ? a : b, tied:false};
 }
-function openSubscribeModal(){ subscribeModal.classList.add('show'); subscribeModal.setAttribute('aria-hidden','false'); }
-function closeSubscribe(){ subscribeModal.classList.remove('show'); subscribeModal.setAttribute('aria-hidden','true'); }
+function openSubscribeModal(){ const modal = getSubscribeModal(); if(!modal) return; modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); }
+function closeSubscribe(){ const modal = getSubscribeModal(); if(!modal) return; modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); }
 function canUseMode(modeId){ return state.subscribed || modeId === FREE_MODE; }
 function canReplayAgain(){ return state.subscribed || state.replaysUsed < FREE_REPLAYS; }
 function choosePlayers(){ state.players = shuffle(POOLS[state.sport]).slice(0,8); }
@@ -270,13 +270,13 @@ function getScore(){
   if(state.picks.r3[0] && championCountsAsCorrect()) correct++;
   return {correct,total};
 }
-function clearDownstream(level){
-  if(level<=1){ state.picks.r2={}; state.picks.r3={}; }
-  else if(level===2){ state.picks.r3={}; }
+function clearDownstream(round){
+  if(round==='r1'){ state.picks.r2={}; state.picks.r3={}; }
+  else if(round==='r2'){ state.picks.r3={}; }
 }
 function setPick(round,index,player){
   state.picks[round][index] = player;
-  clearDownstream(round==='r1' ? 1 : 2);
+  clearDownstream(round);
   render();
 }
 function renderPills(){
@@ -403,8 +403,12 @@ function render(){
 newGame(false);
 newGameBtn.addEventListener('click', tryReplay);
 revealBtn.addEventListener('click', ()=>{ state.reveal = true; render(); });
-closeSubscribeModal?.addEventListener('click', closeSubscribe);
-subscribeModal?.addEventListener('click', (e)=>{ if(e.target === subscribeModal) closeSubscribe(); });
+window.addEventListener('DOMContentLoaded', ()=>{
+  const closeBtn = getCloseSubscribeBtn();
+  const modal = getSubscribeModal();
+  closeBtn?.addEventListener('click', closeSubscribe);
+  modal?.addEventListener('click', (e)=>{ if(e.target === modal) closeSubscribe(); });
+});
 </script>
 
 
