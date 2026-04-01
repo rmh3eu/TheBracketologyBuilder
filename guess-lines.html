@@ -107,10 +107,10 @@
         <li>Access to the full suite of Guess the Lines</li>
       </ul>
       <div class="gl-modalActions">
-        <a class="gl-modalPrimary" href="https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1" target="_blank" rel="noopener noreferrer">Unlock for $5.99/month</a>
+        <a class="gl-modalPrimary" href="#" id="glStartSubscription">Unlock for $5.99/month</a>
         <button class="gl-modalGhost" id="closeSubscribeModal" type="button">Keep browsing</button>
       </div>
-      <div class="gl-subNote">BracketologyBuilder on Venmo</div>
+      <div class="gl-subNote">Secure checkout powered by Stripe</div>
     </div>
   </div>
 
@@ -204,6 +204,31 @@ function renderLines(){
 closeSubscribeModal?.addEventListener('click', closeSubscribe);
 subscribeModal?.addEventListener('click', (e)=>{ if(e.target === subscribeModal) closeSubscribe(); });
 renderLines();
+
+async function startStripeSubscription(e){
+  if(e) e.preventDefault();
+  const button = document.getElementById('glStartSubscription');
+  if(button){ button.style.pointerEvents='none'; button.textContent='Loading…'; }
+  try{
+    const res = await fetch('/api/create-checkout-session', { method:'POST', credentials:'same-origin' });
+    const data = await res.json().catch(()=>({}));
+    if(res.status === 401 || data.error === 'signin_required'){
+      alert('Please sign in first, then try again.');
+      return;
+    }
+    if(!res.ok || !data.url){
+      alert('Checkout is not ready yet. Add STRIPE_SECRET_KEY in Cloudflare and try again.');
+      return;
+    }
+    window.location.href = data.url;
+  } catch(err){
+    alert('Checkout is not ready yet. Please try again.');
+  } finally {
+    if(button){ button.style.pointerEvents=''; button.textContent='Unlock for $5.99/month'; }
+  }
+}
+document.getElementById('glStartSubscription')?.addEventListener('click', startStripeSubscription);
+
 </script>
 </body>
 </html>

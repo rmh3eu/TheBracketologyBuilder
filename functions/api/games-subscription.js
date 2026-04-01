@@ -1,6 +1,6 @@
 import { json, requireUser, ensureUserSchema, isAdmin } from "./_util.js";
 
-const PAYMENT_URL = 'https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1';
+const PAYMENT_URL = '/api/create-checkout-session';
 
 function isActive(row){
   if(!row) return false;
@@ -18,9 +18,9 @@ export async function onRequest(context){
   const user = await requireUser({ request, env });
 
   if(request.method === 'GET'){
-    if(!user) return json({ ok:true, active:false, payment_url: PAYMENT_URL });
+    if(!user) return json({ ok:true, active:false, payment_url: PAYMENT_URL, checkout_mode: 'stripe' });
     const row = await env.DB.prepare(`SELECT games_subscription_status, games_subscription_started_at, games_subscription_ends_at FROM users WHERE id=?`).bind(user.id).first();
-    return json({ ok:true, active:isActive(row), status:String((row&&row.games_subscription_status)||''), started_at:row&&row.games_subscription_started_at||null, ends_at:row&&row.games_subscription_ends_at||null, payment_url: PAYMENT_URL });
+    return json({ ok:true, active:isActive(row), status:String((row&&row.games_subscription_status)||''), started_at:row&&row.games_subscription_started_at||null, ends_at:row&&row.games_subscription_ends_at||null, payment_url: PAYMENT_URL, checkout_mode: 'stripe' });
   }
 
   if(request.method === 'POST'){
