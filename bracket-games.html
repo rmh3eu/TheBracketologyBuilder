@@ -6,43 +6,104 @@
   <title>Bracket Games</title>
   <link rel="stylesheet" href="/style.css?v_mobile_scroll_fix1">
   <style>
-    .gamesTopBar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-    .gameTopBtn,.gamePicker,.gamesUpgradeBtn{
-      padding:14px 18px;border-radius:999px;border:1px solid #d1d5db;background:#fff;color:#111827;
-      font-size:16px;font-weight:800;min-height:52px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
+    :root{
+      --bg:#071120;
+      --panel:#0d1830;
+      --panel2:#101f3e;
+      --line:rgba(255,255,255,.1);
+      --text:#f8fbff;
+      --muted:#a9b8d3;
+      --blue:#3b82f6;
+      --purple:#8b5cf6;
+      --green:#10b981;
+      --orange:#f97316;
+      --pill:#162542;
+      --card:#f8fbff;
+      --cardLine:#dbe5f5;
+      --dark:#0b1530;
     }
-    .gameTopBtn.primary{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
-    .gamePicker{min-width:220px}
-    .gamesStatusCard{border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .gamesStatusTitle{font-weight:900;color:#111827}
-    .gamesStatusCopy{font-size:14px;color:#4b5563;margin-top:4px}
-    .gamesUpgradeBtn{background:#111827;color:#fff;border-color:#111827}
-    .gamesUpgradeBtn.secondary{background:#fff;color:#111827;border-color:#d1d5db}
-    .gamesLockNote{font-size:13px;color:#6b7280;font-weight:700}
-    .gamesBracketLayout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
-    .gameRoundColumn,.gameChampionBox{border:1px solid #e5e7eb;border-radius:16px;background:#fff;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
-    .gameRoundTitle{font-weight:900;margin-bottom:10px;color:#111827}
-    .gameMatchupCard{border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;padding:10px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-    .gamePlayerBtn{width:100%;text-align:left;border:1px solid #d1d5db;border-radius:12px;padding:10px 12px;background:#fff;color:#111827;font-weight:800;cursor:pointer;position:relative}
-    .gamePlayerBtn.isWinner{background:#2563eb;color:#fff;border-color:#2563eb}
-    .gamePlayerBtn.isIncorrect{outline:3px solid #ef4444}
-    .gameRevealMeta{display:block;font-size:12px;font-weight:700;margin-top:4px;opacity:0.95}
-    .gameChampChoices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-    .gamesHidden{display:none !important}
-    .gamesLockedOption{color:#6b7280}
-    @media (max-width:1024px){.gamesBracketLayout{grid-template-columns:1fr 1fr;}}
-    .gameBottomRevealWrap{display:none}
-    .gameBottomRevealBtn{width:100%;padding:14px 20px;font-size:16px}
-    @media (max-width:700px){
-      .gamesBracketLayout{grid-template-columns:1fr;}
-      .gameBottomRevealWrap{display:block;margin-top:12px}
-      .gamesStatusCard{align-items:flex-start}
-      .gamePicker{min-width:100%}
-      .gameTopBtn,.gamesUpgradeBtn{width:100%}
+    body.gamesPage{background:radial-gradient(circle at top left,#132a58 0,#081324 42%,#040915 100%); color:var(--text);}
+    .gg-wrap{max-width:1240px; margin:0 auto; padding:20px 16px 36px}
+    .gg-nav{display:flex; flex-wrap:wrap; gap:10px; padding:14px 0 18px; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:18px}
+    .gg-nav a{display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:10px 18px; border-radius:999px; background:rgba(255,255,255,.08); color:#fff; text-decoration:none; font-weight:800; border:1px solid rgba(255,255,255,.12)}
+    .gg-nav a.active{background:linear-gradient(135deg,var(--blue),var(--purple)); box-shadow:0 8px 24px rgba(59,130,246,.35)}
+    .gg-hero{background:linear-gradient(135deg,rgba(17,28,58,.97),rgba(11,20,42,.97)); border:1px solid rgba(255,255,255,.12); border-radius:26px; box-shadow:0 18px 60px rgba(0,0,0,.35); overflow:hidden}
+    .gg-heroTop{display:flex; justify-content:space-between; gap:18px; padding:24px 24px 12px; align-items:flex-start}
+    .gg-eyebrow{font-size:12px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:#8fb2ff; margin-bottom:10px}
+    .gg-title{font-size:42px; line-height:1; font-weight:1000; margin:0 0 10px}
+    .gg-sub{font-size:18px; line-height:1.45; color:var(--text); max-width:850px; margin:0}
+    .gg-badge{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px; background:rgba(255,255,255,.08); color:#fff; font-weight:900; white-space:nowrap}
+    .gg-topRow{display:grid; grid-template-columns:1.1fr .9fr; gap:16px; padding:0 24px 24px}
+    .gg-status,.gg-info{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:18px}
+    .gg-statusTitle,.gg-infoTitle{font-size:13px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:#9db4db; margin-bottom:10px}
+    .gg-statusMain{font-size:30px; font-weight:1000; line-height:1.1; margin-bottom:8px}
+    .gg-statusSub{color:var(--muted); line-height:1.4; margin-bottom:14px}
+    .gg-statusActions{display:flex; flex-wrap:wrap; gap:10px}
+    .gg-cta,.gg-ghost{display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:12px 16px; border-radius:999px; text-decoration:none; font-weight:900; cursor:pointer; border:1px solid transparent}
+    .gg-cta{background:linear-gradient(135deg,#2f6cff,#9149ff); color:#fff; box-shadow:0 12px 26px rgba(59,130,246,.32)}
+    .gg-ghost{background:rgba(255,255,255,.06); color:#fff; border-color:rgba(255,255,255,.16)}
+    .gg-lockedList{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+    .gg-lockPill{padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.08); color:#d6e3ff; font-weight:800; font-size:13px}
+
+    .gg-shell{margin-top:18px; background:linear-gradient(180deg,#12234a 0,#0c1730 100%); border:1px solid rgba(255,255,255,.12); border-radius:26px; padding:20px; box-shadow:0 18px 60px rgba(0,0,0,.35)}
+    .gg-toolbar{display:grid; grid-template-columns:1.2fr auto auto auto; gap:12px; align-items:center; margin-bottom:16px}
+    .gg-pillGroup{display:flex; gap:10px; flex-wrap:wrap}
+    .gg-pillBtn,.gg-actionBtn,.gg-select{min-height:48px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.08); color:#fff; font-size:16px; font-weight:900; padding:12px 16px}
+    .gg-pillBtn.active{background:linear-gradient(135deg,var(--blue),var(--purple)); box-shadow:0 10px 20px rgba(59,130,246,.3)}
+    .gg-pillBtn.locked{background:rgba(255,255,255,.06); color:#9fb4d9}
+    .gg-actionBtn{cursor:pointer}
+    .gg-actionBtn.primary{background:#fff; color:#0b1530}
+    .gg-select{cursor:pointer; min-width:240px}
+    .gg-board{background:linear-gradient(180deg,#f9fbff 0,#eef4ff 100%); border:1px solid #d5e2f7; border-radius:24px; padding:18px; color:#0b1530}
+    .gg-boardTop{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px}
+    .gg-boardTitle{font-size:28px; line-height:1.05; font-weight:1000; margin:0 0 6px; color:#0b1530}
+    .gg-boardSub{font-size:15px; line-height:1.45; color:#4b5b77; margin:0}
+    .gg-score{display:flex; align-items:center; justify-content:center; min-width:160px; min-height:54px; border-radius:18px; background:#e8efff; font-weight:1000; font-size:16px; color:#12234a; padding:10px 14px; text-align:center}
+    .gg-grid{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; align-items:start}
+    .gg-round{background:#fff; border:1px solid var(--cardLine); border-radius:18px; padding:14px; box-shadow:0 10px 26px rgba(13,23,48,.08)}
+    .gg-roundTitle{font-size:15px; font-weight:1000; letter-spacing:.03em; text-transform:uppercase; color:#5f6f8e; margin-bottom:10px}
+    .gg-match{display:grid; gap:8px; margin-bottom:10px}
+    .gg-player{width:100%; text-align:left; background:#f7f9ff; border:1px solid var(--cardLine); color:#0b1530; border-radius:14px; min-height:58px; padding:12px 14px; font-weight:900; font-size:17px; cursor:pointer; transition:transform .08s ease, box-shadow .08s ease, background .12s ease, border-color .12s ease}
+    .gg-player:hover{transform:translateY(-1px); box-shadow:0 10px 18px rgba(15,23,42,.08)}
+    .gg-player.selected{background:linear-gradient(135deg,#2f6cff,#9149ff); color:#fff; border-color:#2f6cff}
+    .gg-player.correct{outline:3px solid #10b981}
+    .gg-player.incorrect{outline:3px solid #ef4444}
+    .gg-player:disabled{opacity:.55; cursor:default; transform:none; box-shadow:none}
+    .gg-meta{display:block; margin-top:6px; font-size:12px; font-weight:900; opacity:.95}
+    .gg-champBox{display:flex; flex-direction:column; gap:10px}
+    .gg-champMain{min-height:62px; border-radius:16px; background:#0b1530; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:1000; padding:12px; text-align:center}
+    .gg-noteRow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .gg-notePill{padding:8px 11px; border-radius:999px; background:#e8efff; color:#19305d; font-size:12px; font-weight:900}
+    .gg-mobileReveal{display:none}
+
+    @media (max-width:1100px){
+      .gg-topRow{grid-template-columns:1fr}
+      .gg-grid{grid-template-columns:1fr 1fr}
+      .gg-toolbar{grid-template-columns:1fr 1fr;}
+    }
+    @media (max-width:760px){
+      .gg-wrap{padding:14px 12px 26px}
+      .gg-nav{overflow:auto; flex-wrap:nowrap; padding-bottom:14px}
+      .gg-nav a{white-space:nowrap}
+      .gg-heroTop{padding:18px 18px 10px; flex-direction:column}
+      .gg-title{font-size:34px}
+      .gg-sub{font-size:16px}
+      .gg-topRow{padding:0 18px 18px}
+      .gg-shell{padding:14px}
+      .gg-toolbar{grid-template-columns:1fr; gap:10px}
+      .gg-pillGroup{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+      .gg-pillBtn,.gg-actionBtn,.gg-select{width:100%}
+      .gg-board{padding:14px}
+      .gg-boardTop{flex-direction:column; align-items:stretch}
+      .gg-score{width:100%; min-width:0}
+      .gg-grid{grid-template-columns:1fr}
+      .gg-player{min-height:54px; font-size:16px}
+      .gg-mobileReveal{display:block; margin-top:12px}
+      #ggRevealTop{display:none}
     }
   </style>
 </head>
-<body class="page-challenge-standalone page-challenge-clean-header">
+<body class="gamesPage page-challenge-standalone page-challenge-clean-header">
   <header class="topbar">
     <div class="brandWrap">
       <div class="brandRow">
@@ -54,58 +115,95 @@
     <div class="actions"></div>
   </header>
 
-  <div class="stickyNav">
-    <nav aria-label="Primary" class="siteNav">
-      <a class="navLink" href="/">Home</a>
-      <a class="navLink" href="my-brackets.html">My Brackets</a>
-      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
-      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
-      <a class="navLink" href="nba.html">NBA Bracket</a>
-      <a class="navLink active" href="bracket-games.html">Bracket Games</a>
-      <a class="navLink" href="tickets.html">Tickets</a>
-      <a class="navLink" href="/#featured">Featured Brackets</a>
-      <a class="navLink" href="/#upcoming">Upcoming Events</a>
+  <main class="gg-wrap">
+    <nav class="gg-nav" aria-label="Primary">
+      <a class="active" href="bracket-games.html">Bracket Games</a>
+      <a href="guess-lines.html">Guess the Lines</a>
+      <a href="tickets.html">Tickets</a>
+      <a href="/">Home</a>
+      <a href="my-brackets.html">My Brackets</a>
+      <a href="best-challenge.html">Best Bracket Challenge</a>
+      <a href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a href="nba.html">NBA Bracket</a>
+      <a href="/#featured">Featured Brackets</a>
+      <a href="/#upcoming">Upcoming Events</a>
     </nav>
-  </div>
 
-  <main class="wrap">
-    <div class="panel">
-      <div class="panelHead">
-        <h2>Bracket Games</h2>
-        <div id="gameSubhead" class="subhead">Pick who you think is taller. Reveal the answers when you’re done.</div>
-      </div>
-
-      <div class="gamesStatusCard" id="gamesStatusCard">
+    <section class="gg-hero">
+      <div class="gg-heroTop">
         <div>
-          <div class="gamesStatusTitle" id="gamesStatusTitle">Free plan: 1 playable game</div>
-          <div class="gamesStatusCopy" id="gamesStatusCopy">The Height Game is free. Unlock every Bracket Games mode for $5.99/month.</div>
-          <div class="gamesLockNote" id="gamesLockNote">Locked on free: Age, Career Points, and All Time Points.</div>
+          <div class="gg-eyebrow">Bracket Games</div>
+          <h1 class="gg-title">Fast, colorful sports games built for replay.</h1>
+          <p class="gg-sub">Pick a sport and game type then scroll down and click on the athlete you think should advance in each head to head matchup in each round.</p>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <a id="gamesUpgradeBtn" class="gamesUpgradeBtn" href="tickets.html">Unlock all games for $5.99/month</a>
+        <div class="gg-badge">🔥 Mobile first • Fast replays • More sports</div>
+      </div>
+      <div class="gg-topRow">
+        <div class="gg-status">
+          <div class="gg-statusTitle">Subscription</div>
+          <div class="gg-statusMain">Free plan: 1 playable game</div>
+          <div class="gg-statusSub">Free users can play <strong>The Height Game</strong>. Age, Career Points, and All Time Points are locked behind the $5.99/month Bracket Games subscription.</div>
+          <div class="gg-statusActions">
+            <a class="gg-cta" href="games-subscription.html">Unlock all Bracket Games for $5.99/month</a>
+            <a class="gg-ghost" href="games-subscription.html">How subscription works</a>
+          </div>
+        </div>
+        <div class="gg-info">
+          <div class="gg-infoTitle">Locked on free</div>
+          <div class="gg-lockedList">
+            <span class="gg-lockPill">🔒 Age</span>
+            <span class="gg-lockPill">🔒 Career Points</span>
+            <span class="gg-lockPill">🔒 All Time Points</span>
+          </div>
+          <div class="gg-noteRow" style="margin-top:16px">
+            <span class="gg-notePill">Free users still get full replays on Height</span>
+            <span class="gg-notePill">Subscribers unlock every mode as more are added</span>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div class="gamesTopBar">
-        <button id="currentGameBtn" class="gameTopBtn primary" type="button">The Height Game</button>
-        <button id="newGameBtn" class="gameTopBtn" type="button">Replay With New Players</button>
-        <button id="revealBtn" class="gameTopBtn" type="button">Reveal Answers</button>
-        <select id="modeSelect" class="gamePicker">
-          <option value="">Pick Another Game</option>
-          <option value="height">The Height Game</option>
-          <option value="age">🔒 The Age Game</option>
-          <option value="points">🔒 The Career Points Game</option>
-          <option value="alltime">🔒 The All Time Points Game</option>
+    <section class="gg-shell">
+      <div class="gg-toolbar">
+        <div class="gg-pillGroup">
+          <button type="button" class="gg-pillBtn active" data-mode="height">🏀 Height</button>
+          <button type="button" class="gg-pillBtn locked" data-mode="age">🔒 Age</button>
+          <button type="button" class="gg-pillBtn locked" data-mode="points">🔒 Career Points</button>
+          <button type="button" class="gg-pillBtn locked" data-mode="alltime">🔒 All Time Points</button>
+        </div>
+        <button id="ggReplayBtn" type="button" class="gg-actionBtn">Replay with new players</button>
+        <button id="ggRevealTop" type="button" class="gg-actionBtn primary">Reveal answers</button>
+        <select id="ggModeSelect" class="gg-select">
+          <option value="">Pick another game</option>
+          <option value="height">Height (free)</option>
+          <option value="age">Age (subscriber)</option>
+          <option value="points">Career Points (subscriber)</option>
+          <option value="alltime">All Time Points (subscriber)</option>
         </select>
-        <span id="scoreText" class="tinyMuted"></span>
       </div>
 
-      <div id="gameBracket"></div>
-    </div>
+      <div class="gg-board">
+        <div class="gg-boardTop">
+          <div>
+            <h2 id="ggBoardTitle" class="gg-boardTitle">The Height Game</h2>
+            <p id="ggBoardSub" class="gg-boardSub">Pick who you think is taller. Reveal answers when you're done.</p>
+            <div class="gg-noteRow">
+              <span class="gg-notePill">Champion only counts if your final winner is actually best in that bracket</span>
+              <span class="gg-notePill">Ties count as correct</span>
+            </div>
+          </div>
+          <div id="ggScore" class="gg-score">Make your picks</div>
+        </div>
+        <div id="ggGrid" class="gg-grid"></div>
+        <div class="gg-mobileReveal"><button id="ggRevealBottom" type="button" class="gg-actionBtn primary" style="width:100%">Reveal answers</button></div>
+      </div>
+    </section>
   </main>
 
-
 <script>
+const GG_SUB_ACTIVE = false;
+const GG_VENMO_URL = 'https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1';
+
 const PLAYER_POOL = [
   { name:"LeBron James", feet:6, inches:9, age:40, points:40474 },
   { name:"Kevin Durant", feet:6, inches:11, age:36, points:28924 },
@@ -148,118 +246,129 @@ const PLAYER_POOL = [
   { name:"Domantas Sabonis", feet:6, inches:10, age:29, points:9788 },
   { name:"Alperen Sengun", feet:6, inches:11, age:22, points:3858 }
 ];
-const ALLTIME_POOL = [{ name:"LeBron James", alltime_points:43253 },{ name:"Kareem Abdul-Jabbar", alltime_points:38387 },{ name:"Karl Malone", alltime_points:36928 },{ name:"Kobe Bryant", alltime_points:33643 },{ name:"Kevin Durant", alltime_points:32334 },{ name:"Michael Jordan", alltime_points:32292 },{ name:"Dirk Nowitzki", alltime_points:31560 },{ name:"Wilt Chamberlain", alltime_points:31419 },{ name:"James Harden", alltime_points:29160 },{ name:"Shaquille O'Neal", alltime_points:28596 },{ name:"Carmelo Anthony", alltime_points:28289 },{ name:"Moses Malone", alltime_points:27409 },{ name:"Elvin Hayes", alltime_points:27313 },{ name:"Russell Westbrook", alltime_points:27176 },{ name:"Hakeem Olajuwon", alltime_points:26946 },{ name:"Oscar Robertson", alltime_points:26710 },{ name:"Dominique Wilkins", alltime_points:26668 },{ name:"DeMar DeRozan", alltime_points:26605 },{ name:"Tim Duncan", alltime_points:26496 },{ name:"Stephen Curry", alltime_points:26447 },{ name:"Paul Pierce", alltime_points:26397 },{ name:"John Havlicek", alltime_points:26395 },{ name:"Kevin Garnett", alltime_points:26071 },{ name:"Vince Carter", alltime_points:25728 },{ name:"Alex English", alltime_points:25613 },{ name:"Reggie Miller", alltime_points:25279 },{ name:"Jerry West", alltime_points:25192 },{ name:"Patrick Ewing", alltime_points:24815 },{ name:"Ray Allen", alltime_points:24505 },{ name:"Allen Iverson", alltime_points:24368 },{ name:"Charles Barkley", alltime_points:23757 },{ name:"Robert Parish", alltime_points:23334 },{ name:"Adrian Dantley", alltime_points:23177 },{ name:"Dwyane Wade", alltime_points:23165 },{ name:"Elgin Baylor", alltime_points:23149 },{ name:"Chris Paul", alltime_points:23058 },{ name:"Damian Lillard", alltime_points:22598 },{ name:"Clyde Drexler", alltime_points:22195 },{ name:"Gary Payton", alltime_points:21813 },{ name:"Larry Bird", alltime_points:21791 }];
-const FREE_MODE = 'height';
-const LOCKED_MODES = ['age','points','alltime'];
+const ALLTIME_POOL = [
+  { name:"LeBron James", alltime_points:43253 },{ name:"Kareem Abdul-Jabbar", alltime_points:38387 },{ name:"Karl Malone", alltime_points:36928 },{ name:"Kobe Bryant", alltime_points:33643 },
+  { name:"Kevin Durant", alltime_points:32334 },{ name:"Michael Jordan", alltime_points:32292 },{ name:"Dirk Nowitzki", alltime_points:31560 },{ name:"Wilt Chamberlain", alltime_points:31419 },
+  { name:"James Harden", alltime_points:29160 },{ name:"Shaquille O'Neal", alltime_points:28596 },{ name:"Carmelo Anthony", alltime_points:28289 },{ name:"Moses Malone", alltime_points:27409 },
+  { name:"Elvin Hayes", alltime_points:27313 },{ name:"Russell Westbrook", alltime_points:27176 },{ name:"Hakeem Olajuwon", alltime_points:26946 },{ name:"Oscar Robertson", alltime_points:26710 },
+  { name:"Dominique Wilkins", alltime_points:26668 },{ name:"DeMar DeRozan", alltime_points:26605 },{ name:"Tim Duncan", alltime_points:26496 },{ name:"Stephen Curry", alltime_points:26447 }
+];
+
 const MODES = {
-  height: { title:'The Height Game', subhead:'Pick who you think is taller. Reveal the answers when you’re done.', compareValue:(p)=>(p.feet*12)+p.inches, reveal:(p)=>`${p.feet}'${p.inches}"`, pool:()=>PLAYER_POOL },
-  age: { title:'The Age Game', subhead:'Subscribers unlock this full game. Pick who you think is older. Reveal the answers when you’re done.', compareValue:(p)=>p.age, reveal:(p)=>`${p.age} years old`, pool:()=>PLAYER_POOL },
-  points: { title:'The Career Points Game', subhead:'Subscribers unlock this full game. Pick who you think has more current career points. Reveal the answers when you’re done.', compareValue:(p)=>p.points, reveal:(p)=>`${Number(p.points).toLocaleString()} points`, pool:()=>PLAYER_POOL },
-  alltime: { title:'The All Time Points Game', subhead:'Subscribers unlock this full game. Pick who you think has more all time NBA regular-season points. Reveal the answers when you’re done.', compareValue:(p)=>p.alltime_points, reveal:(p)=>`${Number(p.alltime_points).toLocaleString()} all time points`, pool:()=>ALLTIME_POOL }
+  height: { title:'The Height Game', subhead:"Pick who you think is taller. Reveal answers when you're done.", compareValue:p=>p.feet*12+p.inches, reveal:p=>`${p.feet}'${p.inches}"`, pool:()=>PLAYER_POOL, locked:false },
+  age: { title:'The Age Game', subhead:"Pick who you think is older. Reveal answers when you're done.", compareValue:p=>p.age, reveal:p=>`${p.age} years old`, pool:()=>PLAYER_POOL, locked:true },
+  points: { title:'The Career Points Game', subhead:"Pick who you think has more current career points. Reveal answers when you're done.", compareValue:p=>p.points, reveal:p=>`${Number(p.points).toLocaleString()} points`, pool:()=>PLAYER_POOL, locked:true },
+  alltime: { title:'The All Time Points Game', subhead:"Pick who you think has more all time NBA regular-season points. Reveal answers when you're done.", compareValue:p=>p.alltime_points, reveal:p=>`${Number(p.alltime_points).toLocaleString()} all time points`, pool:()=>ALLTIME_POOL, locked:true }
 };
-const state = {
-  players: [],
-  picks: { r1: {}, r2: {}, r3: {}, champ: null },
-  reveal: false,
-  mode: FREE_MODE,
-  sub: { loaded:false, active:false, price:'5.99', checkoutUrl:'tickets.html', loggedIn:false, email:'' }
-};
+
+const state = { mode:'height', players:[], picks:{r1:{},r2:{},r3:{},champ:null}, reveal:false };
+const modeButtons = Array.from(document.querySelectorAll('.gg-pillBtn[data-mode]'));
+
 function shuffle(arr){ const copy=[...arr]; for(let i=copy.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [copy[i],copy[j]]=[copy[j],copy[i]]; } return copy; }
 function samplePlayers(){ return shuffle(MODES[state.mode].pool()).slice(0,16); }
-function samePlayer(a,b){ return !!a && !!b && a.name===b.name; }
-function canAccessMode(mode){ return mode === FREE_MODE || state.sub.active; }
+function samePlayer(a,b){ return !!a && !!b && a.name === b.name; }
 function compareResult(a,b){
   if(!a && !b) return {winner:null,tied:false};
   if(!a) return {winner:b||null,tied:false};
   if(!b) return {winner:a||null,tied:false};
-  const av = MODES[state.mode].compareValue(a), bv = MODES[state.mode].compareValue(b);
+  const av=MODES[state.mode].compareValue(a), bv=MODES[state.mode].compareValue(b);
   if(av === bv) return {winner:null,tied:true};
   return {winner: av > bv ? a : b, tied:false};
 }
 function revealLabel(p){ return p ? MODES[state.mode].reveal(p) : ''; }
-function clearDownstream(fromRound){ if(fromRound <= 1){ state.picks.r2 = {}; state.picks.r3 = {}; state.picks.champ = null; } else if(fromRound === 2){ state.picks.r3 = {}; state.picks.champ = null; } else if(fromRound === 3){ state.picks.champ = null; } }
+function clearDownstream(fromRound){ if(fromRound<=1){ state.picks.r2={}; state.picks.r3={}; state.picks.champ=null; } else if(fromRound===2){ state.picks.r3={}; state.picks.champ=null; } else if(fromRound===3){ state.picks.champ=null; } }
 function roundOnePlayers(){ return state.players; }
 function roundTwoPlayers(){ const out=[]; for(let i=0;i<8;i++) out.push(state.picks.r1[i] || null); return out; }
 function finalFourPlayers(){ const out=[]; for(let i=0;i<4;i++) out.push(state.picks.r2[i] || null); return out; }
 function championshipPlayers(){ return [state.picks.r3[0] || null, state.picks.r3[1] || null]; }
-function setPick(roundKey, index, player){ state.picks[roundKey][index] = player; if(roundKey === 'r1') clearDownstream(1); else if(roundKey === 'r2') clearDownstream(2); else if(roundKey === 'r3') clearDownstream(3); renderGame(); }
-function setChampion(player){ state.picks.champ = player; renderGame(); }
-function decorateReveal(btn, player, actualWinner, tied){ if(!state.reveal || !player) return; const meta=document.createElement('div'); meta.className='gameRevealMeta'; let text = revealLabel(player); const picked = btn.classList.contains('isWinner'); if(tied){ if(picked) text = '✓ ' + text; } else { if(picked && samePlayer(player, actualWinner)) text = '✓ ' + text; else if(picked && !samePlayer(player, actualWinner)){ text = '✗ ' + text; btn.classList.add('isIncorrect'); } } meta.textContent = text; btn.appendChild(meta); }
-function matchupCard(a,b,currentWinner,onPick){ const card=document.createElement('div'); card.className='gameMatchupCard'; const result=compareResult(a,b); [a,b].forEach(player=>{ const btn=document.createElement('button'); btn.type='button'; btn.className='gamePlayerBtn'+(samePlayer(player,currentWinner)?' isWinner':''); btn.textContent=player?player.name:'—'; if(!player) btn.disabled=true; else btn.addEventListener('click',()=>onPick(player)); decorateReveal(btn, player, result.winner, result.tied); card.appendChild(btn); }); return card; }
-function renderRound(title, players, winnersNeeded, currentMap, onPick){ const col=document.createElement('div'); col.className='gameRoundColumn'; const head=document.createElement('div'); head.className='gameRoundTitle'; head.textContent=title; col.appendChild(head); for(let i=0;i<winnersNeeded;i++){ const a=players[i*2]||null, b=players[i*2+1]||null; col.appendChild(matchupCard(a,b,currentMap[i]||null,p=>onPick(i,p))); } return col; }
-function renderChampionBox(){ const box=document.createElement('div'); box.className='gameChampionBox'; const title=document.createElement('div'); title.className='gameRoundTitle'; title.textContent='Champion'; box.appendChild(title); const finalPair=championshipPlayers(); const champ=document.createElement('div'); champ.className='gameChampionDisplay'; champ.style.cssText='margin-bottom:10px;padding:12px;border-radius:12px;background:#111827;color:#fff;font-weight:900;'; champ.textContent=state.picks.champ ? state.picks.champ.name : 'Pick Champion'; if(state.reveal && state.picks.champ){ const result=compareResult(finalPair[0],finalPair[1]); champ.textContent=state.picks.champ.name + ((result.tied || samePlayer(state.picks.champ,result.winner)) ? ' ✓' : ' ✗') + ' • ' + revealLabel(state.picks.champ); } box.appendChild(champ); const pairWrap=document.createElement('div'); pairWrap.className='gameChampChoices'; const result=compareResult(finalPair[0],finalPair[1]); finalPair.forEach(player=>{ const choice=document.createElement('button'); choice.type='button'; choice.className='gamePlayerBtn'+(samePlayer(player,state.picks.champ)?' isWinner':''); choice.textContent=player?player.name:'—'; if(!player) choice.disabled=true; else choice.addEventListener('click',()=>setChampion(player)); decorateReveal(choice, player, result.winner, result.tied); pairWrap.appendChild(choice); }); box.appendChild(pairWrap); const bottomRevealWrap=document.createElement('div'); bottomRevealWrap.className='gameBottomRevealWrap'; const bottomRevealBtn=document.createElement('button'); bottomRevealBtn.type='button'; bottomRevealBtn.className='btn gameBottomRevealBtn'; bottomRevealBtn.textContent='Reveal Answers'; bottomRevealBtn.addEventListener('click', ()=>{ state.reveal=true; renderGame(); }); bottomRevealWrap.appendChild(bottomRevealBtn); box.appendChild(bottomRevealWrap); return box; }
-function calculateScore(){ let correct=0,total=0; const r1=roundOnePlayers(); for(let i=0;i<8;i++){ const result=compareResult(r1[i*2],r1[i*2+1]); if(state.picks.r1[i]) total++; if(state.picks.r1[i] && (result.tied || samePlayer(state.picks.r1[i], result.winner))) correct++; } const r2=roundTwoPlayers(); for(let i=0;i<4;i++){ const result=compareResult(r2[i*2],r2[i*2+1]); if(state.picks.r2[i]) total++; if(state.picks.r2[i] && (result.tied || samePlayer(state.picks.r2[i], result.winner))) correct++; } const r3=finalFourPlayers(); for(let i=0;i<2;i++){ const result=compareResult(r3[i*2],r3[i*2+1]); if(state.picks.r3[i]) total++; if(state.picks.r3[i] && (result.tied || samePlayer(state.picks.r3[i], result.winner))) correct++; } const fp=championshipPlayers(); const result=compareResult(fp[0],fp[1]); if(state.picks.champ) total++; if(state.picks.champ && (result.tied || samePlayer(state.picks.champ, result.winner))) correct++; return {correct,total}; }
-function renderSubscriptionUi(){
-  const titleEl=document.getElementById('gamesStatusTitle');
-  const copyEl=document.getElementById('gamesStatusCopy');
-  const lockEl=document.getElementById('gamesLockNote');
-  const btnEl=document.getElementById('gamesUpgradeBtn');
-  btnEl.href = state.sub.checkoutUrl || 'tickets.html';
-  if(state.sub.active){
-    titleEl.textContent = 'Games subscriber active';
-    copyEl.textContent = 'All Bracket Games modes are unlocked on your account.';
-    lockEl.textContent = state.sub.subEndsAt ? `Renews after ${new Date(state.sub.subEndsAt).toLocaleDateString()}` : 'All current and future game modes are open.';
-    btnEl.textContent = 'Manage subscription';
-  } else if(state.sub.loggedIn){
-    titleEl.textContent = 'Free plan: 1 playable game';
-    copyEl.textContent = `You are on the free plan. Unlock every Bracket Games mode for $${state.sub.price}/month.`;
-    lockEl.textContent = 'Locked on free: Age, Career Points, and All Time Points.';
-    btnEl.textContent = `Unlock all games for $${state.sub.price}/month`;
-  } else {
-    titleEl.textContent = 'Free plan: 1 playable game';
-    copyEl.textContent = `Play The Height Game free. Sign in and subscribe for $${state.sub.price}/month to unlock every Bracket Games mode.`;
-    lockEl.textContent = 'Locked on free: Age, Career Points, and All Time Points.';
-    btnEl.textContent = 'Sign in / unlock all games';
-  }
-  Array.from(document.querySelectorAll('#modeSelect option')).forEach(opt=>{
-    if(!opt.value) return;
-    opt.disabled = !canAccessMode(opt.value);
-  });
+function setPick(roundKey, index, player){ state.picks[roundKey][index]=player; if(roundKey==='r1') clearDownstream(1); else if(roundKey==='r2') clearDownstream(2); else if(roundKey==='r3') clearDownstream(3); renderGame(); }
+function setChampion(player){ state.picks.champ=player; renderGame(); }
+function scoreEntry(predicted, result){ if(!predicted) return {total:0, correct:0}; return { total:1, correct: result.tied || samePlayer(predicted, result.winner) ? 1 : 0 }; }
+function calculateScore(){
+  let correct=0,total=0;
+  const r1=roundOnePlayers();
+  for(let i=0;i<8;i++){ const sc=scoreEntry(state.picks.r1[i], compareResult(r1[i*2], r1[i*2+1])); correct+=sc.correct; total+=sc.total; }
+  const r2=roundTwoPlayers();
+  for(let i=0;i<4;i++){ const sc=scoreEntry(state.picks.r2[i], compareResult(r2[i*2], r2[i*2+1])); correct+=sc.correct; total+=sc.total; }
+  const r3=finalFourPlayers();
+  for(let i=0;i<2;i++){ const sc=scoreEntry(state.picks.r3[i], compareResult(r3[i*2], r3[i*2+1])); correct+=sc.correct; total+=sc.total; }
+  const finals = championshipPlayers();
+  const champScore = scoreEntry(state.picks.champ, compareResult(finals[0], finals[1]));
+  correct += champScore.correct; total += champScore.total;
+  return {correct,total};
 }
-function handleLockedMode(mode){
-  state.mode = FREE_MODE;
-  renderSubscriptionUi();
-  document.getElementById('scoreText').textContent = `Subscribers only: ${MODES[mode].title} is locked on the free plan.`;
-  renderGame();
+function lockMessage(){ window.location.href='games-subscription.html'; }
+function switchMode(mode){ if(!MODES[mode]) return; if(MODES[mode].locked && !GG_SUB_ACTIVE) return lockMessage(); state.mode=mode; newGame(); }
+function setActiveButtons(){ modeButtons.forEach(btn=>{ const active=btn.dataset.mode===state.mode; btn.classList.toggle('active', active); }); }
+function revealDecor(button, player, result){
+  if(!state.reveal || !player) return;
+  if(result.tied || samePlayer(player, result.winner)){ if(button.classList.contains('selected')) button.classList.add('correct'); }
+  else if(button.classList.contains('selected')) button.classList.add('incorrect');
+  const meta=document.createElement('span'); meta.className='gg-meta';
+  const prefix = result.tied ? (button.classList.contains('selected') ? '✓ ' : '') : (button.classList.contains('selected') ? (samePlayer(player,result.winner) ? '✓ ' : '✗ ') : '');
+  meta.textContent = `${prefix}${revealLabel(player)}`;
+  button.appendChild(meta);
+}
+function matchupCard(a,b,currentWinner,onPick){
+  const wrap=document.createElement('div'); wrap.className='gg-match';
+  const result=compareResult(a,b);
+  [a,b].forEach(player=>{
+    const btn=document.createElement('button'); btn.type='button'; btn.className='gg-player'+(samePlayer(player,currentWinner)?' selected':'');
+    btn.textContent = player ? player.name : '—';
+    if(!player) btn.disabled=true; else btn.addEventListener('click',()=>onPick(player));
+    revealDecor(btn, player, result);
+    wrap.appendChild(btn);
+  });
+  return wrap;
+}
+function renderRound(title, players, winnersNeeded, currentMap, onPick){
+  const col=document.createElement('section'); col.className='gg-round';
+  col.innerHTML=`<div class="gg-roundTitle">${title}</div>`;
+  for(let i=0;i<winnersNeeded;i++) col.appendChild(matchupCard(players[i*2]||null, players[i*2+1]||null, currentMap[i]||null, p=>onPick(i,p)));
+  return col;
+}
+function renderChampion(){
+  const col=document.createElement('section'); col.className='gg-round';
+  col.innerHTML='<div class="gg-roundTitle">Champion</div>';
+  const main=document.createElement('div'); main.className='gg-champMain';
+  if(state.picks.champ){
+    const finals = championshipPlayers(); const result = compareResult(finals[0], finals[1]);
+    main.textContent = state.picks.champ.name + (state.reveal ? ((result.tied || samePlayer(state.picks.champ,result.winner)) ? ' ✓' : ' ✗') : '');
+  } else main.textContent='Pick Champion';
+  col.appendChild(main);
+  const finals = championshipPlayers();
+  const result = compareResult(finals[0], finals[1]);
+  finals.forEach(player=>{
+    const btn=document.createElement('button'); btn.type='button'; btn.className='gg-player'+(samePlayer(player,state.picks.champ)?' selected':'');
+    btn.textContent = player ? player.name : '—';
+    if(!player) btn.disabled=true; else btn.addEventListener('click',()=>setChampion(player));
+    revealDecor(btn, player, result);
+    col.appendChild(btn);
+  });
+  const note=document.createElement('div'); note.className='gg-noteRow';
+  note.innerHTML = '<span class="gg-notePill">Champion is scored from the final matchup only</span>';
+  col.appendChild(note);
+  return col;
 }
 function renderGame(){
-  renderSubscriptionUi();
-  document.getElementById('currentGameBtn').textContent = MODES[state.mode].title;
-  document.getElementById('gameSubhead').textContent = MODES[state.mode].subhead;
-  const mount=document.getElementById('gameBracket'); mount.innerHTML='';
-  const layout=document.createElement('div'); layout.className='gamesBracketLayout';
-  layout.appendChild(renderRound('Round 1',roundOnePlayers(),8,state.picks.r1,(i,p)=>setPick('r1',i,p)));
-  layout.appendChild(renderRound('Quarterfinals',roundTwoPlayers(),4,state.picks.r2,(i,p)=>setPick('r2',i,p)));
-  layout.appendChild(renderRound('Semifinals',finalFourPlayers(),2,state.picks.r3,(i,p)=>setPick('r3',i,p)));
-  layout.appendChild(renderChampionBox());
-  mount.appendChild(layout);
-  const s=calculateScore(); if(state.reveal){ document.getElementById('scoreText').textContent = `Score: ${s.correct} / ${s.total}`; }
+  setActiveButtons();
+  document.getElementById('ggBoardTitle').textContent = MODES[state.mode].title;
+  document.getElementById('ggBoardSub').textContent = MODES[state.mode].subhead;
+  const grid=document.getElementById('ggGrid'); grid.innerHTML='';
+  grid.appendChild(renderRound('Round 1', roundOnePlayers(), 8, state.picks.r1, (i,p)=>setPick('r1',i,p)));
+  grid.appendChild(renderRound('Quarterfinals', roundTwoPlayers(), 4, state.picks.r2, (i,p)=>setPick('r2',i,p)));
+  grid.appendChild(renderRound('Semifinals', finalFourPlayers(), 2, state.picks.r3, (i,p)=>setPick('r3',i,p)));
+  grid.appendChild(renderChampion());
+  const s=calculateScore();
+  document.getElementById('ggScore').textContent = state.reveal ? `You got ${s.correct} / ${s.total} right` : 'Make your picks';
 }
-function newGame(){ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); state.players=samplePlayers(); state.picks={r1:{},r2:{},r3:{},champ:null}; state.reveal=false; renderGame(); }
-async function loadSubscription(){
-  try{
-    const res = await fetch('/api/games-subscription', { headers:{ accept:'application/json' } });
-    const data = await res.json();
-    state.sub = {
-      loaded:true,
-      active: !!data?.subscription?.active,
-      price: String(data?.monthly_price || '5.99'),
-      checkoutUrl: data?.checkout_url || 'tickets.html',
-      loggedIn: !!data?.user,
-      email: data?.user?.email || '',
-      subEndsAt: data?.subscription?.ends_at || null
-    };
-  }catch(_){
-    state.sub = { loaded:true, active:false, price:'5.99', checkoutUrl:'tickets.html', loggedIn:false, email:'', subEndsAt:null };
-  }
-  renderSubscriptionUi();
-}
-document.getElementById('modeSelect').addEventListener('change', e=>{ const val=e.target.value; e.target.value=''; if(!MODES[val]) return; if(!canAccessMode(val)) return handleLockedMode(val); state.mode=val; newGame(); });
-document.getElementById('newGameBtn').addEventListener('click', ()=>{ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); newGame(); });
-document.getElementById('revealBtn').addEventListener('click', ()=>{ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); state.reveal=true; renderGame(); });
-document.getElementById('currentGameBtn').addEventListener('click', ()=>{ if(!canAccessMode(state.mode)) return handleLockedMode(state.mode); });
-state.mode=FREE_MODE; newGame(); loadSubscription();
+function newGame(){ state.players=samplePlayers(); state.picks={r1:{},r2:{},r3:{},champ:null}; state.reveal=false; renderGame(); }
+modeButtons.forEach(btn=>btn.addEventListener('click',()=>switchMode(btn.dataset.mode)));
+document.getElementById('ggReplayBtn').addEventListener('click', newGame);
+document.getElementById('ggRevealTop').addEventListener('click',()=>{ state.reveal=true; renderGame(); });
+document.getElementById('ggRevealBottom').addEventListener('click',()=>{ state.reveal=true; renderGame(); });
+document.getElementById('ggModeSelect').addEventListener('change',e=>{ const val=e.target.value; if(val) switchMode(val); e.target.value=''; });
+newGame();
 </script>
-
 </body>
 </html>

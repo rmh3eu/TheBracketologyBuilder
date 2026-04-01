@@ -1,18 +1,156 @@
-<!-- PATCH: Guess Lines text placement -->
-<style>
-.guessline-subtext {
-  font-size: 12px;
-  color: #9ca3af;
-  margin-top: 6px;
-}
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Lines</title>
+  <link rel="stylesheet" href="/style.css?v_mobile_scroll_fix1">
+  <style>
+    body.glPage{background:radial-gradient(circle at top left,#132a58 0,#081324 42%,#040915 100%); color:#f8fbff}
+    .gl-wrap{max-width:1180px; margin:0 auto; padding:20px 16px 34px}
+    .gl-nav{display:flex; flex-wrap:wrap; gap:10px; padding:14px 0 18px; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:18px}
+    .gl-nav a{display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:10px 18px; border-radius:999px; background:rgba(255,255,255,.08); color:#fff; text-decoration:none; font-weight:800; border:1px solid rgba(255,255,255,.12)}
+    .gl-nav a.active{background:linear-gradient(135deg,#3b82f6,#8b5cf6); box-shadow:0 8px 24px rgba(59,130,246,.35)}
+    .gl-hero{background:linear-gradient(135deg,rgba(17,28,58,.97),rgba(11,20,42,.97)); border:1px solid rgba(255,255,255,.12); border-radius:26px; padding:22px; box-shadow:0 18px 60px rgba(0,0,0,.35); margin-bottom:18px}
+    .gl-eyebrow{font-size:12px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:#8fb2ff; margin-bottom:10px}
+    .gl-title{font-size:38px; line-height:1; font-weight:1000; margin:0 0 10px}
+    .gl-sub{font-size:18px; color:#dbe6ff; line-height:1.45; margin:0}
+    .gl-grid{display:grid; grid-template-columns:1.3fr .7fr; gap:18px}
+    .gl-main,.gl-side{background:linear-gradient(180deg,#12234a 0,#0c1730 100%); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:18px; box-shadow:0 18px 60px rgba(0,0,0,.35)}
+    .gl-sectionTitle{font-size:14px; font-weight:1000; letter-spacing:.14em; text-transform:uppercase; color:#a4bae0; margin-bottom:14px}
+    .gl-card{background:linear-gradient(180deg,#f9fbff 0,#eef4ff 100%); color:#0b1530; border:1px solid #d5e2f7; border-radius:20px; padding:18px; margin-bottom:14px; box-shadow:0 12px 26px rgba(13,23,48,.08)}
+    .gl-rowTop{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px}
+    .gl-matchup{font-size:25px; font-weight:1000; line-height:1.08}
+    .gl-when{font-size:14px; color:#556784; margin-top:6px}
+    .gl-badge{padding:9px 12px; border-radius:999px; background:#e8efff; color:#19305d; font-size:12px; font-weight:1000; white-space:nowrap}
+    .gl-inputRow{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .gl-input{flex:1 1 220px; min-height:50px; border-radius:14px; border:1px solid #d3def1; padding:12px 14px; font-size:16px; font-weight:900; color:#0b1530; background:#fff}
+    .gl-button{display:inline-flex; align-items:center; justify-content:center; min-height:50px; padding:12px 16px; border-radius:14px; border:0; font-size:15px; font-weight:1000; cursor:pointer}
+    .gl-button.primary{background:linear-gradient(135deg,#2f6cff,#9149ff); color:#fff}
+    .gl-button.ghost{background:#fff; color:#0b1530; border:1px solid #d3def1}
+    .gl-reveal{margin-top:12px; min-height:24px; font-size:15px; font-weight:900; color:#19305d}
+    .gl-helper{font-size:13px; color:#607392; margin-top:6px}
+    .gl-book{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:20px; padding:16px; margin-bottom:14px}
+    .gl-bookName{font-size:22px; font-weight:1000; margin-bottom:8px}
+    .gl-bookSub{font-size:14px; color:#c9d8f5; line-height:1.4; margin-bottom:10px}
+    .gl-bookText{font-size:13px; color:#94a7c9; line-height:1.45; margin-bottom:10px}
+    .gl-bookBtn{display:inline-flex; align-items:center; justify-content:center; width:100%; min-height:50px; border-radius:14px; text-decoration:none; font-weight:1000; padding:12px 14px}
+    .gl-betr{background:#fff; color:#081324}
+    .gl-bol{background:linear-gradient(135deg,#f59e0b,#f97316); color:#081324}
+    .gl-mini{font-size:12px; color:#90a4c7; margin-top:8px}
+    @media(max-width:980px){ .gl-grid{grid-template-columns:1fr;} }
+    @media(max-width:760px){
+      .gl-wrap{padding:14px 12px 26px}
+      .gl-nav{overflow:auto; flex-wrap:nowrap; padding-bottom:14px}
+      .gl-nav a{white-space:nowrap}
+      .gl-title{font-size:32px}
+      .gl-sub{font-size:16px}
+      .gl-card{padding:14px}
+      .gl-matchup{font-size:22px}
+      .gl-rowTop{flex-direction:column}
+    }
+  </style>
+</head>
+<body class="glPage page-challenge-standalone page-challenge-clean-header">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
 
-<!-- Example structure -->
-<div class="guess-line-card">
-  <button class="betr-btn">Play on Betr</button>
-  <div class="guessline-subtext">Use code BRACKETS for $200</div>
-  <div class="guessline-subtext">Sign up with code BRACKETS for $200 in bonus bets</div>
+  <main class="gl-wrap">
+    <nav class="gl-nav" aria-label="Primary">
+      <a href="bracket-games.html">Bracket Games</a>
+      <a class="active" href="guess-lines.html">Guess the Lines</a>
+      <a href="tickets.html">Tickets</a>
+      <a href="/">Home</a>
+      <a href="my-brackets.html">My Brackets</a>
+      <a href="best-challenge.html">Best Bracket Challenge</a>
+      <a href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a href="nba.html">NBA Bracket</a>
+      <a href="/#featured">Featured Brackets</a>
+      <a href="/#upcoming">Upcoming Events</a>
+    </nav>
 
-  <button class="betonline-btn">Play on BetOnline</button>
-  <div class="guessline-subtext">Sign up now for $250 in bonus bets</div>
-</div>
+    <section class="gl-hero">
+      <div class="gl-eyebrow">Guess the Lines</div>
+      <h1 class="gl-title">NFL Week 1 Games</h1>
+      <p class="gl-sub">Type the line you think each matchup should have, submit your guess, then see the real line reveal with the favored team included.</p>
+    </section>
+
+    <section class="gl-grid">
+      <div class="gl-main">
+        <div class="gl-sectionTitle">Games</div>
+        <div id="glCards"></div>
+      </div>
+      <aside class="gl-side">
+        <div class="gl-sectionTitle">Sportsbook links</div>
+        <div class="gl-book">
+          <div class="gl-bookName">Betr</div>
+          <div class="gl-bookSub">Use code BRACKETS for $200</div>
+          <a class="gl-bookBtn gl-betr" href="https://engagebetr.onelink.me/auSX/BRACKETS" target="_blank" rel="noopener noreferrer">Play on Betr</a>
+          <div class="gl-mini">Sign up with code BRACKETS for $200 in bonus bets</div>
+        </div>
+        <div class="gl-book">
+          <div class="gl-bookName">BetOnline</div>
+          <a class="gl-bookBtn gl-bol" href="https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/" target="_blank" rel="noopener noreferrer">Play on BetOnline</a>
+          <div class="gl-mini">Sign up now for $250 in bonus bets</div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+<script>
+const GAMES = [
+  { home:'Eagles', away:'Cowboys', when:'Week 1 • Thu Night', line:'-3.5 Eagles' },
+  { home:'Chiefs', away:'Bills', when:'Week 1 • Sunday', line:'-2.5 Chiefs' },
+  { home:'49ers', away:'Seahawks', when:'Week 1 • Sunday', line:'-4.5 49ers' },
+  { home:'Lions', away:'Packers', when:'Week 1 • Sunday', line:'-1.5 Lions' },
+  { home:'Ravens', away:'Bengals', when:'Week 1 • Sunday', line:'-2.5 Ravens' },
+  { home:'Texans', away:'Colts', when:'Week 1 • Sunday', line:'-3 Texans' }
+];
+const mount=document.getElementById('glCards');
+GAMES.forEach((game, idx)=>{
+  const card=document.createElement('div'); card.className='gl-card';
+  card.innerHTML=`
+    <div class="gl-rowTop">
+      <div>
+        <div class="gl-matchup">${game.away} at ${game.home}</div>
+        <div class="gl-when">${game.when}</div>
+      </div>
+      <div class="gl-badge">Guess the spread</div>
+    </div>
+    <div class="gl-inputRow">
+      <input class="gl-input" id="guess-${idx}" type="text" placeholder="Example: -2.5 Seahawks" />
+      <button class="gl-button primary" data-idx="${idx}">Submit guess</button>
+      <button class="gl-button ghost" data-reset="${idx}">Reset</button>
+    </div>
+    <div class="gl-helper">Include the favored team in your guess.</div>
+    <div class="gl-reveal" id="reveal-${idx}"></div>
+  `;
+  mount.appendChild(card);
+});
+mount.addEventListener('click', (e)=>{
+  const submit=e.target.closest('[data-idx]');
+  if(submit){
+    const idx=submit.getAttribute('data-idx');
+    const guess=document.getElementById(`guess-${idx}`).value.trim();
+    const reveal=document.getElementById(`reveal-${idx}`);
+    reveal.textContent = guess ? `Your guess: ${guess} • Real line: ${GAMES[idx].line}` : `Real line: ${GAMES[idx].line}`;
+    return;
+  }
+  const reset=e.target.closest('[data-reset]');
+  if(reset){
+    const idx=reset.getAttribute('data-reset');
+    document.getElementById(`guess-${idx}`).value='';
+    document.getElementById(`reveal-${idx}`).textContent='';
+  }
+});
+</script>
+</body>
+</html>

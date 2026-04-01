@@ -1,0 +1,7 @@
+Full zip rebuilt from your uploaded repo plus the latest Bracket Games / Guess the Lines / subscription files.
+Includes:
+- restored Bracket Games fun dark/mobile-first styling
+- restored Guess the Lines page with NFL Week 1 rendering and affiliate links
+- new games-subscription.html with Venmo payment flow for now
+- unlock button routes to subscription page instead of Tickets
+- nav updated so Bracket Games / Guess the Lines / Tickets are placed first on the included updated pages
