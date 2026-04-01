@@ -1271,7 +1271,7 @@ function sweet16ModeEnabled(){
   if(!(PUBLIC_CONFIG && PUBLIC_CONFIG.sweet16_set)) return false;
 
   const path = (window.location && window.location.pathname) ? window.location.pathname : '';
-  const isHome = (path === '/' || path === '' || path.endsWith('/index.html'));
+  const isHome = (path === '/' || path === '' || path.endsWith('/index.html') || path.endsWith('/ncaamb-bracket.html'));
   if(isHome) return true;
 
   // Bracket page: gate on bracket type (or URL hints for new second-chance brackets).
@@ -1998,7 +1998,7 @@ async function saveBracketThenEnterChallenge(challenge){
 
     const sp = new URLSearchParams(location.search);
     const isNewParam = (sp.get('new') === '1');
-    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname.endsWith('ncaamb-bracket.html') || location.pathname === '/' || location.pathname === '');
     const urlMeta = getBracketMetaFromUrl();
     const hasExisting = !!(urlMeta.bracketId || state.bracketId);
     const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
@@ -2068,7 +2068,7 @@ async function saveBracketThenNavigate(href, opts={}){
 
     const sp = new URLSearchParams(location.search);
     const isNewParam = (sp.get('new') === '1');
-    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    const isHomePath = (location.pathname.endsWith('index.html') || location.pathname.endsWith('ncaamb-bracket.html') || location.pathname === '/' || location.pathname === '');
     const urlMeta = getBracketMetaFromUrl();
     const hasExisting = !!(urlMeta.bracketId || state.bracketId);
     const isNewFlow = (isNewParam || (isHomePath && !hasExisting));
@@ -3984,7 +3984,7 @@ function mountBetOnlineBracketPromo(regionName, mount){
     if(!mount || (regionName !== 'East' && regionName !== 'South')) return;
     if(mount.querySelector('.betOnlineBracketPromo')) return;
 
-    const isHome = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+    const isHome = (location.pathname.endsWith('index.html') || location.pathname.endsWith('ncaamb-bracket.html') || location.pathname === '/' || location.pathname === '');
     if(!isHome) return;
 
     const geo = mount.querySelector('.geoCanvas') || mount.querySelector('.geo');
@@ -4841,7 +4841,7 @@ function escapeHtml(str){
 document.addEventListener('DOMContentLoaded', async ()=>{
   await loadPublicConfig();
   updateChallengeAvailability();
-  const IS_HOME = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+  const IS_HOME = (location.pathname.endsWith('index.html') || location.pathname.endsWith('ncaamb-bracket.html') || location.pathname === '/' || location.pathname === '');
 
   // Determine which bracket "type" this page is creating/saving.
   // Priority: explicit URL params > Sweet 16 mode (home only) > Official live > default.
@@ -5240,7 +5240,7 @@ const wireSaveEnter = (sel)=>qs(sel)?.addEventListener('click', async ()=>{
       // wrongly trigger “You already have a bracket with that name.”
       const sp = new URLSearchParams(location.search);
       const isNewParam = (sp.get('new') === '1');
-      const isHomePath = (location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname === '');
+      const isHomePath = (location.pathname.endsWith('index.html') || location.pathname.endsWith('ncaamb-bracket.html') || location.pathname === '/' || location.pathname === '');
       const urlMeta = getBracketMetaFromUrl();
       const hasExisting = !!(urlMeta.bracketId || state.bracketId);
 
