@@ -1,0 +1,6 @@
+V151 full zip
+- Root URL redirects to /nba.html so NBA Bracket acts as the home page
+- Restored the colorful NBA home/bracket page with Save button below the champion area and team-first + series-length flows
+- Kept Bracket Games in the darker, more colorful style
+- Kept Guess the Lines visible and styled, with expanded NFL Week 1 board and subscription popup bullets
+- Single-root zip for direct upload

@@ -101,7 +101,7 @@ async function requireUser(arg1, arg2){
   if(!userId) return null;
   // Fetch common user fields used across APIs (opt-ins, phone, etc.)
   const row = await env.DB.prepare(
-    "SELECT id,email,phone,optin_email,optin_live,optin_upcoming,optin_sms,optin_ads,consent_ts,consent_ip FROM users WHERE id=?"
+    "SELECT id,email,phone,optin_email,optin_live,optin_upcoming,optin_sms,optin_ads,consent_ts,consent_ip,games_subscription_status,games_subscription_started_at,games_subscription_ends_at FROM users WHERE id=?"
   ).bind(userId).first();
   return row || null;
 }
@@ -170,6 +170,9 @@ async function ensureUserSchema(env){
   if(!cols.includes("optin_ads")) await add("ALTER TABLE users ADD COLUMN optin_ads INTEGER DEFAULT 0");
   if(!cols.includes("consent_ts")) await add("ALTER TABLE users ADD COLUMN consent_ts TEXT");
   if(!cols.includes("consent_ip")) await add("ALTER TABLE users ADD COLUMN consent_ip TEXT");
+  if(!cols.includes("games_subscription_status")) await add("ALTER TABLE users ADD COLUMN games_subscription_status TEXT DEFAULT ''");
+  if(!cols.includes("games_subscription_started_at")) await add("ALTER TABLE users ADD COLUMN games_subscription_started_at TEXT");
+  if(!cols.includes("games_subscription_ends_at")) await add("ALTER TABLE users ADD COLUMN games_subscription_ends_at TEXT");
 }
 
 

@@ -12,6 +12,9 @@ async function ensureBracketsSchema(env){
   await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
   await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
   await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN sport TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN template_id TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN layout_type TEXT");
   // Legacy column used by older frontends / inserts.
   await add("ALTER TABLE brackets ADD COLUMN payload TEXT");
 
@@ -67,6 +70,16 @@ function normalizeType(v){
   return 'bracketology';
 }
 
+function hasActiveGamesSubscription(userRow){
+  if(!userRow) return false;
+  const status = String(userRow.games_subscription_status || '').toLowerCase();
+  if(status !== 'active') return false;
+  const ends = String(userRow.games_subscription_ends_at || '').trim();
+  if(!ends) return true;
+  const ts = Date.parse(ends);
+  return Number.isFinite(ts) ? (Date.now() < ts) : true;
+}
+
 export async function onRequest(context){
   const { request, env } = context;
   const user = await requireUser(request, env);
@@ -77,7 +90,7 @@ export async function onRequest(context){
 
   if(request.method === 'GET'){
     const rs = await env.DB.prepare(
-      `SELECT id, user_id, title, bracket_name, bracket_type, created_at, updated_at
+      `SELECT id, user_id, title, bracket_name, bracket_type, sport, template_id, layout_type, created_at, updated_at
          FROM brackets
         WHERE user_id=?
         ORDER BY COALESCE(updated_at, created_at) DESC`
@@ -137,10 +150,23 @@ export async function onRequest(context){
     const desiredTitle = String(body.title || body.bracket_name || '').trim().slice(0, 80);
     const title = desiredTitle || 'My Bracket';
     const bracket_type = normalizeType(body.bracket_type);
+    const sport = String(body.sport || '').trim().toLowerCase();
+    const template_id = String(body.template_id || '').trim();
+    const layout_type = String(body.layout_type || '').trim();
 
     // Data payload may arrive as `data` (newer builds) or `payload` (older builds)
     const data = (body && Object.prototype.hasOwnProperty.call(body, 'data')) ? body.data : null;
     const payload = (body && Object.prototype.hasOwnProperty.call(body, 'payload')) ? body.payload : null;
+
+    if(sport === 'nba'){
+      const userRow = await env.DB.prepare(`SELECT games_subscription_status, games_subscription_ends_at FROM users WHERE id=?`).bind(user.id).first();
+      const subscribed = hasActiveGamesSubscription(userRow);
+      if(!subscribed){
+        const cntRow = await env.DB.prepare(`SELECT COUNT(*) AS count FROM brackets WHERE user_id=? AND LOWER(COALESCE(sport,''))='nba'`).bind(user.id).first();
+        const count = Number((cntRow && (cntRow.count ?? cntRow['COUNT(*)'])) || 0);
+        if(count >= 2) return json({ ok:false, error:'SUBSCRIPTION_REQUIRED', message:'Unlock unlimited NBA brackets for $5.99/month.' }, 402);
+      }
+    }
 
     // Prevent duplicate bracket names for the SAME user (across all types).
     const dupe = await env.DB.prepare(
@@ -156,8 +182,8 @@ export async function onRequest(context){
     const legacy_payload = (payload !== null) ? JSON.stringify(payload) : ((data !== null) ? JSON.stringify(data) : "{}");
 
     await env.DB.prepare(
-      `INSERT INTO brackets (id, user_id, title, bracket_name, data_json, payload, bracket_type, created_at, updated_at)
-       VALUES (?,?,?,?,?,?,?,?,?)`
+      `INSERT INTO brackets (id, user_id, title, bracket_name, data_json, payload, bracket_type, sport, template_id, layout_type, created_at, updated_at)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`
     ).bind(
       id,
       user.id,
@@ -166,6 +192,9 @@ export async function onRequest(context){
       data_json,
       legacy_payload,
       bracket_type,
+      sport,
+      template_id,
+      layout_type,
       now,
       now
     ).run();

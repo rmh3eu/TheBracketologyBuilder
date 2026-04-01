@@ -6,6 +6,9 @@ async function ensureBracketsHardening(env){
   await add("ALTER TABLE brackets ADD COLUMN bracket_type TEXT NOT NULL DEFAULT 'bracketology'");
   await add("ALTER TABLE brackets ADD COLUMN bracket_name TEXT");
   await add("ALTER TABLE brackets ADD COLUMN data_json TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN sport TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN template_id TEXT");
+  await add("ALTER TABLE brackets ADD COLUMN layout_type TEXT");
 
   // Backfill to keep legacy rows visible.
   try{
@@ -35,7 +38,7 @@ export async function onRequestGet({ request, env }){
   const user = await requireUser({ request, env });
 
   const row = await env.DB.prepare(
-    "SELECT id,user_id,title,bracket_name,data_json,is_public,created_at,updated_at,bracket_type FROM brackets WHERE id=?"
+    "SELECT id,user_id,title,bracket_name,data_json,is_public,created_at,updated_at,bracket_type,sport,template_id,layout_type FROM brackets WHERE id=?"
   ).bind(id).first();
 
   if(!row) return json({ ok:false, error:"Not found." }, 404);
@@ -49,7 +52,10 @@ export async function onRequestGet({ request, env }){
     data: JSON.parse(row.data_json || "{}"),
     created_at: row.created_at,
     updated_at: row.updated_at,
-    bracket_type: row.bracket_type || "bracketology"
+    bracket_type: row.bracket_type || "bracketology",
+    sport: row.sport || '',
+    template_id: row.template_id || '',
+    layout_type: row.layout_type || ''
   }});
 }
 
@@ -70,13 +76,16 @@ export async function onRequestPut({ request, env }){
   const desired_name = String(body.bracket_name || body.title || "").trim().slice(0, 80);
   const bracket_name = desired_name || "My Bracket";
   const title = bracket_name;
+  const sport = String(body.sport || '').trim().toLowerCase();
+  const template_id = String(body.template_id || '').trim();
+  const layout_type = String(body.layout_type || '').trim();
   // Data is optional for rename-only operations.
   const data = (body && Object.prototype.hasOwnProperty.call(body, 'data')) ? body.data : null;
 
   if(!id) return json({ ok:false, error:"Missing id." }, 400);
 
   const existing = await env.DB.prepare(
-    "SELECT id,user_id,bracket_type,data_json FROM brackets WHERE id=?"
+    "SELECT id,user_id,bracket_type,data_json,sport,template_id,layout_type FROM brackets WHERE id=?"
   ).bind(id).first();
 
   if(!existing) return json({ ok:false, error:"Not found." }, 404);
@@ -119,8 +128,8 @@ export async function onRequestPut({ request, env }){
   // If data was not provided, treat this as a rename-only update.
   const nextDataJson = (data === null) ? (existing.data_json || "{}") : JSON.stringify(incomingData);
   await env.DB.prepare(
-    "UPDATE brackets SET title=?, bracket_name=?, data_json=?, updated_at=? WHERE id=?"
-  ).bind(title, bracket_name, nextDataJson, now, id).run();
+    "UPDATE brackets SET title=?, bracket_name=?, data_json=?, sport=?, template_id=?, layout_type=?, updated_at=? WHERE id=?"
+  ).bind(title, bracket_name, nextDataJson, sport || existing.sport || '', template_id || existing.template_id || '', layout_type || existing.layout_type || '', now, id).run();
 
   return json({ ok:true });
 }
