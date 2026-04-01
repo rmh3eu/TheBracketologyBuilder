@@ -1,0 +1,7 @@
+V143 NOTES
+- Restored a visible Guess the Lines page and added it back into nav links.
+- Rebuilt Bracket Games with a darker, more colorful style again.
+- Free users can only play Height. Locked modes route to games-subscription.html.
+- Unlock button no longer goes to Tickets. It now goes to a Venmo/manual subscription page.
+- Guess the Lines now renders as a styled NFL Week 1 page with line reveal cards and sportsbook affiliate buttons.
+- Payment flow is manual via Venmo for now; recurring automation is not wired in yet.
