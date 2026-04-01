@@ -1,0 +1,10 @@
+V149 changes
+- NBA Bracket is now the root home page via index redirect to /nba.html
+- Current old home page is preserved as ncaamb-bracket.html
+- NBA save flow now requires bracket naming and auth modal if signed out
+- After sign in/sign up, NBA bracket saves and routes to My Brackets
+- My Brackets now has an NBA Brackets section at the top
+- NBA bracket cards route back into nba.html?id=...
+- Two NBA bracket saves are free; additional NBA bracket saves require subscription status
+- NBA page includes affiliate buttons and no prize pool
+- NCAAMB Bracket moved to the right side of nav on updated pages
