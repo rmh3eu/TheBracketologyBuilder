@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guess the Lines</title>
+  <link rel="stylesheet" href="/style.css?v_guess_lines_v135">
+  <style>
+    body.page-lines{background:radial-gradient(circle at top,#1e293b 0%,#0f172a 58%,#020617 100%);}
+    .linesWrap{max-width:1160px;margin:0 auto;padding:18px 14px 28px}
+    .linesHero{background:linear-gradient(135deg,#111827,#1f2937);color:#fff;border-radius:24px;border:1px solid rgba(255,255,255,.1);padding:18px;box-shadow:0 18px 48px rgba(0,0,0,.28);margin-bottom:14px}
+    .linesHero h1{margin:0;font-size:32px}
+    .linesHero p{margin:8px 0 0;color:#cbd5e1;font-weight:700}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .filterBtn{appearance:none;border:none;border-radius:999px;padding:10px 14px;font-weight:900;cursor:pointer;background:#e2e8f0;color:#0f172a}
+    .filterBtn.active{background:#8b5cf6;color:#fff}
+    .lineGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .lineCard{background:#fff;border-radius:20px;border:1px solid rgba(148,163,184,.22);padding:16px;box-shadow:0 12px 32px rgba(15,23,42,.18)}
+    .lineSport{display:inline-flex;padding:7px 10px;border-radius:999px;background:#eef2ff;color:#312e81;font-size:12px;font-weight:900}
+    .lineMatchup{font-size:24px;font-weight:900;color:#111827;margin-top:12px;line-height:1.05}
+    .lineMeta{margin-top:6px;color:#6b7280;font-weight:700}
+    .guessLabel{display:block;margin-top:14px;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
+    .guessRow{display:flex;gap:8px;margin-top:8px}
+    .guessInput{flex:1;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;font-size:18px;font-weight:900}
+    .guessBtn{border:none;border-radius:12px;padding:12px 14px;background:#111827;color:#fff;font-weight:900;cursor:pointer}
+    .revealBox{display:none;margin-top:14px;padding:14px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
+    .revealBox.show{display:block}
+    .bookRow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e2e8f0}
+    .bookRow:last-child{border-bottom:none;padding-bottom:0}
+    .bookName{font-weight:900;color:#111827}
+    .bookLine{font-size:20px;font-weight:900;color:#111827}
+    .bookSub{font-size:12px;color:#6b7280;font-weight:700}
+    .bookLink{display:inline-flex;padding:10px 12px;border-radius:10px;background:#2563eb;color:#fff;text-decoration:none;font-weight:900;white-space:nowrap}
+    .bookLink.secondary{background:#111827}
+    .lineNote{margin-top:10px;font-size:12px;color:#6b7280;font-weight:700}
+    @media(max-width:980px){.lineGrid{grid-template-columns:1fr}}
+    @media(max-width:700px){.linesWrap{padding:12px 10px 24px}.linesHero{padding:14px;border-radius:20px}.linesHero h1{font-size:28px}.lineMatchup{font-size:22px}.guessRow{flex-direction:column}.guessBtn{width:100%}}
+  </style>
+</head>
+<body class="page-challenge-standalone page-challenge-clean-header page-lines">
+  <header class="topbar">
+    <div class="brandWrap">
+      <div class="brandRow">
+        <div class="brand">Bracketology Builder</div>
+        <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+      </div>
+      <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+    </div>
+    <div class="actions"></div>
+  </header>
+
+  <div class="stickyNav">
+    <nav aria-label="Primary" class="siteNav">
+      <a class="navLink" href="bracket-games.html">Bracket Games</a>
+      <a class="navLink active" href="guess-lines.html">Guess the Lines</a>
+      <a class="navLink" href="tickets.html">Tickets</a>
+      <a class="navLink" href="home.html">Home</a>
+      <a class="navLink" href="my-brackets.html">My Brackets</a>
+      <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+      <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+      <a class="navLink" href="nba.html">NBA Bracket</a>
+      <a class="navLink" href="home.html#featured">Featured Brackets</a>
+      <a class="navLink" href="home.html#upcoming">Upcoming Events</a>
+    </nav>
+  </div>
+
+  <main class="linesWrap">
+    <section class="linesHero">
+      <h1>Guess the Lines</h1>
+      <p>Type in the spread you think the books are hanging. Submit your guess and reveal the current numbers side by side.</p>
+      <div class="filters" id="sportFilters"></div>
+    </section>
+    <section class="lineGrid" id="lineGrid"></section>
+  </main>
+
+<script>
+const BETR_URL = 'https://engagebetr.onelink.me/auSX/BRACKETS';
+const BETONLINE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
+const LINE_GAMES = [
+  {sport:'NBA', emoji:'🏀', matchup:'Celtics vs Knicks', when:'Tonight • Sample line game', betr:'-4.5', betonline:'-4.0'},
+  {sport:'NBA', emoji:'🏀', matchup:'Lakers vs Nuggets', when:'Tonight • Sample line game', betr:'+2.5', betonline:'+3.0'},
+  {sport:'NFL', emoji:'🏈', matchup:'Bills vs Ravens', when:'Sunday • Sample line game', betr:'-2.5', betonline:'-3.0'},
+  {sport:'NFL', emoji:'🏈', matchup:'Chiefs vs Bengals', when:'Sunday • Sample line game', betr:'-3.5', betonline:'-3.0'},
+  {sport:'MLB', emoji:'⚾', matchup:'Yankees vs Orioles', when:'This week • Sample line game', betr:'-1.5', betonline:'-1.5'},
+  {sport:'MLB', emoji:'⚾', matchup:'Dodgers vs Braves', when:'This week • Sample line game', betr:'-1.0', betonline:'-1.5'}
+];
+let currentSport = 'ALL';
+const grid = document.getElementById('lineGrid');
+const filters = document.getElementById('sportFilters');
+
+['ALL','NBA','NFL','MLB'].forEach(sport => {
+  const btn = document.createElement('button');
+  btn.type='button';
+  btn.className='filterBtn' + (sport===currentSport ? ' active':'');
+  btn.textContent=sport;
+  btn.addEventListener('click',()=>{ currentSport=sport; renderFilters(); renderLines(); });
+  filters.appendChild(btn);
+});
+
+function renderFilters(){
+  [...filters.children].forEach(btn => btn.classList.toggle('active', btn.textContent===currentSport));
+}
+function renderLines(){
+  grid.innerHTML='';
+  LINE_GAMES.filter(item => currentSport==='ALL' || item.sport===currentSport).forEach((item,idx)=>{
+    const card=document.createElement('div');
+    card.className='lineCard';
+    card.innerHTML = `
+      <div class="lineSport">${item.emoji} ${item.sport}</div>
+      <div class="lineMatchup">${item.matchup}</div>
+      <div class="lineMeta">${item.when}</div>
+      <label class="guessLabel" for="guess-${idx}">Your guess</label>
+      <div class="guessRow">
+        <input id="guess-${idx}" class="guessInput" placeholder="Example: -4.5" />
+        <button class="guessBtn" type="button">Submit Guess</button>
+      </div>
+      <div class="revealBox" id="reveal-${idx}">
+        <div class="bookRow">
+          <div>
+            <div class="bookName">Betr</div>
+            <div class="bookSub">Sign up with code BRACKETS</div>
+          </div>
+          <div class="bookLine">${item.betr}</div>
+          <a class="bookLink" href="${BETR_URL}" target="_blank" rel="noopener noreferrer">Go to Betr</a>
+        </div>
+        <div class="bookRow">
+          <div>
+            <div class="bookName">BetOnline</div>
+            <div class="bookSub">See the line and offers</div>
+          </div>
+          <div class="bookLine">${item.betonline}</div>
+          <a class="bookLink secondary" href="${BETONLINE_URL}" target="_blank" rel="noopener noreferrer">Go to BetOnline</a>
+        </div>
+        <div class="lineNote">These are starter sample line cards so you can build the feature and flow first.</div>
+      </div>`;
+    card.querySelector('.guessBtn').addEventListener('click',()=>card.querySelector('.revealBox').classList.add('show'));
+    grid.appendChild(card);
+  });
+}
+renderFilters();
+renderLines();
+</script>
+</body>
+</html>

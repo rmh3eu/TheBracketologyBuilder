@@ -1,0 +1,20 @@
+V135 NOTES
+
+What this patch does
+- Makes Bracket Games the root landing page by redirecting index.html to bracket-games.html
+- Creates home.html as the preserved former home / bracket-builder page
+- Adds Guess the Lines as the second tab
+- Keeps Tickets as the third tab
+- Tightens the Bracket Games controls so the game shelf starts higher on mobile
+- Adds MLB to Bracket Games with 4 game types:
+  - Height
+  - Age
+  - Career Home Runs
+  - All Time Home Runs
+- Keeps NBA and NFL in the same compact Bracket Games flow
+- Updates nav on the included changed pages to use:
+  Bracket Games / Guess the Lines / Tickets first
+
+Important note
+- The new NFL / MLB game stats and the Guess the Lines cards are starter in-page data so the product flow and UI can be reviewed first.
+- home.html is now the preserved old home page.
