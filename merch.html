@@ -17,10 +17,7 @@
     .heroActions a{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:12px 16px;text-decoration:none;font-weight:800}
     .heroPrimary{background:#4da3ff;color:#08111f}
     .heroGhost{border:1px solid rgba(255,255,255,.18);color:#fff}
-    .merchInfoRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
-    .merchInfoCard{background:rgba(255,255,255,.06);border-radius:16px;padding:12px 14px;color:#d9e7ff}
-    .merchInfoCard strong{display:block;color:#fff}
-    .merchSectionHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:24px 0 12px}
+        .merchSectionHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:24px 0 12px}
     .merchSectionHead h2{margin:0;font-size:28px}
     .merchStatus{color:#ffd84d;min-height:24px}
     .merchGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -52,7 +49,7 @@
     .siteMiniNav a{color:#c7d7f6;text-decoration:none;font-weight:700}
     .siteMiniNav a:hover{text-decoration:underline}
     .footerNote{margin-top:28px;color:#9fb5dd;font-size:13px;text-align:center}
-    @media (max-width: 900px){.merchGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.merchInfoRow{grid-template-columns:1fr}}
+    @media (max-width: 900px){.merchGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media (max-width: 640px){.merchWrap{padding:14px 12px 40px}.merchHero{padding:18px 14px;border-radius:20px}.merchHero h1{font-size:28px}.merchGrid{grid-template-columns:1fr}.merchTitleRow h3{font-size:18px}}
   </style>
 </head>
@@ -65,11 +62,6 @@
       <div class="heroActions">
         <a class="heroPrimary" href="#drop">Shop the drop</a>
         <a class="heroGhost" href="/home.html">Enter BracketologyBuilder</a>
-      </div>
-      <div class="merchInfoRow">
-        <div class="merchInfoCard"><strong>TikTok-friendly flow</strong>Link in bio → browse → buy → Stripe checkout.</div>
-        <div class="merchInfoCard"><strong>Limited quantities</strong>Some items are down to just 2 or 3 left.</div>
-        <div class="merchInfoCard"><strong>Shipping address collected</strong>Stripe collects the buyer shipping details at checkout.</div>
       </div>
       <nav class="siteMiniNav" aria-label="Merch quick links">
         <a href="/merch">Merch</a>

@@ -1,1 +1,3 @@
-Re-sent patch with corrected packaging.
+V141 merch cleanup patch
+- Removes the 3 merch info boxes at the top of the merch landing page so products show higher on mobile and desktop.
+- Updates both merch.html and merch/index.html.
