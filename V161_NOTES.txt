@@ -1,0 +1,1 @@
+V161 merch checkout fix: trims and dequotes STRIPE_SECRET_KEY before building Authorization header, improves checkout error surfacing, and applies the same Stripe secret sanitizing to Stripe session fetches.

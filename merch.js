@@ -70,7 +70,7 @@ async function handleBuy(button){
     });
     const data = await res.json();
     if(!res.ok || !data.ok || !data.url){
-      throw new Error(data.error || 'Checkout failed');
+      throw new Error(data.detail?.message || data.detail?.error?.message || (typeof data.detail === 'string' ? data.detail : '') || data.error || 'Checkout failed');
     }
     window.location.href = data.url;
   }catch(err){
