@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }){
     const origin = new URL(request.url).origin;
     const holdId = uid();
     const held = await holdInventory(env, { sessionId: holdId, productId, size, qty: 1 });
-    if(!held.ok) return json({ ok:false, error:'sold_out', detail: held }, 409);
+    if(!held.ok) return json({ ok:false, error:'sold_out' }, 409);
     const stripeBody = buildStripeSessionParams({ origin, product, size, sessionId: holdId });
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
@@ -27,10 +27,11 @@ export async function onRequestPost({ request, env }){
       },
       body: stripeBody.toString()
     });
-    const stripeJson = await stripeRes.json();
+    const stripeJson = await stripeRes.json().catch(() => ({}));
     if(!stripeRes.ok || !stripeJson?.url){
       await releaseHold(env, holdId).catch(() => {});
-      return json({ ok:false, error:'stripe_checkout_failed', detail: stripeJson }, 502);
+      const detailMsg = stripeJson?.error?.message || stripeJson?.message || stripeJson?.error || null;
+      return json({ ok:false, error:'stripe_checkout_failed', detail: detailMsg || stripeJson || null }, 502);
     }
     return json({ ok:true, url: stripeJson.url, sessionId: stripeJson.id });
   }catch(err){
