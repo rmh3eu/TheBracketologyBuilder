@@ -1,63 +1,101 @@
-// Phase 1 merch catalog.
-// Update titles, prices, quantities, descriptions, and image paths here.
-// Inventory sync preserves units already sold when you change quantity_total.
-
 export const MERCH_CATALOG = [
   {
-    id: 'champion-shirt-black',
+    id: 'bracket-champion-shirt',
     title: 'Bracket Champion Shirt',
-    description: 'Clean limited-drop tee for the first BracketologyBuilder merch release.',
-    price_cents: 3200,
-    image: '/images/merch-shirt-placeholder.svg',
-    drop_note: 'Only a few available',
-    sort_order: 1,
-    active: true,
-    variants: [
-      { id: 'champion-shirt-black-m', label: 'Medium', quantity: 3 },
-      { id: 'champion-shirt-black-l', label: 'Large', quantity: 3 },
-      { id: 'champion-shirt-black-xl', label: 'XL', quantity: 2 }
+    description: 'Limited drop tee from BracketologyBuilder. Clean front graphic. Creator-merch pricing.',
+    priceCents: 2800,
+    image: '/prizes/custom-gear-bracket-champion.png',
+    category: 'shirt',
+    featured: true,
+    sizes: [
+      { size: 'S', qty: 1 },
+      { size: 'M', qty: 1 },
+      { size: 'L', qty: 1 }
     ]
   },
   {
-    id: 'final-four-shirt-cream',
-    title: 'Final Four Shirt',
-    description: 'Limited cream tee. Small run for people coming over from TikTok.',
-    price_cents: 3200,
-    image: '/images/merch-shirt-placeholder.svg',
-    drop_note: 'Small limited run',
-    sort_order: 2,
-    active: true,
-    variants: [
-      { id: 'final-four-shirt-cream-m', label: 'Medium', quantity: 1 },
-      { id: 'final-four-shirt-cream-l', label: 'Large', quantity: 1 }
+    id: 'knows-ball-shirt',
+    title: 'Knows Ball Shirt',
+    description: 'Soft limited-run tee. Easy everyday wear.',
+    priceCents: 2600,
+    image: '/prizes/custom-gear-knows-ball.png',
+    category: 'shirt',
+    sizes: [
+      { size: 'M', qty: 1 },
+      { size: 'L', qty: 1 }
     ]
   },
   {
-    id: 'bracket-builder-tee',
-    title: 'Bracket Builder Tee',
-    description: 'Another simple drop option. Easy to swap out later.',
-    price_cents: 3000,
-    image: '/images/merch-shirt-placeholder.svg',
-    drop_note: 'Very limited',
-    sort_order: 3,
-    active: true,
-    variants: [
-      { id: 'bracket-builder-tee-xl', label: 'XL', quantity: 1 }
+    id: 'busted-bracket-club-shirt',
+    title: 'Busted Bracket Club Shirt',
+    description: 'For the real tournament sickos. Limited inventory.',
+    priceCents: 2600,
+    image: '/prizes/custom-gear-busted-bracket.png',
+    category: 'shirt',
+    sizes: [
+      { size: 'M', qty: 1 },
+      { size: 'L', qty: 1 }
+    ]
+  },
+  {
+    id: 'doesnt-know-ball-shirt',
+    title: "Doesn't Know Ball Shirt",
+    description: 'Funny drop tee. Great as a gift or a bad beat uniform.',
+    priceCents: 2600,
+    image: '/prizes/custom-gear-doesnt-know-ball.png',
+    category: 'shirt',
+    sizes: [
+      { size: 'M', qty: 1 },
+      { size: 'L', qty: 1 }
+    ]
+  },
+  {
+    id: 'track-jacket',
+    title: 'Bracketology Builder Track Jacket',
+    description: 'Premium zip-up track jacket from the custom gear collection.',
+    priceCents: 4600,
+    image: '/prizes/custom-gear-track-jacket.png',
+    category: 'jacket',
+    sizes: [
+      { size: 'M', qty: 1 },
+      { size: 'L', qty: 1 }
+    ]
+  },
+  {
+    id: 'track-jacket-alt',
+    title: 'Bracketology Builder Track Jacket (Alt Design)',
+    description: 'Alternate track jacket design with the same limited-drop feel.',
+    priceCents: 4600,
+    image: '/prizes/custom-gear-track-jacket-2.png',
+    category: 'jacket',
+    sizes: [
+      { size: 'M', qty: 1 }
+    ]
+  },
+  {
+    id: 'basketball-backpack',
+    title: 'Basketball Backpack',
+    description: 'Everyday bag from the custom gear section.',
+    priceCents: 3400,
+    image: '/prizes/custom-gear-backpack-1.png',
+    category: 'backpack',
+    sizes: [
+      { size: 'One Size', qty: 1 }
+    ]
+  },
+  {
+    id: 'basketball-backpack-alt',
+    title: 'Basketball Backpack (Alt Design)',
+    description: 'Alternate backpack design. Small drop, easy gift item.',
+    priceCents: 3400,
+    image: '/prizes/custom-gear-backpack-2.png',
+    category: 'backpack',
+    sizes: [
+      { size: 'One Size', qty: 1 }
     ]
   }
 ];
 
-export function getCatalogVariant(variantId){
-  for(const product of MERCH_CATALOG){
-    for(const variant of (product.variants || [])){
-      if(variant.id === variantId){
-        return { product, variant };
-      }
-    }
-  }
-  return null;
-}
-
-export function formatPrice(cents){
-  return `$${(Number(cents || 0) / 100).toFixed(2)}`;
+export function getMerchProduct(productId){
+  return MERCH_CATALOG.find(p => p.id === productId) || null;
 }

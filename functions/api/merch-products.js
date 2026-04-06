@@ -1,11 +1,7 @@
 import { json } from './_util.js';
-import { getMerchProducts } from './_merch.js';
+import { getCatalogWithInventory } from './_merch.js';
 
 export async function onRequestGet({ env }){
-  try{
-    const data = await getMerchProducts(env);
-    return json({ ok:true, ...data });
-  }catch(e){
-    return json({ ok:false, error: e.message || 'Unable to load merch' }, 500);
-  }
+  const products = await getCatalogWithInventory(env);
+  return json({ ok:true, products });
 }
