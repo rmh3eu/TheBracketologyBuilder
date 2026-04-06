@@ -1,0 +1,5 @@
+V153 patch
+- Removes the three merch info boxes from the root landing page and merch page variants.
+- Adds visible hero buttons for Play Bracket Games and Make an NBA Bracket.
+- Applies the larger shirt-image sizing treatment to shirts 2, 3, and 4 on the root merch landing page and merch page variants so they match the first shirt better.
+- No bracket logic, leaderboard logic, or checkout logic changed.

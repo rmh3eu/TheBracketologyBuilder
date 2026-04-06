@@ -17,9 +17,6 @@
     .heroActions a{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:12px 16px;text-decoration:none;font-weight:800}
     .heroPrimary{background:#4da3ff;color:#08111f}
     .heroGhost{border:1px solid rgba(255,255,255,.18);color:#fff}
-    .merchInfoRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
-    .merchInfoCard{background:rgba(255,255,255,.06);border-radius:16px;padding:12px 14px;color:#d9e7ff}
-    .merchInfoCard strong{display:block;color:#fff}
     .merchSectionHead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:24px 0 12px}
     .merchSectionHead h2{margin:0;font-size:28px}
     .merchStatus{color:#ffd84d;min-height:24px}
@@ -28,6 +25,9 @@
     .featuredCard{outline:3px solid #ffd84d}
     .merchImageWrap{position:relative;background:#f5f7fb;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;padding:16px}
     .merchImage{max-width:100%;max-height:100%;object-fit:contain}
+    .shirtCard .merchImageWrap{padding:10px}
+    .shirtCard .merchImage{width:100%;height:100%;object-fit:contain}
+    .boostShirtImage .merchImage{transform:scale(1.14);transform-origin:center center}
     .merchBadge,.limitedPill,.soldOutPill{position:absolute;left:12px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
     .merchBadge{top:12px;background:#111;color:#fff}
     .limitedPill{bottom:12px;background:#dcfce7;color:#166534}
@@ -49,7 +49,7 @@
     .siteMiniNav a{color:#c7d7f6;text-decoration:none;font-weight:700}
     .siteMiniNav a:hover{text-decoration:underline}
     .footerNote{margin-top:28px;color:#9fb5dd;font-size:13px;text-align:center}
-    @media (max-width: 900px){.merchGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.merchInfoRow{grid-template-columns:1fr}}
+    @media (max-width: 900px){.merchGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media (max-width: 640px){.merchWrap{padding:14px 12px 40px}.merchHero{padding:18px 14px;border-radius:20px}.merchHero h1{font-size:28px}.merchGrid{grid-template-columns:1fr}.merchTitleRow h3{font-size:18px}}
   </style>
 </head>
@@ -61,10 +61,9 @@
       <p>Small-run BracketologyBuilder merch drop. Buy directly on-site today through Stripe. Quantities are low, sizes are limited, and sold-out items disappear fast.</p>
       <div class="heroActions">
         <a class="heroPrimary" href="#drop">Shop the drop</a>
-        <a class="heroGhost" href="/home.html">Enter BracketologyBuilder</a>
+        <a class="heroGhost" href="/bracket-games.html">Play Bracket Games</a>
+        <a class="heroGhost" href="/nba.html">Make an NBA Bracket</a>
       </div>
-      <div class="merchInfoRow">
-        <div class="merchInfoCard"><strong>TikTok-friendly flow</strong>Link in bio → browse → buy → Stripe checkout.</div>
         <div class="merchInfoCard"><strong>Limited quantities</strong>Most items have 1 size run live right now.</div>
         <div class="merchInfoCard"><strong>Shipping address collected</strong>Stripe collects the buyer shipping details at checkout.</div>
       </div>
