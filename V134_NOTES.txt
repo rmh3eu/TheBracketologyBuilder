@@ -1,0 +1,21 @@
+Bracketology Builder V134 patch
+
+What this patch updates:
+- Main Best leaderboard advanced from 60 to 62 completed games.
+- Main Worst leaderboard advanced from 60 to 62 completed games.
+- Second Chance results advanced from 12 to 14 completed games.
+- Championship remains pending / unscored.
+
+Final Four results applied:
+- FF__G0: UConn def. Illinois, 71-62
+- FF__G1: Michigan def. Arizona, 91-73
+
+Files changed:
+- functions/api/_leaderboard_static.js
+- functions/api/_leaderboard_static_data.js
+- functions/api/_leaderboard_second_static.js
+
+Notes:
+- _leaderboard_static.js now re-exports the updated source-of-truth data file.
+- Main worst leaderboard rows were advanced to 62 games using the tracked bracket data assumption that no worst-bracket Final Four picks matched the two actual winners.
+  If you want, I can also produce a follow-up workbook-based verification patch once the full source workbook is available locally.
