@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }){
     const origin = new URL(request.url).origin;
     const holdId = uid();
     const held = await holdInventory(env, { sessionId: holdId, productId, size, qty: 1 });
-    if(!held.ok) return json({ ok:false, error:'sold_out' }, 409);
+    if(!held.ok) return json({ ok:false, error:'sold_out', detail: held }, 409);
     const stripeBody = buildStripeSessionParams({ origin, product, size, sessionId: holdId });
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
