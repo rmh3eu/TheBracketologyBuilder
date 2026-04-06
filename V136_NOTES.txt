@@ -1,5 +1,33 @@
-V136 patch:
-- Rearranged bracket-games header controls to reduce overlap
-- Moved controls into a tighter single top row area
-- Kept promo card but made it secondary and less intrusive
-- Left all NBA/NFL/MLB game logic intact
+V136 Merch Drop Notes
+
+Added a simple limited-drop merch flow isolated from bracket systems.
+
+New pages
+- /merch
+- /merch-success.html
+- /merch-cancel.html
+
+New API routes
+- /api/merch-products
+- /api/merch-checkout
+- /api/merch-release
+- /api/webhook  (Stripe webhook for checkout.session.completed and expired/failed sessions)
+
+Data / editing
+- Edit merch titles, descriptions, prices, quantities, image paths, and size labels in functions/api/_merch_catalog.js
+- Quantity sync preserves units already sold when you change quantity_total in code later
+- Placeholder image added at images/merch-shirt-placeholder.svg
+
+Implementation notes
+- No cart
+- Direct-buy only
+- Minimal inventory hold system: reserve 1 unit before redirecting to Stripe, release on cancel page or when a reservation expires
+- Successful checkout is finalized by Stripe webhook
+- Merch tables are created lazily in D1 when the merch endpoints run
+
+Required secrets
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
+
+Optional note
+- This patch does not change existing bracket logic, challenge logic, leaderboard logic, or nav order on the main site pages.

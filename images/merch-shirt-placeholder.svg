@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-label="Bracketology Builder merch placeholder shirt">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="90" fill="#f8fafc"/>
+  <path d="M378 236c23 38 67 63 122 75l100 21 100-21c55-12 99-37 122-75l120 80-86 144-94-42v446H338V418l-94 42-86-144 120-80z" fill="url(#bg)"/>
+  <circle cx="600" cy="514" r="160" fill="#111827" opacity=".16"/>
+  <text x="600" y="478" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">BRACKETOLOGY</text>
+  <text x="600" y="544" text-anchor="middle" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="900">BUILDER</text>
+  <text x="600" y="636" text-anchor="middle" fill="#fde68a" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700">LIMITED DROP</text>
+</svg>

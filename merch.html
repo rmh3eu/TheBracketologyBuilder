@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Merch | Bracketology Builder</title>
+  <link href="/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="./style.css?v=20260406-merch1" rel="stylesheet"/>
+  <style>
+    .merchWrap{max-width:1080px;margin:0 auto;padding:18px 14px 48px}
+    .merchHero{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:20px;padding:22px 18px;box-shadow:0 8px 30px rgba(15,23,42,.18)}
+    .merchKicker{display:inline-block;background:#f59e0b;color:#111827;font-weight:900;border-radius:999px;padding:6px 10px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px}
+    .merchHero h1{margin:0 0 8px;font-size:clamp(30px,7vw,48px);line-height:1.02}
+    .merchHero p{margin:0;color:#e5e7eb;max-width:680px;font-size:16px}
+    .merchMeta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .merchMeta span{background:rgba(255,255,255,.12);padding:8px 10px;border-radius:999px;font-size:13px;font-weight:700}
+    .merchGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+    .merchCard{background:#fff;border:1px solid #e5e7eb;border-radius:18px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.08)}
+    .merchImageWrap{aspect-ratio:1/1;background:#f8fafc;display:flex;align-items:center;justify-content:center;padding:12px}
+    .merchImageWrap img{width:100%;height:100%;object-fit:cover;border-radius:12px}
+    .merchBody{padding:14px}
+    .merchTopRow{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+    .merchTitle{font-size:20px;font-weight:900;line-height:1.1;margin:0}
+    .merchPrice{font-size:20px;font-weight:900;white-space:nowrap}
+    .merchDesc{margin:8px 0 12px;color:#4b5563;font-size:14px;line-height:1.45;min-height:40px}
+    .dropPill,.stockPill{display:inline-block;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;margin:0 8px 8px 0}
+    .dropPill{background:#eff6ff;color:#1d4ed8}
+    .stockPill{background:#fef3c7;color:#92400e}
+    .stockPill.sold{background:#fee2e2;color:#991b1b}
+    .merchLabel{font-size:12px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 6px}
+    .merchSelect{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #d1d5db;background:#fff;font-size:16px}
+    .merchBuyBtn{width:100%;margin-top:12px;border:none;border-radius:14px;background:#111827;color:#fff;font-size:16px;font-weight:900;padding:14px 16px;cursor:pointer}
+    .merchBuyBtn[disabled]{background:#9ca3af;cursor:not-allowed}
+    .merchFoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:#6b7280}
+    .merchStatus{margin-top:16px;font-weight:800;min-height:20px}
+    .merchStatus.error{color:#b91c1c}
+    .merchStatus.ok{color:#166534}
+    .merchSectionTitle{margin:22px 0 10px;font-size:26px}
+    .merchTiny{color:#6b7280;font-size:13px}
+    .shopBackLink{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:800;color:#111827;margin:10px 0 0}
+    @media (max-width: 900px){.merchGrid{grid-template-columns:1fr 1fr}}
+    @media (max-width: 640px){
+      .merchWrap{padding:14px 12px 36px}
+      .merchGrid{grid-template-columns:1fr;gap:14px}
+      .merchHero{padding:18px 14px}
+      .merchTitle,.merchPrice{font-size:18px}
+      .merchDesc{min-height:0}
+      .merchBuyBtn{padding:15px 16px}
+    }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brandWrap">
+    <div class="brandRow">
+      <div class="brand">Bracketology Builder</div>
+      <img alt="Bracketology Builder logo" class="brandLogo" src="/logo.svg"/>
+    </div>
+    <div class="subbrand">Presented by <span class="creator">RobbyBrackets</span></div>
+  </div>
+  <div class="actions"></div>
+</header>
+<div class="stickyNav">
+  <nav aria-label="Primary" class="siteNav">
+    <a class="navLink" href="/">Home</a>
+    <a class="navLink" href="my-brackets.html">My Brackets</a>
+    <a class="navLink" href="best-challenge.html">Best Bracket Challenge</a>
+    <a class="navLink" href="worst-challenge.html">Worst Bracket Challenge</a>
+    <a class="navLink" href="/#featured">Featured Brackets</a>
+    <a class="navLink" href="/#upcoming">Upcoming Events</a>
+    <a class="navLink" href="bracket-games.html">Bracket Games</a>
+    <a class="navLink" href="tickets.html">Tickets</a>
+  </nav>
+</div>
+<main class="merchWrap">
+  <section class="merchHero">
+    <div class="merchKicker">Limited Merch Drop</div>
+    <h1>Bracket Champion Shirts</h1>
+    <p>Very small run. Simple direct-buy flow. Tap a shirt, choose your size, and checkout fast through Stripe.</p>
+    <div class="merchMeta">
+      <span>Only a few available</span>
+      <span>Mobile-friendly checkout</span>
+      <span>Limited first drop</span>
+    </div>
+  </section>
+
+  <h2 class="merchSectionTitle">Available now</h2>
+  <div class="merchTiny">Low-inventory drop for now. Sold-out sizes will automatically disable.</div>
+  <div id="merchStatus" class="merchStatus" aria-live="polite"></div>
+  <section id="merchGrid" class="merchGrid" aria-live="polite"></section>
+</main>
+<script src="/merch.js?v=20260406-merch1"></script>
+</body>
+</html>
