@@ -1,5 +1,5 @@
-V140 PATCH
-- Removed the extra favored-team explanatory note from Guess the Lines
-- Updated Betr copy to: Use code BRACKETS for $200 and button text to: Sign up with code BRACKETS for $200 in bonus bets
-- Updated BetOnline button text to: Sign up now for $250 in bonus bets
-- Kept affiliate links pointed to the existing site affiliate URLs used elsewhere in the project
+V140 merch patch
+- lowered merch prices, especially shirts
+- enlarged shirts 2-4 on the merch page to better match the Bracket Champion shirt image footprint
+- merch pills and meta now show exact low-stock totals when 2 or 3 remain
+- set selected shirts to 2 or 3 total available

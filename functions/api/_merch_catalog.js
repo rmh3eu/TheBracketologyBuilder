@@ -3,21 +3,21 @@ export const MERCH_CATALOG = [
     id: 'bracket-champion-shirt',
     title: 'Bracket Champion Shirt',
     description: 'Limited drop tee from BracketologyBuilder. Clean front graphic. Creator-merch pricing.',
-    priceCents: 2800,
+    priceCents: 2400,
     image: '/prizes/custom-gear-bracket-champion.png',
     category: 'shirt',
     featured: true,
     sizes: [
-      { size: 'S', qty: 1 },
       { size: 'M', qty: 1 },
-      { size: 'L', qty: 1 }
+      { size: 'L', qty: 1 },
+      { size: 'XL', qty: 1 }
     ]
   },
   {
     id: 'knows-ball-shirt',
     title: 'Knows Ball Shirt',
     description: 'Soft limited-run tee. Easy everyday wear.',
-    priceCents: 2600,
+    priceCents: 2200,
     image: '/prizes/custom-gear-knows-ball.png',
     category: 'shirt',
     sizes: [
@@ -29,7 +29,7 @@ export const MERCH_CATALOG = [
     id: 'busted-bracket-club-shirt',
     title: 'Busted Bracket Club Shirt',
     description: 'For the real tournament sickos. Limited inventory.',
-    priceCents: 2600,
+    priceCents: 2200,
     image: '/prizes/custom-gear-busted-bracket.png',
     category: 'shirt',
     sizes: [
@@ -41,19 +41,20 @@ export const MERCH_CATALOG = [
     id: 'doesnt-know-ball-shirt',
     title: "Doesn't Know Ball Shirt",
     description: 'Funny drop tee. Great as a gift or a bad beat uniform.',
-    priceCents: 2600,
+    priceCents: 2200,
     image: '/prizes/custom-gear-doesnt-know-ball.png',
     category: 'shirt',
     sizes: [
-      { size: 'M', qty: 1 },
-      { size: 'L', qty: 1 }
+      { size: 'L', qty: 1 },
+      { size: 'XL', qty: 1 },
+      { size: 'XXL', qty: 1 }
     ]
   },
   {
     id: 'track-jacket',
     title: 'Bracketology Builder Track Jacket',
     description: 'Premium zip-up track jacket from the custom gear collection.',
-    priceCents: 4600,
+    priceCents: 4200,
     image: '/prizes/custom-gear-track-jacket.png',
     category: 'jacket',
     sizes: [
@@ -65,7 +66,7 @@ export const MERCH_CATALOG = [
     id: 'track-jacket-alt',
     title: 'Bracketology Builder Track Jacket (Alt Design)',
     description: 'Alternate track jacket design with the same limited-drop feel.',
-    priceCents: 4600,
+    priceCents: 4200,
     image: '/prizes/custom-gear-track-jacket-2.png',
     category: 'jacket',
     sizes: [
@@ -76,7 +77,7 @@ export const MERCH_CATALOG = [
     id: 'basketball-backpack',
     title: 'Basketball Backpack',
     description: 'Everyday bag from the custom gear section.',
-    priceCents: 3400,
+    priceCents: 3000,
     image: '/prizes/custom-gear-backpack-1.png',
     category: 'backpack',
     sizes: [
@@ -87,7 +88,7 @@ export const MERCH_CATALOG = [
     id: 'basketball-backpack-alt',
     title: 'Basketball Backpack (Alt Design)',
     description: 'Alternate backpack design. Small drop, easy gift item.',
-    priceCents: 3400,
+    priceCents: 3000,
     image: '/prizes/custom-gear-backpack-2.png',
     category: 'backpack',
     sizes: [

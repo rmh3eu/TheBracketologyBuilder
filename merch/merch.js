@@ -10,15 +10,19 @@ function money(cents){
 
 function optionMarkup(size){
   const disabled = size.soldOut ? 'disabled' : '';
-  const sold = size.soldOut ? ' — Sold Out' : size.availableQty <= 2 ? ` — Only ${size.availableQty} left` : '';
+  const sold = size.soldOut ? ' — Sold Out' : size.availableQty <= 3 ? ` — Only ${size.availableQty} left` : '';
   return `<option value="${size.size}" ${disabled}>${size.size}${sold}</option>`;
 }
 
 function cardMarkup(product){
   const featured = product.featured ? '<div class="merchBadge">Main Drop</div>' : '';
-  const soldOut = product.soldOut ? '<div class="soldOutPill">Sold Out</div>' : '<div class="limitedPill">Limited Drop</div>';
+  const leftText = product.totalAvailableQty > 0 ? `Only ${product.totalAvailableQty} left` : 'Sold Out';
+  const soldOut = product.soldOut ? '<div class="soldOutPill">Sold Out</div>' : `<div class="limitedPill">${leftText}</div>`;
+  const shirtClass = product.category === 'shirt' ? 'shirtCard' : '';
+  const boostClass = ['knows-ball-shirt','busted-bracket-club-shirt','doesnt-know-ball-shirt'].includes(product.id) ? 'boostShirtImage' : '';
+  const metaText = product.soldOut ? 'Currently sold out' : (product.totalAvailableQty <= 3 ? `${product.totalAvailableQty} total left` : 'Only a few available');
   return `
-    <article class="merchCard ${product.featured ? 'featuredCard' : ''}" data-product-id="${product.id}">
+    <article class="merchCard ${product.featured ? 'featuredCard' : ''} ${shirtClass} ${boostClass}" data-product-id="${product.id}">
       <div class="merchImageWrap">
         ${featured}
         ${soldOut}
@@ -30,7 +34,7 @@ function cardMarkup(product){
           <div class="merchPrice">${money(product.priceCents)}</div>
         </div>
         <p class="merchDesc">${product.description || ''}</p>
-        <div class="merchMeta">${product.soldOut ? 'Currently sold out' : 'Only a few available'}</div>
+        <div class="merchMeta">${metaText}</div>
         <div class="merchActions">
           <label class="sizeLabel">Size</label>
           <select class="sizeSelect" ${product.soldOut ? 'disabled' : ''}>

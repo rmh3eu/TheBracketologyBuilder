@@ -88,10 +88,12 @@ export async function getCatalogWithInventory(env){
         soldOut: availableQty <= 0
       };
     });
+    const totalAvailableQty = sizes.reduce((sum, s) => sum + Number(s.availableQty || 0), 0);
     return {
       ...product,
       sizes,
-      soldOut: sizes.every(s => s.soldOut)
+      totalAvailableQty,
+      soldOut: totalAvailableQty <= 0
     };
   });
 }
