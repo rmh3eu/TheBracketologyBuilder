@@ -73,11 +73,8 @@ async function handleBuy(button){
     });
     const data = await res.json();
     if(!res.ok || !data.ok || !data.url){
-      const detail = typeof data.detail === 'string' ? data.detail : (data.detail?.error?.message || data.detail?.message || '');
-      const msg = data.error === 'sold_out'
-        ? 'That size just sold out.'
-        : (detail || data.error || 'Checkout failed');
-      throw new Error(msg);
+      const detail = data?.detail?.error?.message || data?.detail?.message || data?.detail || '';
+      throw new Error(data.error === 'sold_out' ? 'That size just sold out.' : (detail || data.error || 'Checkout failed'));
     }
     window.location.href = data.url;
   }catch(err){
