@@ -73,7 +73,11 @@ async function handleBuy(button){
     });
     const data = await res.json();
     if(!res.ok || !data.ok || !data.url){
-      throw new Error(data.error === 'sold_out' ? 'That size just sold out.' : (data.error || 'Checkout failed'));
+      const detail = typeof data.detail === 'string' ? data.detail : (data.detail?.error?.message || data.detail?.message || '');
+      const msg = data.error === 'sold_out'
+        ? 'That size just sold out.'
+        : (detail || data.error || 'Checkout failed');
+      throw new Error(msg);
     }
     window.location.href = data.url;
   }catch(err){

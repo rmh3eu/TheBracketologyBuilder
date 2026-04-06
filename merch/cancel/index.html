@@ -22,7 +22,7 @@
   <script>
     (async function(){
       const sp = new URLSearchParams(location.search);
-      const sessionId = sp.get('reservation_id') || sp.get('session_id');
+      const sessionId = sp.get('session_id');
       if(!sessionId) return;
       try{
         await fetch('/api/merch-release', {

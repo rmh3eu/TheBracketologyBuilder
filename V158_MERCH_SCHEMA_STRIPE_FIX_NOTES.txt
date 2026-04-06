@@ -1,0 +1,16 @@
+V158 merch fix
+
+This full zip adds a defensive merch schema migration so older D1 merch tables do not break checkout with server errors.
+
+Updated files:
+- functions/api/_merch.js
+- functions/api/merch-checkout.js
+- merch.js
+- merch/merch.js
+
+What changed:
+- ensureMerchSchema now adds missing columns to older merch tables
+- checkout returns clearer Stripe error detail
+- merch page surfaces checkout detail instead of generic server error
+
+If checkout still fails after deploy, the merch page should now show the actual Stripe-side message, which will usually point to a missing or incorrect STRIPE_SECRET_KEY in Cloudflare Production.
