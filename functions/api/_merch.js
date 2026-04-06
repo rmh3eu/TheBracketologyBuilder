@@ -2,6 +2,10 @@ import { MERCH_CATALOG, getMerchProduct } from './_merch_catalog.js';
 
 const HOLD_MINUTES = 20;
 
+function holdWindowStartIso(now = new Date()){
+  return new Date(now.getTime() - HOLD_MINUTES * 60 * 1000).toISOString();
+}
+
 export async function ensureMerchSchema(env){
   if(!env?.DB) throw new Error("Missing D1 binding 'DB'.");
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS merch_inventory (
@@ -40,26 +44,45 @@ export async function ensureMerchSchema(env){
 
 export async function cleanupExpiredHolds(env){
   await ensureMerchSchema(env);
-  const nowIso = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const staleIso = holdWindowStartIso(now);
   await env.DB.prepare(
-    "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND expires_at IS NOT NULL AND expires_at <= ?"
-  ).bind(nowIso, nowIso).run();
+    "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND ((expires_at IS NOT NULL AND expires_at <= ?) OR (expires_at IS NULL AND created_at <= ?))"
+  ).bind(nowIso, nowIso, staleIso).run();
+}
+
+async function getOrderAndHoldMaps(env){
+  const nowIso = new Date().toISOString();
+  const soldRows = await env.DB.prepare(
+    `SELECT product_id, size, COALESCE(SUM(qty),0) AS qty
+       FROM merch_orders
+      GROUP BY product_id, size`
+  ).all();
+  const holdRows = await env.DB.prepare(
+    `SELECT product_id, size, COALESCE(SUM(qty),0) AS qty
+       FROM merch_holds
+      WHERE status='held' AND expires_at IS NOT NULL AND expires_at > ?
+      GROUP BY product_id, size`
+  ).bind(nowIso).all();
+  const soldMap = new Map();
+  const holdMap = new Map();
+  for (const row of (soldRows.results || [])) soldMap.set(`${row.product_id}__${row.size}`, Number(row.qty || 0));
+  for (const row of (holdRows.results || [])) holdMap.set(`${row.product_id}__${row.size}`, Number(row.qty || 0));
+  return { soldMap, holdMap };
 }
 
 export async function rebuildInventory(env){
   await ensureMerchSchema(env);
   await cleanupExpiredHolds(env);
-  const nowIso = new Date().toISOString();
+  const { soldMap, holdMap } = await getOrderAndHoldMaps(env);
   for(const product of MERCH_CATALOG){
     for(const sizeRow of (product.sizes || [])){
       const totalQty = Number(sizeRow.qty || 0);
-      const completed = await env.DB.prepare(
-        'SELECT COALESCE(SUM(qty),0) AS qty FROM merch_orders WHERE product_id=? AND size=?'
-      ).bind(product.id, sizeRow.size).first();
-      const held = await env.DB.prepare(
-        "SELECT COALESCE(SUM(qty),0) AS qty FROM merch_holds WHERE product_id=? AND size=? AND status='held' AND (expires_at IS NULL OR expires_at > ?)"
-      ).bind(product.id, sizeRow.size, nowIso).first();
-      const availableQty = Math.max(0, totalQty - Number(completed?.qty || 0) - Number(held?.qty || 0));
+      const key = `${product.id}__${sizeRow.size}`;
+      const soldQty = Number(soldMap.get(key) || 0);
+      const heldQty = Number(holdMap.get(key) || 0);
+      const availableQty = Math.max(0, totalQty - soldQty - heldQty);
       await env.DB.prepare(
         `INSERT INTO merch_inventory (product_id,size,total_qty,available_qty)
          VALUES (?,?,?,?)
@@ -104,15 +127,17 @@ export async function holdInventory(env, { sessionId, productId, size, qty = 1 }
   await rebuildInventory(env);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + HOLD_MINUTES * 60 * 1000).toISOString();
-  const res = await env.DB.prepare(
-    'UPDATE merch_inventory SET available_qty = available_qty - ? WHERE product_id=? AND size=? AND available_qty >= ?'
-  ).bind(qty, productId, size, qty).run();
-  if(!res.success || !res.meta || !res.meta.changes){
+  const inventoryRow = await env.DB.prepare(
+    'SELECT available_qty FROM merch_inventory WHERE product_id=? AND size=?'
+  ).bind(productId, size).first();
+  const availableQty = Number(inventoryRow?.available_qty || 0);
+  if (availableQty < qty) {
     return { ok:false, error:'sold_out' };
   }
   await env.DB.prepare(
     'INSERT OR REPLACE INTO merch_holds (session_id, product_id, size, qty, status, expires_at, created_at) VALUES (?,?,?,?,?,?,?)'
   ).bind(sessionId, productId, size, qty, 'held', expiresAt, now.toISOString()).run();
+  await rebuildInventory(env);
   return { ok:true, expiresAt };
 }
 
