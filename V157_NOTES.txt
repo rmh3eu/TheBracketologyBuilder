@@ -1,0 +1,1 @@
+V157 merch checkout fix: computes live availability from catalog/orders/active holds instead of stale inventory rows, expires legacy no-expiry holds, and fixes cancel release param on both cancel pages.
