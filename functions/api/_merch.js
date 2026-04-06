@@ -2,6 +2,16 @@ import { MERCH_CATALOG, getMerchProduct } from './_merch_catalog.js';
 
 const HOLD_MINUTES = 20;
 
+async function ensureColumns(env, tableName, columnDefs){
+  const info = await env.DB.prepare(`PRAGMA table_info(${tableName})`).all();
+  const have = new Set((info.results || []).map(r => r.name));
+  for (const [name, def] of Object.entries(columnDefs)) {
+    if (!have.has(name)) {
+      await env.DB.prepare(`ALTER TABLE ${tableName} ADD COLUMN ${name} ${def}`).run();
+    }
+  }
+}
+
 export async function ensureMerchSchema(env){
   if(!env?.DB) throw new Error("Missing D1 binding 'DB'.");
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS merch_inventory (
@@ -37,53 +47,34 @@ export async function ensureMerchSchema(env){
     created_at TEXT NOT NULL
   )`).run();
 
-  const addColumn = async (table, column, sqlType) => {
-    try{
-      await env.DB.prepare(`ALTER TABLE ${table} ADD COLUMN ${column} ${sqlType}`).run();
-    }catch(_e){}
-  };
-  const tableCols = async (table) => {
-    const rs = await env.DB.prepare(`PRAGMA table_info(${table})`).all().catch(() => ({ results: [] }));
-    return new Set((rs.results || []).map(r => String(r.name || '')));
-  };
-
-  const invCols = await tableCols('merch_inventory');
-  if(!invCols.has('product_id')) await addColumn('merch_inventory', 'product_id', 'TEXT');
-  if(!invCols.has('size')) await addColumn('merch_inventory', 'size', 'TEXT');
-  if(!invCols.has('total_qty')) await addColumn('merch_inventory', 'total_qty', 'INTEGER NOT NULL DEFAULT 0');
-  if(!invCols.has('available_qty')) await addColumn('merch_inventory', 'available_qty', 'INTEGER NOT NULL DEFAULT 0');
-
-  const holdCols = await tableCols('merch_holds');
-  if(!holdCols.has('session_id')) await addColumn('merch_holds', 'session_id', 'TEXT');
-  if(!holdCols.has('product_id')) await addColumn('merch_holds', 'product_id', 'TEXT');
-  if(!holdCols.has('size')) await addColumn('merch_holds', 'size', 'TEXT');
-  if(!holdCols.has('qty')) await addColumn('merch_holds', 'qty', 'INTEGER NOT NULL DEFAULT 1');
-  if(!holdCols.has('status')) await addColumn('merch_holds', 'status', "TEXT NOT NULL DEFAULT 'held'");
-  if(!holdCols.has('expires_at')) await addColumn('merch_holds', 'expires_at', 'TEXT');
-  if(!holdCols.has('created_at')) await addColumn('merch_holds', 'created_at', 'TEXT');
-  if(!holdCols.has('released_at')) await addColumn('merch_holds', 'released_at', 'TEXT');
-  if(!holdCols.has('completed_at')) await addColumn('merch_holds', 'completed_at', 'TEXT');
-
-  const orderCols = await tableCols('merch_orders');
-  if(!orderCols.has('session_id')) await addColumn('merch_orders', 'session_id', 'TEXT');
-  if(!orderCols.has('product_id')) await addColumn('merch_orders', 'product_id', 'TEXT');
-  if(!orderCols.has('size')) await addColumn('merch_orders', 'size', 'TEXT');
-  if(!orderCols.has('qty')) await addColumn('merch_orders', 'qty', 'INTEGER NOT NULL DEFAULT 1');
-  if(!orderCols.has('amount_cents')) await addColumn('merch_orders', 'amount_cents', 'INTEGER NOT NULL DEFAULT 0');
-  if(!orderCols.has('currency')) await addColumn('merch_orders', 'currency', "TEXT NOT NULL DEFAULT 'usd'");
-  if(!orderCols.has('customer_email')) await addColumn('merch_orders', 'customer_email', 'TEXT');
-  if(!orderCols.has('shipping_name')) await addColumn('merch_orders', 'shipping_name', 'TEXT');
-  if(!orderCols.has('shipping_json')) await addColumn('merch_orders', 'shipping_json', 'TEXT');
-  if(!orderCols.has('stripe_payment_status')) await addColumn('merch_orders', 'stripe_payment_status', 'TEXT');
-  if(!orderCols.has('created_at')) await addColumn('merch_orders', 'created_at', 'TEXT');
+  await ensureColumns(env, 'merch_inventory', { total_qty: "INTEGER NOT NULL DEFAULT 0", available_qty: "INTEGER NOT NULL DEFAULT 0" });
+  await ensureColumns(env, 'merch_holds', { qty: "INTEGER NOT NULL DEFAULT 1", status: "TEXT NOT NULL DEFAULT 'held'", expires_at: "TEXT", created_at: "TEXT", released_at: "TEXT", completed_at: "TEXT" });
+  await ensureColumns(env, 'merch_orders', { qty: "INTEGER NOT NULL DEFAULT 1", amount_cents: "INTEGER NOT NULL DEFAULT 0", currency: "TEXT NOT NULL DEFAULT 'usd'", customer_email: "TEXT", shipping_name: "TEXT", shipping_json: "TEXT", stripe_payment_status: "TEXT", created_at: "TEXT" });
 }
 
 export async function cleanupExpiredHolds(env){
   await ensureMerchSchema(env);
-  const nowIso = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
   await env.DB.prepare(
     "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND expires_at IS NOT NULL AND expires_at <= ?"
   ).bind(nowIso, nowIso).run();
+
+  const legacy = await env.DB.prepare(
+    "SELECT session_id, created_at FROM merch_holds WHERE status='held' AND (expires_at IS NULL OR expires_at='')"
+  ).all();
+  const staleIds = [];
+  for (const row of (legacy.results || [])) {
+    const createdMs = Date.parse(row.created_at || '');
+    if (Number.isFinite(createdMs) && (now.getTime() - createdMs) >= HOLD_MINUTES * 60 * 1000) {
+      staleIds.push(row.session_id);
+    }
+  }
+  for (const sessionId of staleIds) {
+    await env.DB.prepare(
+      "UPDATE merch_holds SET status='expired', released_at=? WHERE session_id=? AND status='held'"
+    ).bind(nowIso, sessionId).run();
+  }
 }
 
 export async function rebuildInventory(env){
