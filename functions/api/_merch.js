@@ -169,10 +169,10 @@ export function buildStripeSessionParams({ origin, product, size, sessionId }){
 }
 
 export async function fetchStripeSession(env, sessionId){
-  const secret = env.STRIPE_SECRET_KEY;
+  const secret = String(env.STRIPE_SECRET_KEY || '').trim().replace(/^['"]|['"]$/g, '');
   if(!secret) throw new Error('Missing STRIPE_SECRET_KEY');
   const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=shipping_cost&expand[]=customer_details&expand[]=line_items&expand[]=payment_intent.shipping`, {
-    headers: { authorization: `Bearer ${secret}` }
+    headers: { Authorization: `Bearer ${secret}` }
   });
   if(!res.ok){
     throw new Error(`Stripe session fetch failed ${res.status}`);

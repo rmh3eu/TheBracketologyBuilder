@@ -3,7 +3,8 @@ import { buildStripeSessionParams, getMerchProduct, holdInventory, releaseHold }
 
 export async function onRequestPost({ request, env }){
   try{
-    if(!env.STRIPE_SECRET_KEY){
+    const stripeSecret = String(env.STRIPE_SECRET_KEY || '').trim().replace(/^['"]|['"]$/g, '');
+    if(!stripeSecret){
       return json({ ok:false, error:'missing_stripe_secret' }, 500);
     }
     const body = await request.json().catch(() => ({}));
@@ -22,7 +23,7 @@ export async function onRequestPost({ request, env }){
     const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
-        authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+        Authorization: `Bearer ${stripeSecret}`,
         'content-type': 'application/x-www-form-urlencoded'
       },
       body: stripeBody.toString()
