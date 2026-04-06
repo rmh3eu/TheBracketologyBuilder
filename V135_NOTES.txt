@@ -1,20 +1,20 @@
-V135 NOTES
+V135 patch
 
-What this patch does
-- Makes Bracket Games the root landing page by redirecting index.html to bracket-games.html
-- Creates home.html as the preserved former home / bracket-builder page
-- Adds Guess the Lines as the second tab
-- Keeps Tickets as the third tab
-- Tightens the Bracket Games controls so the game shelf starts higher on mobile
-- Adds MLB to Bracket Games with 4 game types:
-  - Height
-  - Age
-  - Career Home Runs
-  - All Time Home Runs
-- Keeps NBA and NFL in the same compact Bracket Games flow
-- Updates nav on the included changed pages to use:
-  Bracket Games / Guess the Lines / Tickets first
+Included in this patch:
+- Main worst leaderboard now uses dynamic scoring so every incorrect pick in later rounds counts for +10 points.
+- Added Final Four fallback results (UConn over Illinois, Michigan over Arizona) to the main/second-chance leaderboard pipelines so standings can reach 62 main games and 14 second-chance games even if those two games were not yet saved in DB.
+- Added admin-only email columns already supported by the APIs to clickable admin leaderboard rows: Open + Edit links.
+- Added admin quick-edit links on My Brackets cards.
+- Admin Brackets page now auto-loads a bracket editor when opened with ?edit=<bracket_id>.
+- Updated best/worst leaderboard page header copy from 60 games to 62 games.
 
-Important note
-- The new NFL / MLB game stats and the Guess the Lines cards are starter in-page data so the product flow and UI can be reviewed first.
-- home.html is now the preserved old home page.
+Changed files:
+- functions/api/leaderboard.js
+- functions/api/_leaderboard_second_static.js
+- app.js
+- second-best-leaderboard.html
+- second-worst-leaderboard.html
+- admin-brackets.js
+- my-brackets.js
+- best-leaderboard.html
+- worst-leaderboard.html

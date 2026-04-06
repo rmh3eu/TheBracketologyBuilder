@@ -150,12 +150,6 @@ function setAuthUI(me) {
   if (logoutBtn) logoutBtn.style.display = loggedIn ? '' : 'none';
 }
 
-function bracketHref(b) {
-  return String((b && b.sport) || '').toLowerCase() === 'nba'
-    ? `nba.html?id=${encodeURIComponent(b.id)}`
-    : `ncaamb-bracket.html?id=${encodeURIComponent(b.id)}`;
-}
-
 function renderBracketSection({ listId, emptyId, items }) {
   const grid = document.getElementById(listId);
   const empty = document.getElementById(emptyId);
@@ -169,7 +163,7 @@ function renderBracketSection({ listId, emptyId, items }) {
   for (const b of items) {
     const a = document.createElement('a');
     a.className = 'bracketCard';
-    a.href = bracketHref(b);
+    a.href = `/?id=${encodeURIComponent(b.id)}`;
 
     const titleRow = document.createElement('div');
     titleRow.className = 'bracketTitleRow';
@@ -190,6 +184,7 @@ function renderBracketSection({ listId, emptyId, items }) {
     if (Number(b.entered_best)) emojiBits.push('😇');
     if (Number(b.entered_worst)) emojiBits.push('😈');
 
+    // Featured badge (user-visible): show when submitted/approved.
     const fs = String(b.feature_status || '').toLowerCase();
     if (fs === 'approved' || fs === 'featured' || fs === 'pending') {
       const badge = document.createElement('span');
@@ -213,6 +208,15 @@ function renderBracketSection({ listId, emptyId, items }) {
     a.appendChild(titleRow);
     a.appendChild(meta);
 
+    if (window.__bbIsAdmin) {
+      const adminRow = document.createElement('div');
+      adminRow.className = 'lbAdminLinks';
+      adminRow.innerHTML = `<a href="/admin-brackets.html?edit=${encodeURIComponent(b.id)}" onclick="event.stopPropagation()" target="_blank" rel="noopener">Admin Edit Picks</a>`;
+      a.appendChild(adminRow);
+    }
+
+    // Submission is handled via the dropdown toolbar at top.
+    // Keep cards clean and avoid duplicate UI paths.
     if (!(['approved','featured','pending','denied'].includes(fs))) {
       const hint = document.createElement('div');
       hint.className = 'submitFeaturedInlineHint';
@@ -227,19 +231,25 @@ function renderBracketSection({ listId, emptyId, items }) {
 
 function reorderSections({ officialLive, sweet16Set }) {
   const main = document.getElementById('myBracketsMain');
-  const secNBA = document.getElementById('secNBA');
   const secB = document.getElementById('secBracketology');
   const secO = document.getElementById('secOfficial');
   const secS = document.getElementById('secSecondChance');
-  if (!main || !secNBA || !secB || !secO || !secS) return;
+  if (!main || !secB || !secO || !secS) return;
 
-  main.appendChild(secNBA);
+  // Ordering rules (brackets never disappear; only section order changes):
+  // - Default (no toggles): Bracketology first.
+  // - Official is always above Second Chance.
+  // - When Official is live OR Sweet16 is set, Bracketology moves to the bottom.
   if (!officialLive && !sweet16Set) {
+    // Bracketology, Official, Second Chance
     main.appendChild(secB);
     main.appendChild(secO);
     main.appendChild(secS);
     return;
   }
+
+  // Either Official or Sweet16 is enabled:
+  // Second Chance, Official, Bracketology
   main.appendChild(secS);
   main.appendChild(secO);
   main.appendChild(secB);
@@ -280,6 +290,7 @@ async function loadPage() {
     (me && (me.isAdmin || me.is_admin))
   );
 
+  window.__bbIsAdmin = isAdmin;
   if (adminWrap) adminWrap.style.display = isAdmin ? 'flex' : 'none';
   if (toggle) {
     toggle.checked = officialLive;
@@ -353,17 +364,11 @@ async function loadPage() {
     });
 
     // Always render Bracketology brackets somewhere (never disappear)
-    const nba = [];
     const proj = [];
     const off = [];
     const sc = [];
 
     for (const b of brackets) {
-      const sport = String(b.sport || '').toLowerCase();
-      if (sport === 'nba') {
-        nba.push(b);
-        continue;
-      }
       const type = String(b.bracket_type || '').toLowerCase();
       if (type === 'second_chance') {
         sc.push(b);
@@ -374,14 +379,12 @@ async function loadPage() {
       }
     }
 
-    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: nba });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: proj });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: off });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: sc });
 
     reorderSections({ officialLive, sweet16Set });
   } catch (e) {
-    renderBracketSection({ listId: 'nbaList', emptyId: 'nbaEmpty', items: [] });
     renderBracketSection({ listId: 'projList', emptyId: 'projEmpty', items: [] });
     renderBracketSection({ listId: 'offList', emptyId: 'offEmpty', items: [] });
     renderBracketSection({ listId: 'scList', emptyId: 'scEmpty', items: [] });
@@ -410,18 +413,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
 
         if (sweet16Set) {
-          window.location.href = 'ncaamb-bracket.html?new=1&second=1';
+          window.location.href = 'bracket.html?new=1&second=1';
           return;
         }
         if (officialLive) {
-          window.location.href = 'ncaamb-bracket.html?new=1&official=1';
+          window.location.href = 'bracket.html?new=1&official=1';
           return;
         }
       } catch {
         // fall through to default
       }
 
-      window.location.href = 'ncaamb-bracket.html?new=1';
+      window.location.href = 'bracket.html?new=1';
     });
   }
   
@@ -441,18 +444,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const officialLive = !!(cfg && (cfg.official_bracket_live || (cfg.config && cfg.config.official_bracket_live)));
 
         if (sweet16Set) {
-          window.location.href = `ncaamb-bracket.html?new=1&second=1&random=1&nonce=${nonce}`;
+          window.location.href = `bracket.html?new=1&second=1&random=1&nonce=${nonce}`;
           return;
         }
         if (officialLive) {
-          window.location.href = `ncaamb-bracket.html?new=1&official=1&random=1&nonce=${nonce}`;
+          window.location.href = `bracket.html?new=1&official=1&random=1&nonce=${nonce}`;
           return;
         }
       } catch {
         // fall through to default
       }
 
-      window.location.href = `ncaamb-bracket.html?new=1&random=1&nonce=${nonce}`;
+      window.location.href = `bracket.html?new=1&random=1&nonce=${nonce}`;
     });
   }
 
@@ -469,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
       } catch {}
-      window.location.href = 'ncaamb-bracket.html?new=1&second=1';
+      window.location.href = 'bracket.html?new=1&second=1';
     });
   }
 

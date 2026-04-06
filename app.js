@@ -2498,6 +2498,16 @@ function leaderboardPctText(x, y){
 }
 
 
+
+function adminBracketCellHtml(r, displayName, emoji){
+  const nameHtml = escapeHtml(displayName) + ' ' + emoji;
+  const bracketId = String(r && r.bracket_id || '').trim();
+  if(!(state && state.me && state.me.isAdmin) || !bracketId) return nameHtml;
+  const openHref = `/?id=${encodeURIComponent(bracketId)}&readonly=1`;
+  const editHref = `/admin-brackets.html?edit=${encodeURIComponent(bracketId)}`;
+  return `${nameHtml}<div class="lbAdminLinks"><a href="${openHref}" target="_blank" rel="noopener">Open</a> · <a href="${editHref}" target="_blank" rel="noopener">Edit</a></div>`;
+}
+
 function lbTableBest(rows, showEmail=false){
   const wrap = el('div','lbTableWrap');
   const t = el('table','lbTable');
@@ -2529,7 +2539,7 @@ function lbTableBest(rows, showEmail=false){
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
-    const userCell = escapeHtml(displayName) + ' 😇';
+    const userCell = adminBracketCellHtml(r, displayName, '😇');
     const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
 
     tr.innerHTML = `
@@ -2579,9 +2589,8 @@ function lbTableWorst(rows, showEmail=false){
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
-    const userCell = meId && r.user_id === meId
-      ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
-      : `${escapeHtml(displayName)} 😈`;
+    let userCell = adminBracketCellHtml(r, displayName, '😈');
+    if(meId && r.user_id === meId) userCell += ' <span class="lbYouBadge">My Bracket</span>'; 
     const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
 
     tr.innerHTML = `

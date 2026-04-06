@@ -77,6 +77,13 @@
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
+    function scBracketCell(r, showEmail){
+      const label = scEscape(r.title || r.display_name || 'Bracket');
+      if(!showEmail || !r.bracket_id) return label;
+      const openHref = `/?id=${encodeURIComponent(r.bracket_id)}&readonly=1`;
+      const editHref = `/admin-brackets.html?edit=${encodeURIComponent(r.bracket_id)}`;
+      return `${label}<div class="lbAdminLinks"><a href="${openHref}" target="_blank" rel="noopener">Open</a> · <a href="${editHref}" target="_blank" rel="noopener">Edit</a></div>`;
+    }
     async function renderLeaderboard(){
       const mount = document.getElementById('scLeaderboardMount');
       if(!mount) return;
@@ -92,7 +99,7 @@
         (d.leaderboard || []).forEach(r => {
           const pct = (r.y && Number(r.y) > 0) ? ((Number(r.x || 0) / Number(r.y)) * 100).toFixed(1) + '%' : '—';
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${scEscape(r.rank)}</td><td>${scEscape(r.title || r.display_name || 'Bracket')}</td>${showEmail ? `<td>${scEscape(r.email || '—')}</td>` : ''}<td>${scEscape(r.score || 0)}</td><td>${scEscape(r.x || 0)}/${scEscape(r.y || 0)}</td><td>${pct}</td><td>${scEscape(r.champion || '—')}</td>`;
+          tr.innerHTML = `<td>${scEscape(r.rank)}</td><td>${scBracketCell(r, showEmail)}</td>${showEmail ? `<td>${scEscape(r.email || '—')}</td>` : ''}<td>${scEscape(r.score || 0)}</td><td>${scEscape(r.x || 0)}/${scEscape(r.y || 0)}</td><td>${pct}</td><td>${scEscape(r.champion || '—')}</td>`;
           tbody.appendChild(tr);
         });
         mount.innerHTML = '';

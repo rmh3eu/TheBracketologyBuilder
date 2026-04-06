@@ -1,4 +1,4 @@
-import { STATIC_BEST_LEADERBOARD, STATIC_WORST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
+import { STATIC_BEST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
 import { json, ensureUserSchema, ensureGamesSchema, requireUser, isAdmin } from "./_util.js";
 
 async function ensureTables(env){
@@ -44,8 +44,40 @@ async function ensureTables(env){
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)").run();
 }
 
-function teamEq(a,b){ return a && b && a.seed===b.seed && a.name===b.name; }
+function teamEq(a,b){
+  if(!a || !b) return false;
+  const sameName = normalizeTeamName(a.name) === normalizeTeamName(b.name);
+  if(!sameName) return false;
+  const aSeed = a.seed===undefined || a.seed===null ? null : Number(a.seed);
+  const bSeed = b.seed===undefined || b.seed===null ? null : Number(b.seed);
+  if(aSeed===null || bSeed===null || Number.isNaN(aSeed) || Number.isNaN(bSeed)) return sameName;
+  return aSeed===bSeed;
+}
 
+
+
+const MAIN_FALLBACK_RESULTS = [
+  { id: "FF__G0", winner: { seed: 1, name: "UConn" }, loser: { seed: 1, name: "Illinois" }, score_total: 133 },
+  { id: "FF__G1", winner: { seed: 1, name: "Michigan" }, loser: { seed: 1, name: "Arizona" }, score_total: 164 }
+];
+
+function normalizeTeamName(name){
+  return String(name || "").trim();
+}
+
+function normalizeGameId(id){
+  return String(id || "").trim();
+}
+
+function mergeFallbackFinalized(finalized){
+  const map = new Map();
+  for(const g of finalized || []) map.set(normalizeGameId(g.id), g);
+  for(const g of MAIN_FALLBACK_RESULTS){
+    const key = normalizeGameId(g.id);
+    if(!map.has(key)) map.set(key, g);
+  }
+  return Array.from(map.values());
+}
 function gameGroupFromId(id){
   // Returns which Worst-stage bucket a finalized game belongs to.
   // Stage 1: R64 + R32
@@ -100,11 +132,12 @@ export async function onRequestGet({ request, env }){
 
   // Load finalized games
   const gq = await env.DB.prepare("SELECT id, winner_json, score_total FROM games WHERE winner_json IS NOT NULL").all();
-  const finalized = (gq.results||[]).map(r=>({
+  let finalized = (gq.results||[]).map(r=>({
     id: r.id,
     winner: r.winner_json ? JSON.parse(r.winner_json) : null,
     score_total: r.score_total===null||r.score_total===undefined ? null : Number(r.score_total)
   }));
+  finalized = mergeFallbackFinalized(finalized);
 
   // NCAA tournament main bracket (no play-in): 63 games total
   const TOTAL_GAMES = 63;
@@ -129,7 +162,7 @@ export async function onRequestGet({ request, env }){
 
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
   // This keeps leaderboard scoring completely outside bracket logic.
-  if(!groupId && stage === 'pre'){
+  if(!groupId && stage === 'pre' && challenge === 'best'){
     let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
     // Exclude brackets created before official bracket release from the original challenges.
     const cutoffIso = "2026-03-15T23:00:00.000Z";
@@ -312,7 +345,8 @@ export async function onRequestGet({ request, env }){
       if(!teamEq(pick, g.winner)) stageScores[grp] += 10;
     }
 
-    const score = stageScores.pre + stageScores.r16 + stageScores.f4;
+    const wrongPicks = (stageScores.pre/10) + (stageScores.r16/10) + (stageScores.f4/10);
+    const score = wrongPicks * 10;
     const finishedPossible = (stageSeen.pre*10) + (stageSeen.r16*10) + (stageSeen.f4*10);
     const total_possible = score + Math.max(0, overallTotal - finishedPossible);
     const champ = championPick(picks);
@@ -327,10 +361,10 @@ export async function onRequestGet({ request, env }){
       title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
       email: viewerIsAdmin ? String(e.email || '') : '',
       score,
-      x: score,
-      y: overallTotal,
+      x: wrongPicks,
+      y: finalizedCount,
       total_possible,
-      pct: overallTotal ? (score/overallTotal) : 0,
+      pct: finalizedCount ? (wrongPicks/finalizedCount) : 0,
       stage1: stageScores.pre,
       stage2: stageScores.r16,
       stage3: stageScores.f4,
