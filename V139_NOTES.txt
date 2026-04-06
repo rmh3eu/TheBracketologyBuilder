@@ -1,13 +1,32 @@
-V139 PATCH
+V139 Merch landing / Stripe checkout patch
 
-Included files:
-- bracket-games.html
-- guess-lines.html
+What this patch does
+- Makes the root landing page merch-focused for now by replacing index.html with the merch page.
+- Preserves the old bracket home at /home.html.
+- Adds /merch as a folder route and /merch.html as a direct file fallback.
+- Uses Stripe Checkout for direct-buy single-item purchases.
+- Collects shipping address in Stripe.
+- Adds lightweight D1-backed inventory with holds, sold-out states, cancel release, and webhook completion.
+- Keeps merch isolated from bracket logic.
 
-Changes:
-- Champion now counts as correct when the user's final pick is tied for the top value in that 8-player bracket (height, age, points, HR, etc.).
-- Reveal screen champion checkmark uses the same tied-for-top rule.
-- Round scoring still shows out of 7 total picks.
-- Guess the Lines is simplified to NFL Week 1 Games only for now.
-- Guess input and reveal now include the favored team in the line text, for example: -2.5 Seahawks.
-- Betr reveal keeps the sign up with code BRACKETS wording.
+Main files to edit later
+- functions/api/_merch_catalog.js
+  - title
+  - description
+  - priceCents
+  - image
+  - sizes + qty
+
+Required setup
+1) Cloudflare secret: STRIPE_SECRET_KEY
+2) Cloudflare secret: STRIPE_WEBHOOK_SECRET
+3) Stripe webhook destination should include:
+   - checkout.session.completed
+   - checkout.session.expired
+   URL: https://bracketologybuilder.com/api/webhook
+
+Operational note
+- Stripe collects the shipping address.
+- This patch does not buy labels or auto-fulfill shipments; orders should be packed and shipped manually.
+- Inventory tables are created lazily the first time merch endpoints run.
+- Existing inventory rows are not overwritten when you edit catalog qty values later; if you want a reset, update the D1 merch_inventory rows manually.
