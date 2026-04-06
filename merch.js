@@ -1,102 +1,93 @@
-async function loadMerch(){
-  const statusEl = document.getElementById('merchStatus');
-  const grid = document.getElementById('merchGrid');
-  statusEl.textContent = 'Loading merch...';
-  statusEl.className = 'merchStatus';
-  try{
-    const res = await fetch('/api/merch-products', { headers:{ accept:'application/json' } });
-    const data = await res.json();
-    if(!res.ok || !data?.ok) throw new Error(data?.error || 'Unable to load merch');
-    renderProducts(data.products || [], grid, statusEl);
-  }catch(e){
-    statusEl.textContent = e.message || 'Unable to load merch right now.';
-    statusEl.className = 'merchStatus error';
-  }
+const $ = (s) => document.querySelector(s);
+const listEl = $('#merchGrid');
+const statusEl = $('#merchStatus');
+const yearEl = $('#yearNow');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+function money(cents){
+  return `$${(Number(cents || 0) / 100).toFixed(2)}`;
 }
 
-function renderProducts(products, grid, statusEl){
-  if(!products.length){
-    statusEl.textContent = 'Nothing is live yet.';
-    statusEl.className = 'merchStatus';
-    grid.innerHTML = '';
-    return;
-  }
-  statusEl.textContent = '';
-  statusEl.className = 'merchStatus';
-  grid.innerHTML = products.map(product => {
-    const variantOptions = (product.variants || []).map(v => {
-      const disabled = v.sold_out ? 'disabled' : '';
-      const soldText = v.sold_out ? ' — Sold Out' : ` — ${v.quantity_available} left`;
-      return `<option value="${escapeHtml(v.id)}" ${disabled}>${escapeHtml(v.label)}${escapeHtml(soldText)}</option>`;
-    }).join('');
-    const firstAvailable = (product.variants || []).find(v => !v.sold_out);
-    const stockText = product.sold_out ? 'Sold Out' : `${product.total_available} left`;
-    return `
-      <article class="merchCard" data-product-id="${escapeHtml(product.id)}">
-        <div class="merchImageWrap">
-          <img src="${escapeAttribute(product.image || '/images/merch-shirt-placeholder.svg')}" alt="${escapeAttribute(product.title)}" loading="lazy"/>
+function optionMarkup(size){
+  const disabled = size.soldOut ? 'disabled' : '';
+  const sold = size.soldOut ? ' — Sold Out' : size.availableQty <= 3 ? ` — Only ${size.availableQty} left` : '';
+  return `<option value="${size.size}" ${disabled}>${size.size}${sold}</option>`;
+}
+
+function cardMarkup(product){
+  const featured = product.featured ? '<div class="merchBadge">Main Drop</div>' : '';
+  const leftText = product.totalAvailableQty > 0 ? `Only ${product.totalAvailableQty} left` : 'Sold Out';
+  const soldOut = product.soldOut ? '<div class="soldOutPill">Sold Out</div>' : `<div class="limitedPill">${leftText}</div>`;
+  const shirtClass = product.category === 'shirt' ? 'shirtCard' : '';
+  const boostClass = ['knows-ball-shirt','busted-bracket-club-shirt','doesnt-know-ball-shirt'].includes(product.id) ? 'boostShirtImage' : '';
+  const metaText = product.soldOut ? 'Currently sold out' : (product.totalAvailableQty <= 3 ? `${product.totalAvailableQty} total left` : 'Only a few available');
+  return `
+    <article class="merchCard ${product.featured ? 'featuredCard' : ''} ${shirtClass} ${boostClass}" data-product-id="${product.id}">
+      <div class="merchImageWrap">
+        ${featured}
+        ${soldOut}
+        <img class="merchImage" src="${product.image}" alt="${product.title}" />
+      </div>
+      <div class="merchCardBody">
+        <div class="merchTitleRow">
+          <h3>${product.title}</h3>
+          <div class="merchPrice">${money(product.priceCents)}</div>
         </div>
-        <div class="merchBody">
-          <div class="merchTopRow">
-            <h3 class="merchTitle">${escapeHtml(product.title)}</h3>
-            <div class="merchPrice">${escapeHtml(product.price_label)}</div>
-          </div>
-          <div class="merchDesc">${escapeHtml(product.description || '')}</div>
-          <div>
-            ${product.drop_note ? `<span class="dropPill">${escapeHtml(product.drop_note)}</span>` : ''}
-            <span class="stockPill ${product.sold_out ? 'sold' : ''}">${escapeHtml(stockText)}</span>
-          </div>
-          <div class="merchLabel">Size</div>
-          <select class="merchSelect" ${product.sold_out ? 'disabled' : ''}>
-            ${variantOptions}
+        <p class="merchDesc">${product.description || ''}</p>
+        <div class="merchMeta">${metaText}</div>
+        <div class="merchActions">
+          <label class="sizeLabel">Size</label>
+          <select class="sizeSelect" ${product.soldOut ? 'disabled' : ''}>
+            ${(product.sizes || []).map(optionMarkup).join('')}
           </select>
-          <button class="merchBuyBtn" ${product.sold_out || !firstAvailable ? 'disabled' : ''}>${product.sold_out ? 'Sold Out' : 'Buy Now'}</button>
-          <div class="merchFoot">
-            <span>Fast Stripe checkout</span>
-            <span>Limited drop</span>
-          </div>
+          <button class="buyBtn" ${product.soldOut ? 'disabled' : ''}>${product.soldOut ? 'Sold Out' : 'Buy Now'}</button>
         </div>
-      </article>
-    `;
-  }).join('');
-
-  Array.from(grid.querySelectorAll('.merchCard')).forEach(card => {
-    const button = card.querySelector('.merchBuyBtn');
-    const select = card.querySelector('.merchSelect');
-    button?.addEventListener('click', async () => {
-      const variantId = select?.value || '';
-      if(!variantId) return;
-      await startCheckout(variantId, button, statusEl);
-    });
-  });
+      </div>
+    </article>
+  `;
 }
 
-async function startCheckout(variantId, button, statusEl){
+async function loadProducts(){
+  statusEl.textContent = 'Loading merch…';
+  const res = await fetch('/api/merch-products');
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || 'Could not load merch');
+  const products = data.products || [];
+  listEl.innerHTML = products.map(cardMarkup).join('');
+  statusEl.textContent = '';
+}
+
+async function handleBuy(button){
+  const card = button.closest('.merchCard');
+  const productId = card?.dataset?.productId;
+  const size = card.querySelector('.sizeSelect')?.value;
+  if(!productId || !size) return;
   const original = button.textContent;
   button.disabled = true;
-  button.textContent = 'Starting checkout...';
-  statusEl.textContent = '';
+  button.textContent = 'Opening checkout…';
   try{
     const res = await fetch('/api/merch-checkout', {
       method: 'POST',
-      headers: { 'content-type':'application/json', accept:'application/json' },
-      body: JSON.stringify({ variant_id: variantId })
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ productId, size })
     });
     const data = await res.json();
-    if(!res.ok || !data?.ok || !data?.url) throw new Error(data?.error || 'Unable to start checkout');
+    if(!res.ok || !data.ok || !data.url){
+      throw new Error(data.error === 'sold_out' ? 'That size just sold out.' : (data.error || 'Checkout failed'));
+    }
     window.location.href = data.url;
-  }catch(e){
+  }catch(err){
     button.disabled = false;
     button.textContent = original;
-    statusEl.textContent = e.message || 'Unable to start checkout.';
-    statusEl.className = 'merchStatus error';
-    loadMerch();
+    statusEl.textContent = String(err.message || err);
   }
 }
 
-function escapeHtml(value){
-  return String(value || '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch]));
-}
-function escapeAttribute(value){ return escapeHtml(value); }
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.buyBtn');
+  if(btn) handleBuy(btn);
+});
 
-loadMerch();
+loadProducts().catch(err => {
+  statusEl.textContent = String(err.message || err);
+});

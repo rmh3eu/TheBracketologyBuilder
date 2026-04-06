@@ -1,5 +1,5 @@
 import { json, uid } from './_util.js';
-import { buildStripeSessionParams, getMerchProduct, holdInventory } from './_merch.js';
+import { buildStripeSessionParams, getMerchProduct, holdInventory, releaseHold } from './_merch.js';
 
 export async function onRequestPost({ request, env }){
   try{
@@ -29,6 +29,7 @@ export async function onRequestPost({ request, env }){
     });
     const stripeJson = await stripeRes.json();
     if(!stripeRes.ok || !stripeJson?.url){
+      await releaseHold(env, holdId).catch(() => {});
       return json({ ok:false, error:'stripe_checkout_failed', detail: stripeJson }, 502);
     }
     return json({ ok:true, url: stripeJson.url, sessionId: stripeJson.id });

@@ -27,13 +27,13 @@
 <script>
 (async function(){
   const qs = new URLSearchParams(location.search);
-  const reservationId = qs.get('reservation_id');
+  const reservationId = qs.get('reservation_id') || qs.get('session_id');
   if(!reservationId) return;
   try{
     await fetch('/api/merch-release', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ reservation_id: reservationId })
+      body: JSON.stringify({ sessionId: reservationId })
     });
   }catch(_e){}
 })();

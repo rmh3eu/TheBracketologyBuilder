@@ -1,0 +1,14 @@
+V154 merch checkout fix
+
+This patch fixes the live merch buy flow so customers can actually reach Stripe checkout.
+
+Included fixes:
+- rebuilds merch inventory from catalog totals minus completed orders minus active holds
+- clears stale sold-out states caused by old test holds / old inventory rows
+- releases the reservation if Stripe session creation fails
+- fixes the cancel page so it releases the correct reservation id
+- syncs root merch.js to the working /merch/merch.js logic
+
+If checkout still errors after deploy, verify Cloudflare Production secrets exist:
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET

@@ -38,41 +38,43 @@ export async function ensureMerchSchema(env){
   )`).run();
 }
 
-export async function seedMerchInventory(env){
+export async function cleanupExpiredHolds(env){
   await ensureMerchSchema(env);
+  const nowIso = new Date().toISOString();
+  await env.DB.prepare(
+    "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND expires_at IS NOT NULL AND expires_at <= ?"
+  ).bind(nowIso, nowIso).run();
+}
+
+export async function rebuildInventory(env){
+  await ensureMerchSchema(env);
+  await cleanupExpiredHolds(env);
+  const nowIso = new Date().toISOString();
   for(const product of MERCH_CATALOG){
-    for(const row of (product.sizes || [])){
-      const existing = await env.DB.prepare(
-        'SELECT product_id FROM merch_inventory WHERE product_id=? AND size=?'
-      ).bind(product.id, row.size).first();
-      if(!existing){
-        await env.DB.prepare(
-          'INSERT INTO merch_inventory (product_id,size,total_qty,available_qty) VALUES (?,?,?,?)'
-        ).bind(product.id, row.size, Number(row.qty || 0), Number(row.qty || 0)).run();
-      }
+    for(const sizeRow of (product.sizes || [])){
+      const totalQty = Number(sizeRow.qty || 0);
+      const completed = await env.DB.prepare(
+        'SELECT COALESCE(SUM(qty),0) AS qty FROM merch_orders WHERE product_id=? AND size=?'
+      ).bind(product.id, sizeRow.size).first();
+      const held = await env.DB.prepare(
+        "SELECT COALESCE(SUM(qty),0) AS qty FROM merch_holds WHERE product_id=? AND size=? AND status='held' AND (expires_at IS NULL OR expires_at > ?)"
+      ).bind(product.id, sizeRow.size, nowIso).first();
+      const availableQty = Math.max(0, totalQty - Number(completed?.qty || 0) - Number(held?.qty || 0));
+      await env.DB.prepare(
+        `INSERT INTO merch_inventory (product_id,size,total_qty,available_qty)
+         VALUES (?,?,?,?)
+         ON CONFLICT(product_id,size) DO UPDATE SET total_qty=excluded.total_qty, available_qty=excluded.available_qty`
+      ).bind(product.id, sizeRow.size, totalQty, availableQty).run();
     }
   }
 }
 
-export async function cleanupExpiredHolds(env){
-  await ensureMerchSchema(env);
-  const nowIso = new Date().toISOString();
-  const expired = await env.DB.prepare(
-    "SELECT session_id, product_id, size, qty FROM merch_holds WHERE status='held' AND expires_at IS NOT NULL AND expires_at <= ?"
-  ).bind(nowIso).all();
-  for(const hold of (expired.results || [])){
-    await env.DB.prepare(
-      'UPDATE merch_inventory SET available_qty = available_qty + ? WHERE product_id=? AND size=?'
-    ).bind(hold.qty || 1, hold.product_id, hold.size).run();
-    await env.DB.prepare(
-      "UPDATE merch_holds SET status='expired', released_at=? WHERE session_id=? AND status='held'"
-    ).bind(nowIso, hold.session_id).run();
-  }
+export async function seedMerchInventory(env){
+  await rebuildInventory(env);
 }
 
 export async function getCatalogWithInventory(env){
-  await seedMerchInventory(env);
-  await cleanupExpiredHolds(env);
+  await rebuildInventory(env);
   const inv = await env.DB.prepare('SELECT product_id,size,total_qty,available_qty FROM merch_inventory').all();
   const invMap = new Map();
   for(const row of (inv.results || [])){
@@ -99,8 +101,7 @@ export async function getCatalogWithInventory(env){
 }
 
 export async function holdInventory(env, { sessionId, productId, size, qty = 1 }){
-  await seedMerchInventory(env);
-  await cleanupExpiredHolds(env);
+  await rebuildInventory(env);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + HOLD_MINUTES * 60 * 1000).toISOString();
   const res = await env.DB.prepare(
@@ -122,11 +123,9 @@ export async function releaseHold(env, sessionId){
   if(hold.status !== 'held') return { ok:true, released:false, reason:hold.status };
   const nowIso = new Date().toISOString();
   await env.DB.prepare(
-    'UPDATE merch_inventory SET available_qty = available_qty + ? WHERE product_id=? AND size=?'
-  ).bind(hold.qty || 1, hold.product_id, hold.size).run();
-  await env.DB.prepare(
     "UPDATE merch_holds SET status='released', released_at=? WHERE session_id=? AND status='held'"
   ).bind(nowIso, sessionId).run();
+  await rebuildInventory(env);
   return { ok:true, released:true };
 }
 
@@ -141,6 +140,7 @@ export async function completeOrder(env, payload){
   await env.DB.prepare(
     "UPDATE merch_holds SET status='completed', completed_at=? WHERE session_id=? AND status='held'"
   ).bind(new Date().toISOString(), sessionId).run();
+  await rebuildInventory(env);
 }
 
 export function merchPriceLabel(priceCents){
@@ -151,8 +151,8 @@ export function buildStripeSessionParams({ origin, product, size, sessionId }){
   const amount = Number(product.priceCents || 0);
   const body = new URLSearchParams();
   body.set('mode', 'payment');
-  body.set('success_url', `${origin}/merch/success?session_id={CHECKOUT_SESSION_ID}`);
-  body.set('cancel_url', `${origin}/merch/cancel?session_id={CHECKOUT_SESSION_ID}`);
+  body.set('success_url', `${origin}/merch/success?checkout_session_id={CHECKOUT_SESSION_ID}`);
+  body.set('cancel_url', `${origin}/merch/cancel?reservation_id=${encodeURIComponent(sessionId)}`);
   body.set('shipping_address_collection[allowed_countries][0]', 'US');
   body.set('billing_address_collection', 'required');
   body.set('phone_number_collection[enabled]', 'true');
