@@ -1,4 +1,4 @@
-import { STATIC_BEST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
+import { STATIC_BEST_LEADERBOARD, STATIC_WORST_LEADERBOARD, STATIC_LEADERBOARD_META } from "./_leaderboard_static.js";
 import { json, ensureUserSchema, ensureGamesSchema, requireUser, isAdmin } from "./_util.js";
 
 async function ensureTables(env){
@@ -44,40 +44,8 @@ async function ensureTables(env){
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_group_members_user ON group_members(user_id)").run();
 }
 
-function teamEq(a,b){
-  if(!a || !b) return false;
-  const sameName = normalizeTeamName(a.name) === normalizeTeamName(b.name);
-  if(!sameName) return false;
-  const aSeed = a.seed===undefined || a.seed===null ? null : Number(a.seed);
-  const bSeed = b.seed===undefined || b.seed===null ? null : Number(b.seed);
-  if(aSeed===null || bSeed===null || Number.isNaN(aSeed) || Number.isNaN(bSeed)) return sameName;
-  return aSeed===bSeed;
-}
+function teamEq(a,b){ return a && b && a.seed===b.seed && a.name===b.name; }
 
-
-
-const MAIN_FALLBACK_RESULTS = [
-  { id: "FF__G0", winner: { seed: 1, name: "UConn" }, loser: { seed: 1, name: "Illinois" }, score_total: 133 },
-  { id: "FF__G1", winner: { seed: 1, name: "Michigan" }, loser: { seed: 1, name: "Arizona" }, score_total: 164 }
-];
-
-function normalizeTeamName(name){
-  return String(name || "").trim();
-}
-
-function normalizeGameId(id){
-  return String(id || "").trim();
-}
-
-function mergeFallbackFinalized(finalized){
-  const map = new Map();
-  for(const g of finalized || []) map.set(normalizeGameId(g.id), g);
-  for(const g of MAIN_FALLBACK_RESULTS){
-    const key = normalizeGameId(g.id);
-    if(!map.has(key)) map.set(key, g);
-  }
-  return Array.from(map.values());
-}
 function gameGroupFromId(id){
   // Returns which Worst-stage bucket a finalized game belongs to.
   // Stage 1: R64 + R32
@@ -107,6 +75,111 @@ function tieBreaker(picks){
   return Number.isFinite(n) ? n : null;
 }
 
+
+function normalizeTeamName(name){
+  return String(name || '').trim().toLowerCase();
+}
+
+function teamNameEq(a,b){
+  return normalizeTeamName(a?.name || a) === normalizeTeamName(b?.name || b);
+}
+
+const STATIC_MISSING_RESULTS_TO_62 = [
+  { id: 'SOUTH__R3__G0', winner: { name: 'Illinois' } },
+  { id: 'WEST__R3__G0', winner: { name: 'Arizona' } },
+  { id: 'EAST__R3__G0', winner: { name: 'UConn' } },
+  { id: 'MIDWEST__R3__G0', winner: { name: 'Michigan' } },
+  { id: 'FF__G0', winner: { name: 'UConn' } },
+  { id: 'FF__G1', winner: { name: 'Michigan' } }
+];
+
+async function augmentStaticLeaderboardTo62(env, rows, challenge, viewerIsAdmin){
+  let staticRows = Array.isArray(rows) ? rows.map(r => ({ ...r })) : [];
+  if(!staticRows.length) return staticRows;
+
+  const bracketIds = [...new Set(staticRows.map(r => String(r.bracket_id || '').trim()).filter(Boolean))];
+  if(!bracketIds.length) return staticRows;
+
+  const placeholders = bracketIds.map(() => '?').join(',');
+  const bq = await env.DB.prepare(`SELECT id, user_id, data_json, title, created_at FROM brackets WHERE id IN (${placeholders})`).bind(...bracketIds).all().catch(()=>({results:[]}));
+  const bracketMap = new Map((bq.results || []).map(b => {
+    let data = {};
+    try{ data = JSON.parse(b.data_json || '{}'); }catch(_e){ data = {}; }
+    const picks = (data && typeof data === 'object' && data.picks && typeof data.picks === 'object') ? data.picks : data;
+    return [String(b.id || '').trim(), { ...b, picks }];
+  }));
+
+  staticRows = staticRows.filter(r => {
+    const info = bracketMap.get(String(r.bracket_id || '').trim());
+    if(!info || !info.created_at) return false;
+    const ts = Date.parse(String(info.created_at || ''));
+    const cutoff = Date.parse('2026-03-15T23:00:00.000Z');
+    if(Number.isNaN(ts) || Number.isNaN(cutoff)) return false;
+    return ts >= cutoff;
+  });
+
+  staticRows = staticRows.map(r => {
+    const info = bracketMap.get(String(r.bracket_id || '').trim());
+    const picks = info?.picks || {};
+    let bonus = 0;
+    for(const g of STATIC_MISSING_RESULTS_TO_62){
+      const pick = pickForGame(picks, g.id);
+      if(!pick) continue;
+      if(challenge === 'best'){
+        if(teamNameEq(pick, g.winner)) bonus += 1;
+      }else{
+        if(!teamNameEq(pick, g.winner)) bonus += 1;
+      }
+    }
+    const x = Number(r.x || 0) + bonus;
+    const y = 62;
+    const score = x * 10;
+    const total_possible = score + 10;
+    const title = info?.title || r.title || r.display_name || 'Bracket';
+    return {
+      ...r,
+      title,
+      display_name: title,
+      x,
+      y,
+      score,
+      total: score,
+      total_possible,
+      pct: y ? (x / y) : 0,
+      email: r.email || ''
+    };
+  });
+
+  let prevScore = null;
+  let prevDiff = null;
+  let rank = 0;
+  staticRows.sort((a,b)=>{
+    if(Number(b.score||0)!==Number(a.score||0)) return Number(b.score||0)-Number(a.score||0);
+    const ad = a.tiebreaker_diff===undefined || a.tiebreaker_diff===null ? 10**9 : Number(a.tiebreaker_diff);
+    const bd = b.tiebreaker_diff===undefined || b.tiebreaker_diff===null ? 10**9 : Number(b.tiebreaker_diff);
+    if(ad!==bd) return ad-bd;
+    return String(a.display_name||'').localeCompare(String(b.display_name||''));
+  });
+  staticRows = staticRows.map((r, idx)=>{
+    const curScore = Number(r.score || 0);
+    const curDiff = r.tiebreaker_diff===undefined || r.tiebreaker_diff===null ? 10**9 : Number(r.tiebreaker_diff);
+    if(prevScore !== curScore || prevDiff !== curDiff){ rank = idx + 1; prevScore = curScore; prevDiff = curDiff; }
+    return { ...r, rank };
+  });
+
+  if(viewerIsAdmin && staticRows.length){
+    const userIds = [...new Set(staticRows.map(r => Number(r.user_id)).filter(n => Number.isFinite(n)))];
+    if(userIds.length){
+      const placeholders = userIds.map(() => '?').join(',');
+      const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...userIds).all().catch(()=>({results:[]}));
+      const emailByUserId = new Map((uq.results||[]).map(row => [Number(row.id), String(row.email || '')]));
+      staticRows = staticRows.map(r => ({ ...r, email: emailByUserId.get(Number(r.user_id)) || String(r.email || '') }));
+    }
+  }
+
+  return staticRows;
+}
+
 export async function onRequestGet({ request, env }){
   await ensureTables(env);
   await ensureUserSchema(env);
@@ -132,12 +205,11 @@ export async function onRequestGet({ request, env }){
 
   // Load finalized games
   const gq = await env.DB.prepare("SELECT id, winner_json, score_total FROM games WHERE winner_json IS NOT NULL").all();
-  let finalized = (gq.results||[]).map(r=>({
+  const finalized = (gq.results||[]).map(r=>({
     id: r.id,
     winner: r.winner_json ? JSON.parse(r.winner_json) : null,
     score_total: r.score_total===null||r.score_total===undefined ? null : Number(r.score_total)
   }));
-  finalized = mergeFallbackFinalized(finalized);
 
   // NCAA tournament main bracket (no play-in): 63 games total
   const TOTAL_GAMES = 63;
@@ -161,41 +233,11 @@ export async function onRequestGet({ request, env }){
   }
 
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
-  // This keeps leaderboard scoring completely outside bracket logic.
-  if(!groupId && stage === 'pre' && challenge === 'best'){
+  // We augment the original 56-game sheet with the missing Elite Eight + Final Four results
+  // so admin can recover the main leaderboards even when the games table is sparse.
+  if(!groupId && stage === 'pre'){
     let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
-    // Exclude brackets created before official bracket release from the original challenges.
-    const cutoffIso = "2026-03-15T23:00:00.000Z";
-    const bracketIds = [...new Set((staticRows||[]).map(r => String(r.bracket_id || "").trim()).filter(Boolean))];
-    if(bracketIds.length){
-      const placeholders = bracketIds.map(() => "?").join(",");
-      const bq = await env.DB.prepare(`SELECT id, created_at FROM brackets WHERE id IN (${placeholders})`).bind(...bracketIds).all().catch(()=>({results:[]}));
-      const createdMap = new Map((bq.results||[]).map(b => [String(b.id || "").trim(), String(b.created_at || "").trim()]));
-      staticRows = (staticRows||[]).filter(r => {
-        const createdAt = createdMap.get(String(r.bracket_id || "").trim());
-        if(!createdAt) return false;
-        const ts = Date.parse(createdAt);
-        const cutoff = Date.parse(cutoffIso);
-        if(Number.isNaN(ts) || Number.isNaN(cutoff)) return false;
-        return ts >= cutoff;
-      });
-      let prevScore = null;
-      let rank = 0;
-      staticRows = staticRows.map((r, idx) => {
-        const score = Number(r.score || 0);
-        if(prevScore !== score){ rank = idx + 1; prevScore = score; }
-        return { ...r, rank };
-      });
-    }
-    if(viewerIsAdmin && staticRows.length){
-      const userIds = [...new Set(staticRows.map(r => Number(r.user_id)).filter(n => Number.isFinite(n)))];
-      if(userIds.length){
-        const placeholders = userIds.map(() => "?").join(",");
-        const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...userIds).all().catch(()=>({results:[]}));
-        const emailByUserId = new Map((uq.results||[]).map(row => [Number(row.id), String(row.email || "")]));
-        staticRows = staticRows.map(r => ({ ...r, email: emailByUserId.get(Number(r.user_id)) || "" }));
-      }
-    }
+    staticRows = await augmentStaticLeaderboardTo62(env, staticRows, challenge, viewerIsAdmin);
     return json({
       ok:true,
       leaderboard: staticRows,
@@ -203,7 +245,7 @@ export async function onRequestGet({ request, env }){
       me_user_id,
       is_admin: viewerIsAdmin,
       total_games: 63,
-      finalized_games: Number(STATIC_LEADERBOARD_META?.games_played || 0)
+      finalized_games: 62
     });
   }
 
@@ -345,8 +387,7 @@ export async function onRequestGet({ request, env }){
       if(!teamEq(pick, g.winner)) stageScores[grp] += 10;
     }
 
-    const wrongPicks = (stageScores.pre/10) + (stageScores.r16/10) + (stageScores.f4/10);
-    const score = wrongPicks * 10;
+    const score = stageScores.pre + stageScores.r16 + stageScores.f4;
     const finishedPossible = (stageSeen.pre*10) + (stageSeen.r16*10) + (stageSeen.f4*10);
     const total_possible = score + Math.max(0, overallTotal - finishedPossible);
     const champ = championPick(picks);
@@ -361,10 +402,10 @@ export async function onRequestGet({ request, env }){
       title: bmap.get(e.bracket_id)?.title || e.bracket_title || 'Bracket',
       email: viewerIsAdmin ? String(e.email || '') : '',
       score,
-      x: wrongPicks,
-      y: finalizedCount,
+      x: score,
+      y: overallTotal,
       total_possible,
-      pct: finalizedCount ? (wrongPicks/finalizedCount) : 0,
+      pct: overallTotal ? (score/overallTotal) : 0,
       stage1: stageScores.pre,
       stage2: stageScores.r16,
       stage3: stageScores.f4,

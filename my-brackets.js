@@ -1,6 +1,8 @@
 // My Brackets page script
 // Simple + reliable: list brackets and route to bracket editor.
 
+let __myBracketsIsAdmin = false;
+
 async function api(path, opts = {}) {
   const res = await fetch(path, {
     method: opts.method || 'GET',
@@ -208,13 +210,6 @@ function renderBracketSection({ listId, emptyId, items }) {
     a.appendChild(titleRow);
     a.appendChild(meta);
 
-    if (window.__bbIsAdmin) {
-      const adminRow = document.createElement('div');
-      adminRow.className = 'lbAdminLinks';
-      adminRow.innerHTML = `<a href="/admin-brackets.html?edit=${encodeURIComponent(b.id)}" onclick="event.stopPropagation()" target="_blank" rel="noopener">Admin Edit Picks</a>`;
-      a.appendChild(adminRow);
-    }
-
     // Submission is handled via the dropdown toolbar at top.
     // Keep cards clean and avoid duplicate UI paths.
     if (!(['approved','featured','pending','denied'].includes(fs))) {
@@ -222,6 +217,14 @@ function renderBracketSection({ listId, emptyId, items }) {
       hint.className = 'submitFeaturedInlineHint';
       hint.textContent = '';
       a.appendChild(hint);
+    }
+
+    if(__myBracketsIsAdmin){
+      const adminRow = document.createElement('div');
+      adminRow.className = 'submitFeaturedInlineHint';
+      adminRow.style.marginTop = '8px';
+      adminRow.innerHTML = `<a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(b.id)}&readonly=1" target="_blank" rel="noopener">Open</a> <a class="btn ghost smallBtn" href="admin-brackets.html?edit=${encodeURIComponent(b.id)}">Admin Edit</a>`;
+      a.appendChild(adminRow);
     }
 
     grid.appendChild(a);
@@ -290,7 +293,8 @@ async function loadPage() {
     (me && (me.isAdmin || me.is_admin))
   );
 
-  window.__bbIsAdmin = isAdmin;
+  __myBracketsIsAdmin = isAdmin;
+
   if (adminWrap) adminWrap.style.display = isAdmin ? 'flex' : 'none';
   if (toggle) {
     toggle.checked = officialLive;

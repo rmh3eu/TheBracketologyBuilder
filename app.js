@@ -2498,16 +2498,6 @@ function leaderboardPctText(x, y){
 }
 
 
-
-function adminBracketCellHtml(r, displayName, emoji){
-  const nameHtml = escapeHtml(displayName) + ' ' + emoji;
-  const bracketId = String(r && r.bracket_id || '').trim();
-  if(!(state && state.me && state.me.isAdmin) || !bracketId) return nameHtml;
-  const openHref = `/?id=${encodeURIComponent(bracketId)}&readonly=1`;
-  const editHref = `/admin-brackets.html?edit=${encodeURIComponent(bracketId)}`;
-  return `${nameHtml}<div class="lbAdminLinks"><a href="${openHref}" target="_blank" rel="noopener">Open</a> · <a href="${editHref}" target="_blank" rel="noopener">Edit</a></div>`;
-}
-
 function lbTableBest(rows, showEmail=false){
   const wrap = el('div','lbTableWrap');
   const t = el('table','lbTable');
@@ -2539,7 +2529,8 @@ function lbTableBest(rows, showEmail=false){
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
-    const userCell = adminBracketCellHtml(r, displayName, '😇');
+    const actions = showEmail ? `<div class="smallMuted" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;"><a href="/?id=${encodeURIComponent(r.bracket_id || '')}&readonly=1" target="_blank" rel="noopener">Open</a><a href="admin-brackets.html?edit=${encodeURIComponent(r.bracket_id || '')}">Edit</a></div>` : '';
+    const userCell = escapeHtml(displayName) + ' 😇' + actions;
     const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
 
     tr.innerHTML = `
@@ -2589,8 +2580,11 @@ function lbTableWorst(rows, showEmail=false){
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
-    let userCell = adminBracketCellHtml(r, displayName, '😈');
-    if(meId && r.user_id === meId) userCell += ' <span class="lbYouBadge">My Bracket</span>'; 
+    const baseUserCell = meId && r.user_id === meId
+      ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
+      : `${escapeHtml(displayName)} 😈`;
+    const actions = showEmail ? `<div class="smallMuted" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;"><a href="/?id=${encodeURIComponent(r.bracket_id || '')}&readonly=1" target="_blank" rel="noopener">Open</a><a href="admin-brackets.html?edit=${encodeURIComponent(r.bracket_id || '')}">Edit</a></div>` : '';
+    const userCell = baseUserCell + actions;
     const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
 
     tr.innerHTML = `

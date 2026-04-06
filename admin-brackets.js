@@ -93,9 +93,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if(input) input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') loadBracketIntoEditor((input?.value || '').trim()); });
   if(more) more.addEventListener('click', ()=>loadAdminBracketsView(false));
   await loadAdminBracketsView(true);
-  const qs = new URLSearchParams(window.location.search);
-  const editId = (qs.get('edit') || '').trim();
-  if(editId) await loadBracketIntoEditor(editId);
+  const prefill = new URLSearchParams(window.location.search).get('edit');
+  if(prefill){
+    const input = document.getElementById('adminBracketIdInput');
+    if(input) input.value = prefill;
+    await loadBracketIntoEditor(prefill);
+  }
 });
 
 

@@ -62,7 +62,8 @@ export const SECOND_CHANCE_RESULTS = [
     "id": "REGION_MIDWEST__R3__G0",
     "winner": "Michigan",
     "loser": "Tennessee"
-  },
+  }
+,
   {
     "id": "FF__G0",
     "winner": "UConn",

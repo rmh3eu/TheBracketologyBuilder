@@ -42,7 +42,7 @@ function renderAdminFeatureCard(req, bucket){
          <button class="btn" data-fr-id="${req.id}" data-fr-status="rejected" type="button">Reject</button>
        </div>`
     : '';
-  wrap.innerHTML = `<div><b>${String(req.title || 'Untitled Bracket')}</b></div><div class="muted" style="margin-top:4px;">${String(req.user_email || '')}</div><div class="muted" style="margin-top:4px;">${when}</div>${req.caption ? `<div style="margin-top:8px;">${String(req.caption)}</div>` : ''}<div style="margin-top:10px;"><a class="btn ghost smallBtn" href="${href}" target="_blank" rel="noopener">Open Bracket</a></div>${actions}`;
+  wrap.innerHTML = `<div><b>${String(req.title || 'Untitled Bracket')}</b></div><div class="muted" style="margin-top:4px;">${String(req.user_email || '')}</div><div class="muted" style="margin-top:4px;">${when}</div>${req.caption ? `<div style="margin-top:8px;">${String(req.caption)}</div>` : ''}<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;"><a class="btn ghost smallBtn" href="${href}" target="_blank" rel="noopener">Open Bracket</a><a class="btn ghost smallBtn" href="admin-brackets.html?edit=${encodeURIComponent(req.bracket_id)}">Edit Picks</a></div>${actions}`;
   if(bucket === 'pending'){
     wrap.querySelectorAll('[data-fr-id]').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
