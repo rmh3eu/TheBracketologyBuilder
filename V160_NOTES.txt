@@ -1,0 +1,1 @@
+Merch soft-stock update: removed sold-out behavior from UI, boosted catalog quantities, and stopped temporary holds from making items appear sold out before purchase.\n
