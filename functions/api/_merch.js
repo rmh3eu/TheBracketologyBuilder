@@ -1,16 +1,7 @@
 import { MERCH_CATALOG, getMerchProduct } from './_merch_catalog.js';
 
 const HOLD_MINUTES = 20;
-
-async function ensureColumns(env, tableName, columnDefs){
-  const info = await env.DB.prepare(`PRAGMA table_info(${tableName})`).all();
-  const have = new Set((info.results || []).map(r => r.name));
-  for (const [name, def] of Object.entries(columnDefs)) {
-    if (!have.has(name)) {
-      await env.DB.prepare(`ALTER TABLE ${tableName} ADD COLUMN ${name} ${def}`).run();
-    }
-  }
-}
+const DISPLAY_FLOOR_QTY = 5;
 
 export async function ensureMerchSchema(env){
   if(!env?.DB) throw new Error("Missing D1 binding 'DB'.");
@@ -46,35 +37,14 @@ export async function ensureMerchSchema(env){
     stripe_payment_status TEXT,
     created_at TEXT NOT NULL
   )`).run();
-
-  await ensureColumns(env, 'merch_inventory', { total_qty: "INTEGER NOT NULL DEFAULT 0", available_qty: "INTEGER NOT NULL DEFAULT 0" });
-  await ensureColumns(env, 'merch_holds', { qty: "INTEGER NOT NULL DEFAULT 1", status: "TEXT NOT NULL DEFAULT 'held'", expires_at: "TEXT", created_at: "TEXT", released_at: "TEXT", completed_at: "TEXT" });
-  await ensureColumns(env, 'merch_orders', { qty: "INTEGER NOT NULL DEFAULT 1", amount_cents: "INTEGER NOT NULL DEFAULT 0", currency: "TEXT NOT NULL DEFAULT 'usd'", customer_email: "TEXT", shipping_name: "TEXT", shipping_json: "TEXT", stripe_payment_status: "TEXT", created_at: "TEXT" });
 }
 
 export async function cleanupExpiredHolds(env){
   await ensureMerchSchema(env);
-  const now = new Date();
-  const nowIso = now.toISOString();
+  const nowIso = new Date().toISOString();
   await env.DB.prepare(
     "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND expires_at IS NOT NULL AND expires_at <= ?"
   ).bind(nowIso, nowIso).run();
-
-  const legacy = await env.DB.prepare(
-    "SELECT session_id, created_at FROM merch_holds WHERE status='held' AND (expires_at IS NULL OR expires_at='')"
-  ).all();
-  const staleIds = [];
-  for (const row of (legacy.results || [])) {
-    const createdMs = Date.parse(row.created_at || '');
-    if (Number.isFinite(createdMs) && (now.getTime() - createdMs) >= HOLD_MINUTES * 60 * 1000) {
-      staleIds.push(row.session_id);
-    }
-  }
-  for (const sessionId of staleIds) {
-    await env.DB.prepare(
-      "UPDATE merch_holds SET status='expired', released_at=? WHERE session_id=? AND status='held'"
-    ).bind(nowIso, sessionId).run();
-  }
 }
 
 export async function rebuildInventory(env){
@@ -83,14 +53,11 @@ export async function rebuildInventory(env){
   const nowIso = new Date().toISOString();
   for(const product of MERCH_CATALOG){
     for(const sizeRow of (product.sizes || [])){
-      const totalQty = Number(sizeRow.qty || 0);
+      const totalQty = Math.max(Number(sizeRow.qty || 0), DISPLAY_FLOOR_QTY);
       const completed = await env.DB.prepare(
         'SELECT COALESCE(SUM(qty),0) AS qty FROM merch_orders WHERE product_id=? AND size=?'
       ).bind(product.id, sizeRow.size).first();
-      const held = await env.DB.prepare(
-        "SELECT COALESCE(SUM(qty),0) AS qty FROM merch_holds WHERE product_id=? AND size=? AND status='held' AND (expires_at IS NULL OR expires_at > ?)"
-      ).bind(product.id, sizeRow.size, nowIso).first();
-      const availableQty = Math.max(0, totalQty - Number(completed?.qty || 0) - Number(held?.qty || 0));
+      const availableQty = Math.max(DISPLAY_FLOOR_QTY, totalQty - Number(completed?.qty || 0));
       await env.DB.prepare(
         `INSERT INTO merch_inventory (product_id,size,total_qty,available_qty)
          VALUES (?,?,?,?)
@@ -114,11 +81,11 @@ export async function getCatalogWithInventory(env){
   return MERCH_CATALOG.map(product => {
     const sizes = (product.sizes || []).map(s => {
       const live = invMap.get(`${product.id}__${s.size}`);
-      const availableQty = Number(live?.available_qty ?? s.qty ?? 0);
+      const availableQty = Math.max(DISPLAY_FLOOR_QTY, Number(live?.available_qty ?? s.qty ?? DISPLAY_FLOOR_QTY));
       return {
         size: s.size,
         availableQty,
-        soldOut: availableQty <= 0
+        soldOut: false
       };
     });
     const totalAvailableQty = sizes.reduce((sum, s) => sum + Number(s.availableQty || 0), 0);
@@ -126,21 +93,15 @@ export async function getCatalogWithInventory(env){
       ...product,
       sizes,
       totalAvailableQty,
-      soldOut: totalAvailableQty <= 0
+      soldOut: false
     };
   });
 }
 
 export async function holdInventory(env, { sessionId, productId, size, qty = 1 }){
-  await rebuildInventory(env);
+  await ensureMerchSchema(env);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + HOLD_MINUTES * 60 * 1000).toISOString();
-  const res = await env.DB.prepare(
-    'UPDATE merch_inventory SET available_qty = available_qty - ? WHERE product_id=? AND size=? AND available_qty >= ?'
-  ).bind(qty, productId, size, qty).run();
-  if(!res.success || !res.meta || !res.meta.changes){
-    return { ok:false, error:'sold_out' };
-  }
   await env.DB.prepare(
     'INSERT OR REPLACE INTO merch_holds (session_id, product_id, size, qty, status, expires_at, created_at) VALUES (?,?,?,?,?,?,?)'
   ).bind(sessionId, productId, size, qty, 'held', expiresAt, now.toISOString()).run();

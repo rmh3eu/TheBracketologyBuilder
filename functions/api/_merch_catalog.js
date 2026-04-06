@@ -8,9 +8,9 @@ export const MERCH_CATALOG = [
     category: 'shirt',
     featured: true,
     sizes: [
-      { size: 'M', qty: 1 },
-      { size: 'L', qty: 1 },
-      { size: 'XL', qty: 1 }
+      { size: 'M', qty: 25 },
+      { size: 'L', qty: 25 },
+      { size: 'XL', qty: 20 }
     ]
   },
   {
@@ -21,8 +21,8 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-knows-ball.png',
     category: 'shirt',
     sizes: [
-      { size: 'M', qty: 1 },
-      { size: 'L', qty: 1 }
+      { size: 'M', qty: 25 },
+      { size: 'L', qty: 25 }
     ]
   },
   {
@@ -33,8 +33,8 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-busted-bracket.png',
     category: 'shirt',
     sizes: [
-      { size: 'M', qty: 1 },
-      { size: 'L', qty: 1 }
+      { size: 'M', qty: 25 },
+      { size: 'L', qty: 25 }
     ]
   },
   {
@@ -45,9 +45,9 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-doesnt-know-ball.png',
     category: 'shirt',
     sizes: [
-      { size: 'L', qty: 1 },
-      { size: 'XL', qty: 1 },
-      { size: 'XXL', qty: 1 }
+      { size: 'L', qty: 25 },
+      { size: 'XL', qty: 20 },
+      { size: 'XXL', qty: 15 }
     ]
   },
   {
@@ -58,8 +58,8 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-track-jacket.png',
     category: 'jacket',
     sizes: [
-      { size: 'M', qty: 1 },
-      { size: 'L', qty: 1 }
+      { size: 'M', qty: 25 },
+      { size: 'L', qty: 25 }
     ]
   },
   {
@@ -70,7 +70,7 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-track-jacket-2.png',
     category: 'jacket',
     sizes: [
-      { size: 'M', qty: 1 }
+      { size: 'M', qty: 25 }
     ]
   },
   {
@@ -81,7 +81,7 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-backpack-1.png',
     category: 'backpack',
     sizes: [
-      { size: 'One Size', qty: 1 }
+      { size: 'One Size', qty: 15 }
     ]
   },
   {
@@ -92,7 +92,7 @@ export const MERCH_CATALOG = [
     image: '/prizes/custom-gear-backpack-2.png',
     category: 'backpack',
     sizes: [
-      { size: 'One Size', qty: 1 }
+      { size: 'One Size', qty: 15 }
     ]
   }
 ];
