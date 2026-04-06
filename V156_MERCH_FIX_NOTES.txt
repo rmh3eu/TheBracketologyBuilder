@@ -1,0 +1,5 @@
+V156 merch checkout fix
+Changes:
+- stale/expired holds now expire even if old rows had no expires_at
+- inventory is rebuilt from catalog minus completed orders minus active holds
+- checkout no longer trusts stale DB inventory rows
