@@ -1,5 +1,5 @@
 export const SECOND_CHANCE_META = {
-  "games_played": 14
+  "games_played": 15
 };
 
 export const SECOND_CHANCE_RESULTS = [
@@ -62,8 +62,7 @@ export const SECOND_CHANCE_RESULTS = [
     "id": "REGION_MIDWEST__R3__G0",
     "winner": "Michigan",
     "loser": "Tennessee"
-  }
-,
+  },
   {
     "id": "FF__G0",
     "winner": "UConn",
@@ -73,5 +72,10 @@ export const SECOND_CHANCE_RESULTS = [
     "id": "FF__G1",
     "winner": "Michigan",
     "loser": "Arizona"
+  },
+  {
+    "id": "FINAL",
+    "winner": "Michigan",
+    "loser": "UConn"
   }
 ];

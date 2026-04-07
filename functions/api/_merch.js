@@ -1,7 +1,6 @@
 import { MERCH_CATALOG, getMerchProduct } from './_merch_catalog.js';
 
 const HOLD_MINUTES = 20;
-const DISPLAY_FLOOR_QTY = 5;
 
 export async function ensureMerchSchema(env){
   if(!env?.DB) throw new Error("Missing D1 binding 'DB'.");
@@ -53,11 +52,14 @@ export async function rebuildInventory(env){
   const nowIso = new Date().toISOString();
   for(const product of MERCH_CATALOG){
     for(const sizeRow of (product.sizes || [])){
-      const totalQty = Math.max(Number(sizeRow.qty || 0), DISPLAY_FLOOR_QTY);
+      const totalQty = Number(sizeRow.qty || 0);
       const completed = await env.DB.prepare(
         'SELECT COALESCE(SUM(qty),0) AS qty FROM merch_orders WHERE product_id=? AND size=?'
       ).bind(product.id, sizeRow.size).first();
-      const availableQty = Math.max(DISPLAY_FLOOR_QTY, totalQty - Number(completed?.qty || 0));
+      const held = await env.DB.prepare(
+        "SELECT COALESCE(SUM(qty),0) AS qty FROM merch_holds WHERE product_id=? AND size=? AND status='held' AND (expires_at IS NULL OR expires_at > ?)"
+      ).bind(product.id, sizeRow.size, nowIso).first();
+      const availableQty = Math.max(0, totalQty - Number(completed?.qty || 0) - Number(held?.qty || 0));
       await env.DB.prepare(
         `INSERT INTO merch_inventory (product_id,size,total_qty,available_qty)
          VALUES (?,?,?,?)
@@ -81,11 +83,11 @@ export async function getCatalogWithInventory(env){
   return MERCH_CATALOG.map(product => {
     const sizes = (product.sizes || []).map(s => {
       const live = invMap.get(`${product.id}__${s.size}`);
-      const availableQty = Math.max(DISPLAY_FLOOR_QTY, Number(live?.available_qty ?? s.qty ?? DISPLAY_FLOOR_QTY));
+      const availableQty = Number(live?.available_qty ?? s.qty ?? 0);
       return {
         size: s.size,
         availableQty,
-        soldOut: false
+        soldOut: availableQty <= 0
       };
     });
     const totalAvailableQty = sizes.reduce((sum, s) => sum + Number(s.availableQty || 0), 0);
@@ -93,15 +95,21 @@ export async function getCatalogWithInventory(env){
       ...product,
       sizes,
       totalAvailableQty,
-      soldOut: false
+      soldOut: totalAvailableQty <= 0
     };
   });
 }
 
 export async function holdInventory(env, { sessionId, productId, size, qty = 1 }){
-  await ensureMerchSchema(env);
+  await rebuildInventory(env);
   const now = new Date();
   const expiresAt = new Date(now.getTime() + HOLD_MINUTES * 60 * 1000).toISOString();
+  const res = await env.DB.prepare(
+    'UPDATE merch_inventory SET available_qty = available_qty - ? WHERE product_id=? AND size=? AND available_qty >= ?'
+  ).bind(qty, productId, size, qty).run();
+  if(!res.success || !res.meta || !res.meta.changes){
+    return { ok:false, error:'sold_out' };
+  }
   await env.DB.prepare(
     'INSERT OR REPLACE INTO merch_holds (session_id, product_id, size, qty, status, expires_at, created_at) VALUES (?,?,?,?,?,?,?)'
   ).bind(sessionId, productId, size, qty, 'held', expiresAt, now.toISOString()).run();
@@ -169,10 +177,10 @@ export function buildStripeSessionParams({ origin, product, size, sessionId }){
 }
 
 export async function fetchStripeSession(env, sessionId){
-  const secret = String(env.STRIPE_SECRET_KEY || '').trim().replace(/^['"]|['"]$/g, '');
+  const secret = env.STRIPE_SECRET_KEY;
   if(!secret) throw new Error('Missing STRIPE_SECRET_KEY');
   const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=shipping_cost&expand[]=customer_details&expand[]=line_items&expand[]=payment_intent.shipping`, {
-    headers: { Authorization: `Bearer ${secret}` }
+    headers: { authorization: `Bearer ${secret}` }
   });
   if(!res.ok){
     throw new Error(`Stripe session fetch failed ${res.status}`);
