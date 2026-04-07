@@ -1,0 +1,20 @@
+V162 FULL TOURNAMENT LEADERBOARD UPDATE
+
+What changed
+- Main Best and Worst leaderboard static source updated from 62 to 63 games.
+- Championship result applied: Michigan def. UConn, 69-63.
+- Second Chance static source updated from 14 to 15 games.
+- Best/Worst leaderboard page text updated to reflect full tournament completion.
+- Added updated workbook files:
+  - Leaderboard_Data_Entry_UPDATED_63_GAMES.xlsx
+  - Second_Chance_Template_UPDATED_15_GAMES.xlsx
+
+Files changed
+- functions/api/_leaderboard_static_data.js
+- functions/api/_leaderboard_second_static.js
+- functions/api/leaderboard.js
+- best-leaderboard.html
+- worst-leaderboard.html
+- SCORING_SOURCE_NOTE.txt
+- Leaderboard_Data_Entry_UPDATED_63_GAMES.xlsx
+- Second_Chance_Template_UPDATED_15_GAMES.xlsx
