@@ -1,3 +1,1 @@
-Leaderboard values in this build are generated from the uploaded workbook 'Leaderboard_Data_Entry_UPDATED_52_GAMES.xlsx'.
-Only the main Best/Worst leaderboards are overridden statically here.
-Second Chance leaderboards remain DB/results-driven.
+Leaderboard values in this build are generated from the included workbook 'Leaderboard_Data_Entry_UPDATED_63_GAMES.xlsx' and final tournament results through Michigan over UConn in the championship.
