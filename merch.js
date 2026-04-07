@@ -9,15 +9,18 @@ function money(cents){
 }
 
 function optionMarkup(size){
-    return `<option value="${size.size}">${size.size}</option>`;
+  const disabled = size.soldOut ? 'disabled' : '';
+  const sold = size.soldOut ? ' — Sold Out' : size.availableQty <= 3 ? ` — Only ${size.availableQty} left` : '';
+  return `<option value="${size.size}" ${disabled}>${size.size}${sold}</option>`;
 }
 
 function cardMarkup(product){
   const featured = product.featured ? '<div class="merchBadge">Main Drop</div>' : '';
-  const soldOut = '<div class="limitedPill">Available now</div>'; 
+  const leftText = product.totalAvailableQty > 0 ? `Only ${product.totalAvailableQty} left` : 'Sold Out';
+  const soldOut = product.soldOut ? '<div class="soldOutPill">Sold Out</div>' : `<div class="limitedPill">${leftText}</div>`;
   const shirtClass = product.category === 'shirt' ? 'shirtCard' : '';
   const boostClass = ['knows-ball-shirt','busted-bracket-club-shirt','doesnt-know-ball-shirt'].includes(product.id) ? 'boostShirtImage' : '';
-  const metaText = 'Available now. If a size runs low, we can restock it.';
+  const metaText = product.soldOut ? 'Currently sold out' : (product.totalAvailableQty <= 3 ? `${product.totalAvailableQty} total left` : 'Only a few available');
   return `
     <article class="merchCard ${product.featured ? 'featuredCard' : ''} ${shirtClass} ${boostClass}" data-product-id="${product.id}">
       <div class="merchImageWrap">
@@ -34,10 +37,10 @@ function cardMarkup(product){
         <div class="merchMeta">${metaText}</div>
         <div class="merchActions">
           <label class="sizeLabel">Size</label>
-          <select class="sizeSelect">
+          <select class="sizeSelect" ${product.soldOut ? 'disabled' : ''}>
             ${(product.sizes || []).map(optionMarkup).join('')}
           </select>
-          <button class="buyBtn">Buy Now</button>
+          <button class="buyBtn" ${product.soldOut ? 'disabled' : ''}>${product.soldOut ? 'Sold Out' : 'Buy Now'}</button>
         </div>
       </div>
     </article>
@@ -70,7 +73,7 @@ async function handleBuy(button){
     });
     const data = await res.json();
     if(!res.ok || !data.ok || !data.url){
-      throw new Error(data.detail?.message || data.detail?.error?.message || (typeof data.detail === 'string' ? data.detail : '') || data.error || 'Checkout failed');
+      throw new Error(data.error === 'sold_out' ? 'That size just sold out.' : (data.error || 'Checkout failed'));
     }
     window.location.href = data.url;
   }catch(err){
