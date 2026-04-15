@@ -1,0 +1,21 @@
+V167 NBA EMAIL URL NOTES
+
+Added routes:
+- /api/test-nba-brackets-email?to=you@example.com
+- /api/send-nba-brackets-email-batch?offset=0&limit=25&pauseMs=1200
+
+Behavior:
+- Both routes require you to be signed in as the admin user.
+- Test route sends one copy of the NBA playoff email.
+- Batch route sends a slow batch one email at a time, with a pause between sends.
+- Recipients are built from marketing_leads (opted in and not unsubscribed) plus users emails, deduped.
+
+Suggested usage:
+1) Test to yourself:
+   /api/test-nba-brackets-email?to=YOUR_EMAIL
+2) Send first batch:
+   /api/send-nba-brackets-email-batch?offset=0&limit=25&pauseMs=1200
+3) Open the Next batch URL shown in the response until Has more = no.
+
+Email subject:
+Make an NBA Bracket Now Before the Playoffs Begin 🏀

@@ -54,7 +54,7 @@ async function loadAdminBracketsView(reset = true){
 
     rows.forEach(r=>{
       const tr = document.createElement('tr');
-      const href = `/bracket.html?id=${encodeURIComponent(r.id)}&readonly=1`;
+      const href = `/?id=${encodeURIComponent(r.id)}&readonly=1`;
       tr.innerHTML = `<td>${String(r.title || 'Untitled Bracket')}</td><td class="muted">${String(r.user_email || ('User #' + (r.user_id || '')))}</td><td>${String(r.bracket_type || 'bracketology')}</td><td class="muted">${r.updated_at ? new Date(r.updated_at).toLocaleString() : ''}</td><td><a class="btn ghost smallBtn" href="${href}" target="_blank" rel="noopener">Open</a> <button class="btn ghost smallBtn" type="button" data-edit-id="${String(r.id || '')}">Edit Picks</button></td>`;
       body.appendChild(tr);
     });
