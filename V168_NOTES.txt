@@ -1,0 +1,24 @@
+V168 full-site update
+
+Changes made:
+- Merch checkout:
+  - trims and de-quotes STRIPE_SECRET_KEY before sending to Stripe
+  - returns clearer Stripe checkout failure details
+  - keeps releasing holds if Stripe session creation fails
+  - increases merch catalog quantities so products do not go unavailable too easily
+- Games subscription flow:
+  - bracket-games subscribe button now takes users to /games-subscription.html
+  - new games-subscription page supports sign in, sign up, and then Stripe checkout
+  - after login/signup, users are taken straight into the subscription checkout
+- Bracket Games UI:
+  - improved tap/click reliability for matchup buttons with touch-action and z-index safeguards
+
+Files changed:
+- functions/api/_merch_catalog.js
+- functions/api/_merch.js
+- functions/api/merch-checkout.js
+- merch.js
+- merch/merch.js
+- games-subscription.html
+- games-subscription.js
+- bracket-games.html

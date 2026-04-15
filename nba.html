@@ -300,16 +300,7 @@ function renderFinals(){
   saveBtnBottom.textContent='Save NBA Bracket';
   saveBtnBottom.style.marginTop='12px';
   saveBtnBottom.addEventListener('click', saveNBA);
-  const actionRow=document.createElement('div');
-  actionRow.className='nbaPromoBtns';
-  actionRow.style.marginTop='12px';
-  actionRow.appendChild(saveBtnBottom);
-  const playGamesBtn=document.createElement('a');
-  playGamesBtn.className='btn';
-  playGamesBtn.href='bracket-games.html';
-  playGamesBtn.textContent='Play Bracket Games';
-  actionRow.appendChild(playGamesBtn);
-  box.appendChild(actionRow);
+  box.appendChild(saveBtnBottom);
   const links=document.createElement('div'); links.className='nbaFinalsLinks';
   links.innerHTML=`<a class="btn primary" href="${BETR_URL}" target="_blank" rel="noopener">Betr</a><a class="btn" href="${BETONLINE_URL}" target="_blank" rel="noopener">BetOnline</a>`;
   box.appendChild(links);
