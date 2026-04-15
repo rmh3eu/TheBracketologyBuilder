@@ -165,7 +165,7 @@ function renderBracketSection({ listId, emptyId, items }) {
   for (const b of items) {
     const a = document.createElement('a');
     a.className = 'bracketCard';
-    a.href = `/bracket.html?id=${encodeURIComponent(b.id)}`;
+    a.href = `/?id=${encodeURIComponent(b.id)}`;
 
     const titleRow = document.createElement('div');
     titleRow.className = 'bracketTitleRow';
@@ -223,7 +223,7 @@ function renderBracketSection({ listId, emptyId, items }) {
       const adminRow = document.createElement('div');
       adminRow.className = 'submitFeaturedInlineHint';
       adminRow.style.marginTop = '8px';
-      adminRow.innerHTML = `<a class="btn ghost smallBtn" href="/bracket.html?id=${encodeURIComponent(b.id)}&readonly=1" target="_blank" rel="noopener">Open</a> <a class="btn ghost smallBtn" href="/admin-brackets.html?edit=${encodeURIComponent(b.id)}">Admin Edit</a>`;
+      adminRow.innerHTML = `<a class="btn ghost smallBtn" href="/?id=${encodeURIComponent(b.id)}&readonly=1" target="_blank" rel="noopener">Open</a> <a class="btn ghost smallBtn" href="admin-brackets.html?edit=${encodeURIComponent(b.id)}">Admin Edit</a>`;
       a.appendChild(adminRow);
     }
 

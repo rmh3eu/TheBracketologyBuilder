@@ -15,7 +15,7 @@
     .nbaHeroSub{margin:8px 0 0;color:#dbeafe;font-weight:800;max-width:820px}
     .nbaHeroRight{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .nbaChip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:900;white-space:nowrap}
-    .nbaSaveBar{margin-top:14px;display:grid;grid-template-columns:minmax(220px,340px) auto auto 1fr;gap:10px;align-items:center;background:#fff;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:12px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
+    .nbaSaveBar{margin-top:14px;display:grid;grid-template-columns:minmax(220px,340px) auto 1fr;gap:10px;align-items:center;background:#fff;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:12px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
     .nbaSaveBar .input{min-height:46px}
     .nbaSaveMsg{font-size:13px;color:#64748b;font-weight:800}
     .nbaPromoGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:14px}
@@ -99,7 +99,6 @@
     <div class="nbaSaveBar">
       <input id="nbaBracketTitle" class="input" placeholder="Name My Bracket" />
       <button id="nbaSaveBtn" class="btn primary" type="button">Save NBA Bracket</button>
-      <a class="btn" href="bracket-games.html">Play Bracket Games</a>
       <span id="nbaSaveMsg" class="nbaSaveMsg"></span>
     </div>
 
@@ -172,8 +171,8 @@
 const BETR_URL = 'https://engagebetr.onelink.me/auSX/BRACKETS';
 const BETONLINE_URL = 'https://record.betonlineaffiliates.ag/_xZrmHTbHGhIoAmwrkE6KlGNd7ZgqdRLk/1/';
 const NBA = {
-  east: { seeds: [{seed:1,name:"Detroit Pistons"},{seed:2,name:"Boston Celtics"},{seed:3,name:"New York Knicks"},{seed:4,name:"Cleveland Cavaliers"},{seed:5,name:"Toronto Raptors"},{seed:6,name:"Atlanta Hawks"},{seed:7,name:"Philadelphia 76ers"},{seed:8,name:"Orlando Magic"},{seed:9,name:"Charlotte Hornets"},{seed:10,name:"Miami Heat"}] },
-  west: { seeds: [{seed:1,name:"Oklahoma City Thunder"},{seed:2,name:"San Antonio Spurs"},{seed:3,name:"Denver Nuggets"},{seed:4,name:"Los Angeles Lakers"},{seed:5,name:"Houston Rockets"},{seed:6,name:"Minnesota Timberwolves"},{seed:7,name:"Phoenix Suns"},{seed:8,name:"Portland Trail Blazers"},{seed:9,name:"LA Clippers"},{seed:10,name:"Golden State Warriors"}] }
+  east: { seeds: [{seed:1,name:"Detroit Pistons"},{seed:2,name:"Boston Celtics"},{seed:3,name:"New York Knicks"},{seed:4,name:"Cleveland Cavaliers"},{seed:5,name:"Atlanta Hawks"},{seed:6,name:"Toronto Raptors"},{seed:7,name:"Philadelphia 76ers"},{seed:8,name:"Orlando Magic"},{seed:9,name:"Miami Heat"},{seed:10,name:"Charlotte Hornets"}] },
+  west: { seeds: [{seed:1,name:"Oklahoma City Thunder"},{seed:3,name:"Los Angeles Lakers"},{seed:2,name:"San Antonio Spurs"},{seed:4,name:"Denver Nuggets"},{seed:5,name:"Minnesota Timberwolves"},{seed:6,name:"Houston Rockets"},{seed:7,name:"Phoenix Suns"},{seed:8,name:"LA Clippers"},{seed:9,name:"Portland Trail Blazers"},{seed:10,name:"Golden State Warriors"}] }
 };
 const state = {
   bracketId:null,
@@ -301,7 +300,16 @@ function renderFinals(){
   saveBtnBottom.textContent='Save NBA Bracket';
   saveBtnBottom.style.marginTop='12px';
   saveBtnBottom.addEventListener('click', saveNBA);
-  box.appendChild(saveBtnBottom);
+  const actionRow=document.createElement('div');
+  actionRow.className='nbaPromoBtns';
+  actionRow.style.marginTop='12px';
+  actionRow.appendChild(saveBtnBottom);
+  const playGamesBtn=document.createElement('a');
+  playGamesBtn.className='btn';
+  playGamesBtn.href='bracket-games.html';
+  playGamesBtn.textContent='Play Bracket Games';
+  actionRow.appendChild(playGamesBtn);
+  box.appendChild(actionRow);
   const links=document.createElement('div'); links.className='nbaFinalsLinks';
   links.innerHTML=`<a class="btn primary" href="${BETR_URL}" target="_blank" rel="noopener">Betr</a><a class="btn" href="${BETONLINE_URL}" target="_blank" rel="noopener">BetOnline</a>`;
   box.appendChild(links);
