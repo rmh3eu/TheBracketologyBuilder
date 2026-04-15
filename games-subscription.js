@@ -1,46 +1,104 @@
-import { json, requireUser, isAdmin, ensureUserSchema } from "./_util.js";
-
-function buildStatus(user){
-  const status = user?.games_subscription_status || 'none';
-  const endsAt = user?.games_subscription_ends_at || null;
-  const active = !!(status === 'active' && (!endsAt || Date.parse(endsAt) > Date.now()));
-  return {
-    status,
-    active,
-    started_at: user?.games_subscription_started_at || null,
-    ends_at: endsAt
-  };
-}
-
-export async function onRequestGet({ request, env }){
-  await ensureUserSchema(env);
-  const user = await requireUser({request, env});
-  const checkout_url = env.GAMES_SUBSCRIPTION_CHECKOUT_URL || '/tickets.html';
-  if(!user) return json({ ok:true, user:null, subscription:{ status:'none', active:false, started_at:null, ends_at:null }, checkout_url, monthly_price:'5.99' });
-  return json({ ok:true, user:{ id:user.id, email:user.email, isAdmin:isAdmin(user, env) }, subscription: buildStatus(user), checkout_url, monthly_price:'5.99' });
-}
-
-export async function onRequestPost({ request, env }){
-  await ensureUserSchema(env);
-  const admin = await requireUser({request, env});
-  if(!admin || !isAdmin(admin, env)) return json({ ok:false, error:'ADMIN_REQUIRED' }, 403);
-  const body = await request.json().catch(()=>({}));
-  const email = String(body.email || '').trim().toLowerCase();
-  const action = String(body.action || 'activate');
-  if(!email) return json({ ok:false, error:'EMAIL_REQUIRED' }, 400);
-  const user = await env.DB.prepare('SELECT * FROM users WHERE lower(email)=lower(?)').bind(email).first();
-  if(!user) return json({ ok:false, error:'USER_NOT_FOUND' }, 404);
-  const now = new Date();
-  let status = 'none';
-  let startedAt = null;
-  let endsAt = null;
-  if(action === 'activate'){
-    status = 'active';
-    startedAt = now.toISOString();
-    const end = new Date(now.getTime());
-    end.setMonth(end.getMonth() + 1);
-    endsAt = end.toISOString();
+async function gsApi(path, opts = {}){
+  const res = await fetch(path, {
+    method: opts.method || 'GET',
+    headers: Object.assign({ 'Content-Type':'application/json' }, opts.headers || {}),
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    credentials: 'same-origin'
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = { raw:text }; }
+  if(!res.ok){
+    const err = new Error((data && (data.message || data.error || data.detail)) || res.statusText || 'Request failed');
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
-  await env.DB.prepare('UPDATE users SET games_subscription_status=?, games_subscription_started_at=?, games_subscription_ends_at=? WHERE id=?').bind(status, startedAt, endsAt, user.id).run();
-  return json({ ok:true, email, subscription:{ status, active: status === 'active', started_at: startedAt, ends_at: endsAt } });
+  return data;
 }
+
+const els = {
+  signedOut: document.getElementById('gsSignedOut'),
+  signedIn: document.getElementById('gsSignedIn'),
+  signedInEmail: document.getElementById('gsSignedInEmail'),
+  authMsg: document.getElementById('gsAuthMsg'),
+  loginEmail: document.getElementById('gsLoginEmail'),
+  loginPassword: document.getElementById('gsLoginPassword'),
+  registerEmail: document.getElementById('gsRegisterEmail'),
+  registerPassword: document.getElementById('gsRegisterPassword'),
+  loginBtn: document.getElementById('gsLoginBtn'),
+  registerBtn: document.getElementById('gsRegisterBtn'),
+  checkoutBtn: document.getElementById('gsCheckoutBtn')
+};
+
+function setSignedIn(user){
+  const yes = !!user;
+  els.signedOut.classList.toggle('gs-hidden', yes);
+  els.signedIn.classList.toggle('gs-hidden', !yes);
+  els.signedInEmail.textContent = yes ? `Signed in as ${user.email}` : '';
+}
+
+async function refreshMe(){
+  try{
+    const data = await gsApi('/api/me');
+    setSignedIn(data && data.user ? data.user : null);
+    return data && data.user ? data.user : null;
+  }catch(_e){
+    setSignedIn(null);
+    return null;
+  }
+}
+
+async function beginCheckout(){
+  els.authMsg.textContent = '';
+  const btn = els.checkoutBtn;
+  if(btn){ btn.disabled = true; btn.textContent = 'Opening Stripe…'; }
+  try{
+    const data = await gsApi('/api/create-checkout-session', { method:'POST' });
+    if(!data || !data.url) throw new Error('Stripe checkout is not ready yet.');
+    window.location.href = data.url;
+  }catch(err){
+    els.authMsg.textContent = String(err.message || err);
+    if(btn){ btn.disabled = false; btn.textContent = 'Subscribe with Stripe'; }
+  }
+}
+
+async function loginAndContinue(){
+  els.authMsg.textContent = '';
+  const email = String(els.loginEmail.value || '').trim();
+  const password = String(els.loginPassword.value || '');
+  if(!email || !password){ els.authMsg.textContent = 'Enter your email and password.'; return; }
+  els.loginBtn.disabled = true;
+  try{
+    await gsApi('/api/login', { method:'POST', body:{ email, password } });
+    await refreshMe();
+    await beginCheckout();
+  }catch(err){
+    els.authMsg.textContent = String(err.message || err);
+  }finally{
+    els.loginBtn.disabled = false;
+  }
+}
+
+async function registerAndContinue(){
+  els.authMsg.textContent = '';
+  const email = String(els.registerEmail.value || '').trim();
+  const password = String(els.registerPassword.value || '');
+  if(!email || !password){ els.authMsg.textContent = 'Enter an email and password.'; return; }
+  els.registerBtn.disabled = true;
+  try{
+    await gsApi('/api/register', { method:'POST', body:{ email, password } });
+    await gsApi('/api/login', { method:'POST', body:{ email, password } });
+    await refreshMe();
+    await beginCheckout();
+  }catch(err){
+    els.authMsg.textContent = String(err.message || err);
+  }finally{
+    els.registerBtn.disabled = false;
+  }
+}
+
+els.loginBtn?.addEventListener('click', loginAndContinue);
+els.registerBtn?.addEventListener('click', registerAndContinue);
+els.checkoutBtn?.addEventListener('click', beginCheckout);
+refreshMe();

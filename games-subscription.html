@@ -21,10 +21,15 @@
     .gs-panel{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:18px}
     .gs-list{display:grid; gap:10px; margin:0; padding:0; list-style:none}
     .gs-list li{padding:12px 14px; border-radius:14px; background:rgba(255,255,255,.06); font-weight:800}
-    .gs-btn{display:inline-flex; align-items:center; justify-content:center; min-height:54px; width:100%; padding:14px 18px; border-radius:16px; font-size:17px; font-weight:1000; text-decoration:none; margin-top:10px}
+    .gs-btn{display:inline-flex; align-items:center; justify-content:center; min-height:54px; width:100%; padding:14px 18px; border-radius:16px; font-size:17px; font-weight:1000; text-decoration:none; margin-top:10px; border:none; cursor:pointer}
     .gs-primary{background:#fff; color:#081324}
     .gs-secondary{background:linear-gradient(135deg,#2f6cff,#9149ff); color:#fff}
     .gs-note{font-size:13px; line-height:1.45; color:#9db4db; margin-top:10px}
+    .gs-authGrid{display:grid; gap:12px; margin-top:12px}
+    .gs-authGrid input{width:100%; min-height:48px; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.96); color:#0f172a; font-weight:700}
+    .gs-authTitle{margin:0 0 8px; font-size:20px; font-weight:1000}
+    .gs-authMsg{min-height:20px; color:#fde68a; font-weight:800; margin-top:8px}
+    .gs-hidden{display:none !important}
     @media(max-width:860px){ .gs-grid{grid-template-columns:1fr} .gs-title{font-size:32px} .gs-sub{font-size:16px} }
   </style>
 </head>
@@ -49,24 +54,43 @@
     <section class="gs-card">
       <div class="gs-eyebrow">Bracket Games Subscription</div>
       <h1 class="gs-title">Unlock every Bracket Games mode.</h1>
-      <p class="gs-sub">For now, subscriptions are being handled through your BracketologyBuilder Venmo. After payment, activate the subscriber account manually for the paying user.</p>
+      <p class="gs-sub">Sign in or create your account, then head straight into secure Stripe checkout for the Bracket Games subscription.</p>
       <div class="gs-price">$5.99 <small>/ month</small></div>
       <div class="gs-grid">
         <div class="gs-panel">
           <ul class="gs-list">
             <li>Unlock Age, Career Points, and All Time Points</li>
-            <li>Keep the free Height game open to everyone</li>
-            <li>Future modes unlock automatically for subscribers</li>
-            <li>Designed for quick mobile replay</li>
+            <li>Unlimited replays and future game modes</li>
+            <li>Use the same BracketologyBuilder login you already use on the site</li>
+            <li>Secure checkout powered by Stripe</li>
           </ul>
         </div>
         <div class="gs-panel">
-          <a class="gs-btn gs-primary" href="https://venmo.com/code?user_id=4201433712821958268&created=1775055394.782236&printed=1" target="_blank" rel="noopener noreferrer">Pay $5.99 on Venmo</a>
-          <a class="gs-btn gs-secondary" href="mailto:bracketologybuilder@gmail.com?subject=Bracket%20Games%20Subscription&body=I%20paid%20for%20the%20Bracket%20Games%20subscription.%20Please%20activate%20my%20account%20for%20this%20email:%20">Email to activate subscription</a>
-          <div class="gs-note">Until a recurring checkout is wired in, this page is a manual payment and activation flow. The unlock button on Bracket Games now points here instead of Tickets.</div>
+          <div id="gsSignedOut">
+            <h2 class="gs-authTitle">Sign in to subscribe</h2>
+            <div class="gs-authGrid">
+              <input id="gsLoginEmail" type="email" placeholder="Email" autocomplete="email" />
+              <input id="gsLoginPassword" type="password" placeholder="Password" autocomplete="current-password" />
+              <button class="gs-btn gs-primary" id="gsLoginBtn" type="button">Sign in and continue</button>
+            </div>
+            <h2 class="gs-authTitle" style="margin-top:18px">New here?</h2>
+            <div class="gs-authGrid">
+              <input id="gsRegisterEmail" type="email" placeholder="Email" autocomplete="email" />
+              <input id="gsRegisterPassword" type="password" placeholder="Create password" autocomplete="new-password" />
+              <button class="gs-btn gs-secondary" id="gsRegisterBtn" type="button">Create account and continue</button>
+            </div>
+          </div>
+          <div id="gsSignedIn" class="gs-hidden">
+            <h2 class="gs-authTitle">You’re signed in</h2>
+            <div class="gs-note" id="gsSignedInEmail"></div>
+            <button class="gs-btn gs-primary" id="gsCheckoutBtn" type="button">Subscribe with Stripe</button>
+          </div>
+          <div class="gs-authMsg" id="gsAuthMsg"></div>
+          <div class="gs-note">If you already have a BracketologyBuilder account, sign in and you’ll be taken to Stripe. If you create a new account here, the Stripe checkout starts right after signup.</div>
         </div>
       </div>
     </section>
   </main>
+  <script src="/games-subscription.js"></script>
 </body>
 </html>
