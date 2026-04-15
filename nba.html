@@ -15,7 +15,7 @@
     .nbaHeroSub{margin:8px 0 0;color:#dbeafe;font-weight:800;max-width:820px}
     .nbaHeroRight{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .nbaChip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:900;white-space:nowrap}
-    .nbaSaveBar{margin-top:14px;display:grid;grid-template-columns:minmax(220px,340px) auto 1fr;gap:10px;align-items:center;background:#fff;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:12px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
+    .nbaSaveBar{margin-top:14px;display:grid;grid-template-columns:minmax(220px,340px) auto auto 1fr;gap:10px;align-items:center;background:#fff;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:12px;box-shadow:0 12px 30px rgba(15,23,42,.16)}
     .nbaSaveBar .input{min-height:46px}
     .nbaSaveMsg{font-size:13px;color:#64748b;font-weight:800}
     .nbaPromoGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:14px}
@@ -99,6 +99,7 @@
     <div class="nbaSaveBar">
       <input id="nbaBracketTitle" class="input" placeholder="Name My Bracket" />
       <button id="nbaSaveBtn" class="btn primary" type="button">Save NBA Bracket</button>
+      <a class="btn" href="bracket-games.html">Play Bracket Games</a>
       <span id="nbaSaveMsg" class="nbaSaveMsg"></span>
     </div>
 
