@@ -2507,7 +2507,7 @@ function lbTableBest(rows, showEmail=false){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    ${showEmail ? '<th>Email</th>' : ''}
+    ${showEmail ? '<th>Top 3 Email</th>' : ''}
     <th>Score</th>
     <th>x/y</th>
     <th>%</th>
@@ -2529,9 +2529,9 @@ function lbTableBest(rows, showEmail=false){
     const xVal = Number(r.x || 0);
     const yVal = Number((r.y!==undefined && r.y!==null) ? r.y : gamesPlayed);
     const pct = (r.pct!==undefined && r.pct!==null && !Number.isNaN(Number(r.pct))) ? ((Number(r.pct) * 100).toFixed(1) + '%') : leaderboardPctText(xVal, yVal);
-    const actions = showEmail ? `<div class="smallMuted" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;"><a href="/?id=${encodeURIComponent(r.bracket_id || '')}&readonly=1" target="_blank" rel="noopener">Open</a><a href="admin-brackets.html?edit=${encodeURIComponent(r.bracket_id || '')}">Edit</a></div>` : '';
+    const actions = showEmail ? `<div class="smallMuted" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;"><a href="/bracket.html?id=${encodeURIComponent(r.bracket_id || '')}&readonly=1" target="_blank" rel="noopener">Open</a><a href="/admin-brackets.html?edit=${encodeURIComponent(r.bracket_id || '')}">Edit</a></div>` : '';
     const userCell = escapeHtml(displayName) + ' 😇' + actions;
-    const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
+    const emailCell = showEmail ? `<td class="lbEmail">${Number(r.rank||999) <= 3 ? (escapeHtml(r.email || '') || '—') : '—'}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
@@ -2558,7 +2558,7 @@ function lbTableWorst(rows, showEmail=false){
   thead.innerHTML = `<tr>
     <th>Rank</th>
     <th>User</th>
-    ${showEmail ? '<th>Email</th>' : ''}
+    ${showEmail ? '<th>Top 3 Email</th>' : ''}
     <th>Score</th>
     <th>x/y</th>
     <th>%</th>
@@ -2583,9 +2583,9 @@ function lbTableWorst(rows, showEmail=false){
     const baseUserCell = meId && r.user_id === meId
       ? `${escapeHtml(displayName)} 😈 <span class="lbYouBadge">My Bracket</span>`
       : `${escapeHtml(displayName)} 😈`;
-    const actions = showEmail ? `<div class="smallMuted" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;"><a href="/?id=${encodeURIComponent(r.bracket_id || '')}&readonly=1" target="_blank" rel="noopener">Open</a><a href="admin-brackets.html?edit=${encodeURIComponent(r.bracket_id || '')}">Edit</a></div>` : '';
+    const actions = showEmail ? `<div class="smallMuted" style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;"><a href="/bracket.html?id=${encodeURIComponent(r.bracket_id || '')}&readonly=1" target="_blank" rel="noopener">Open</a><a href="/admin-brackets.html?edit=${encodeURIComponent(r.bracket_id || '')}">Edit</a></div>` : '';
     const userCell = baseUserCell + actions;
-    const emailCell = showEmail ? `<td class="lbEmail">${escapeHtml(r.email || '') || '—'}</td>` : '';
+    const emailCell = showEmail ? `<td class="lbEmail">${Number(r.rank||999) <= 3 ? (escapeHtml(r.email || '') || '—') : '—'}</td>` : '';
 
     tr.innerHTML = `
       <td class="lbRank">${rankLabel}</td>
@@ -3585,7 +3585,7 @@ async function loadAdminBracketsView(reset=true){
       const email = String(r.user_email || ('User #' + (r.user_id||'')));
       const typ = String(r.bracket_type || 'bracketology');
       const upd = r.updated_at ? new Date(r.updated_at).toLocaleString() : '';
-      const href = `/?id=${encodeURIComponent(r.id)}&readonly=1`;
+      const href = `/bracket.html?id=${encodeURIComponent(r.id)}&readonly=1`;
       tr.innerHTML = `
         <td>${escapeHtml(t)}</td>
         <td class="muted">${escapeHtml(email)}</td>
@@ -3641,7 +3641,7 @@ async function loadAdminFeaturedReview(){
       const title = String(req.bracket_title || req.title || 'Untitled Bracket');
       const email = String(req.user_email || '');
       const when = fmtNoSeconds(req.created_at);
-      const href = `/?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
+      const href = `/bracket.html?id=${encodeURIComponent(req.bracket_id)}&readonly=1`;
 
       const card = el('div','bracketCard');
       card.classList.add('featuredCard'); // reuse featured/mybrackets visual language
