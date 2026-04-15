@@ -180,18 +180,6 @@ async function augmentStaticLeaderboardTo62(env, rows, challenge, viewerIsAdmin)
   return staticRows;
 }
 
-
-async function attachStaticEmails(env, rows, viewerIsAdmin){
-  let staticRows = Array.isArray(rows) ? rows.map(r => ({ ...r })) : [];
-  if(!viewerIsAdmin || !staticRows.length) return staticRows;
-  const userIds = [...new Set(staticRows.map(r => Number(r.user_id)).filter(n => Number.isFinite(n)))];
-  if(!userIds.length) return staticRows;
-  const placeholders = userIds.map(() => '?').join(',');
-  const uq = await env.DB.prepare(`SELECT id, email FROM users WHERE id IN (${placeholders})`).bind(...userIds).all().catch(()=>({results:[]}));
-  const emailByUserId = new Map((uq.results||[]).map(row => [Number(row.id), String(row.email || '')]));
-  return staticRows.map(r => ({ ...r, email: emailByUserId.get(Number(r.user_id)) || String(r.email || '') }));
-}
-
 export async function onRequestGet({ request, env }){
   await ensureTables(env);
   await ensureUserSchema(env);
@@ -245,14 +233,11 @@ export async function onRequestGet({ request, env }){
   }
 
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
+  // We augment the original 56-game sheet with the missing Elite Eight + Final Four results
+  // so admin can recover the main leaderboards even when the games table is sparse.
   if(!groupId && stage === 'pre'){
     let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
-    const staticGamesPlayed = Number(STATIC_LEADERBOARD_META?.games_played || 0);
-    if(staticGamesPlayed < 63){
-      staticRows = await augmentStaticLeaderboardTo62(env, staticRows, challenge, viewerIsAdmin);
-    }else{
-      staticRows = await attachStaticEmails(env, staticRows, viewerIsAdmin);
-    }
+    staticRows = await augmentStaticLeaderboardTo62(env, staticRows, challenge, viewerIsAdmin);
     return json({
       ok:true,
       leaderboard: staticRows,
@@ -260,7 +245,7 @@ export async function onRequestGet({ request, env }){
       me_user_id,
       is_admin: viewerIsAdmin,
       total_games: 63,
-      finalized_games: Math.max(0, Math.min(63, staticGamesPlayed || 63))
+      finalized_games: 62
     });
   }
 
