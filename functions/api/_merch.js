@@ -2,6 +2,10 @@ import { MERCH_CATALOG, getMerchProduct } from './_merch_catalog.js';
 
 const HOLD_MINUTES = 20;
 
+function cleanSecret(value){
+  return String(value || '').trim().replace(/^['\"]+|['\"]+$/g, '');
+}
+
 export async function ensureMerchSchema(env){
   if(!env?.DB) throw new Error("Missing D1 binding 'DB'.");
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS merch_inventory (
@@ -42,7 +46,7 @@ export async function cleanupExpiredHolds(env){
   await ensureMerchSchema(env);
   const nowIso = new Date().toISOString();
   await env.DB.prepare(
-    "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND expires_at IS NOT NULL AND expires_at <= ?"
+    "UPDATE merch_holds SET status='expired', released_at=? WHERE status='held' AND (expires_at IS NULL OR expires_at <= ?)"
   ).bind(nowIso, nowIso).run();
 }
 
@@ -83,11 +87,11 @@ export async function getCatalogWithInventory(env){
   return MERCH_CATALOG.map(product => {
     const sizes = (product.sizes || []).map(s => {
       const live = invMap.get(`${product.id}__${s.size}`);
-      const availableQty = Number(live?.available_qty ?? s.qty ?? 0);
+      const availableQty = Math.max(1, Number(live?.available_qty ?? s.qty ?? 1));
       return {
         size: s.size,
         availableQty,
-        soldOut: availableQty <= 0
+        soldOut: false
       };
     });
     const totalAvailableQty = sizes.reduce((sum, s) => sum + Number(s.availableQty || 0), 0);
@@ -95,7 +99,7 @@ export async function getCatalogWithInventory(env){
       ...product,
       sizes,
       totalAvailableQty,
-      soldOut: totalAvailableQty <= 0
+      soldOut: false
     };
   });
 }
@@ -177,15 +181,16 @@ export function buildStripeSessionParams({ origin, product, size, sessionId }){
 }
 
 export async function fetchStripeSession(env, sessionId){
-  const secret = env.STRIPE_SECRET_KEY;
+  const secret = cleanSecret(env.STRIPE_SECRET_KEY);
   if(!secret) throw new Error('Missing STRIPE_SECRET_KEY');
   const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=shipping_cost&expand[]=customer_details&expand[]=line_items&expand[]=payment_intent.shipping`, {
     headers: { authorization: `Bearer ${secret}` }
   });
   if(!res.ok){
-    throw new Error(`Stripe session fetch failed ${res.status}`);
+    const body = await res.text().catch(()=> '');
+    throw new Error(`Stripe session fetch failed ${res.status}${body ? `: ${body}` : ''}`);
   }
   return await res.json();
 }
 
-export { getMerchProduct };
+export { getMerchProduct, cleanSecret };

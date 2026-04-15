@@ -1,9 +1,10 @@
 import { json, uid } from './_util.js';
-import { buildStripeSessionParams, getMerchProduct, holdInventory, releaseHold } from './_merch.js';
+import { buildStripeSessionParams, cleanSecret, getMerchProduct, holdInventory, releaseHold } from './_merch.js';
 
 export async function onRequestPost({ request, env }){
   try{
-    if(!env.STRIPE_SECRET_KEY){
+    const stripeSecret = cleanSecret(env.STRIPE_SECRET_KEY);
+    if(!stripeSecret){
       return json({ ok:false, error:'missing_stripe_secret' }, 500);
     }
     const body = await request.json().catch(() => ({}));
@@ -19,18 +20,25 @@ export async function onRequestPost({ request, env }){
     const held = await holdInventory(env, { sessionId: holdId, productId, size, qty: 1 });
     if(!held.ok) return json({ ok:false, error:'sold_out' }, 409);
     const stripeBody = buildStripeSessionParams({ origin, product, size, sessionId: holdId });
-    const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-        'content-type': 'application/x-www-form-urlencoded'
-      },
-      body: stripeBody.toString()
-    });
-    const stripeJson = await stripeRes.json();
+    let stripeRes;
+    try{
+      stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${stripeSecret}`,
+          'content-type': 'application/x-www-form-urlencoded'
+        },
+        body: stripeBody.toString()
+      });
+    } catch (err) {
+      await releaseHold(env, holdId).catch(() => {});
+      return json({ ok:false, error:'stripe_network_error', detail:String(err?.message || err) }, 502);
+    }
+    const stripeJson = await stripeRes.json().catch(() => ({}));
     if(!stripeRes.ok || !stripeJson?.url){
       await releaseHold(env, holdId).catch(() => {});
-      return json({ ok:false, error:'stripe_checkout_failed', detail: stripeJson }, 502);
+      const detail = stripeJson?.error?.message || stripeJson?.message || JSON.stringify(stripeJson || {});
+      return json({ ok:false, error:'stripe_checkout_failed', detail }, 502);
     }
     return json({ ok:true, url: stripeJson.url, sessionId: stripeJson.id });
   }catch(err){

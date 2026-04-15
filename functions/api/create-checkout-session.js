@@ -15,7 +15,7 @@ export async function onRequestPost({ request, env }){
   const user = await requireUser({ request, env });
   if(!user) return json({ ok:false, error:'signin_required' }, 401);
 
-  const secret = String(env.STRIPE_SECRET_KEY || '').trim();
+  const secret = String(env.STRIPE_SECRET_KEY || '').trim().replace(/^['\"]+|['\"]+$/g, '');
   const priceId = String(env.STRIPE_PRICE_ID || DEFAULT_PRICE_ID).trim();
   if(!secret) return json({ ok:false, error:'missing_stripe_secret_key' }, 500);
   if(!priceId) return json({ ok:false, error:'missing_stripe_price_id' }, 500);
