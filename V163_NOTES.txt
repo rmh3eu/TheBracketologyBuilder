@@ -1,0 +1,1 @@
+V163 fixes admin all-brackets open/view links so they go to bracket.html instead of the merch root, makes admin nav links absolute, and shows a Top 3 Email column on leaderboard tables for admin-only views.
