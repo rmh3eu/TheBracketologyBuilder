@@ -84,16 +84,17 @@ function teamNameEq(a,b){
   return normalizeTeamName(a?.name || a) === normalizeTeamName(b?.name || b);
 }
 
-const STATIC_MISSING_RESULTS_TO_62 = [
+const STATIC_MISSING_RESULTS_TO_63 = [
   { id: 'SOUTH__R3__G0', winner: { name: 'Illinois' } },
   { id: 'WEST__R3__G0', winner: { name: 'Arizona' } },
   { id: 'EAST__R3__G0', winner: { name: 'UConn' } },
   { id: 'MIDWEST__R3__G0', winner: { name: 'Michigan' } },
   { id: 'FF__G0', winner: { name: 'UConn' } },
-  { id: 'FF__G1', winner: { name: 'Michigan' } }
+  { id: 'FF__G1', winner: { name: 'Michigan' } },
+  { id: 'FINAL', winner: { name: 'Michigan' } }
 ];
 
-async function augmentStaticLeaderboardTo62(env, rows, challenge, viewerIsAdmin){
+async function augmentStaticLeaderboardTo63(env, rows, challenge, viewerIsAdmin){
   let staticRows = Array.isArray(rows) ? rows.map(r => ({ ...r })) : [];
   if(!staticRows.length) return staticRows;
 
@@ -122,8 +123,8 @@ async function augmentStaticLeaderboardTo62(env, rows, challenge, viewerIsAdmin)
     const info = bracketMap.get(String(r.bracket_id || '').trim());
     const picks = info?.picks || {};
     let bonus = 0;
-    for(const g of STATIC_MISSING_RESULTS_TO_62){
-      const pick = pickForGame(picks, g.id);
+    for(const g of STATIC_MISSING_RESULTS_TO_63){
+      const pick = pickForGame(picks, g.id) || (g.id === 'FINAL' ? championPick(picks) : null);
       if(!pick) continue;
       if(challenge === 'best'){
         if(teamNameEq(pick, g.winner)) bonus += 1;
@@ -132,9 +133,9 @@ async function augmentStaticLeaderboardTo62(env, rows, challenge, viewerIsAdmin)
       }
     }
     const x = Number(r.x || 0) + bonus;
-    const y = 62;
+    const y = 63;
     const score = x * 10;
-    const total_possible = score + 10;
+    const total_possible = score;
     const title = info?.title || r.title || r.display_name || 'Bracket';
     return {
       ...r,
@@ -233,11 +234,11 @@ export async function onRequestGet({ request, env }){
   }
 
   // Static spreadsheet-based override for the overall pre-stage leaderboards.
-  // We augment the original 56-game sheet with the missing Elite Eight + Final Four results
+  // We augment the original sheet with the missing Elite Eight + Final Four + Championship results
   // so admin can recover the main leaderboards even when the games table is sparse.
   if(!groupId && stage === 'pre'){
     let staticRows = challenge === 'best' ? STATIC_BEST_LEADERBOARD : STATIC_WORST_LEADERBOARD;
-    staticRows = await augmentStaticLeaderboardTo62(env, staticRows, challenge, viewerIsAdmin);
+    staticRows = await augmentStaticLeaderboardTo63(env, staticRows, challenge, viewerIsAdmin);
     return json({
       ok:true,
       leaderboard: staticRows,
@@ -245,7 +246,7 @@ export async function onRequestGet({ request, env }){
       me_user_id,
       is_admin: viewerIsAdmin,
       total_games: 63,
-      finalized_games: 62
+      finalized_games: 63
     });
   }
 

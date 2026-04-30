@@ -1,7 +1,7 @@
 // Auto-generated from workbook + Final Four results. Static leaderboard source of truth.
 export const STATIC_LEADERBOARD_META = {
-  "games_played": 62,
-  "updated_for": "62 main games / through Final Four (championship pending)"
+  "games_played": 63,
+  "updated_for": "63 main games / through Championship (Michigan over UConn)"
 };
 
 export const STATIC_BEST_LEADERBOARD = [
