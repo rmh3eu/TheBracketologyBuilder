@@ -1,0 +1,1 @@
+Fixes main Best/Worst static leaderboard fallback to report and score 63 games, including FINAL: Michigan over UConn. Also updates leaderboard page labels and second chance static results to 15 games.
